@@ -85,7 +85,7 @@ MCLA_介绍.pptx
 # ========== 备份目录（不上传）==========
 LNTP/
 build/
-
+.github/
 # ========== 临时图片（不上传）==========
 StarLight.Corelogo.png
 
