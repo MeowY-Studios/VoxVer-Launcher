@@ -1421,6 +1421,70 @@
         <!-- /sec-body -->
       </section>
 
+      <!-- ========== 调试与诊断 ========== -->
+      <section class="sec">
+        <h3 class="sec-title" @click="toggleSec('debug')">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          调试与诊断
+          <svg
+            class="toggle-icon"
+            :class="{ open: collapsed.debug }"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </h3>
+        <div class="sec-body" v-show="collapsed.debug">
+          <p class="sec-desc">调试模式会记录更详细的日志，便于排查问题。导出诊断日志可将日志打包，方便提交 Bug 报告。</p>
+
+          <div class="row">
+            <div class="row-main">
+              <label class="row-label">调试模式</label>
+              <p class="row-desc">记录 DEBUG 级别日志（重启后生效）</p>
+            </div>
+            <div class="row-control">
+              <label class="toggle">
+                <input type="checkbox" v-model="s.debugMode" @change="toggleDebugMode" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="row-main">
+              <label class="row-label">导出诊断日志</label>
+              <p class="row-desc">将日志和应用信息打包为 .zip，用于 Bug 报告</p>
+            </div>
+            <div class="row-control">
+              <button class="action-btn" @click="exportDiagnostics" :disabled="isExportingDiagnostics">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                {{ isExportingDiagnostics ? '导出中...' : '导出日志' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="sec">
         <h3 class="sec-title">
           <svg
@@ -1569,7 +1633,8 @@ const collapsed = reactive<Record<string, boolean>>({
   hotkey: true, // P2: 全局快捷键
   themeAdvanced: false, // P2: 主题自定义增强
   modpack: true, // P2: 整合包工具
-  backup: true // P2: 数据备份
+  backup: true, // P2: 数据备份
+  debug: true // v0.5.3: 调试与诊断
 })
 function toggleSec(key: string) {
   collapsed[key] = !collapsed[key]
@@ -1678,7 +1743,10 @@ const s = reactive({
 
   // P2: 数据备份
   backupLastTime: '',
-  backupFile: ''
+  backupFile: '',
+
+  // v0.5.3: 调试模式
+  debugMode: false
 })
 
 // P2 状态变量
@@ -1687,6 +1755,9 @@ const modpackProgress = ref({ stage: '', progress: 0, currentFile: '' })
 const backupProgress = ref({ stage: '', progress: 0, currentItem: '' })
 const isWorkingModpack = ref(false)
 const isWorkingBackup = ref(false)
+
+// v0.5.3: 诊断日志导出状态
+const isExportingDiagnostics = ref(false)
 const backupFiles = ref<any[]>([])
 
 // 更新检查状态
@@ -2316,6 +2387,54 @@ async function deleteBackup(fileName: string) {
       body: `删除失败: ${e.message}`,
       type: 'error'
     })
+  }
+}
+
+// ====== v0.5.3: 调试与诊断 ======
+async function toggleDebugMode() {
+  try {
+    const level = s.debugMode ? 'DEBUG' : 'INFO'
+    await window.electronAPI?.logger?.setLevel(level)
+    window.electronAPI?.notification?.send({
+      title: '调试模式',
+      body: s.debugMode ? '已开启调试模式，重启后生效' : '已关闭调试模式',
+      type: 'info'
+    })
+  } catch (e: any) {
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: `设置日志级别失败: ${e.message}`,
+      type: 'error'
+    })
+  }
+}
+
+async function exportDiagnostics() {
+  if (isExportingDiagnostics.value) return
+  isExportingDiagnostics.value = true
+  try {
+    const result = await window.electronAPI?.logger?.exportDiagnostics()
+    if (result?.ok) {
+      window.electronAPI?.notification?.send({
+        title: '导出成功',
+        body: `诊断日志已保存到: ${result.path}`,
+        type: 'success'
+      })
+    } else {
+      window.electronAPI?.notification?.send({
+        title: '导出失败',
+        body: result?.error || '未知错误',
+        type: 'error'
+      })
+    }
+  } catch (e: any) {
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: `导出诊断日志失败: ${e.message}`,
+      type: 'error'
+    })
+  } finally {
+    isExportingDiagnostics.value = false
   }
 }
 

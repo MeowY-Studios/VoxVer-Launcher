@@ -5,9 +5,10 @@
  * 支持控制台输出 + 文件持久化 + IPC 通道转发。
  */
 
-import { app } from 'electron'
+import { app, dialog } from 'electron'
 import { join } from 'path'
-import { mkdirSync, appendFileSync, existsSync } from 'fs'
+import { mkdirSync, appendFileSync, existsSync, readdirSync, readFileSync, writeFileSync, createWriteStream } from 'fs'
+import * as archiver from 'archiver'
 
 type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR'
 const LEVEL_ORDER: Record<LogLevel, number> = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3 }
@@ -139,4 +140,67 @@ export function setFileLogging(enabled: boolean): void {
 /** 获取日志目录 */
 export function getLogDir(): string {
   return getLogDirLazy()
+}
+
+/** 导出诊断日志（供用户报告问题时使用） */
+export async function exportDiagnostics(): Promise<{ ok: boolean; path?: string; error?: string }> {
+  try {
+    const logDir = getLogDirLazy()
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+    const defaultName = `MCLA-Diagnostics-${timestamp}.zip`
+
+    const { filePath, canceled } = await dialog.showSaveDialog({
+      title: '导出诊断日志',
+      defaultPath: join(app.getPath('downloads'), defaultName),
+      filters: [{ name: 'ZIP 压缩包', extensions: ['zip'] }]
+    })
+
+    if (canceled || !filePath) {
+      return { ok: false, error: '用户取消' }
+    }
+
+    const zip = archiver('zip', { zlib: { level: 9 } })
+    const output = createWriteStream(filePath)
+
+    await new Promise<void>((resolve, reject) => {
+      output.on('close', () => resolve())
+      zip.on('error', (err: Error) => reject(err))
+      zip.pipe(output)
+
+      // 添加日志文件
+      if (existsSync(logDir)) {
+        const files = readdirSync(logDir).filter((f) => f.endsWith('.log'))
+        for (const file of files) {
+          const content = readFileSync(join(logDir, file), 'utf-8')
+          zip.append(content, { name: `logs/${file}` })
+        }
+      }
+
+      // 添加应用信息
+      const appInfo = {
+        version: app.getVersion(),
+        platform: process.platform,
+        arch: process.arch,
+        electronVersion: process.versions.electron,
+        nodeVersion: process.versions.node,
+        chromeVersion: process.versions.chrome,
+        exportTime: new Date().toISOString(),
+        logLevel: currentLevel,
+        fileLogging
+      }
+      zip.append(JSON.stringify(appInfo, null, 2), { name: 'app-info.json' })
+
+      // 添加环境变量（脱敏）
+      const safeEnv = { ...process.env }
+      delete safeEnv['MCLA_TOKEN']
+      delete safeEnv['MCLA_API_KEY']
+      zip.append(JSON.stringify(safeEnv, null, 2), { name: 'environment.json' })
+
+      zip.finalize()
+    })
+
+    return { ok: true, path: filePath }
+  } catch (error: any) {
+    return { ok: false, error: error.message || '导出失败' }
+  }
 }

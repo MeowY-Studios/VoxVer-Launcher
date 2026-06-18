@@ -25,6 +25,7 @@ import { registerHotkeyHandlers } from './hotkey.ipc'
 import { registerThemeHandlers } from './theme.ipc'
 import { registerBackupHandlers } from './backup.ipc'
 import { registerUpdaterHandlers } from './updater.ipc'
+import { registerLoggerHandlers } from './logger.ipc'
 import { logger } from '../utils/logger'
 const log = logger.child('IPC')
 
@@ -186,6 +187,14 @@ export function registerAllIpcHandlers(
     log.info('[IPC] backup handlers registered')
   } catch (e: any) {
     log.error('[IPC] backup handlers FAILED:', e.message)
+  }
+
+  // 日志系统（诊断导出 + 日志级别控制）
+  try {
+    registerLoggerHandlers()
+    log.info('[IPC] logger handlers registered')
+  } catch (e: any) {
+    log.error('[IPC] logger handlers FAILED:', e.message)
   }
 }
 

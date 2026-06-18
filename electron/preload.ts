@@ -571,6 +571,13 @@ const api = {
       ipcRenderer.on('backup:progress', listener)
       return () => ipcRenderer.removeListener('backup:progress', listener)
     }
+  },
+
+  // 日志系统（诊断导出 + 日志级别控制）
+  logger: {
+    setLevel: (level: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR') =>
+      ipcRenderer.invoke('logger:set-level', level),
+    exportDiagnostics: () => ipcRenderer.invoke('logger:export-diagnostics')
   }
 }
 
