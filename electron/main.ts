@@ -214,6 +214,7 @@ app.whenReady().then(() => {
 
   // 注册自定义协议
   if (process.platform === 'win32') {
+    app.setAppUserModelId(isDev() ? process.execPath : 'com.mcla.launcher')
     app.setAsDefaultProtocolClient(PROTOCOL_NAME)
   } else {
     app.setAsDefaultProtocolClient(PROTOCOL_NAME)
@@ -230,37 +231,7 @@ app.whenReady().then(() => {
     }
   }
 
-  // Windows：设置 AppUserModelID，让任务栏图标正确显示
-  if (process.platform === 'win32') {
-    app.setAppUserModelId(isDev() ? process.execPath : 'com.mcla.launcher')
-  }
-
-  // 初始化数据库（只调一次）
-  const db = initDatabase()
-
-  // 初始化服务（赋值到模块级变量供 IPC 使用）
-  versionsService = new VersionsService(db)
-  modLoaderService = new ModLoaderService()
-
-  // 初始化下载服务
-  const downloadService = new DownloadService(db)
-
-  // 初始化内容服务（CurseForge + Modrinth）
-  // 优先从数据库配置获取，其次从环境变量获取
-  const cfApiKey = getSecureConfig('curseforge_api_key') || process.env.CURSEFORGE_API_KEY || ''
-  if (!cfApiKey) {
-    log.warn('[Content Service] CurseForge API Key not configured, some features may be limited')
-  }
-  initializeContentService(cfApiKey, 'MCLA-Launcher/1.0', downloadService)
-
-  // 初始化崩溃分析服务
-  crashService = new CrashService()
-
-  // 初始化 Mod 管理服务
-  modService = new ModService()
-
   app.on('browser-window-created', (_, window) => {
-    // 开发环境下 F12 切换 DevTools
     window.webContents.on('before-input-event', (_e, input) => {
       if (input.type === 'keyDown' && input.key === 'F12') {
         if (window.webContents.isDevToolsOpened()) {
@@ -272,32 +243,72 @@ app.whenReady().then(() => {
     })
   })
 
+  // ========== 快速路径：立即创建窗口，减少白屏时间 ==========
   const win = createWindow()
+  writeLog('Window created, renderer loading started')
 
-  // 注册全局快捷键回调（触发启动游戏、显示/隐藏窗口等）
-  try {
-    setHotkeyActionCallback((action) => {
-      if (action === 'launch-game') {
-        log.info('[Hotkey] 触发全局快捷键：启动游戏')
-        // 通过 IPC 通知前端，由前端协调启动流程
-        if (win && !win.isDestroyed()) {
-          win.webContents.send('hotkey:trigger', { action: 'launch-game' })
-        }
-      } else if (action === 'toggle-window') {
-        log.info('[Hotkey] 触发全局快捷键：切换窗口显示')
-        if (win && !win.isDestroyed()) {
-          if (win.isVisible()) win.hide()
-          else win.show()
-        }
+  // ========== 异步并行初始化服务 ==========
+  const initStartTime = Date.now()
+
+  // 阶段1：关键服务（数据库 + 核心服务）
+  const db = initDatabase()
+  versionsService = new VersionsService(db)
+  modLoaderService = new ModLoaderService()
+  crashService = new CrashService()
+  modService = new ModService()
+
+  // 阶段2：非关键服务并行初始化（不阻塞窗口显示）
+  Promise.all([
+    (async () => {
+      const downloadService = new DownloadService(db)
+      const cfApiKey = getSecureConfig('curseforge_api_key') || process.env.CURSEFORGE_API_KEY || ''
+      if (!cfApiKey) {
+        log.warn('[Content Service] CurseForge API Key not configured, some features may be limited')
       }
-    })
-    registerAllEnabledHotkeys()
-    log.info('[Main] 全局快捷键系统初始化完成')
-  } catch (e: any) {
-    log.warn('[Main] 全局快捷键初始化失败:', e.message)
+      initializeContentService(cfApiKey, 'MCLA-Launcher/1.0', downloadService)
+      log.info('[Init] Content service initialized')
+    })(),
+    (async () => {
+      try {
+        setHotkeyActionCallback((action) => {
+          if (action === 'launch-game') {
+            log.info('[Hotkey] 触发全局快捷键：启动游戏')
+            if (win && !win.isDestroyed()) {
+              win.webContents.send('hotkey:trigger', { action: 'launch-game' })
+            }
+          } else if (action === 'toggle-window') {
+            log.info('[Hotkey] 触发全局快捷键：切换窗口显示')
+            if (win && !win.isDestroyed()) {
+              if (win.isVisible()) win.hide()
+              else win.show()
+            }
+          }
+        })
+        registerAllEnabledHotkeys()
+        log.info('[Init] Hotkey service initialized')
+      } catch (e: any) {
+        log.warn('[Init] Hotkey service init failed:', e.message)
+      }
+    })(),
+    (async () => {
+      initAutoUpdater(win)
+      log.info('[Init] Auto updater initialized')
+    })()
+  ]).then(() => {
+    log.info(`[Init] All services initialized in ${Date.now() - initStartTime}ms`)
+  }).catch((err) => {
+    log.error('[Init] Service initialization failed:', err)
+  })
+
+  // ========== 注册 IPC 处理器 ==========
+  try {
+    registerIpcHandlers(win)
+    writeLog('>>> Handlers registered successfully')
+  } catch (err: any) {
+    writeLog('[IPC] >>> Handlers registration FAILED:', err.message, err.stack)
   }
 
-  // 如果有挂起的分享码，通知渲染进程
+  // ========== 延迟任务 ==========
   if (pendingShareCode) {
     win.webContents.once('did-finish-load', () => {
       win.webContents.send('share:protocol-invoke', { shareCode: pendingShareCode })
@@ -306,41 +317,25 @@ app.whenReady().then(() => {
     })
   }
 
-  // 初始化自动更新服务
-  initAutoUpdater(win)
-
-  // 注册所有 IPC 处理器
-  try {
-    registerIpcHandlers(win)
-    writeLog('>>> Handlers registered successfully')
-
-    // 启动时回填旧账户缺失的 xuid（修复旧版本创建的账户）
-    // 延迟调用，等待渲染进程就绪
-    setTimeout(async () => {
-      try {
-        if (win && !win.isDestroyed()) {
-          const result = await win.webContents.executeJavaScript(`
-            window.electronAPI?.account?.backfillXuid?.()
-              .then(r => JSON.stringify(r))
-              .catch(e => JSON.stringify({ok:false, error: e.message}))
-          `)
-          writeLog('[startup] xuid 回填结果:', result)
-        }
-      } catch (e: any) {
-        writeLog('[startup] xuid 回填失败:', e.message)
+  setTimeout(async () => {
+    try {
+      if (win && !win.isDestroyed()) {
+        const result = await win.webContents.executeJavaScript(`
+          window.electronAPI?.account?.backfillXuid?.()
+            .then(r => JSON.stringify(r))
+            .catch(e => JSON.stringify({ok:false, error: e.message}))
+        `)
+        writeLog('[startup] xuid 回填结果:', result)
       }
-    }, 3000)
+    } catch (e: any) {
+      writeLog('[startup] xuid 回填失败:', e.message)
+    }
+  }, 3000)
 
-    // 启动 5 秒后检查更新
-    setTimeout(() => {
-      checkForUpdates()
-    }, 5000)
-  } catch (err: any) {
-    writeLog('[IPC] >>> Handlers registration FAILED:', err.message, err.stack)
-  }
+  setTimeout(() => {
+    checkForUpdates()
+  }, 5000)
 
-  // activate：重建窗口，但不重复注册 IPC handlers（已在 whenReady 中注册过）
-  // 仅更新各 IPC 模块中的 mainWindow 引用
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       const newWin = createWindow()

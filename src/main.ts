@@ -22,3 +22,13 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 app.mount('#app')
+
+setTimeout(() => {
+  const splashScreen = document.getElementById('splash-screen')
+  if (splashScreen) {
+    splashScreen.classList.add('hidden')
+    setTimeout(() => {
+      splashScreen.remove()
+    }, 300)
+  }
+}, 500)
