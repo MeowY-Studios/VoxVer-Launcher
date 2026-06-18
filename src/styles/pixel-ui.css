@@ -372,7 +372,7 @@ svg[class*="mcla-icon"] {
   border: none;
   border-radius: var(--mcla-radius-md);
   cursor: pointer;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--mcla-transition-normal);
   text-decoration: none;
   white-space: nowrap;
   user-select: none;
@@ -381,10 +381,10 @@ svg[class*="mcla-icon"] {
 }
 
 .mcla-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--mcla-shadow-md);
+  transform: translateY(-2px);
+  box-shadow: var(--mcla-shadow-lg);
 }
-.mcla-btn:active { transform: translateY(0); box-shadow: none; }
+.mcla-btn:active { transform: translateY(-1px); box-shadow: var(--mcla-shadow-md); }
 .mcla-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
 /* Primary — 渐变主按钮 */
