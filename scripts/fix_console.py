@@ -26,7 +26,7 @@ FILES = {
     'electron/services/mod.service.ts': 'ModService',
     'electron/services/modloader.service.ts': 'ModLoaderService',
     'electron/services/modloader.ts': 'ModLoader',
-    'electron/services/notification.ts': 'Notification',
+    'electron/services/notification.service.ts': 'Notification',
     'electron/services/versions.ts': 'VersionsService',
     'electron/services/watcher.service.ts': 'WatcherService',
 }
@@ -51,7 +51,7 @@ IMPORT_PATHS = {
     'electron/services/mod.service.ts': '../utils/logger',
     'electron/services/modloader.service.ts': '../utils/logger',
     'electron/services/modloader.ts': '../utils/logger',
-    'electron/services/notification.ts': '../utils/logger',
+    'electron/services/notification.service.ts': '../utils/logger',
     'electron/services/versions.ts': '../utils/logger',
     'electron/services/watcher.service.ts': '../utils/logger',
 }

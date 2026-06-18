@@ -2,7 +2,7 @@
  * 通知系统 IPC Handlers
  */
 import { ipcMain, BrowserWindow } from 'electron'
-import * as notification from '../services/notification'
+import * as notification from '../services/notification.service'
 
 export function registerNotificationHandlers(): void {
   // 推送通知到渲染进程
