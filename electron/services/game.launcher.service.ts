@@ -10,7 +10,12 @@ import * as path from 'path'
 import * as https from 'https'
 import * as http from 'http'
 const { join } = path
-import { getDefaultJava, validateJava, recommendedJavaMajor, probeJava } from './java.management.service'
+import {
+  getDefaultJava,
+  validateJava,
+  recommendedJavaMajor,
+  probeJava
+} from './java.management.service'
 import { updateLastPlayed } from './instances'
 import { getDatabase } from './database'
 import { logger } from '../utils/logger'
@@ -279,7 +284,12 @@ class MinecraftLauncher {
 
     log.info(`[validateJava] 游戏版本: ${baseVersion}, 推荐 Java 主版本: ${recommendedMajor}`)
 
-    let selectedJava: { path: string; vendor: string; version: string; majorVersion: number } | null = null
+    let selectedJava: {
+      path: string
+      vendor: string
+      version: string
+      majorVersion: number
+    } | null = null
 
     // 如果配置了路径，验证后使用
     if (configJavaPath && fs.existsSync(configJavaPath)) {
@@ -432,7 +442,7 @@ class MinecraftLauncher {
 
     for (const rule of rules) {
       const osMatches = !rule.os?.name || rule.os.name === process.platform
-      
+
       if (rule.action === 'allow' && osMatches) {
         allowed = true
       } else if (rule.action === 'disallow' && osMatches) {
@@ -585,7 +595,9 @@ class MinecraftLauncher {
       }
     }
 
-    log.info(`[buildClasspath] 库文件统计: 总计=${totalCount}, 有效=${cp.length}, 缺失=${missingCount}`)
+    log.info(
+      `[buildClasspath] 库文件统计: 总计=${totalCount}, 有效=${cp.length}, 缺失=${missingCount}`
+    )
 
     const versionJar = join(root, 'versions', version, `${version}.jar`)
     if (fs.existsSync(versionJar)) {
@@ -917,7 +929,9 @@ class MinecraftLauncher {
       log.info(`[spawnProcess] 类路径预览: `)
       cpFiles.slice(0, 3).forEach((f, i) => log.info(`[spawnProcess]   [${i + 1}] ${f}`))
       log.info(`[spawnProcess]   ... 省略 ${cpFiles.length - 6} 个文件 ...`)
-      cpFiles.slice(-3).forEach((f, i) => log.info(`[spawnProcess]   [${cpFiles.length - 2 + i}] ${f}`))
+      cpFiles
+        .slice(-3)
+        .forEach((f, i) => log.info(`[spawnProcess]   [${cpFiles.length - 2 + i}] ${f}`))
     } else {
       log.info(`[spawnProcess] 完整类路径: ${classpathStr}`)
     }

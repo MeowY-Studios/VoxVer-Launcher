@@ -76,7 +76,11 @@ export function saveTheme(settings: ThemeSettings): void {
 /**
  * 将用户选择的背景图片复制到 userData 目录，返回相对文件名
  */
-export function importBackgroundImage(sourcePath: string): { ok: boolean; localPath?: string; error?: string } {
+export function importBackgroundImage(sourcePath: string): {
+  ok: boolean
+  localPath?: string
+  error?: string
+} {
   try {
     if (!fs.existsSync(sourcePath)) {
       return { ok: false, error: '图片文件不存在' }
@@ -178,7 +182,13 @@ function isValidHex(hex: string): boolean {
 
 function adjustHex(hex: string, offset: number): string {
   const clean = hex.replace('#', '')
-  const full = clean.length === 3 ? clean.split('').map((c) => c + c).join('') : clean
+  const full =
+    clean.length === 3
+      ? clean
+          .split('')
+          .map((c) => c + c)
+          .join('')
+      : clean
   let r = parseInt(full.slice(0, 2), 16)
   let g = parseInt(full.slice(2, 4), 16)
   let b = parseInt(full.slice(4, 6), 16)
@@ -190,7 +200,13 @@ function adjustHex(hex: string, offset: number): string {
 
 function hexToRgba(hex: string, alpha: number): string {
   const clean = hex.replace('#', '')
-  const full = clean.length === 3 ? clean.split('').map((c) => c + c).join('') : clean
+  const full =
+    clean.length === 3
+      ? clean
+          .split('')
+          .map((c) => c + c)
+          .join('')
+      : clean
   const r = parseInt(full.slice(0, 2), 16)
   const g = parseInt(full.slice(2, 4), 16)
   const b = parseInt(full.slice(4, 6), 16)

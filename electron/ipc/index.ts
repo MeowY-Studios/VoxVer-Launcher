@@ -17,7 +17,7 @@ import { registerDialogHandlers } from './dialog.ipc'
 import { registerCrashIpcHandlers } from './crash.ipc'
 import { registerModIpcHandlers } from './mod.ipc'
 import { registerModLoaderHandlers } from './modloader.ipc'
-import { registerNotificationHandlers } from './notification.ipc' 
+import { registerNotificationHandlers } from './notification.ipc'
 import { updateModLoaderMainWindow } from './modloader.ipc'
 import { registerShareHandlers, setShareMainWindow } from './share.ipc'
 import { registerModpackHandlers } from './modpack.ipc'
@@ -187,7 +187,6 @@ export function registerAllIpcHandlers(
   } catch (e: any) {
     log.error('[IPC] backup handlers FAILED:', e.message)
   }
-
 }
 
 /**

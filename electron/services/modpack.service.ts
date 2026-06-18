@@ -38,7 +38,10 @@ export interface ModpackManifest {
 export interface ModpackFile {
   path: string
   hashes: { sha1: string; sha512?: string }
-  env?: { client: 'required' | 'optional' | 'unsupported'; server: 'required' | 'optional' | 'unsupported' }
+  env?: {
+    client: 'required' | 'optional' | 'unsupported'
+    server: 'required' | 'optional' | 'unsupported'
+  }
   downloads: string[]
   fileSize: number
 }

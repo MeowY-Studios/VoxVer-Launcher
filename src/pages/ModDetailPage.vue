@@ -320,9 +320,7 @@
             </p>
           </div>
           <div class="confirm-actions">
-            <button class="btn-cancel" @click="cancelInstallConfirm">
-              取消
-            </button>
+            <button class="btn-cancel" @click="cancelInstallConfirm">取消</button>
             <button class="btn-confirm" @click="confirmDownload">
               {{ currentInstance ? '确认安装' : '确认下载' }}
             </button>

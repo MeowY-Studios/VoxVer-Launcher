@@ -15,21 +15,21 @@ const log = logger.child('JavaService')
  * Java信息接口 - 包含完整的Java环境信息
  */
 export interface JavaInfo {
-  id: string                    // 唯一标识符
-  path: string                 // java可执行文件完整路径
-  javaHome: string             // Java安装根目录
-  version: string              // 完整版本号（如17.0.9+8）
-  majorVersion: number         // 主版本号（8/11/17/21等）
-  vendor: string               // 供应商（Oracle/OpenJDK/Eclipse Temurin等）
-  arch: '64' | '32'            // 架构类型
-  isJdk: boolean               // 是否为JDK（包含javac）
-  isJre: boolean               // 是否为JRE
-  isInPath: boolean            // 是否在PATH环境变量中
-  isJavaHome: boolean          // 是否为当前JAVA_HOME指向的Java
-  isDefault: boolean           // 是否为默认Java
-  installationPath: string     // 安装路径
-  detectedFrom: string         // 检测来源（PATH/Registry/CommonLocation等）
-  lastVerified: string         // 最后验证时间
+  id: string // 唯一标识符
+  path: string // java可执行文件完整路径
+  javaHome: string // Java安装根目录
+  version: string // 完整版本号（如17.0.9+8）
+  majorVersion: number // 主版本号（8/11/17/21等）
+  vendor: string // 供应商（Oracle/OpenJDK/Eclipse Temurin等）
+  arch: '64' | '32' // 架构类型
+  isJdk: boolean // 是否为JDK（包含javac）
+  isJre: boolean // 是否为JRE
+  isInPath: boolean // 是否在PATH环境变量中
+  isJavaHome: boolean // 是否为当前JAVA_HOME指向的Java
+  isDefault: boolean // 是否为默认Java
+  installationPath: string // 安装路径
+  detectedFrom: string // 检测来源（PATH/Registry/CommonLocation等）
+  lastVerified: string // 最后验证时间
 }
 
 /**
@@ -62,14 +62,9 @@ export async function detectAllJava(
   onProgress?: (progress: DetectionProgress) => void
 ): Promise<JavaInfo[]> {
   log.info('[JavaService] 开始全面Java环境扫描')
-  
-  const steps = [
-    '检查环境变量',
-    '扫描常见安装目录',
-    '检查系统特定位置',
-    '验证检测到的Java'
-  ]
-  
+
+  const steps = ['检查环境变量', '扫描常见安装目录', '检查系统特定位置', '验证检测到的Java']
+
   const updateProgress = (step: number, message: string) => {
     if (onProgress) {
       onProgress({
@@ -82,7 +77,7 @@ export async function detectAllJava(
   }
 
   updateProgress(1, '正在检查环境变量')
-  
+
   const candidates: string[] = []
   const results: JavaInfo[] = []
   const seen = new Set<string>()
@@ -93,35 +88,35 @@ export async function detectAllJava(
     const pathCandidates = await findInPath()
     candidates.push(...pathCandidates)
     log.info(`[JavaService] 从PATH中找到 ${pathCandidates.length} 个Java候选`)
-    
+
     updateProgress(2, '正在扫描常见安装目录')
-    
+
     // 根据操作系统收集其他候选
     if (process.platform === 'win32') {
-      candidates.push(...await getWindowsCandidates())
+      candidates.push(...(await getWindowsCandidates()))
     } else if (process.platform === 'darwin') {
-      candidates.push(...await getMacCandidates())
+      candidates.push(...(await getMacCandidates()))
     } else {
-      candidates.push(...await getLinuxCandidates())
+      candidates.push(...(await getLinuxCandidates()))
     }
-    
+
     log.info(`[JavaService] 共收集到 ${candidates.length} 个Java候选路径`)
-    
+
     updateProgress(3, '正在检查系统特定位置')
-    
+
     // 2. 去重并验证
     updateProgress(4, '正在验证检测到的Java')
-    
+
     for (let i = 0; i < candidates.length; i++) {
       const javaExe = candidates[i]
-      
+
       if (seen.has(javaExe)) continue
       seen.add(javaExe)
-      
+
       if (!fs.existsSync(javaExe)) {
         continue
       }
-      
+
       log.info(`[JavaService] 正在验证 Java: ${javaExe}`)
       const info = await probeJava(javaExe)
       if (info) {
@@ -129,7 +124,6 @@ export async function detectAllJava(
         log.info(`[JavaService] 成功检测到 Java: ${info.vendor} ${info.version}`)
       }
     }
-    
   } catch (error) {
     log.error('[JavaService] Java检测过程出错:', error)
   }
@@ -267,7 +261,10 @@ export async function validateJava(javaPath: string): Promise<ValidationResult> 
     }
 
     // 检查是否有javac（判断是否为JDK）
-    const javacPath = path.join(path.dirname(javaPath), process.platform === 'win32' ? 'javac.exe' : 'javac')
+    const javacPath = path.join(
+      path.dirname(javaPath),
+      process.platform === 'win32' ? 'javac.exe' : 'javac'
+    )
     if (fs.existsSync(javacPath)) {
       try {
         const javacOutput = execSync(`"${javacPath}" -version 2>&1`, {
@@ -315,30 +312,32 @@ export async function findBestJava(mcVersion?: string): Promise<JavaInfo | null>
  */
 async function findInPath(): Promise<string[]> {
   const candidates: string[] = []
-  
+
   try {
     const pathEnv = process.env.PATH || ''
     const pathDirs = pathEnv.split(process.platform === 'win32' ? ';' : ':')
-    
+
     for (const dir of pathDirs) {
       if (!dir.trim()) continue
-      
-      const javaExe = process.platform === 'win32' 
-        ? path.join(dir, 'java.exe')
-        : path.join(dir, 'java')
-      
+
+      const javaExe =
+        process.platform === 'win32' ? path.join(dir, 'java.exe') : path.join(dir, 'java')
+
       if (fs.existsSync(javaExe)) {
         candidates.push(javaExe)
       }
     }
-    
+
     // 尝试使用系统命令查找
     try {
       const cmd = process.platform === 'win32' ? 'where java' : 'which -a java'
       const output = execSync(cmd, { timeout: 3000 }).toString().trim()
-      
+
       if (output) {
-        const paths = output.split('\n').map(p => p.trim()).filter(p => p)
+        const paths = output
+          .split('\n')
+          .map((p) => p.trim())
+          .filter((p) => p)
         for (const p of paths) {
           if (fs.existsSync(p) && !candidates.includes(p)) {
             candidates.push(p)
@@ -346,11 +345,10 @@ async function findInPath(): Promise<string[]> {
         }
       }
     } catch {}
-    
   } catch (error) {
     log.warn('[JavaService] 从PATH查找Java失败:', error)
   }
-  
+
   return candidates
 }
 
@@ -359,7 +357,7 @@ async function findInPath(): Promise<string[]> {
  */
 async function getWindowsCandidates(): Promise<string[]> {
   const candidates: string[] = []
-  
+
   const pf = process.env['ProgramFiles'] || 'C:\\Program Files'
   const pf86 = process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)'
   const local = process.env['LOCALAPPDATA'] || ''
@@ -398,10 +396,30 @@ async function getWindowsCandidates(): Promise<string[]> {
   ]
 
   const versions = [
-    'jdk-24', 'jdk-23', 'jdk-22', 'jdk-21', 'jdk-20', 'jdk-19', 'jdk-18', 'jdk-17',
-    'jdk-16', 'jdk-15', 'jdk-14', 'jdk-13', 'jdk-12', 'jdk-11',
-    'jdk-10', 'jdk-9', 'jdk-8', 'jre-8', 'jdk1.8.0',
-    'jre-11', 'jre-17', 'jre-21', 'jre-22', 'jre-23',
+    'jdk-24',
+    'jdk-23',
+    'jdk-22',
+    'jdk-21',
+    'jdk-20',
+    'jdk-19',
+    'jdk-18',
+    'jdk-17',
+    'jdk-16',
+    'jdk-15',
+    'jdk-14',
+    'jdk-13',
+    'jdk-12',
+    'jdk-11',
+    'jdk-10',
+    'jdk-9',
+    'jdk-8',
+    'jre-8',
+    'jdk1.8.0',
+    'jre-11',
+    'jre-17',
+    'jre-21',
+    'jre-22',
+    'jre-23',
     'jre'
   ]
 
@@ -429,14 +447,17 @@ async function getWindowsCandidates(): Promise<string[]> {
         }
       } catch {}
     }
-    
+
     // 检查根目录下的所有可能的JDK/JRE目录
     try {
       if (fs.existsSync(root)) {
         const dirs = fs.readdirSync(root)
         for (const dir of dirs) {
-          if (dir.toLowerCase().includes('jdk') || dir.toLowerCase().includes('jre') || 
-              dir.toLowerCase().includes('java')) {
+          if (
+            dir.toLowerCase().includes('jdk') ||
+            dir.toLowerCase().includes('jre') ||
+            dir.toLowerCase().includes('java')
+          ) {
             const javaPath = path.join(root, dir, 'bin', 'java.exe')
             if (fs.existsSync(javaPath)) {
               candidates.push(javaPath)
@@ -493,7 +514,7 @@ async function getWindowsCandidates(): Promise<string[]> {
  */
 async function getWindowsRegistryJavaPaths(): Promise<string[]> {
   const candidates: string[] = []
-  
+
   try {
     // 使用reg query命令查询注册表
     const registryPaths = [
@@ -507,14 +528,14 @@ async function getWindowsRegistryJavaPaths(): Promise<string[]> {
       'HKLM\\SOFTWARE\\WOW6432Node\\JavaSoft\\Java Runtime Environment',
       'HKLM\\SOFTWARE\\WOW6432Node\\JavaSoft\\JDK'
     ]
-    
+
     for (const regPath of registryPaths) {
       try {
-        const output = execSync(`reg query "${regPath}" /s /f "JavaHome" /t REG_SZ 2>nul`, { 
+        const output = execSync(`reg query "${regPath}" /s /f "JavaHome" /t REG_SZ 2>nul`, {
           encoding: 'utf-8',
           timeout: 5000
         })
-        
+
         if (output) {
           // 解析JavaHome路径
           const lines = output.split('\n')
@@ -536,7 +557,7 @@ async function getWindowsRegistryJavaPaths(): Promise<string[]> {
   } catch (error) {
     log.warn('[JavaService] 注册表查询失败:', error)
   }
-  
+
   return candidates
 }
 
@@ -545,7 +566,7 @@ async function getWindowsRegistryJavaPaths(): Promise<string[]> {
  */
 async function getMacCandidates(): Promise<string[]> {
   const candidates: string[] = []
-  
+
   // 标准Java安装目录
   const standardPaths = [
     '/Library/Java/JavaVirtualMachines',
@@ -555,27 +576,28 @@ async function getMacCandidates(): Promise<string[]> {
     '/opt/homebrew/Cellar',
     '/usr/local/Cellar'
   ]
-  
+
   for (const basePath of standardPaths) {
     if (!fs.existsSync(basePath)) continue
-    
+
     try {
       const dirs = fs.readdirSync(basePath)
       for (const dir of dirs) {
-        if (dir.toLowerCase().includes('java') || 
-            dir.toLowerCase().includes('jdk') || 
-            dir.toLowerCase().includes('jre') ||
-            dir.toLowerCase().includes('temurin') ||
-            dir.toLowerCase().includes('openjdk') ||
-            dir.toLowerCase().includes('zulu')) {
-          
+        if (
+          dir.toLowerCase().includes('java') ||
+          dir.toLowerCase().includes('jdk') ||
+          dir.toLowerCase().includes('jre') ||
+          dir.toLowerCase().includes('temurin') ||
+          dir.toLowerCase().includes('openjdk') ||
+          dir.toLowerCase().includes('zulu')
+        ) {
           // 尝试不同的路径结构
           const possiblePaths = [
             path.join(basePath, dir, 'Contents', 'Home', 'bin', 'java'),
             path.join(basePath, dir, 'bin', 'java'),
             path.join(basePath, dir, 'libexec', 'openjdk.jdk', 'Contents', 'Home', 'bin', 'java')
           ]
-          
+
           for (const javaPath of possiblePaths) {
             if (fs.existsSync(javaPath) && !candidates.includes(javaPath)) {
               candidates.push(javaPath)
@@ -585,18 +607,18 @@ async function getMacCandidates(): Promise<string[]> {
       }
     } catch {}
   }
-  
+
   // Homebrew检查
   try {
-    const brewOutput = execSync('brew list --formula 2>/dev/null | grep -i java', { 
+    const brewOutput = execSync('brew list --formula 2>/dev/null | grep -i java', {
       encoding: 'utf-8',
       timeout: 3000
     })
     if (brewOutput) {
-      const formulae = brewOutput.split('\n').filter(f => f.trim())
+      const formulae = brewOutput.split('\n').filter((f) => f.trim())
       for (const formula of formulae) {
         try {
-          const prefixOutput = execSync(`brew --prefix ${formula} 2>/dev/null`, { 
+          const prefixOutput = execSync(`brew --prefix ${formula} 2>/dev/null`, {
             encoding: 'utf-8',
             timeout: 3000
           })
@@ -609,12 +631,12 @@ async function getMacCandidates(): Promise<string[]> {
       }
     }
   } catch {}
-  
+
   // JAVA_HOME
   if (process.env['JAVA_HOME']) {
     candidates.push(path.join(process.env['JAVA_HOME'], 'bin', 'java'))
   }
-  
+
   return candidates
 }
 
@@ -623,30 +645,25 @@ async function getMacCandidates(): Promise<string[]> {
  */
 async function getLinuxCandidates(): Promise<string[]> {
   const candidates: string[] = []
-  
+
   // 标准Java安装目录
-  const jvmBasePaths = [
-    '/usr/lib/jvm',
-    '/usr/java',
-    '/opt/java',
-    '/usr/local/java',
-    '/opt'
-  ]
-  
+  const jvmBasePaths = ['/usr/lib/jvm', '/usr/java', '/opt/java', '/usr/local/java', '/opt']
+
   for (const basePath of jvmBasePaths) {
     if (!fs.existsSync(basePath)) continue
-    
+
     try {
       const dirs = fs.readdirSync(basePath)
       for (const dir of dirs) {
-        if (dir.toLowerCase().includes('java') || 
-            dir.toLowerCase().includes('jdk') || 
-            dir.toLowerCase().includes('jre') ||
-            dir.toLowerCase().includes('temurin') ||
-            dir.toLowerCase().includes('openjdk') ||
-            dir.toLowerCase().includes('zulu') ||
-            dir.toLowerCase().includes('graalvm')) {
-          
+        if (
+          dir.toLowerCase().includes('java') ||
+          dir.toLowerCase().includes('jdk') ||
+          dir.toLowerCase().includes('jre') ||
+          dir.toLowerCase().includes('temurin') ||
+          dir.toLowerCase().includes('openjdk') ||
+          dir.toLowerCase().includes('zulu') ||
+          dir.toLowerCase().includes('graalvm')
+        ) {
           const javaPath = path.join(basePath, dir, 'bin', 'java')
           if (fs.existsSync(javaPath) && !candidates.includes(javaPath)) {
             candidates.push(javaPath)
@@ -655,15 +672,18 @@ async function getLinuxCandidates(): Promise<string[]> {
       }
     } catch {}
   }
-  
+
   // update-alternatives检查
   try {
-    const alternativesOutput = execSync('update-alternatives --list java 2>/dev/null', { 
+    const alternativesOutput = execSync('update-alternatives --list java 2>/dev/null', {
       encoding: 'utf-8',
       timeout: 3000
     })
     if (alternativesOutput) {
-      const paths = alternativesOutput.split('\n').map(p => p.trim()).filter(p => p)
+      const paths = alternativesOutput
+        .split('\n')
+        .map((p) => p.trim())
+        .filter((p) => p)
       for (const javaPath of paths) {
         if (fs.existsSync(javaPath) && !candidates.includes(javaPath)) {
           candidates.push(javaPath)
@@ -671,15 +691,15 @@ async function getLinuxCandidates(): Promise<string[]> {
       }
     }
   } catch {}
-  
+
   // 常见位置
   candidates.push('/usr/bin/java', '/usr/local/bin/java')
-  
+
   // JAVA_HOME
   if (process.env['JAVA_HOME']) {
     candidates.push(path.join(process.env['JAVA_HOME'], 'bin', 'java'))
   }
-  
+
   return candidates
 }
 
@@ -689,7 +709,7 @@ async function getLinuxCandidates(): Promise<string[]> {
 export async function probeJava(javaExe: string): Promise<JavaInfo | null> {
   try {
     log.info(`[JavaService] 正在探测 Java: ${javaExe}`)
-    
+
     // 执行java -version命令
     const output = execSync(`"${javaExe}" -version 2>&1`, {
       timeout: 5000,
@@ -754,21 +774,26 @@ function parseJavaInfo(javaExe: string, output: string): JavaInfo | null {
   else if (output.includes('Red Hat')) vendor = 'Red Hat'
 
   // 架构识别
-  const arch: '64' | '32' = output.includes('64-Bit') || output.includes('64-bit') || 
-                             output.includes('amd64') || output.includes('x86_64') || 
-                             output.includes('aarch64') ? '64' : '32'
+  const arch: '64' | '32' =
+    output.includes('64-Bit') ||
+    output.includes('64-bit') ||
+    output.includes('amd64') ||
+    output.includes('x86_64') ||
+    output.includes('aarch64')
+      ? '64'
+      : '32'
 
   // 计算Java安装根目录
   const javaBinDir = path.dirname(javaExe)
   const javaHome = path.dirname(javaBinDir)
-  
+
   // 检查是否为JDK（是否有javac）
   const javacExe = process.platform === 'win32' ? 'javac.exe' : 'javac'
   const isJdk = fs.existsSync(path.join(javaBinDir, javacExe))
-  
+
   // 确定是否在PATH中
   const isInPath = checkIfInPath(javaExe)
-  
+
   // 确定是否为当前JAVA_HOME
   let isJavaHome = false
   if (process.env['JAVA_HOME']) {
@@ -809,9 +834,9 @@ function checkIfInPath(javaExe: string): boolean {
   try {
     const pathEnv = process.env.PATH || ''
     const javaDir = path.dirname(javaExe)
-    
+
     const pathDirs = pathEnv.split(process.platform === 'win32' ? ';' : ':')
-    return pathDirs.some(dir => {
+    return pathDirs.some((dir) => {
       try {
         return path.resolve(dir.trim()) === path.resolve(javaDir)
       } catch {
@@ -828,31 +853,31 @@ function checkIfInPath(javaExe: string): boolean {
  */
 function detectJavaSource(javaExe: string): string {
   const lowerPath = javaExe.toLowerCase()
-  
+
   if (process.env['JAVA_HOME'] && lowerPath.includes(process.env['JAVA_HOME'].toLowerCase())) {
     return 'JAVA_HOME'
   }
-  
+
   if (lowerPath.includes('registry') || lowerPath.includes('reg_')) {
     return 'Registry'
   }
-  
+
   if (checkIfInPath(javaExe)) {
     return 'PATH'
   }
-  
+
   if (lowerPath.includes('program files')) {
     return 'CommonLocation'
   }
-  
+
   if (lowerPath.includes('library/java') || lowerPath.includes('homebrew')) {
     return 'SystemLocation'
   }
-  
+
   if (lowerPath.includes('usr/lib/jvm') || lowerPath.includes('update-alternatives')) {
     return 'SystemLocation'
   }
-  
+
   return 'Other'
 }
 
@@ -861,19 +886,19 @@ function detectJavaSource(javaExe: string): string {
  */
 function markDefaultJava(javaList: JavaInfo[]): void {
   // 首先查找JAVA_HOME指向的Java
-  const javaHomeMatch = javaList.find(j => j.isJavaHome)
+  const javaHomeMatch = javaList.find((j) => j.isJavaHome)
   if (javaHomeMatch) {
     javaHomeMatch.isDefault = true
     return
   }
-  
+
   // 其次查找PATH中的Java
-  const pathMatch = javaList.find(j => j.isInPath)
+  const pathMatch = javaList.find((j) => j.isInPath)
   if (pathMatch) {
     pathMatch.isDefault = true
     return
   }
-  
+
   // 最后选择最新版本
   if (javaList.length > 0) {
     const sorted = [...javaList].sort((a, b) => b.majorVersion - a.majorVersion)

@@ -68,7 +68,7 @@ interface BMCLVersionList {
 }
 
 // 下载源配置
-export type DownloadSource = 'bmclapi' | 'mcbbs' | 'official'
+export type DownloadSource = 'bmclapi' | 'official'
 
 export class VersionsService {
   private db: Database.Database
@@ -86,10 +86,8 @@ export class VersionsService {
 
   private getBaseUrl(): string {
     switch (this.source) {
-      case 'bmclapi':
-        return BMCLAPI_BASE
-      case 'mcbbs':
-        return BMCLAPI_MIRROR
+      case 'official':
+        return MOJANG_BASE
       default:
         return BMCLAPI_BASE
     }

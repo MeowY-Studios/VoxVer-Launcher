@@ -26,7 +26,10 @@ export function registerThemeHandlers(): void {
   })
 
   ipcMain.handle('theme:save', (_event, payload: { settings: ThemeSettings }) => {
-    log.info('保存主题设置', { themeColor: payload.settings.themeColor, bgMode: payload.settings.bgImageMode })
+    log.info('保存主题设置', {
+      themeColor: payload.settings.themeColor,
+      bgMode: payload.settings.bgImageMode
+    })
     saveTheme(payload.settings)
     const vars = computeThemeVars(payload.settings.themeColor)
     const bgDataUrl = payload.settings.bgImageLocalPath

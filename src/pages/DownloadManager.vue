@@ -176,7 +176,10 @@
 
             <!-- 右侧：操作 -->
             <div class="task-actions">
-              <div v-if="task.phase === 'downloading_json' || task.phase === 'downloading_jar'" class="speed-info">
+              <div
+                v-if="task.phase === 'downloading_json' || task.phase === 'downloading_jar'"
+                class="speed-info"
+              >
                 <span class="speed-label">{{ formatSpeed(task.speed) }}</span>
                 <span class="speed-status"
                   >剩余 {{ formatSize(task.totalSize - task.downloadedSize) }}</span
@@ -325,7 +328,9 @@ const filteredTasks = computed(() => {
   // 按标签筛选
   if (activeTab.value !== 'all') {
     if (activeTab.value === 'downloading') {
-      result = result.filter((task) => task.phase === 'downloading_json' || task.phase === 'downloading_jar')
+      result = result.filter(
+        (task) => task.phase === 'downloading_json' || task.phase === 'downloading_jar'
+      )
     } else {
       result = result.filter((task) => task.phase === activeTab.value)
     }
@@ -341,7 +346,11 @@ const filteredTasks = computed(() => {
 })
 
 const totalCount = computed(() => tasks.value.length)
-const downloadingCount = computed(() => tasks.value.filter((t) => t.phase === 'downloading_json' || t.phase === 'downloading_jar').length)
+const downloadingCount = computed(
+  () =>
+    tasks.value.filter((t) => t.phase === 'downloading_json' || t.phase === 'downloading_jar')
+      .length
+)
 const completedCount = computed(() => tasks.value.filter((t) => t.phase === 'completed').length)
 const failedCount = computed(() => tasks.value.filter((t) => t.phase === 'failed').length)
 

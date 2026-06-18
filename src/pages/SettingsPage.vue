@@ -117,16 +117,16 @@
               <p class="row-desc">选择运行游戏使用的 Java 版本</p>
             </div>
             <div class="row-control">
-              <div class="input-group" style="margin-bottom: 8px;">
+              <div class="input-group" style="margin-bottom: 8px">
                 <select class="sel" v-model="selectedJavaPreset">
                   <option value="auto">自动选择</option>
                   <option value="java8">Java 8</option>
                   <option value="java17">Java 17</option>
                   <option value="java21">Java 21</option>
                   <option v-if="detectedJava.length > 0" disabled>──────────────</option>
-                  <option 
-                    v-for="java in detectedJava" 
-                    :key="java.id" 
+                  <option
+                    v-for="java in detectedJava"
+                    :key="java.id"
                     :value="`detected:${java.id}`"
                   >
                     {{ java.vendor }} {{ java.version }} ({{ java.arch }}位)
@@ -148,14 +148,22 @@
               <div class="java-detection">
                 <div class="java-detect-header">
                   <button class="btn-sm" @click="detectJava" :disabled="isDetectingJava">
-                  <svg v-if="isDetectingJava" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10" stroke-opacity="0.3" />
-                    <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round" />
-                  </svg>
-                  {{ isDetectingJava ? '检测中...' : '检测 Java' }}
-                </button>
+                    <svg
+                      v-if="isDetectingJava"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="12" cy="12" r="10" stroke-opacity="0.3" />
+                      <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round" />
+                    </svg>
+                    {{ isDetectingJava ? '检测中...' : '检测 Java' }}
+                  </button>
                 </div>
-                
+
                 <!-- 检测进度 -->
                 <div v-if="isDetectingJava" class="java-progress">
                   <div class="progress-info">
@@ -170,7 +178,14 @@
                 <!-- 未检测到 Java -->
                 <div v-if="detectionComplete && detectedJava.length === 0" class="java-not-found">
                   <div class="java-not-found-icon">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg
+                      width="48"
+                      height="48"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
                       <circle cx="12" cy="12" r="10" />
                       <line x1="12" y1="8" x2="12" y2="12" />
                       <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -182,15 +197,33 @@
                   </div>
                   <div class="java-not-found-actions">
                     <a href="https://adoptium.net/" target="_blank" class="btn-outline">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
                         <circle cx="12" cy="12" r="10" />
                         <line x1="12" y1="8" x2="12" y2="12" />
                         <line x1="12" y1="16" x2="12.01" y2="16" />
                       </svg>
                       下载 Eclipse Temurin（推荐）
                     </a>
-                    <a href="https://www.oracle.com/java/technologies/downloads/" target="_blank" class="btn-outline">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <a
+                      href="https://www.oracle.com/java/technologies/downloads/"
+                      target="_blank"
+                      class="btn-outline"
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
                         <circle cx="12" cy="12" r="10" />
                         <line x1="12" y1="8" x2="12" y2="12" />
                         <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -850,7 +883,9 @@
 
         <div class="sec-body" v-show="collapsed.hotkey">
           <p class="sec-desc">
-            设置全局快捷键，在任何时候按下都可执行对应操作。格式示例：<code>Ctrl+Shift+L</code>、<code>Alt+F12</code>
+            设置全局快捷键，在任何时候按下都可执行对应操作。格式示例：<code>Ctrl+Shift+L</code>、<code
+              >Alt+F12</code
+            >
           </p>
 
           <div class="row">
@@ -866,10 +901,9 @@
                   v-model="s.hotkeyLaunch"
                   placeholder="Ctrl+Shift+L"
                 />
-                <button
-                  class="btn-sm"
-                  @click="updateHotkey('launch-game', s.hotkeyLaunch)"
-                >保存</button>
+                <button class="btn-sm" @click="updateHotkey('launch-game', s.hotkeyLaunch)">
+                  保存
+                </button>
               </div>
             </div>
           </div>
@@ -887,10 +921,9 @@
                   v-model="s.hotkeyToggleWindow"
                   placeholder="Ctrl+Shift+H"
                 />
-                <button
-                  class="btn-sm"
-                  @click="updateHotkey('toggle-window', s.hotkeyToggleWindow)"
-                >保存</button>
+                <button class="btn-sm" @click="updateHotkey('toggle-window', s.hotkeyToggleWindow)">
+                  保存
+                </button>
               </div>
             </div>
           </div>
@@ -908,10 +941,9 @@
                   v-model="s.hotkeyOpenHome"
                   placeholder="Ctrl+Shift+O"
                 />
-                <button
-                  class="btn-sm"
-                  @click="updateHotkey('open-home', s.hotkeyOpenHome)"
-                >保存</button>
+                <button class="btn-sm" @click="updateHotkey('open-home', s.hotkeyOpenHome)">
+                  保存
+                </button>
               </div>
             </div>
           </div>
@@ -929,18 +961,15 @@
                   v-model="s.hotkeyOpenSettings"
                   placeholder="Ctrl+,"
                 />
-                <button
-                  class="btn-sm"
-                  @click="updateHotkey('open-settings', s.hotkeyOpenSettings)"
-                >保存</button>
+                <button class="btn-sm" @click="updateHotkey('open-settings', s.hotkeyOpenSettings)">
+                  保存
+                </button>
               </div>
             </div>
           </div>
 
           <div class="btn-row">
-            <button class="action-btn outline" @click="reloadHotkeys">
-              重新加载快捷键
-            </button>
+            <button class="action-btn outline" @click="reloadHotkeys">重新加载快捷键</button>
           </div>
         </div>
         <!-- /sec-body -->
@@ -973,7 +1002,6 @@
             <select class="sel" v-model="s.downloadSource">
               <option value="bmclapi">BMCLAPI（推荐）</option>
               <option value="official">Mojang 官方</option>
-              <option value="mcbbs">MCBBS 镜像</option>
             </select>
           </div>
         </div>
@@ -1168,7 +1196,9 @@
             stroke="currentColor"
             stroke-width="2"
           >
-            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 000 4l-7 4v0a2 2 0 000 4l7 4 7 4 7-4a2 2 0 000-4l7-4z" />
+            <path
+              d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 000 4l-7 4v0a2 2 0 000 4l7 4 7 4 7-4a2 2 0 000-4l7-4z"
+            />
             <circle cx="12" cy="12" r="3" />
           </svg>
           整合包工具
@@ -1237,24 +1267,14 @@
             </div>
             <div class="row-control">
               <div class="input-group compact">
-                <input
-                  type="text"
-                  class="inp short"
-                  v-model="s.modpackName"
-                  placeholder="名称"
-                />
+                <input type="text" class="inp short" v-model="s.modpackName" placeholder="名称" />
                 <input
                   type="text"
                   class="inp short"
                   v-model="s.modpackVersion"
                   placeholder="版本"
                 />
-                <input
-                  type="text"
-                  class="inp short"
-                  v-model="s.modpackAuthor"
-                  placeholder="作者"
-                />
+                <input type="text" class="inp short" v-model="s.modpackAuthor" placeholder="作者" />
               </div>
             </div>
           </div>
@@ -1292,10 +1312,7 @@
               {{ modpackProgress.stage }} {{ modpackProgress.progress }}%
             </div>
             <div class="progress-bar-wrap">
-              <div
-                class="progress-bar"
-                :style="{ width: modpackProgress.progress + '%' }"
-              ></div>
+              <div class="progress-bar" :style="{ width: modpackProgress.progress + '%' }"></div>
             </div>
             <div v-if="modpackProgress.currentFile" class="progress-sub">
               {{ modpackProgress.currentFile }}
@@ -1303,7 +1320,7 @@
           </div>
 
           <!-- 导入整合包 -->
-          <h4 class="sec-subtitle" style="margin-top:20px">📥 导入整合包</h4>
+          <h4 class="sec-subtitle" style="margin-top: 20px">📥 导入整合包</h4>
           <p class="sec-desc">从 .mrpack 文件创建新的实例</p>
 
           <div class="btn-row">
@@ -1379,10 +1396,7 @@
               {{ backupProgress.stage }} {{ backupProgress.progress }}%
             </div>
             <div class="progress-bar-wrap">
-              <div
-                class="progress-bar"
-                :style="{ width: backupProgress.progress + '%' }"
-              ></div>
+              <div class="progress-bar" :style="{ width: backupProgress.progress + '%' }"></div>
             </div>
             <div v-if="backupProgress.currentItem" class="progress-sub">
               {{ backupProgress.currentItem }}
@@ -1392,11 +1406,7 @@
           <!-- 备份文件列表 -->
           <div v-if="backupFiles.length > 0" class="backup-list">
             <h4 class="sec-subtitle">📁 已有备份</h4>
-            <div
-              class="backup-item"
-              v-for="f in backupFiles"
-              :key="f.name"
-            >
+            <div class="backup-item" v-for="f in backupFiles" :key="f.name">
               <div class="backup-info">
                 <div class="backup-name">{{ f.name }}</div>
                 <div class="backup-meta">
@@ -1404,9 +1414,7 @@
                   <span v-if="f.created">{{ new Date(f.created).toLocaleString() }}</span>
                 </div>
               </div>
-              <button class="btn-sm danger-btn" @click="deleteBackup(f.name)">
-                删除
-              </button>
+              <button class="btn-sm danger-btn" @click="deleteBackup(f.name)">删除</button>
             </div>
           </div>
         </div>
@@ -1455,7 +1463,9 @@
             stroke="currentColor"
             stroke-width="2"
           >
-            <path d="M12 2v4m0 16v4M4.93 4.93l2.83 2.83M18.24 18.24l2.83 2.83M2 12h4m16 0h4M4.93 19.07l2.83-2.83M18.24 5.76l2.83-2.83" />
+            <path
+              d="M12 2v4m0 16v4M4.93 4.93l2.83 2.83M18.24 18.24l2.83 2.83M2 12h4m16 0h4M4.93 19.07l2.83-2.83M18.24 5.76l2.83-2.83"
+            />
           </svg>
           检查更新
         </h3>
@@ -1469,23 +1479,34 @@
           <div class="update-icon">📦</div>
           <div class="update-text">
             <div>发现新版本: v{{ updateStatus.version }}</div>
-            <div v-if="updateStatus.releaseNotes" class="update-notes">{{ updateStatus.releaseNotes }}</div>
+            <div v-if="updateStatus.releaseNotes" class="update-notes">
+              {{ updateStatus.releaseNotes }}
+            </div>
           </div>
           <div class="update-actions">
-            <button v-if="!updateStatus.downloading && !updateStatus.downloaded" 
-                    class="action-btn primary" 
-                    @click="checkForUpdateDownload">
+            <button
+              v-if="!updateStatus.downloading && !updateStatus.downloaded"
+              class="action-btn primary"
+              @click="checkForUpdateDownload"
+            >
               下载更新
             </button>
             <div v-else-if="updateStatus.downloading" class="download-progress">
-              <div class="progress-text">下载中 {{ updateStatus.downloadProgress.toFixed(0) }}%</div>
+              <div class="progress-text">
+                下载中 {{ updateStatus.downloadProgress.toFixed(0) }}%
+              </div>
               <div class="progress-bar-wrap small">
-                <div class="progress-bar" :style="{ width: updateStatus.downloadProgress + '%' }"></div>
+                <div
+                  class="progress-bar"
+                  :style="{ width: updateStatus.downloadProgress + '%' }"
+                ></div>
               </div>
             </div>
-            <button v-else-if="updateStatus.downloaded" 
-                    class="action-btn danger" 
-                    @click="installUpdate">
+            <button
+              v-else-if="updateStatus.downloaded"
+              class="action-btn danger"
+              @click="installUpdate"
+            >
               安装并重启
             </button>
           </div>
@@ -1502,7 +1523,11 @@
         </div>
 
         <div class="btn-row" style="margin-top: 12px">
-          <button class="action-btn outline" @click="checkForUpdate" :disabled="updateStatus.checking">
+          <button
+            class="action-btn outline"
+            @click="checkForUpdate"
+            :disabled="updateStatus.checking"
+          >
             {{ updateStatus.checking ? '检查中...' : '手动检查更新' }}
           </button>
         </div>
@@ -1571,7 +1596,7 @@ const selectedJavaPreset = computed({
     if (val.startsWith('detected:')) {
       const id = val.replace('detected:', '')
       selectedJavaId.value = id
-      const java = detectedJava.value.find(j => j.id === id)
+      const java = detectedJava.value.find((j) => j.id === id)
       if (java) {
         s.javaPath = java.path
         s.javaPreset = 'custom'
@@ -1748,27 +1773,27 @@ async function detectJava() {
   detectedJava.value = []
   selectedJavaId.value = ''
   progressPercent.value = 0
-  
+
   const steps = [
     { name: '检查环境变量', progress: 25 },
     { name: '扫描常见安装目录', progress: 50 },
     { name: '检查系统特定位置', progress: 75 },
     { name: '验证检测到的 Java', progress: 100 }
   ]
-  
+
   try {
     // 模拟进度更新
     for (let i = 0; i < steps.length; i++) {
       currentStep.value = `${i + 1}/${steps.length}`
       progressText.value = steps[i].name
       progressPercent.value = steps[i].progress
-      await new Promise(resolve => setTimeout(resolve, 300))
+      await new Promise((resolve) => setTimeout(resolve, 300))
     }
-    
+
     const javas = await window.electronAPI?.java?.detect()
     if (javas) {
       detectedJava.value = javas
-      
+
       // 如果有检测到Java，自动选择第一个或标记为默认的Java
       if (javas.length > 0) {
         const defaultJava = javas.find((j: any) => j.isDefault) || javas[0]
@@ -1792,9 +1817,9 @@ function selectJava(java: any) {
   selectedJavaId.value = java.id
   s.javaPath = java.path
   s.javaPreset = 'custom'
-  
+
   // 标记为默认
-  detectedJava.value.forEach(j => j.isDefault = false)
+  detectedJava.value.forEach((j) => (j.isDefault = false))
   java.isDefault = true
 }
 
@@ -1809,7 +1834,11 @@ async function validateJavaPath(path: string) {
         type: 'success'
       })
     } else {
-      window.electronAPI?.notification?.send({ title: '错误', body: `Java 验证失败：${result?.error || '未知错误'}`, type: 'error' })
+      window.electronAPI?.notification?.send({
+        title: '错误',
+        body: `Java 验证失败：${result?.error || '未知错误'}`,
+        type: 'error'
+      })
     }
   } catch (error) {
     console.error('验证 Java 失败:', error)
@@ -1841,10 +1870,18 @@ async function openMcDir() {
     if (mcDir) {
       await window.electronAPI?.shell.openPath(mcDir)
     } else {
-      window.electronAPI?.notification?.send({ title: '提示', body: '无法确定 .minecraft 目录位置', type: 'warning' })
+      window.electronAPI?.notification?.send({
+        title: '提示',
+        body: '无法确定 .minecraft 目录位置',
+        type: 'warning'
+      })
     }
   } catch (e: any) {
-    window.electronAPI?.notification?.send({ title: '错误', body: `打开目录失败: ${e.message}`, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: `打开目录失败: ${e.message}`,
+      type: 'error'
+    })
   }
 }
 
@@ -1866,25 +1903,41 @@ function onSkinSelect(val: string) {
 
 async function saveSkin() {
   if (!s.officialSkinName) {
-    window.electronAPI?.notification?.send({ title: '提示', body: '请先输入正版玩家名', type: 'warning' })
+    window.electronAPI?.notification?.send({
+      title: '提示',
+      body: '请先输入正版玩家名',
+      type: 'warning'
+    })
     return
   }
   try {
     window.electronAPI?.notification?.send({ title: '成功', body: '皮肤已保存', type: 'success' })
   } catch (e: any) {
-    window.electronAPI?.notification?.send({ title: '错误', body: `皮肤保存失败: ${e.message}`, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: `皮肤保存失败: ${e.message}`,
+      type: 'error'
+    })
   }
 }
 
 async function refreshSkin() {
   if (!s.officialSkinName) {
-    window.electronAPI?.notification?.send({ title: '提示', body: '请先输入正版玩家名', type: 'warning' })
+    window.electronAPI?.notification?.send({
+      title: '提示',
+      body: '请先输入正版玩家名',
+      type: 'warning'
+    })
     return
   }
   try {
     window.electronAPI?.notification?.send({ title: '成功', body: '皮肤已刷新', type: 'success' })
   } catch (e: any) {
-    window.electronAPI?.notification?.send({ title: '错误', body: `皮肤刷新失败: ${e.message}`, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: `皮肤刷新失败: ${e.message}`,
+      type: 'error'
+    })
   }
 }
 
@@ -1935,7 +1988,8 @@ async function loadHotkeys() {
       hotkeyList.value = list
       list.forEach((h: any) => {
         if (h.action === 'launch-game') s.hotkeyLaunch = h.accelerator || 'Ctrl+Shift+L'
-        else if (h.action === 'toggle-window') s.hotkeyToggleWindow = h.accelerator || 'Ctrl+Shift+H'
+        else if (h.action === 'toggle-window')
+          s.hotkeyToggleWindow = h.accelerator || 'Ctrl+Shift+H'
         else if (h.action === 'open-home') s.hotkeyOpenHome = h.accelerator || 'Ctrl+Shift+O'
         else if (h.action === 'open-settings') s.hotkeyOpenSettings = h.accelerator || 'Ctrl+,'
       })
@@ -1947,15 +2001,28 @@ async function loadHotkeys() {
 
 async function updateHotkey(action: string, accelerator: string) {
   try {
-    const res = await window.electronAPI?.hotkey?.update({ id: action, action, accelerator, enabled: true })
+    const res = await window.electronAPI?.hotkey?.update({
+      id: action,
+      action,
+      accelerator,
+      enabled: true
+    })
     if (res?.error) {
-      window.electronAPI?.notification?.send({ title: '错误', body: `快捷键保存失败: ${res.error}`, type: 'error' })
+      window.electronAPI?.notification?.send({
+        title: '错误',
+        body: `快捷键保存失败: ${res.error}`,
+        type: 'error'
+      })
       return
     }
     window.electronAPI?.notification?.send({ title: '成功', body: '快捷键已更新', type: 'success' })
     await loadHotkeys()
   } catch (e: any) {
-    window.electronAPI?.notification?.send({ title: '错误', body: `快捷键更新失败: ${e.message}`, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: `快捷键更新失败: ${e.message}`,
+      type: 'error'
+    })
   }
 }
 
@@ -1971,9 +2038,17 @@ async function validateHotkey(accelerator: string) {
 async function reloadHotkeys() {
   try {
     await window.electronAPI?.hotkey?.reload()
-    window.electronAPI?.notification?.send({ title: '成功', body: '快捷键已重新加载', type: 'success' })
+    window.electronAPI?.notification?.send({
+      title: '成功',
+      body: '快捷键已重新加载',
+      type: 'success'
+    })
   } catch (e: any) {
-    window.electronAPI?.notification?.send({ title: '错误', body: `重载失败: ${e.message}`, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: `重载失败: ${e.message}`,
+      type: 'error'
+    })
   }
 }
 
@@ -2002,11 +2077,19 @@ async function browseModpackOutput() {
 
 async function packAsMrpack() {
   if (!s.modpackInstancePath) {
-    window.electronAPI?.notification?.send({ title: '提示', body: '请先选择实例目录', type: 'warning' })
+    window.electronAPI?.notification?.send({
+      title: '提示',
+      body: '请先选择实例目录',
+      type: 'warning'
+    })
     return
   }
   if (!s.modpackName) {
-    window.electronAPI?.notification?.send({ title: '提示', body: '请填写整合包名称', type: 'warning' })
+    window.electronAPI?.notification?.send({
+      title: '提示',
+      body: '请填写整合包名称',
+      type: 'warning'
+    })
     return
   }
   try {
@@ -2028,12 +2111,24 @@ async function packAsMrpack() {
     })
 
     if (result?.ok) {
-      window.electronAPI?.notification?.send({ title: '成功', body: `整合包创建成功！ 输出文件: ${result.filePath || '(未知)'}`, type: 'success' })
+      window.electronAPI?.notification?.send({
+        title: '成功',
+        body: `整合包创建成功！ 输出文件: ${result.filePath || '(未知)'}`,
+        type: 'success'
+      })
     } else {
-      window.electronAPI?.notification?.send({ title: '错误', body: `创建失败: ${result?.error || '未知错误'}`, type: 'error' })
+      window.electronAPI?.notification?.send({
+        title: '错误',
+        body: `创建失败: ${result?.error || '未知错误'}`,
+        type: 'error'
+      })
     }
   } catch (e: any) {
-    window.electronAPI?.notification?.send({ title: '错误', body: `创建整合包失败: ${e.message}`, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: `创建整合包失败: ${e.message}`,
+      type: 'error'
+    })
   } finally {
     isWorkingModpack.value = false
   }
@@ -2065,12 +2160,24 @@ async function importMrpack() {
     })
 
     if (result?.ok) {
-      window.electronAPI?.notification?.send({ title: '成功', body: `整合包导入成功！ 位置: ${result.instancePath || '(未知)'}`, type: 'success' })
+      window.electronAPI?.notification?.send({
+        title: '成功',
+        body: `整合包导入成功！ 位置: ${result.instancePath || '(未知)'}`,
+        type: 'success'
+      })
     } else {
-      window.electronAPI?.notification?.send({ title: '错误', body: `导入失败: ${result?.error || '未知错误'}`, type: 'error' })
+      window.electronAPI?.notification?.send({
+        title: '错误',
+        body: `导入失败: ${result?.error || '未知错误'}`,
+        type: 'error'
+      })
     }
   } catch (e: any) {
-    window.electronAPI?.notification?.send({ title: '错误', body: `导入整合包失败: ${e.message}`, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: `导入整合包失败: ${e.message}`,
+      type: 'error'
+    })
   } finally {
     isWorkingModpack.value = false
   }
@@ -2104,10 +2211,18 @@ async function importBgImage() {
     if (local) {
       s.bgImageMode = 'custom'
       s.bgImagePath = local
-      window.electronAPI?.notification?.send({ title: '成功', body: '背景已保存到启动器目录', type: 'success' })
+      window.electronAPI?.notification?.send({
+        title: '成功',
+        body: '背景已保存到启动器目录',
+        type: 'success'
+      })
     }
   } catch (e: any) {
-    window.electronAPI?.notification?.send({ title: '错误', body: `导入背景失败: ${e.message}`, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: `导入背景失败: ${e.message}`,
+      type: 'error'
+    })
   }
 }
 
@@ -2119,13 +2234,25 @@ async function createBackup() {
     const result = await window.electronAPI?.backup?.create()
     if (result?.ok) {
       s.backupLastTime = new Date().toLocaleString()
-      window.electronAPI?.notification?.send({ title: '成功', body: `备份成功！ 文件: ${result.filePath || '(未知)'} 大小: ${(result.size / 1024).toFixed(1)} KB`, type: 'success' })
+      window.electronAPI?.notification?.send({
+        title: '成功',
+        body: `备份成功！ 文件: ${result.filePath || '(未知)'} 大小: ${(result.size / 1024).toFixed(1)} KB`,
+        type: 'success'
+      })
       await listBackups()
     } else {
-      window.electronAPI?.notification?.send({ title: '错误', body: `备份失败: ${result?.error || '未知错误'}`, type: 'error' })
+      window.electronAPI?.notification?.send({
+        title: '错误',
+        body: `备份失败: ${result?.error || '未知错误'}`,
+        type: 'error'
+      })
     }
   } catch (e: any) {
-    window.electronAPI?.notification?.send({ title: '错误', body: `备份失败: ${e.message}`, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: `备份失败: ${e.message}`,
+      type: 'error'
+    })
   } finally {
     isWorkingBackup.value = false
   }
@@ -2146,12 +2273,24 @@ async function restoreBackup() {
 
     const result = await window.electronAPI?.backup?.restore(path)
     if (result?.ok) {
-      window.electronAPI?.notification?.send({ title: '成功', body: '恢复成功！请重启启动器以生效', type: 'success' })
+      window.electronAPI?.notification?.send({
+        title: '成功',
+        body: '恢复成功！请重启启动器以生效',
+        type: 'success'
+      })
     } else {
-      window.electronAPI?.notification?.send({ title: '错误', body: `恢复失败: ${result?.error || '未知错误'}`, type: 'error' })
+      window.electronAPI?.notification?.send({
+        title: '错误',
+        body: `恢复失败: ${result?.error || '未知错误'}`,
+        type: 'error'
+      })
     }
   } catch (e: any) {
-    window.electronAPI?.notification?.send({ title: '错误', body: `恢复失败: ${e.message}`, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: `恢复失败: ${e.message}`,
+      type: 'error'
+    })
   } finally {
     isWorkingBackup.value = false
   }
@@ -2172,7 +2311,11 @@ async function deleteBackup(fileName: string) {
     await window.electronAPI?.backup?.delete(fileName)
     await listBackups()
   } catch (e: any) {
-    window.electronAPI?.notification?.send({ title: '错误', body: `删除失败: ${e.message}`, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: `删除失败: ${e.message}`,
+      type: 'error'
+    })
   }
 }
 
@@ -2192,7 +2335,11 @@ async function checkForUpdateDownload() {
   try {
     await window.electronAPI?.updater?.download()
   } catch (e: any) {
-    window.electronAPI?.notification?.send({ title: '错误', body: `下载失败: ${e.message}`, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: `下载失败: ${e.message}`,
+      type: 'error'
+    })
   }
 }
 
@@ -2200,7 +2347,11 @@ async function installUpdate() {
   try {
     await window.electronAPI?.updater?.install()
   } catch (e: any) {
-    window.electronAPI?.notification?.send({ title: '错误', body: `安装失败: ${e.message}`, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: `安装失败: ${e.message}`,
+      type: 'error'
+    })
   }
 }
 
@@ -2513,8 +2664,12 @@ function adjustHex(hex: string, offset: number): string {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 // Progress styles
@@ -2716,7 +2871,7 @@ function adjustHex(hex: string, offset: number): string {
     font-size: 14px;
     color: var(--mcla-text);
   }
-  
+
   p {
     margin: 0;
     font-size: 12px;

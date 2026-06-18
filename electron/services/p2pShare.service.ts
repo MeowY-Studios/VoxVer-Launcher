@@ -460,11 +460,7 @@ class P2PShareService {
     }
   > = new Map()
 
-  private handleReceiverMessage(
-    sessionId: string,
-    conn: DataConnection,
-    msg: P2PMessage
-  ): void {
+  private handleReceiverMessage(sessionId: string, conn: DataConnection, msg: P2PMessage): void {
     const session = this.receiverSessions.get(sessionId)
     if (!session) return
 

@@ -445,7 +445,16 @@ async function loadVersionsFromFolder(gameDir: string) {
   try {
     const res = await api.versions.scanFolder(gameDir)
     if (res?.ok) {
-      const data = (res.data as { id: string; name: string; baseVersion?: string; loaderInfo?: string; jarPath?: string; jsonPath?: string; isActive?: boolean }[]) || []
+      const data =
+        (res.data as {
+          id: string
+          name: string
+          baseVersion?: string
+          loaderInfo?: string
+          jarPath?: string
+          jsonPath?: string
+          isActive?: boolean
+        }[]) || []
       installedVersions.value = data.map((v) => {
         // 精确匹配：id 完全相等
         const exactMatch = v.id === lastId

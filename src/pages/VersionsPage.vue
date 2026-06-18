@@ -114,7 +114,11 @@
       <!-- 空状态 -->
       <div class="empty-state" v-else>
         <p>
-          {{ searchKeyword || activeFilter !== 'all' ? '没有匹配的版本，请调整搜索条件。' : '暂无版本数据' }}
+          {{
+            searchKeyword || activeFilter !== 'all'
+              ? '没有匹配的版本，请调整搜索条件。'
+              : '暂无版本数据'
+          }}
         </p>
       </div>
     </section>
@@ -222,7 +226,9 @@ function filteredVersions(filter: 'all' | 'release' | 'snapshot' | 'old') {
 const totalFiltered = computed(() => filteredVersions(activeFilter.value).length)
 
 /** 实际渲染的数据（分页） */
-const displayedVersions = computed(() => filteredVersions(activeFilter.value).slice(0, displayedCount.value))
+const displayedVersions = computed(() =>
+  filteredVersions(activeFilter.value).slice(0, displayedCount.value)
+)
 
 /** 是否还有更多数据可加载 */
 const hasMoreData = computed(() => displayedVersions.value.length < totalFiltered.value)

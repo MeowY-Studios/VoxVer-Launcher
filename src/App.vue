@@ -218,13 +218,15 @@
             <!-- 启动区域 -->
             <div class="sb-launch-area">
               <!-- 启动按钮（PCL2 描边风格） -->
-              <button 
-                class="btn-launch-pcl2" 
-                @click="handleLaunch" 
+              <button
+                class="btn-launch-pcl2"
+                @click="handleLaunch"
                 :disabled="isLaunching || !selectedVersionId"
                 :class="{ 'no-version': !selectedVersionId }"
               >
-                <span class="launch-label">{{ isLaunching ? '启动中...' : (!selectedVersionId ? '请先下载版本' : '启动游戏') }}</span>
+                <span class="launch-label">{{
+                  isLaunching ? '启动中...' : !selectedVersionId ? '请先下载版本' : '启动游戏'
+                }}</span>
                 <span class="launch-version">{{ selectedVersion }}</span>
               </button>
 
@@ -424,7 +426,9 @@ const versionGameDir = computed(() => {
     return selectedVersionId.value
   }
   // 2. 匹配实例数据库
-  const matchingInstance = instancesStore.instances.find(i => i.id === selectedVersionId.value || i.path?.includes(selectedVersionId.value))
+  const matchingInstance = instancesStore.instances.find(
+    (i) => i.id === selectedVersionId.value || i.path?.includes(selectedVersionId.value)
+  )
   if (matchingInstance?.path) {
     return matchingInstance.path
   }
@@ -567,7 +571,10 @@ async function loadLocalInstalledVersions() {
       return {
         id: inst.path,
         name: displayName,
-        loader: inst.loaderType !== 'vanilla' && inst.loaderVersion ? `${inst.loaderType} ${inst.loaderVersion}` : ''
+        loader:
+          inst.loaderType !== 'vanilla' && inst.loaderVersion
+            ? `${inst.loaderType} ${inst.loaderVersion}`
+            : ''
       }
     })
     return
@@ -818,15 +825,20 @@ async function handleLaunch() {
     return
   }
   if (!accountsStore.activeAccount) {
-    window.electronAPI?.notification?.send({ title: '提示', body: '请先添加并选择一个账号', type: 'warning' })
+    window.electronAPI?.notification?.send({
+      title: '提示',
+      body: '请先添加并选择一个账号',
+      type: 'warning'
+    })
     return
   }
 
   isLaunching.value = true
   const accountId = accountsStore.activeAccount.id
-  const versionId = selectedVersionId.value.includes('\\') || selectedVersionId.value.includes('/') 
-    ? selectedVersionId.value.split(/[\\/]/).pop() || selectedVersionId.value // 如果是完整路径，提取文件夹名作为版本ID
-    : selectedVersionId.value
+  const versionId =
+    selectedVersionId.value.includes('\\') || selectedVersionId.value.includes('/')
+      ? selectedVersionId.value.split(/[\\/]/).pop() || selectedVersionId.value // 如果是完整路径，提取文件夹名作为版本ID
+      : selectedVersionId.value
 
   // 监听启动进度
   if (window.electronAPI?.game.onProgress) {
@@ -836,10 +848,18 @@ async function handleLaunch() {
   try {
     const result = await window.electronAPI?.game.launch('', accountId, versionId)
     if (!result?.success) {
-      window.electronAPI?.notification?.send({ title: '错误', body: '启动失败: ' + (result?.error || '未知错误'), type: 'error' })
+      window.electronAPI?.notification?.send({
+        title: '错误',
+        body: '启动失败: ' + (result?.error || '未知错误'),
+        type: 'error'
+      })
     }
   } catch (e: any) {
-    window.electronAPI?.notification?.send({ title: '错误', body: '启动异常: ' + e.message, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: '启动异常: ' + e.message,
+      type: 'error'
+    })
   } finally {
     isLaunching.value = false
   }

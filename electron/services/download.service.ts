@@ -19,11 +19,8 @@ const log = logger.child('Download')
 
 const BMCLAPI_MIRRORS = [
   { name: '官方', url: 'https://bmclapi2.bangbang93.com', ping: 0 },
-  { name: '阿里云', url: 'https://bmclapi.akarin.dev', ping: 0 },
-  { name: '自建', url: 'https://download.mcbbs.net', ping: 0 }
+  { name: '阿里云', url: 'https://bmclapi.akarin.dev', ping: 0 }
 ]
-
-
 
 export class DownloadService extends EventEmitter {
   private tasks: Map<string, DownloadTask> = new Map()

@@ -330,9 +330,9 @@ async function cancelDownload(id: string) {
 }
 
 .fp-bar-wrap {
-  height: 3px;
+  height: 6px;
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 2px;
+  border-radius: 3px;
   overflow: hidden;
   margin-bottom: 4px;
 }

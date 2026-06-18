@@ -74,7 +74,9 @@ async function downloadFileWithProgress(
 }
 
 let versionsService: {
-  getAllVersions: () => Promise<Array<{ id: string; type: string; releaseTime: string; url: string; time: string }>>
+  getAllVersions: () => Promise<
+    Array<{ id: string; type: string; releaseTime: string; url: string; time: string }>
+  >
   getLatestVersion: () => Promise<{ release: string; snapshot: string }>
   getVersionInfo: (versionId: string) => Promise<any | null>
   isVersionInstalled: (versionId: string, gameDir: string) => Promise<boolean>
@@ -373,10 +375,10 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
               })
               clearTimeout(timeoutId)
               if (!manifestRes.ok) throw new Error(`HTTP ${manifestRes.status}`)
-              
+
               const text = await manifestRes.text()
               if (!text || text.length < 10) throw new Error('响应内容为空')
-              
+
               try {
                 manifest = JSON.parse(text) as { versions: Array<{ id: string; url: string }> }
                 break
@@ -386,11 +388,14 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
             } catch (e) {
               retries--
               if (retries === 0) throw e
-              log.warn(`[versions:download-start] 获取版本清单失败，重试 ${3 - retries}/3:`, (e as Error).message)
-              await new Promise(r => setTimeout(r, 2000))
+              log.warn(
+                `[versions:download-start] 获取版本清单失败，重试 ${3 - retries}/3:`,
+                (e as Error).message
+              )
+              await new Promise((r) => setTimeout(r, 2000))
             }
           }
-          
+
           if (!manifest) throw new Error('获取版本清单失败')
           const verEntry = manifest.versions.find((v) => v.id === versionId)
           if (!verEntry) throw new Error(`版本清单中未找到 ${versionId}`)
@@ -602,11 +607,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
 
   // ===== 补全文件：下载缺失的库 =====
 
-  const MIRRORS = [
-    'https://bmclapi2.bangbang93.com',
-    'https://download.mcbbs.net',
-    'https://piston-meta.mojang.com'
-  ]
+  const MIRRORS = ['https://bmclapi2.bangbang93.com', 'https://piston-meta.mojang.com']
 
   async function downloadWithMirrors(
     pathPattern: (baseUrl: string) => string,
@@ -701,14 +702,13 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
         for (const lib of missing) {
           const libFilePath = join(baseLibPath, lib.path)
           mkdirSync(join(baseLibPath, lib.path).replace(/[^/\\]+$/, ''), { recursive: true })
-          
+
           try {
             let success = false
-            const allUrls = [
-              ...MIRRORS.map(m => `${m}/libraries/${lib.path}`),
-              lib.url
-            ].filter(Boolean)
-            
+            const allUrls = [...MIRRORS.map((m) => `${m}/libraries/${lib.path}`), lib.url].filter(
+              Boolean
+            )
+
             for (let i = 0; i < allUrls.length && !success; i++) {
               const url = allUrls[i]
               try {
@@ -720,11 +720,11 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
                 log.warn(`[补全] 下载库失败 [${i + 1}/${allUrls.length}]:`, e.message)
               }
             }
-            
+
             if (!success) {
               throw new Error(`所有镜像都无法下载: ${lib.path}`)
             }
-            
+
             downloaded++
             // 推送进度
             mainWindow.webContents.send('version:download-progress', {

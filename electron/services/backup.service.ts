@@ -202,14 +202,17 @@ export async function restoreBackup(
     const zip = await JSZip.loadAsync(buf)
 
     const manifestEntry = zip.file('manifest.json')
-    if (!manifestEntry) return { ok: false, error: '不是有效的 MCLA 备份文件（缺少 manifest.json）' }
+    if (!manifestEntry)
+      return { ok: false, error: '不是有效的 MCLA 备份文件（缺少 manifest.json）' }
 
     const manifest: BackupManifest = JSON.parse(await manifestEntry.async('string'))
 
     const dataEntry = zip.file('data.json')
     if (!dataEntry) return { ok: false, error: '备份文件损坏（缺少 data.json）' }
 
-    const data: { tables: { name: string; rows: any[] }[] } = JSON.parse(await dataEntry.async('string'))
+    const data: { tables: { name: string; rows: any[] }[] } = JSON.parse(
+      await dataEntry.async('string')
+    )
 
     if (onProgress) onProgress({ stage: 'restoring', currentItem: '写入数据库...', progress: 50 })
 

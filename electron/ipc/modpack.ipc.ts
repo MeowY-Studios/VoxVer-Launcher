@@ -34,15 +34,25 @@ export function registerModpackHandlers(): void {
         })
 
         const outPath =
-          payload.outputPath || `${getDefaultModpackOutputDir()}/${payload.options.name || 'modpack'}.mrpack`
+          payload.outputPath ||
+          `${getDefaultModpackOutputDir()}/${payload.options.name || 'modpack'}.mrpack`
 
-        const res = await packAsMrpack(payload.instancePath, outPath, payload.options, (p: PackProgress) => {
-          // 通过 webContents 推送进度（可选）
-          const win = _event.sender
-          try {
-            win.send('modpack:progress', { stage: p.stage, progress: p.progress, currentFile: p.currentFile })
-          } catch {}
-        })
+        const res = await packAsMrpack(
+          payload.instancePath,
+          outPath,
+          payload.options,
+          (p: PackProgress) => {
+            // 通过 webContents 推送进度（可选）
+            const win = _event.sender
+            try {
+              win.send('modpack:progress', {
+                stage: p.stage,
+                progress: p.progress,
+                currentFile: p.currentFile
+              })
+            } catch {}
+          }
+        )
 
         if (!res.ok) {
           return { ok: false, error: res.error }

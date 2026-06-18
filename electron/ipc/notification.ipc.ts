@@ -63,7 +63,12 @@ export function registerNotificationHandlers(): void {
     'notification:send',
     async (
       _event,
-      payload: { title: string; body?: string; type?: 'info' | 'success' | 'warning' | 'error'; route?: string }
+      payload: {
+        title: string
+        body?: string
+        type?: 'info' | 'success' | 'warning' | 'error'
+        route?: string
+      }
     ) => {
       try {
         const { title, body = '', type = 'info', route } = payload

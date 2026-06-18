@@ -138,7 +138,9 @@ export interface UpdateHotkeyResult {
 export function updateHotkey(hotkey: HotkeyConfig): UpdateHotkeyResult {
   // 冲突检测：同一个 accelerator 被多个 id 使用
   const all = loadHotkeys()
-  const conflict = all.find((h) => h.id !== hotkey.id && h.accelerator === hotkey.accelerator && h.enabled)
+  const conflict = all.find(
+    (h) => h.id !== hotkey.id && h.accelerator === hotkey.accelerator && h.enabled
+  )
   if (conflict && hotkey.enabled) {
     return { ok: false, error: '快捷键冲突', conflictWith: conflict.label }
   }

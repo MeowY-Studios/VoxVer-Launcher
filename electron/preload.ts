@@ -124,7 +124,8 @@ const api = {
     openVerificationUrl: () => ipcRenderer.invoke('account:open-verification-url'),
     getSkinDataUrl: (uuid: string) => ipcRenderer.invoke('account:get-skin-data-url', uuid),
     onLoginProgress: (callback: (payload: { stage: string; detail?: string }) => void) => {
-      const listener = (_event: IpcRendererEvent, payload: { stage: string; detail?: string }) => callback(payload)
+      const listener = (_event: IpcRendererEvent, payload: { stage: string; detail?: string }) =>
+        callback(payload)
       ipcRenderer.on('account:login-progress', listener)
       return () => ipcRenderer.removeListener('account:login-progress', listener)
     }
@@ -331,9 +332,8 @@ const api = {
 
   // 文件对话框
   dialog: {
-    selectFolder: (options?: {
-      title?: string
-    }) => ipcRenderer.invoke('dialog:select-folder', options ?? {}),
+    selectFolder: (options?: { title?: string }) =>
+      ipcRenderer.invoke('dialog:select-folder', options ?? {}),
     selectFile: (options?: {
       title?: string
       filters?: Array<{ name: string; extensions: string[] }>
@@ -467,10 +467,8 @@ const api = {
     update: (mod: LocalMod, updateInfo: ModUpdateInfo) =>
       ipcRenderer.invoke('mod:update', { mod, updateInfo }),
     onUpdateProgress: (callback: (data: { filePath: string; progress: number }) => void) => {
-      const listener = (
-        _event: IpcRendererEvent,
-        data: { filePath: string; progress: number }
-      ) => callback(data)
+      const listener = (_event: IpcRendererEvent, data: { filePath: string; progress: number }) =>
+        callback(data)
       ipcRenderer.on('mod:update-progress', listener)
       return () => ipcRenderer.removeListener('mod:update-progress', listener)
     }
@@ -514,11 +512,8 @@ const api = {
 
   // 整合包（mrpack）
   modpack: {
-    pack: (payload: {
-      instancePath: string
-      outputPath?: string
-      options: ModpackOptions
-    }) => ipcRenderer.invoke('modpack:pack', payload),
+    pack: (payload: { instancePath: string; outputPath?: string; options: ModpackOptions }) =>
+      ipcRenderer.invoke('modpack:pack', payload),
     import: (payload: { mrpackPath: string; targetParentDir: string; instanceName: string }) =>
       ipcRenderer.invoke('modpack:import', payload),
     getDefaultOutputDir: () => ipcRenderer.invoke('modpack:get-default-output-dir'),
