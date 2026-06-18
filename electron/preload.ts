@@ -57,8 +57,12 @@ interface ModpackOptions {
   includeConfigs?: boolean
   includeSaves?: boolean
   includeResourcePacks?: boolean
+  includeResourcepacks?: boolean
   includeShaderPacks?: boolean
   overrides?: Record<string, unknown>
+  name?: string
+  author?: string
+  version?: string
 }
 
 const api = {
