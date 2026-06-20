@@ -8,6 +8,7 @@ const log = logger.child('VersionsService')
 // BMCLAPI API 端点
 const BMCLAPI_BASE = 'https://bmclapi2.bangbang93.com'
 const BMCLAPI_MIRROR = 'https://mcplayer.cn'
+const MOJANG_BASE = 'https://launchermeta.mojang.com'
 
 interface MojangVersionManifest {
   latest: {

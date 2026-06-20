@@ -66,15 +66,28 @@ export interface LaunchResult {
   success: boolean
   error?: string
   pid?: number
+  /** 需要用户确认下载缺失文件 */
+  needsFileDownload?: boolean
+  /** 缺失文件列表 */
+  missingFiles?: MissingFileInfo[]
 }
 
-export type GameStatus = 'idle' | 'launching' | 'running' | 'exiting'
+export interface MissingFileInfo {
+  type: 'library' | 'asset' | 'natives' | 'version'
+  name: string
+  path: string
+  size?: number
+}
+
+export type GameStatus = 'idle' | 'launching' | 'running' | 'exiting' | 'waiting-download'
 
 export type LaunchPhase =
   | 'idle'
   | 'building-config'
   | 'validating-java'
   | 'checking-files'
+  | 'waiting-confirm'  // 等待用户确认下载
+  | 'downloading-files' // 正在下载缺失文件
   | 'launching-process'
   | 'running'
   | 'error'
@@ -134,6 +147,7 @@ interface AccountRow {
 // ===== 常量 =====
 
 const BMCLAPI = 'https://bmclapi2.bangbang93.com'
+const PARALLEL_DOWNLOAD_CONCURRENCY = 5 // 并行下载并发数
 
 // ===== MinecraftLauncher 类 =====
 
@@ -157,13 +171,62 @@ class MinecraftLauncher {
   }
 
   /**
-   * 启动游戏
+   * 并行下载工具方法
+   */
+  private async parallelDownload<T extends { url: string; path: string }>(
+    tasks: T[],
+    concurrency: number,
+    onProgress?: (completed: number, total: number, item: T) => void
+  ): Promise<{ success: number; failed: number }> {
+    let success = 0
+    let failed = 0
+    const total = tasks.length
+
+    const running: Promise<void>[] = []
+    let taskIndex = 0
+
+    const downloadOne = async (task: T): Promise<void> => {
+      try {
+        await this.downloadFile(task.url, task.path)
+        success++
+      } catch (e: any) {
+        log.warn(`[parallelDownload] 下载失败: ${task.url}: ${e.message}`)
+        failed++
+      }
+      onProgress?.(success + failed, total, task)
+    }
+
+    const startTask = (): Promise<void> | null => {
+      if (taskIndex >= tasks.length) return null
+      const task = tasks[taskIndex++]
+      return downloadOne(task)
+    }
+
+    for (let i = 0; i < Math.min(concurrency, tasks.length); i++) {
+      running.push(
+        (async () => {
+          while (true) {
+            const next = startTask()
+            if (!next) break
+            await next
+          }
+        })()
+      )
+    }
+
+    await Promise.all(running)
+    return { success, failed }
+  }
+
+  /**
+   * 启动游戏（优化：并行操作 + 性能测量）
    */
   async launch(config: LaunchConfig): Promise<LaunchResult> {
     if (this.gameStatus === 'running' || this.gameStatus === 'launching') {
       return { success: false, error: '已有游戏在运行中，请先关闭' }
     }
 
+    const launchStartTime = Date.now()
     this.setStatus('launching')
     this.sendProgress('building-config', '正在构建启动参数...')
     this.logBuffer = ''
@@ -173,6 +236,7 @@ class MinecraftLauncher {
 
       // 1. 验证 Java
       this.sendProgress('validating-java', '正在检测 Java 环境...')
+      const javaStartTime = Date.now()
       const javaValidation = await this.validateJava(javaConfig, gameCoreConfig.version)
       if (!javaValidation.success) {
         this.sendProgress('error', 'Java 验证失败', javaValidation.error)
@@ -180,6 +244,7 @@ class MinecraftLauncher {
         return { success: false, error: javaValidation.error }
       }
       const javaPath = javaValidation.javaPath
+      log.info(`[launch] Java 验证完成，耗时 ${Date.now() - javaStartTime}ms`)
 
       // 2. 解析版本信息
       this.sendProgress('checking-files', '正在检查版本信息...')
@@ -190,16 +255,34 @@ class MinecraftLauncher {
         return { success: false, error: `版本文件不存在: ${gameCoreConfig.version}` }
       }
 
-      // 3. 补全游戏文件
-      this.sendProgress('checking-files', '正在检查支持库和资源文件...')
-      await this.completeGameFiles(gameCoreConfig, versionJson)
-
-      // 4. 处理继承版本
+      // 3. 处理继承版本
       const finalVersionJson = await this.resolveInheritedVersion(gameCoreConfig, versionJson)
 
+      // 4. 检测缺失文件
+      this.sendProgress('checking-files', '正在检测缺失文件...')
+      const missingFiles = await this.checkMissingFiles(gameCoreConfig, finalVersionJson)
+
+      // 如果有缺失文件，返回需要用户确认的状态
+      if (missingFiles.length > 0) {
+        log.info(`[launch] 检测到 ${missingFiles.length} 个缺失文件，需要用户确认下载`)
+        this.setStatus('waiting-download')
+        this.sendProgress(
+          'waiting-confirm',
+          `检测到 ${missingFiles.length} 个缺失文件，是否下载？`,
+          `点击"确定"开始下载缺失文件`
+        )
+        return {
+          success: false,
+          needsFileDownload: true,
+          missingFiles
+        }
+      }
+
       // 5. 构建类路径
+      const classpathStartTime = Date.now()
       const classpath = await this.buildClasspath(gameCoreConfig, finalVersionJson)
       const classpathStr = classpath.join(process.platform === 'win32' ? ';' : ':')
+      log.info(`[launch] 类路径构建完成，耗时 ${Date.now() - classpathStartTime}ms`)
 
       // 6. 构建启动参数
       const jvmArgs = this.buildJvmArguments(
@@ -235,6 +318,7 @@ class MinecraftLauncher {
       if (result.success) {
         this.setStatus('running')
         this.sendProgress('running', '游戏运行中')
+        log.info(`[GameLauncher] [launch] 启动准备完成，总耗时 ${Date.now() - launchStartTime}ms`)
       } else {
         log.error(`[GameLauncher] [launch] 启动失败: ${result.error}`)
         this.sendProgress('error', '启动失败', result.error)
@@ -338,7 +422,7 @@ class MinecraftLauncher {
   /**
    * 解析版本 JSON
    */
-  private async resolveVersionJson(gameCoreConfig: GameCoreConfig): Promise<VersionJson | null> {
+  async resolveVersionJson(gameCoreConfig: GameCoreConfig): Promise<VersionJson | null> {
     const { root, version } = gameCoreConfig
     const versionJsonPath = join(root, 'versions', version, `${version}.json`)
 
@@ -358,7 +442,7 @@ class MinecraftLauncher {
   /**
    * 解析继承版本
    */
-  private async resolveInheritedVersion(
+  async resolveInheritedVersion(
     gameCoreConfig: GameCoreConfig,
     versionJson: VersionJson
   ): Promise<VersionJson> {
@@ -383,15 +467,128 @@ class MinecraftLauncher {
   }
 
   /**
-   * 补全游戏文件
+   * 检测缺失文件（不下载，返回缺失列表）
    */
-  private async completeGameFiles(
+  async checkMissingFiles(
     gameCoreConfig: GameCoreConfig,
     versionJson: VersionJson
-  ): Promise<void> {
+  ): Promise<MissingFileInfo[]> {
     const { root } = gameCoreConfig
     const baseLibPath = join(root, 'libraries')
     const assetsPath = join(root, 'assets')
+    const missingFiles: MissingFileInfo[] = []
+
+    // 1. 检查 libraries
+    for (const lib of versionJson.libraries || []) {
+      if (!this.checkLibRules(lib.rules)) continue
+
+      const dl = lib.downloads?.artifact
+      if (!dl) continue
+
+      const fullPath = join(baseLibPath, dl.path)
+      if (!fs.existsSync(fullPath)) {
+        missingFiles.push({
+          type: 'library',
+          name: dl.path.split('/').pop() || dl.path,
+          path: fullPath
+        })
+      }
+    }
+
+    // 2. 检查 natives
+    const versionId = versionJson.id
+    const nativesDir = join(root, 'versions', versionId, `${versionId}-natives`)
+    const key =
+      process.platform === 'win32'
+        ? 'natives-windows'
+        : process.platform === 'darwin'
+          ? 'natives-osx'
+          : 'natives-linux'
+
+    for (const lib of versionJson.libraries || []) {
+      const classifiers = lib.downloads?.classifiers
+      if (!classifiers) continue
+
+      const nativeInfo = classifiers[key]
+      if (!nativeInfo) continue
+
+      const jarName = path.basename(nativeInfo.path || `natives-${versionId}.jar`)
+      const nativeJarPath = join(nativesDir, jarName)
+
+      if (!fs.existsSync(nativeJarPath)) {
+        missingFiles.push({
+          type: 'natives',
+          name: jarName,
+          path: nativeJarPath
+        })
+      }
+    }
+
+    // 3. 检查 assets
+    const assetIndexId = versionJson.assetIndex?.id
+    if (assetIndexId && versionJson.assetIndex) {
+      const indexPath = join(assetsPath, 'indexes', `${assetIndexId}.json`)
+
+      if (!fs.existsSync(indexPath)) {
+        missingFiles.push({
+          type: 'asset',
+          name: `资源索引 ${assetIndexId}.json`,
+          path: indexPath
+        })
+      } else {
+        try {
+          const indexData = JSON.parse(fs.readFileSync(indexPath, 'utf-8'))
+          const objects: Array<{ hash: string; size: number }> = Object.values(
+            indexData.objects || {}
+          )
+
+          // 只检查前 100 个资源文件作为预览
+          const previewObjects = objects.slice(0, 100)
+          for (const obj of previewObjects) {
+            const objPath = join(assetsPath, 'objects', obj.hash.substring(0, 2), obj.hash)
+            if (!fs.existsSync(objPath)) {
+              missingFiles.push({
+                type: 'asset',
+                name: obj.hash.substring(0, 8) + '...',
+                path: objPath,
+                size: obj.size
+              })
+              break // 只添加一个作为示例
+            }
+          }
+        } catch {
+          // 忽略解析错误
+        }
+      }
+    }
+
+    // 4. 检查版本 JAR
+    const versionJar = join(root, 'versions', versionId, `${versionId}.jar`)
+    if (!fs.existsSync(versionJar)) {
+      missingFiles.push({
+        type: 'version',
+        name: `${versionId}.jar`,
+        path: versionJar
+      })
+    }
+
+    log.info(`[checkMissingFiles] 检测到 ${missingFiles.length} 个缺失文件`)
+    return missingFiles
+  }
+
+  /**
+   * 下载缺失文件（由用户确认后调用）
+   */
+  async downloadMissingFiles(
+    gameCoreConfig: GameCoreConfig,
+    versionJson: VersionJson
+  ): Promise<{ success: boolean; error?: string }> {
+    const { root } = gameCoreConfig
+    const baseLibPath = join(root, 'libraries')
+    const assetsPath = join(root, 'assets')
+    const versionId = versionJson.id
+
+    this.sendProgress('downloading-files', '正在下载缺失文件...')
 
     // 1. 下载缺失的 libraries
     const missingLibs: Array<{ url: string; path: string }> = []
@@ -409,27 +606,35 @@ class MinecraftLauncher {
     }
 
     if (missingLibs.length > 0) {
-      this.sendProgress('checking-files', `正在补全支持库 (${missingLibs.length} 个)...`)
-      for (let i = 0; i < missingLibs.length; i++) {
-        const { url, path: destPath } = missingLibs[i]
-        this.sendProgress(
-          'checking-files',
-          `正在补全支持库 (${i + 1}/${missingLibs.length})`,
-          path.basename(destPath)
-        )
-        try {
-          await this.downloadFile(url, destPath)
-        } catch (e: any) {
-          log.warn(`[completeGameFiles] 库文件下载失败: ${url} -> ${destPath}: ${e.message}`)
+      this.sendProgress('downloading-files', `正在下载缺失库文件 (${missingLibs.length} 个)...`)
+      const result = await this.parallelDownload(
+        missingLibs,
+        PARALLEL_DOWNLOAD_CONCURRENCY,
+        (completed, total, item) => {
+          this.sendProgress(
+            'downloading-files',
+            `正在补全支持库 (${completed}/${total})`,
+            path.basename(item.path)
+          )
         }
+      )
+      log.info(`[downloadMissingFiles] 库文件下载完成: 成功 ${result.success}, 失败 ${result.failed}`)
+
+      if (result.failed > 0 && result.success === 0) {
+        return { success: false, error: '库文件下载失败' }
       }
     }
 
     // 2. 下载并解压 natives
+    this.sendProgress('downloading-files', '正在下载原生库...')
     await this.downloadAndExtractNatives(root, versionJson)
 
     // 3. 下载 assets
+    this.sendProgress('downloading-files', '正在下载资源文件...')
     await this.downloadAssets(root, versionJson)
+
+    log.info(`[downloadMissingFiles] 缺失文件下载完成`)
+    return { success: true }
   }
 
   /**
@@ -502,7 +707,7 @@ class MinecraftLauncher {
   }
 
   /**
-   * 下载资源文件
+   * 下载资源文件（优化：并行下载）
    */
   private async downloadAssets(gameDir: string, versionJson: VersionJson): Promise<void> {
     const assetIndexId = versionJson.assetIndex?.id
@@ -532,30 +737,28 @@ class MinecraftLauncher {
           indexData.objects || {}
         )
 
-        let missingCount = 0
+        // 收集缺失的资源文件
+        const missingAssets: Array<{ url: string; path: string }> = []
         for (const obj of objects) {
           const objPath = join(assetsPath, 'objects', obj.hash.substring(0, 2), obj.hash)
-          if (!fs.existsSync(objPath)) missingCount++
+          if (!fs.existsSync(objPath)) {
+            const objUrl = `${BMCLAPI}/assets/${obj.hash.substring(0, 2)}/${obj.hash}`
+            missingAssets.push({ url: objUrl, path: objPath })
+          }
         }
 
-        if (missingCount > 0) {
-          this.sendProgress('checking-files', `正在补全资源文件 (${missingCount} 个)...`)
-          let done = 0
-          for (const obj of objects) {
-            const objPath = join(assetsPath, 'objects', obj.hash.substring(0, 2), obj.hash)
-            if (!fs.existsSync(objPath)) {
-              const objUrl = `${BMCLAPI}/assets/${obj.hash.substring(0, 2)}/${obj.hash}`
-              try {
-                await this.downloadFile(objUrl, objPath)
-              } catch (e: any) {
-                log.warn(`[downloadAssets] 资源文件下载失败: ${objUrl}: ${e.message}`)
-              }
-              done++
-              if (done % 50 === 0) {
-                this.sendProgress('checking-files', `正在补全资源文件 (${done}/${missingCount})`)
+        if (missingAssets.length > 0) {
+          this.sendProgress('checking-files', `正在并行补全资源文件 (${missingAssets.length} 个, 并发数 ${PARALLEL_DOWNLOAD_CONCURRENCY})...`)
+          const result = await this.parallelDownload(
+            missingAssets,
+            PARALLEL_DOWNLOAD_CONCURRENCY,
+            (completed, total) => {
+              if (completed % 50 === 0 || completed === total) {
+                this.sendProgress('checking-files', `正在补全资源文件 (${completed}/${total})`)
               }
             }
-          }
+          )
+          log.info(`[downloadAssets] 资源文件下载完成: 成功 ${result.success}, 失败 ${result.failed}`)
         }
       } catch (e: any) {
         log.warn(`[downloadAssets] asset index 解析失败: ${e.message}`)
@@ -721,15 +924,63 @@ class MinecraftLauncher {
       log.info(`[buildJvmArguments] 版本自带 JVM 参数数量: ${versionJvmArgsCount}`)
     }
 
-    // GC 参数（1.18+）
-    if (!disabledOptimizationGcArgs && this.compareVersions(version, '1.18') >= 0) {
-      args.push('-XX:+UseG1GC', '-XX:MaxGCPauseMillis=50', '-XX:+DisableExplicitGC')
-      log.info(`[buildJvmArguments] 已添加 G1 GC 优化参数`)
+    // GC 参数（优化：根据内存大小智能选择）
+    if (!disabledOptimizationGcArgs) {
+      const baseVersion = extractBaseVersion(version)
+      const isModernVersion = this.compareVersions(baseVersion, '1.18') >= 0
+
+      if (isModernVersion) {
+        // 1.18+ 使用 G1GC 并添加优化参数
+        args.push(
+          '-XX:+UseG1GC',
+          '-XX:G1HeapRegionSize=8',
+          '-XX:MaxGCPauseMillis=50',
+          '-XX:+DisableExplicitGC'
+        )
+
+        // 根据最大内存动态调整 G1 预留区域
+        if (maxMemory >= 4096) {
+          // 4GB+ 优化
+          args.push(
+            '-XX:G1NewSizePercent=30',
+            '-XX:G1MaxNewSizePercent=50',
+            '-XX:G1ReservePercent=15'
+          )
+        } else if (maxMemory >= 2048) {
+          // 2-4GB 默认优化
+          args.push(
+            '-XX:G1NewSizePercent=20',
+            '-XX:G1MaxNewSizePercent=40',
+            '-XX:G1ReservePercent=20'
+          )
+        }
+        // <2GB 使用保守设置，不额外添加参数
+
+        log.info(`[buildJvmArguments] 已添加 G1 GC 优化参数 (现代版本 ${baseVersion})`)
+      } else if (this.compareVersions(baseVersion, '1.12') >= 0) {
+        // 1.12-1.17 使用 CMS GC
+        args.push(
+          '-XX:+UseConcMarkSweepGC',
+          '-XX:+CMSIncrementalMode',
+          '-XX:+CMSClassUnloadingEnabled',
+          '-XX:MaxGCPauseMillis=100'
+        )
+        log.info(`[buildJvmArguments] 已添加 CMS GC 参数 (版本 ${baseVersion})`)
+      }
+      // <1.12 使用默认 GC
     }
 
     // 高级优化参数
     if (!disabledOptimizationAdvancedArgs) {
       args.push('-Xss1M')
+    }
+
+    // 网络优化参数
+    if (!disabledOptimizationAdvancedArgs) {
+      args.push(
+        '-Djava.net.preferIPv4Stack=true', // 优先使用 IPv4
+        '-Dio.netty.initialThreads=16' // Netty 线程优化
+      )
     }
 
     // 去重 + 过滤空值
@@ -1100,7 +1351,7 @@ class MinecraftLauncher {
   /**
    * 下载文件
    */
-  private downloadFile(url: string, destPath: string, timeout = 30000): Promise<void> {
+  downloadFile(url: string, destPath: string, timeout = 30000): Promise<void> {
     return new Promise((resolve, reject) => {
       if (fs.existsSync(destPath)) return resolve()
       const dir = path.dirname(destPath)
@@ -1228,6 +1479,13 @@ function getLauncher(mainWindow: BrowserWindow): MinecraftLauncher {
   if (!launcherInstance) {
     launcherInstance = new MinecraftLauncher(mainWindow)
   }
+  return launcherInstance
+}
+
+/**
+ * 获取当前启动器实例（用于 IPC 调用）
+ */
+export function getLauncherInstance(): MinecraftLauncher | null {
   return launcherInstance
 }
 
@@ -1441,7 +1699,39 @@ function offlineUUID(name: string): string {
   ].join('-')
 }
 
-function defaultMcDir(): string {
+/**
+ * 继续启动流程（用户确认下载后调用）
+ * 此方法会下载缺失文件，然后继续启动游戏
+ */
+export async function continueLaunchAfterDownload(
+  mainWindow: BrowserWindow,
+  options: { versionId: string; accountId?: string }
+): Promise<LaunchResult> {
+  const config = createLaunchConfig(mainWindow, options)
+  const launcher = getLauncher(mainWindow)
+  const baseVersion = extractBaseVersion(options.versionId)
+  log.info(`[continueLaunchAfterDownload] 版本ID: ${options.versionId}, 基础版本: ${baseVersion}`)
+
+  // 1. 获取版本信息
+  const versionJson = await launcher.resolveVersionJson(config.gameCoreConfig)
+  if (!versionJson) {
+    return { success: false, error: `版本文件不存在: ${options.versionId}` }
+  }
+
+  // 2. 处理继承版本
+  const finalVersionJson = await launcher.resolveInheritedVersion(config.gameCoreConfig, versionJson)
+
+  // 3. 下载缺失文件
+  const downloadResult = await launcher.downloadMissingFiles(config.gameCoreConfig, finalVersionJson)
+  if (!downloadResult.success) {
+    return { success: false, error: downloadResult.error || '下载缺失文件失败' }
+  }
+
+  // 4. 继续启动游戏
+  return launcher.launch(config)
+}
+
+export function defaultMcDir(): string {
   const os = require('os')
   if (process.platform === 'win32') {
     return join(os.homedir(), 'AppData', 'Roaming', '.minecraft')

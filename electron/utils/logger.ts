@@ -8,7 +8,6 @@
 import { app, dialog } from 'electron'
 import { join } from 'path'
 import { mkdirSync, appendFileSync, existsSync, readdirSync, readFileSync, writeFileSync, createWriteStream } from 'fs'
-import archiver from 'archiver'
 
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR'
 const LEVEL_ORDER: Record<LogLevel, number> = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3 }
@@ -159,6 +158,7 @@ export async function exportDiagnostics(): Promise<{ ok: boolean; path?: string;
       return { ok: false, error: '用户取消' }
     }
 
+    const archiver = (await import('archiver')).default
     const zip = archiver('zip', { zlib: { level: 9 } })
     const output = createWriteStream(filePath)
 

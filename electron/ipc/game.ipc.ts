@@ -3,17 +3,11 @@
  */
 import { ipcMain } from 'electron'
 import * as gameLauncher from '../services/game.launcher.service'
-import {
-  MinecraftLauncher,
-  LaunchConfig,
-  Account,
-  GameWindowConfig,
-  GameCoreConfig,
-  JavaConfig,
-  type ProgressReport
-} from '../services/starlight.launcher'
+import { getLauncherInstance } from '../services/game.launcher.service'
 import { getInstanceById } from '../services/instances'
+import { getDatabase } from '../services/database'
 import type { BrowserWindow } from 'electron'
+import type { MissingFileInfo } from '../services/game.launcher.service'
 import {
   existsSync,
   readdirSync,
@@ -206,39 +200,65 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
     }
   )
 
-  // ===== 使用 StarLight 风格启动器启动游戏 =====
-  ipcMain.handle('game:launch-starlight', async (_event, config: LaunchConfig) => {
-    try {
-      const launcher = new MinecraftLauncher(config, (msg) => {
-        log.info(`[StarLight.Launcher] ${msg}`)
-      })
-
-      launcher.onOutput = (output) => {
-        log.info(`[MC.OUTPUT] ${output}`)
-      }
-
-      launcher.onError = (error) => {
-        log.error(`[MC.ERROR] ${error}`)
-      }
-
-      const result = await launcher.launchAsync((progress: ProgressReport) => {
-        log.info(`[Launch.Progress] ${progress.phase}: ${progress.message}`)
-        if (mainWindow) {
-          mainWindow.webContents.send('game:launch-progress', progress)
-        }
-      })
-
-      return result
-    } catch (err: any) {
-      log.error('[game:launch-starlight] 启动失败:', err.message)
-      return { success: false, error: err.message }
-    }
-  })
-
   ipcMain.handle('game:terminate', () => gameLauncher.terminateGame())
   ipcMain.handle('game:is-running', () => gameLauncher.isRunning())
   ipcMain.handle('game:status', () => gameLauncher.getGameStatus())
   ipcMain.handle('game:get-log', () => gameLauncher.getCurrentLog())
+
+  // ===== 缺失文件检测与下载 =====
+  ipcMain.handle(
+    'game:check-missing-files',
+    async (_event, { versionId }: { versionId: string }): Promise<MissingFileInfo[]> => {
+      try {
+        const db = getDatabase()
+        const lastFolder = db
+          .prepare("SELECT value FROM configs WHERE key = 'last_selected_folder'")
+          .get() as { value: string } | undefined
+        const gameDir = lastFolder?.value || defaultMcDir()
+
+        const launcher = getLauncherInstance()
+        if (!launcher) return []
+
+        const versionJson = await launcher.resolveVersionJson({
+          root: gameDir,
+          version: versionId,
+          isVersionIsolation: false
+        })
+        if (!versionJson) return []
+
+        const finalVersionJson = await launcher.resolveInheritedVersion(
+          { root: gameDir, version: versionId, isVersionIsolation: false },
+          versionJson
+        )
+
+        return launcher.checkMissingFiles(
+          { root: gameDir, version: versionId, isVersionIsolation: false },
+          finalVersionJson
+        )
+      } catch (e: any) {
+        log.error('[game:check-missing-files] ERROR:', e.message)
+        return []
+      }
+    }
+  )
+
+  ipcMain.handle(
+    'game:confirm-download-and-launch',
+    async (
+      _event,
+      { versionId, accountId }: { versionId: string; accountId?: string }
+    ) => {
+      try {
+        return gameLauncher.continueLaunchAfterDownload(mainWindow, {
+          versionId,
+          accountId
+        })
+      } catch (e: any) {
+        log.error('[game:confirm-download-and-launch] ERROR:', e.message)
+        return { success: false, error: e.message }
+      }
+    }
+  )
 
   // ===== MC 版本清单 =====
 

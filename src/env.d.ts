@@ -9,3 +9,8 @@ declare module '*.vue' {
 interface Window {
   electronAPI: import('../electron/preload').MclaAPI
 }
+
+declare module 'vue-i18n' {
+  import type { LocaleMessages } from './locale'
+  interface DefineLocaleMessage extends LocaleMessages {}
+}

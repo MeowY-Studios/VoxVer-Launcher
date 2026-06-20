@@ -1,6 +1,22 @@
 /**
  * MCLA 主进程入口
  */
+
+// ========== Squirrel.Windows 安装器事件处理（R-1 修复）==========
+// 在 Electron 应用启动前处理 Windows Squirrel 安装/更新/卸载事件
+// 确保快捷方式创建、注册表清理、卸载流程正常工作
+if (process.platform === 'win32') {
+  try {
+    const squirrelStartup = require('electron-squirrel-startup')
+    if (squirrelStartup) {
+      // Squirrel 事件已处理，退出应用避免重复执行
+      process.exit(0)
+    }
+  } catch {
+    // electron-squirrel-startup 未安装或不需要处理，继续正常启动
+  }
+}
+
 import { app, BrowserWindow, shell, nativeImage, type NativeImage, ipcMain } from 'electron'
 import { execSync } from 'child_process'
 

@@ -65,6 +65,14 @@ interface ModpackOptions {
   version?: string
 }
 
+/** 缺失文件信息（用于 game API 参数约束） */
+interface MissingFileInfo {
+  type: 'library' | 'asset' | 'natives' | 'version'
+  name: string
+  path: string
+  size?: number
+}
+
 const api = {
   // 窗口控制
   window: {
@@ -331,7 +339,13 @@ const api = {
       const listener = (_event: IpcRendererEvent, code: number) => callback(code)
       ipcRenderer.on('game:exit', listener)
       return () => ipcRenderer.removeListener('game:exit', listener)
-    }
+    },
+    /** 检测缺失文件 */
+    checkMissingFiles: (versionId: string): Promise<MissingFileInfo[]> =>
+      ipcRenderer.invoke('game:check-missing-files', { versionId }),
+    /** 确认下载缺失文件并继续启动 */
+    confirmDownloadAndLaunch: (versionId: string, accountId?: string) =>
+      ipcRenderer.invoke('game:confirm-download-and-launch', { versionId, accountId })
   },
 
   // 文件对话框

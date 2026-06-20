@@ -23,8 +23,43 @@ import { logger } from '../utils/logger'
 import { hashFile } from '../utils/hash'
 import type { PackedInstance } from './instanceSharePack.service'
 import { getChunk } from './instanceSharePack.service'
+import { getDatabase } from './database'
 
 const log = logger.child('p2pShare')
+
+/**
+ * 自定义信令服务器配置
+ */
+interface CustomSignalingConfig {
+  host: string
+  port: number
+  path?: string
+  secure?: boolean
+  key?: string
+}
+
+/**
+ * 获取用户配置的自定义信令服务器
+ */
+function getCustomSignalingConfig(): CustomSignalingConfig | null {
+  try {
+    const db = getDatabase()
+    const row = db
+      .prepare("SELECT value FROM configs WHERE key = 'p2p_signaling_server'")
+      .get() as { value: string } | undefined
+
+    if (!row?.value) return null
+
+    const config = JSON.parse(row.value) as CustomSignalingConfig
+    if (!config.host || !config.port) return null
+
+    log.info('[getCustomSignalingConfig] 使用自定义信令服务器:', config)
+    return config
+  } catch (e: any) {
+    log.warn('[getCustomSignalingConfig] 解析配置失败:', e.message)
+    return null
+  }
+}
 
 export interface ShareSession {
   sessionId: string
@@ -99,10 +134,11 @@ interface ErrorMessage extends P2PMessage {
   }
 }
 
-const PEER_CONFIG = {
-  host: 'peerjs-server.herokuapp.com',
+const DEFAULT_PEER_CONFIG = {
+  host: '0.peerjs.com',
   port: 443,
   path: '/',
+  secure: true,
   debug: 0,
   config: {
     iceServers: [
@@ -117,12 +153,38 @@ const PEER_CONFIG = {
 
 const FALLBACK_PEER_CONFIGS = [
   {
-    host: '0.peerjs.com',
+    host: 'peerjs-server.herokuapp.com',
     port: 443,
     path: '/',
-    debug: 0
+    secure: true,
+    debug: 0,
+    config: DEFAULT_PEER_CONFIG.config
   }
 ]
+
+/**
+ * 获取有效的 Peer 配置列表（优先自定义服务器）
+ */
+function getEffectivePeerConfigs(): Array<typeof DEFAULT_PEER_CONFIG> {
+  const customConfig = getCustomSignalingConfig()
+
+  if (customConfig) {
+    // 用户配置了自定义服务器，优先使用
+    const customPeerConfig = {
+      host: customConfig.host,
+      port: customConfig.port,
+      path: customConfig.path || '/',
+      secure: customConfig.secure ?? (customConfig.port === 443),
+      debug: 0,
+      key: customConfig.key || 'peerjs',
+      config: DEFAULT_PEER_CONFIG.config
+    }
+    log.info('[getEffectivePeerConfigs] 优先使用自定义服务器:', customPeerConfig)
+    return [customPeerConfig, DEFAULT_PEER_CONFIG, ...FALLBACK_PEER_CONFIGS]
+  }
+
+  return [DEFAULT_PEER_CONFIG, ...FALLBACK_PEER_CONFIGS]
+}
 
 const CONNECTION_TIMEOUT = 30000
 const CHUNK_RETRY_COUNT = 3
@@ -144,14 +206,14 @@ class P2PShareService {
   private async createPeerWithRetry(preferredId?: string): Promise<Peer> {
     let lastError: Error | null = null
 
-    const configs = [PEER_CONFIG, ...FALLBACK_PEER_CONFIGS]
+    const configs = getEffectivePeerConfigs()
 
     for (let retry = 0; retry <= MAX_PEER_INIT_RETRIES; retry++) {
       for (const config of configs) {
         try {
           const peer = new Peer(preferredId as string, {
             ...config,
-            config: PEER_CONFIG.config
+            config: DEFAULT_PEER_CONFIG.config
           })
 
           await new Promise<void>((resolve, reject) => {

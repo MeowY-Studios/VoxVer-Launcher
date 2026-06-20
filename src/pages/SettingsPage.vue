@@ -1088,22 +1088,6 @@
 
         <div class="row">
           <div class="row-main">
-            <label class="row-label">CurseForge API Key</label>
-            <p class="row-desc">用于访问 CurseForge API（留空则只用 Modrinth）</p>
-          </div>
-          <div class="row-control">
-            <input
-              type="password"
-              class="f-input"
-              v-model="s.cfApiKey"
-              placeholder="填入你的 CF API Key"
-              @blur="saveCfApiKey"
-            />
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="row-main">
             <label class="row-label">文件名格式</label>
             <p class="row-desc">下载的 Mod/资源包文件命名规则</p>
           </div>
@@ -1609,9 +1593,8 @@ const router = useRouter()
 const settingsActive = inject('settingsActive') as any
 const activeCategory = computed(() => settingsActive?.value || 'launch')
 
-// 加载保存的 CF API Key 和 Java 设置
+// 加载保存的 Java 设置
 onMounted(async () => {
-  await loadCfApiKey()
   await loadJavaSettings()
 })
 
@@ -1715,7 +1698,6 @@ const s = reactive({
   maxThreads: 32,
   speedLimit: 0,
   modSource: 'both',
-  cfApiKey: '',
   fileNameFormat: 'name-version',
   modManageStyle: 'card',
 
@@ -2009,19 +1991,6 @@ async function refreshSkin() {
       body: `皮肤刷新失败: ${e.message}`,
       type: 'error'
     })
-  }
-}
-
-async function saveCfApiKey() {
-  if (window.electronAPI?.config) {
-    await window.electronAPI.config.setSecure('curseforge_api_key', s.cfApiKey)
-  }
-}
-
-async function loadCfApiKey() {
-  if (window.electronAPI?.config) {
-    const key = await window.electronAPI.config.getSecure('curseforge_api_key')
-    if (key) s.cfApiKey = key
   }
 }
 

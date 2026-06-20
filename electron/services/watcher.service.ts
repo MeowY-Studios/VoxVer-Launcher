@@ -24,6 +24,7 @@ export interface GameProcessInfo {
   state: GameProcessState
   startTime: number
   instanceId: string
+  gameDir?: string // 游戏目录，用于查找崩溃报告
   exitCode?: number
   crashReportPath?: string
 }
@@ -53,14 +54,15 @@ export class WatcherService extends EventEmitter {
   /**
    * 注册游戏进程
    */
-  registerProcess(instanceId: string, process: ChildProcess): void {
+  registerProcess(instanceId: string, process: ChildProcess, gameDir?: string): void {
     const pid = process.pid!
 
     const info: GameProcessInfo = {
       pid,
       state: 'launching',
       startTime: Date.now(),
-      instanceId
+      instanceId,
+      gameDir
     }
 
     this.processes.set(instanceId, info)
@@ -171,8 +173,36 @@ export class WatcherService extends EventEmitter {
    * 查找崩溃报告
    */
   private findCrashReport(instanceId: string): string | undefined {
-    // 这个需要在实例创建时传入 gameDir
-    return undefined // 暂时返回 undefined
+    const info = this.processes.get(instanceId)
+    if (!info?.gameDir) return undefined
+
+    const crashReportsDir = path.join(info.gameDir, 'crash-reports')
+    if (!fs.existsSync(crashReportsDir)) return undefined
+
+    try {
+      // 查找最近的崩溃报告文件
+      const files = fs.readdirSync(crashReportsDir, { withFileTypes: true })
+      const crashFiles = files
+        .filter((f) => f.isFile() && f.name.endsWith('.txt'))
+        .map((f) => ({
+          name: f.name,
+          path: path.join(crashReportsDir, f.name),
+          time: fs.statSync(path.join(crashReportsDir, f.name)).mtime.getTime()
+        }))
+        .sort((a, b) => b.time - a.time)
+
+      // 返回最近的崩溃报告（如果是在进程启动后生成的）
+      if (crashFiles.length > 0) {
+        const latest = crashFiles[0]
+        if (latest.time > info.startTime) {
+          return latest.path
+        }
+      }
+    } catch (e: any) {
+      log.warn(`[findCrashReport] 查找崩溃报告失败: ${e.message}`)
+    }
+
+    return undefined
   }
 
   /**

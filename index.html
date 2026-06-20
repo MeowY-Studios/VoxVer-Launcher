@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;"
     />
     <title>MCLA</title>
     <style>
@@ -65,7 +65,7 @@
         </svg>
       </div>
       <div class="splash-title">MCLA</div>
-      <div class="splash-version">v0.5.3</div>
+      <div class="splash-version">v0.5.4</div>
       <div class="splash-progress">
         <div class="splash-progress-bar"></div>
       </div>
@@ -73,5 +73,23 @@
     <div id="svg-sprite" style="display:none"></div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      (function() {
+        var splash = document.getElementById('splash-screen');
+        var hidden = false;
+        function hideSplash() {
+          if (hidden) return;
+          hidden = true;
+          if (splash) {
+            splash.classList.add('hidden');
+            setTimeout(function() { splash.remove(); }, 300);
+          }
+        }
+        setTimeout(hideSplash, 5000);
+        if (typeof window.addEventListener === 'function') {
+          window.addEventListener('load', function() { setTimeout(hideSplash, 2000); });
+        }
+      })();
+    </script>
   </body>
 </html>
