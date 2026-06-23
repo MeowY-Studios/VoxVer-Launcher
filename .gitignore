@@ -1,0 +1,96 @@
+# ============================================
+# VoxVer Launcher 项目 .gitignore
+# Electron + Vue 3 + TypeScript
+# ============================================
+
+# ========== 依赖 ==========
+node_modules/
+
+# ========== 构建输出 ==========
+out/
+dist/
+build/                          # electron-builder 打包产物（NSIS / unpacked）
+
+# ========== 开发日志 ==========
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+build-log.txt                   # 本地构建日志
+
+# ========== IDE / 编辑器 ==========
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+.settings/
+
+# ========== 系统文件 ==========
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.bak
+*.tmp
+*.temp
+.cache/
+
+# ========== Vite/Vue 类型声明 ==========
+auto-imports.d.ts
+components.d.ts
+
+# ========== 环境变量（绝不可提交！）==========
+.env
+.env.local
+.env.*.local
+# .env.example 是示例模板，可以提交（不含敏感信息）
+
+# ========== 调试符号 ==========
+*.pdb
+*.map
+
+# ========== 测试覆盖率 ==========
+coverage/
+*.lcov
+
+# ========== WorkBuddy（开发工具数据）==========
+.workbuddy/
+
+# ========== Electron 专属 ==========
+electron-builder.yml.bak        # electron-builder 备份
+electron-builder.env           # 构建环境变量缓存
+release/                        # 手动构建输出
+
+# ========== 图像资源（非源文件）==========
+# *.ico 在根目录忽略，但 resources/icons/ 中的应用图标需要提交
+/*.ico
+40348278.jpg                    # 截图等临时图片
+
+# ========== 操作系统 ==========
+$RECYCLE.BIN/
+*.lnk
+
+# ========== 项目文档（不上传）==========
+DEVELOPMENT_PLAN.md
+DEVELOPMENT_SUMMARY.md
+RELEASE_NOTES.md
+RELEASE_NOTES_v*.md
+TASKS.md
+ANALYSIS_REPORT_*.md
+VoxVer_介绍.pptx
+
+# ========== 备份目录（不上传）==========
+LNTP/
+
+# ========== GitHub Actions CI/CD（需要上传）==========
+# .github/ 目录包含 CI/CD 配置，必须提交！
+# 以下文件需要提交：
+# .github/workflows/ci.yml
+# .github/workflows/VoxVer.yml
+# ========== 临时图片（不上传）==========
+StarLight.Corelogo.png
+

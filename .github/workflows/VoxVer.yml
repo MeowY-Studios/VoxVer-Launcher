@@ -1,0 +1,78 @@
+name: VoxVer Launcher Release Workflow
+
+on:
+  push:
+    tags:
+      - 'VoxVer*'
+
+env:
+  NODE_VERSION: 20.x
+  NPM_REGISTRY: https://registry.npmjs.org/
+
+jobs:
+  release:
+    name: Build and Release VoxVer Launcher
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: ${{ env.NPM_REGISTRY }}
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Lint code
+        run: npm run lint
+        continue-on-error: false
+
+      - name: Build TypeScript
+        run: npm run build
+        continue-on-error: false
+
+      - name: Build Windows Installer
+        run: npm run build:win
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Upload to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/VoxVer Setup 0.5.5.exe
+            build/VoxVer Setup 0.5.5.exe.blockmap
+            build/latest.yml
+          tag_name: ${{ github.ref_name }}
+          name: VoxVer Launcher v0.5.5
+          body: |
+            ## VoxVer Launcher v0.5.5 发布
+
+            **版本类型**: UI/UX 优化 + i18n 国际化 + 功能完善 + 测试覆盖
+
+            **主要变更**:
+            - ✅ i18n 国际化全面接入（410 处 `$t()` 调用）
+            - ✅ TypeScript 类型全面修复
+            - ✅ UI/UX 优化
+            - ✅ Forge/NeoForge/Quilt 安装完善
+            - ✅ 项目重命名：MCLA → VoxVer Launcher
+
+            **技术栈**: Electron 33.4.11 + Vue 3.5 + TypeScript 5.5
+
+            **升级建议**: 所有用户建议升级到此版本
+
+          draft: false
+          prerelease: false
+
+      - name: Cleanup
+        run: |
+          echo "Release workflow completed successfully"
+          echo "Version: 0.5.5"
+          echo "Tag: ${{ github.ref_name }}"

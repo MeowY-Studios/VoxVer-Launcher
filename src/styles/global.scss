@@ -1,0 +1,209 @@
+/* ============================================
+   MCLA Global Styles
+   基础样式补充（pixel-ui.css 已包含重置和组件样式）
+   ============================================ */
+
+/* ---- 滚动条（全局统一）---- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--voxver-bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--voxver-border-color);
+  border: 2px solid var(--voxver-bg-secondary);
+  border-radius: var(--voxver-radius-full);
+  
+  &:hover {
+    background: var(--voxver-text-muted);
+  }
+}
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--voxver-border-color) var(--voxver-bg-secondary);
+}
+
+/* ---- 选中文本 ---- */
+::selection {
+  background: var(--voxver-primary-200);
+  color: var(--voxver-primary-900);
+}
+
+/* ---- Focus 可见性 ---- */
+:focus-visible {
+  outline: 2px solid var(--voxver-primary-500);
+  outline-offset: 2px;
+}
+
+/* ---- Electron 禁止文字选中区域 ---- */
+[aria-draggable="true"],
+.titlebar,
+.mcla-sidebar,
+.mcla-nav-item {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ---- 全局过渡 ---- */
+a, button, input, select, textarea, .mcla-card, .mcla-nav-item, .mcla-tab {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---- 链接默认样式 ---- */
+a {
+  color: var(--voxver-primary-500);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--voxver-primary-600);
+    text-decoration: underline;
+  }
+}
+
+/* ---- 代码块 ---- */
+code, pre {
+  font-family: var(--voxver-font-mono);
+  font-size: 0.9em;
+}
+code {
+  background: var(--voxver-bg-tertiary);
+  padding: 2px 6px;
+  border-radius: var(--voxver-radius-xs);
+}
+pre {
+  background: var(--voxver-bg-secondary);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
+  padding: var(--voxver-space-4);
+  overflow-x: auto;
+}
+
+/* ---- 页面切换动画 ---- */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+/* ---- 卡片悬停效果增强 ---- */
+.mcla-card {
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--voxver-shadow-lg);
+  }
+}
+
+/* ---- 列表项悬停效果 ---- */
+.mcla-list-item {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    background: var(--voxver-bg-hover);
+    transform: translateX(4px);
+  }
+  
+  &:active {
+    transform: translateX(2px);
+  }
+}
+
+/* ---- 输入框聚焦增强 ---- */
+.mcla-input {
+  &:focus {
+    border-color: var(--voxver-primary-400);
+    box-shadow: var(--voxver-input-focus-shadow);
+    background: var(--voxver-bg-primary);
+  }
+}
+
+/* ---- 按钮点击反馈 ---- */
+.mcla-btn {
+  &:active {
+    transform: scale(0.98);
+  }
+  
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    transform: none;
+  }
+}
+
+/* ---- 进度条动画增强 ---- */
+.mcla-progress-bar {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---- 平滑滚动 ---- */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ---- 禁用过渡时的闪烁 ---- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---- PxModal Buttons ---- */
+.px-btn {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 500;
+  border: none;
+  border-radius: var(--voxver-radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.px-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.px-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.px-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.px-btn--primary {
+  background: var(--voxver-gradient-primary, linear-gradient(135deg, #6366f1, #8b5cf6));
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+}
+
+.px-btn--primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #818cf8, #a78bfa);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.45);
+}
+
+.px-btn--secondary {
+  background: var(--voxver-bg-tertiary, #272935);
+  color: var(--voxver-text-primary, #e2e8f0);
+  border: 1px solid var(--voxver-border-color, #374151);
+}
+
+.px-btn--secondary:hover:not(:disabled) {
+  background: var(--voxver-border-color, #374151);
+}

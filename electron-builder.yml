@@ -1,0 +1,40 @@
+appId: com.voxver.launcher
+productName: VoxVer Launcher
+copyright: Copyright © 2026 EccenTri
+
+directories:
+  output: build
+
+files:
+  - out/**/*
+  - "!out/renderer/**/*"
+
+extraResources:
+  - from: out/renderer
+    to: renderer
+  - from: public
+    to: public
+  - from: resources/icons
+    to: icons
+
+win:
+  target:
+    - nsis
+  icon: resources/icons/icon.ico
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: VoxVer Launcher
+  uninstallDisplayName: VoxVer Launcher
+  installerIcon: resources/icons/icon.ico
+  uninstallerIcon: resources/icons/icon.ico
+
+publish:
+  provider: github
+  owner: nnkmn
+  repo: VoxVer-Launcher
+  releaseType: release
+  updaterCacheDirName: voxver-updater

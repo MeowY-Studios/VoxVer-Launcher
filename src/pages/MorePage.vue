@@ -1,0 +1,1047 @@
+<template>
+  <div class="more-page">
+    <!-- ========== 关于与鸣谢 ========== -->
+    <template v-if="activeCat === 'about'">
+      <div class="page-header">
+        <h1 class="page-title">{{ $t('more.about') }}</h1>
+        <p class="page-subtitle">{{ $t('more.aboutSubtitle') }}</p>
+      </div>
+
+      <!-- 关于 -->
+      <section class="about-section">
+        <h2 class="section-title">{{ $t('more.aboutSection') }}</h2>
+        <div class="about-card">
+          <!-- 顶部：作者 -->
+          <div class="about-author">
+            <div class="author-row">
+              <div class="author-avatar">
+                <img :src="eccenTriAvatar" alt="EccenTri" width="40" height="40" />
+              </div>
+              <div class="author-info">
+                <div class="author-name">EccenTri</div>
+                <div class="author-desc">{{ $t('more.mclaDeveloper') }}</div>
+              </div>
+              <a href="https://ifdian.net/a/Eccen" target="_blank" class="author-btn primary"
+                >{{ $t('more.sponsorMcla') }}</a
+              >
+            </div>
+          </div>
+
+          <div class="about-divider"></div>
+
+          <!-- 底部：VoxVer Launcher -->
+          <div class="about-app">
+            <div class="app-row">
+              <div class="app-logo">
+                <img :src="mclaLogo" alt="VoxVer" width="40" height="40" />
+              </div>
+              <div class="app-info">
+                <div class="app-name">{{ $t('more.appName') }}</div>
+                <div class="app-version">{{ $t('more.currentVersion') }}{{ appVersion }}</div>
+              </div>
+              <button
+                @click="handleCheckUpdate"
+                class="app-btn update-btn"
+                :disabled="updateStatus.checking"
+              >
+                <template v-if="updateStatus.checking">{{ $t('more.checkingUpdate') }}</template>
+                <template v-else-if="updateStatus.available">{{ $t('more.foundUpdate') }}</template>
+                <template v-else>{{ $t('more.checkUpdate') }}</template>
+              </button>
+              <a href="https://github.com/nnkmn/VoxVer-Launcher" target="_blank" class="app-btn">{{ $t('more.viewSource') }}</a>
+            </div>
+          </div>
+
+          <!-- 更新进度条 -->
+          <div
+            v-if="updateStatus.available || updateStatus.downloading || updateStatus.downloaded"
+            class="update-section"
+          >
+            <div class="update-info">
+              <div class="update-version">{{ $t('more.newVersion') }}{{ updateStatus.version }}</div>
+              <div v-if="updateStatus.releaseNotes" class="update-notes">
+                {{ updateStatus.releaseNotes }}
+              </div>
+            </div>
+            <div v-if="updateStatus.downloading" class="update-progress">
+              <div class="progress-bar">
+                <div
+                  class="progress-fill"
+                  :style="{ width: updateStatus.downloadProgress + '%' }"
+                ></div>
+              </div>
+              <div class="progress-text">
+                {{ $t('more.downloading') }}{{ updateStatus.downloadProgress.toFixed(1) }}%
+              </div>
+            </div>
+            <div class="update-actions">
+              <button
+                v-if="!updateStatus.downloading && !updateStatus.downloaded"
+                @click="handleDownloadUpdate"
+                class="update-action-btn primary"
+              >
+                {{ $t('more.downloadUpdate') }}
+              </button>
+              <button
+                v-if="updateStatus.downloaded"
+                @click="handleInstallUpdate"
+                class="update-action-btn success"
+              >
+                {{ $t('more.restartInstall') }}
+              </button>
+            </div>
+            <div v-if="updateStatus.error" class="update-error">{{ updateStatus.error }}</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 鸣谢 -->
+      <section class="credits-section">
+        <h2 class="section-title">{{ $t('more.credits') }}</h2>
+        <div class="credits-list">
+          <div class="credit-item" v-for="credit in credits" :key="credit.name">
+            <div class="credit-header">
+              <img
+                v-if="credit.avatar"
+                :src="credit.avatar"
+                class="credit-avatar"
+                :key="credit.avatar"
+              />
+              <span class="credit-name">{{ credit.name }}</span>
+              <span class="credit-tag">{{ credit.tag }}</span>
+            </div>
+            <p class="credit-desc">{{ credit.desc }}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 开源项目使用 -->
+      <section class="oss-section">
+        <h2 class="section-title">{{ $t('more.openSource') }}</h2>
+        <div class="oss-list">
+          <div class="oss-item" v-for="lib in openSourceLibs" :key="lib.name">
+            <div class="oss-left">
+              <span class="oss-name">{{ lib.name }}</span>
+              <span class="oss-version">{{ lib.version }}</span>
+            </div>
+            <a :href="lib.url" target="_blank" class="oss-link">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+                <polyline points="15 3 21 3 21 9" />
+                <line x1="10" y1="14" x2="21" y2="3" />
+              </svg>
+            </a>
+            <span class="oss-license">{{ lib.license }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 版权声明 -->
+      <section class="copyright-section">
+        <h2 class="section-title">{{ $t('more.copyright') }}</h2>
+        <div class="copyright-card">
+          <p class="copyright-text">{{ $t('more.copyrightText1') }}</p>
+          <p class="copyright-text">{{ $t('more.copyrightText2') }}</p>
+          <p class="copyright-text">{{ $t('more.copyrightText3') }}</p>
+          <p class="copyright-text copyright-muted">
+            Copyright &copy; 2024-2026 VoxVer Launcher Contributors. MIT License.
+          </p>
+          <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" class="copyright-link"
+            >{{ $t('more.viewGplv3') }}</a
+          >
+          <a
+            href="https://opensource.org/licenses/MIT"
+            target="_blank"
+            class="copyright-link"
+            style="margin-left: 16px"
+            >{{ $t('more.viewMit') }}</a
+          >
+        </div>
+      </section>
+    </template>
+
+    <!-- ========== 帮助 ========== -->
+    <template v-else-if="activeCat === 'help'">
+      <div class="page-header">
+        <h1 class="page-title">{{ $t('more.help') }}</h1>
+        <p class="page-subtitle">{{ $t('more.helpSubtitle') }}</p>
+      </div>
+
+      <section class="faq-section">
+        <div class="faq-item" v-for="faq in faqList" :key="faq.q">
+          <div class="faq-q">{{ faq.q }}</div>
+          <div class="faq-a">{{ faq.a }}</div>
+        </div>
+      </section>
+    </template>
+
+    <!-- ========== 反馈 ========== -->
+    <template v-else-if="activeCat === 'feedback'">
+      <div class="page-header">
+        <h1 class="page-title">{{ $t('more.feedback') }}</h1>
+        <p class="page-subtitle">{{ $t('more.feedbackSubtitle') }}</p>
+      </div>
+
+      <section class="feedback-section">
+        <div class="feedback-card">
+          <div class="feedback-icon">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M8 2v4M16 2v4M3 10h18M21 8v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h14a2 2 0 012 2z"
+              />
+            </svg>
+          </div>
+          <h3 class="feedback-title">{{ $t('more.issueFeedback') }}</h3>
+          <p class="feedback-desc">{{ $t('more.issueDesc') }}</p>
+          <a href="https://github.com/nnkmn/VoxVer-Launcher/issues" target="_blank" class="feedback-btn"
+            >{{ $t('more.goToGitHub') }}</a
+          >
+        </div>
+
+        <div class="feedback-card disabled">
+          <div class="feedback-icon">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="9" y1="18" x2="15" y2="18" />
+              <line x1="10" y1="22" x2="14" y2="22" />
+              <path
+                d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0018 8 6 6 0 006 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 018.91 14"
+              />
+            </svg>
+          </div>
+          <h3 class="feedback-title">{{ $t('more.featureRequest') }}</h3>
+          <p class="feedback-desc">{{ $t('more.notAvailable') }}</p>
+          <button class="feedback-btn" disabled>{{ $t('more.notAvailable') }}</button>
+        </div>
+
+        <div class="feedback-card">
+          <div class="feedback-icon">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+              />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+          </div>
+          <h3 class="feedback-title">{{ $t('more.otherContact') }}</h3>
+          <p class="feedback-desc">{{ $t('more.otherContactDesc') }}</p>
+          <button @click="copyEmail" class="feedback-btn">{{ $t('more.sendEmail') }}</button>
+        </div>
+      </section>
+
+      <!-- 邮箱复制提示弹窗 -->
+      <PxModal v-model="showEmailModal" :title="$t('common.tip')" size="sm">
+        <p style="color: rgba(255, 255, 255, 0.88); font-size: 14px; margin: 0; text-align: center">
+          {{ $t('more.emailCopied') }}
+        </p>
+        <template #footer>
+          <button class="modal-btn" @click="showEmailModal = false">{{ $t('more.confirm') }}</button>
+        </template>
+      </PxModal>
+    </template>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { inject, computed, ref, reactive, onMounted, onUnmounted } from 'vue'
+import PxModal from '@/components/common/PxModal.vue'
+import starlightLogo from '@/assets/starlight-logo.png'
+import eccenTriAvatar from '@/assets/EccenTri-Avatar.png'
+import mclaLogo from '@/assets/LOGO.png'
+import hexDragonAvatar from '@/assets/hex-dragon-avatar.png'
+
+const moreActive = inject('moreActive') as any
+const activeCat = computed(() => moreActive?.value || 'about')
+
+const showEmailModal = ref(false)
+const appVersion = ref('0.3.0')
+
+const updateStatus = reactive({
+  checking: false,
+  available: false,
+  downloading: false,
+  downloadProgress: 0,
+  downloaded: false,
+  error: null as string | null,
+  version: null as string | null,
+  releaseNotes: null as string | null
+})
+
+let removeUpdaterListener: (() => void) | null = null
+
+const handleCheckUpdate = async () => {
+  if (updateStatus.checking) return
+  await window.electronAPI?.updater.check()
+}
+
+const handleDownloadUpdate = async () => {
+  await window.electronAPI?.updater.download()
+}
+
+const handleInstallUpdate = async () => {
+  await window.electronAPI?.updater.install()
+}
+
+onMounted(async () => {
+  try {
+    const v = await window.electronAPI?.app.getVersion()
+    if (v) appVersion.value = v
+  } catch {
+    // 使用默认值
+  }
+
+  try {
+    const status = await window.electronAPI?.updater.getStatus()
+    if (status && typeof status === 'object' && 'data' in status && status.data) {
+      Object.assign(updateStatus, status.data)
+    }
+  } catch {
+    // ignore
+  }
+
+  removeUpdaterListener = window.electronAPI?.updater.onStatusChange((status) => {
+    Object.assign(updateStatus, status)
+  })
+})
+
+onUnmounted(() => {
+  if (removeUpdaterListener) {
+    removeUpdaterListener()
+  }
+})
+
+const copyEmail = async () => {
+  try {
+    await navigator.clipboard.writeText('sksadfg@163.com')
+  } catch {
+    // fallback
+    const input = document.createElement('input')
+    input.value = 'sksadfg@163.com'
+    document.body.appendChild(input)
+    input.select()
+    document.execCommand('copy')
+    document.body.removeChild(input)
+  }
+  showEmailModal.value = true
+}
+
+const credits = [
+  {
+    name: '龙腾猫跃',
+    tag: '参考项目',
+    desc: 'PCL2 作者。VoxVer Launcher 参考了其部分内容和实现思路。',
+    avatar: hexDragonAvatar
+  },
+  {
+    name: 'StarLight.Core',
+    tag: '核心参考',
+    desc: '星光核心。VoxVer Launcher 参考了其模块化架构设计理念和部分功能实现。',
+    avatar: starlightLogo
+  },
+  {
+    name: 'Mojang Studios',
+    tag: '游戏开发',
+    desc: 'Minecraft 游戏的创造者，提供了这个令人惊叹的沙盒世界。'
+  },
+  {
+    name: 'Vue.js',
+    tag: '前端框架',
+    desc: '渐进式 JavaScript 框架，让构建现代化 Web 应用变得简单。'
+  },
+  { name: 'Anthony Fu', tag: '开源贡献', desc: 'Vue / Vite / Iconify 等众多优质开源项目的作者。' },
+  { name: 'Electron', tag: '桌面框架', desc: '使用 Web 技术构建跨平台桌面应用的框架。' }
+]
+
+const openSourceLibs = [
+  { name: 'Vue', version: '3.5.x', license: 'MIT', url: 'https://github.com/vuejs/core' },
+  {
+    name: 'Electron',
+    version: '33.x',
+    license: 'MIT',
+    url: 'https://github.com/electron/electron'
+  },
+  { name: 'Pinia', version: '2.2.x', license: 'MIT', url: 'https://github.com/vuejs/pinia' },
+  { name: 'Vue Router', version: '4.4.x', license: 'MIT', url: 'https://github.com/vuejs/router' },
+  { name: 'Iconify', version: '5.x', license: 'MIT', url: 'https://github.com/iconify' },
+  {
+    name: 'Better SQLite3',
+    version: '11.x',
+    license: 'MIT',
+    url: 'https://github.com/WiseLibs/better-sqlite3'
+  },
+  { name: 'Axios', version: '1.7.x', license: 'MIT', url: 'https://github.com/axios/axios' },
+  {
+    name: 'Electron Vite',
+    version: '2.3.x',
+    license: 'MIT',
+    url: 'https://github.com/alex8088/electron-vite'
+  },
+  {
+    name: 'Electron Log',
+    version: '5.x',
+    license: 'MIT',
+    url: 'https://github.com/megahertz/electron-log'
+  },
+  {
+    name: 'StarLight.Core',
+    version: 'Latest',
+    license: 'MIT',
+    url: 'https://github.com/Ink-Marks/StarLight.Core'
+  }
+]
+
+const faqList = [
+  {
+    q: '如何添加 Minecraft 账户？',
+    a: '前往「账户」页面，点击「添加账户」，选择 Microsoft 账号登录或离线模式输入用户名即可。'
+  },
+  {
+    q: '下载速度很慢怎么办？',
+    a: '在「设置」→「其他」中，将下载源切换为 BMCLAPI（推荐），或调整最大下载线程数。'
+  },
+  {
+    q: '如何安装 Mod？',
+    a: '进入「下载」页面，选择 Mod 分类，搜索并下载所需的 Mod。下载完成后会自动安装到对应版本。'
+  },
+  {
+    q: '启动游戏时闪退怎么办？',
+    a: '检查是否正确配置了 Java 路径，在「设置」→「启动」中调整内存分配，或查看日志文件排查原因。'
+  },
+  {
+    q: '如何创建游戏实例？',
+    a: '在「实例」页面点击「新建实例」，选择游戏版本和 Mod loader，点击确认即可创建。'
+  }
+]
+</script>
+
+<style lang="scss" scoped>
+.more-page {
+  padding: 24px 48px 48px;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.page-header {
+  margin-bottom: 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding-bottom: 16px;
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0 0 4px;
+  font-family: 'Courier New', monospace;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0 0 14px;
+  font-family: 'Courier New', monospace;
+  border-left: 3px solid var(--mcla-primary, #6366f1);
+  padding-left: 10px;
+}
+
+/* ===== 关于 ===== */
+.about-section {
+  margin-bottom: 32px;
+}
+
+.about-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 20px;
+  background: var(--mcla-surface-2, #1e1e2e);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+.about-author {
+  padding-bottom: 16px;
+}
+
+.about-app {
+  padding-top: 16px;
+}
+
+.author-row,
+.app-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.author-avatar,
+.app-logo {
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.author-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.author-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 2px;
+}
+
+.author-info {
+  flex: 1;
+}
+
+.about-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.author-btn,
+.app-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.author-btn.primary {
+  background: rgba(99, 102, 241, 0.25);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  &:hover {
+    background: rgba(99, 102, 241, 0.35);
+  }
+}
+
+.app-btn {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+}
+
+.app-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.app-version {
+  font-size: 12px;
+  color: rgba(99, 102, 241, 0.9);
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+.app-info {
+  flex: 1;
+}
+
+/* ===== 画廊 ===== */
+.gallery-section {
+  margin-bottom: 32px;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 700px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.gallery-item {
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--mcla-surface, #f5f5f5);
+  border: 1px solid var(--mcla-border, #e0e0e0);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15);
+  }
+}
+
+.gallery-img-wrap {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #1a1a2e;
+}
+
+.gallery-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+.gallery-item:hover .gallery-img {
+  transform: scale(1.05);
+}
+
+.gallery-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 10px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.gallery-item:hover .gallery-overlay {
+  opacity: 1;
+}
+
+.gallery-title {
+  font-size: 12px;
+  color: #fff;
+  font-weight: 600;
+}
+.gallery-desc {
+  font-size: 11px;
+  color: var(--mcla-text-muted, #888);
+  margin: 0;
+  padding: 6px 10px;
+  text-align: center;
+}
+
+/* ===== 鸣谢 ===== */
+.credits-section {
+  margin-bottom: 32px;
+}
+
+.credits-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.credit-item {
+  padding: 14px 16px;
+  background: var(--mcla-surface-2, #1e1e2e);
+  border: 1px solid var(--mcla-border-2, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  transition: border-color 0.2s;
+  &:hover {
+    border-color: rgba(99, 102, 241, 0.4);
+  }
+}
+
+.credit-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.credit-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.credit-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+.credit-tag {
+  font-size: 10px;
+  padding: 1px 6px;
+  background: rgba(99, 102, 241, 0.25);
+  color: #a5b4fc;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.credit-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ===== 开源项目 ===== */
+.oss-section {
+  margin-bottom: 32px;
+}
+
+.oss-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.oss-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--mcla-surface-2, #1e1e2e);
+  transition: background 0.15s;
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.oss-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.oss-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+}
+.oss-version {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.oss-link {
+  color: rgba(99, 102, 241, 0.8);
+  opacity: 0.8;
+  transition: opacity 0.15s;
+  &:hover {
+    opacity: 1;
+  }
+}
+.oss-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.oss-license {
+  font-size: 11px;
+  padding: 1px 8px;
+  background: rgba(99, 102, 241, 0.12);
+  border-radius: 4px;
+  color: #a5b4fc;
+  font-weight: 600;
+  min-width: 42px;
+  text-align: center;
+}
+
+/* ===== 版权 ===== */
+.copyright-section {
+  margin-bottom: 60px;
+}
+
+.copyright-card {
+  padding: 20px 24px;
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 10px;
+}
+
+.copyright-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.8;
+  margin: 0 0 10px;
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+.copyright-muted {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 11px;
+}
+
+.copyright-link {
+  display: inline-block;
+  margin-top: 10px;
+  color: #818cf8;
+  font-size: 13px;
+  text-decoration: none;
+  &:hover {
+    color: #a5b4fc;
+    text-decoration: underline;
+  }
+}
+
+/* ===== 帮助 ===== */
+.faq-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faq-item {
+  padding: 16px 20px;
+  background: var(--mcla-surface-2, #1e1e2e);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+.faq-q {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 8px;
+}
+
+.faq-a {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.7;
+}
+
+/* ===== 反馈 ===== */
+.feedback-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 700px) {
+  .feedback-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+.feedback-card {
+  padding: 24px 20px;
+  background: var(--mcla-surface-2, #1e1e2e);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+
+  &:hover {
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.08);
+  }
+}
+
+.feedback-icon {
+  width: 44px;
+  height: 44px;
+  background: rgba(99, 102, 241, 0.15);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedback-icon svg {
+  color: #818cf8;
+}
+
+.feedback-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+.feedback-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.feedback-btn {
+  display: inline-block;
+  padding: 7px 18px;
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  transition:
+    background 0.2s,
+    transform 0.15s;
+
+  &:hover {
+    background: rgba(99, 102, 241, 0.3);
+    transform: translateY(-1px);
+  }
+}
+
+.modal-btn {
+  padding: 8px 24px;
+  background: rgba(99, 102, 241, 0.25);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover {
+    background: rgba(99, 102, 241, 0.35);
+  }
+}
+
+/* ===== 更新功能 ===== */
+.update-btn {
+  cursor: pointer;
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.update-section {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 8px;
+}
+
+.update-info {
+  margin-bottom: 12px;
+}
+
+.update-version {
+  font-size: 14px;
+  font-weight: 700;
+  color: #a5b4fc;
+  margin-bottom: 4px;
+}
+
+.update-notes {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.6;
+}
+
+.update-progress {
+  margin-bottom: 12px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #818cf8);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: right;
+}
+
+.update-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.update-action-btn {
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+
+  &.primary {
+    background: #6366f1;
+    color: #fff;
+    &:hover {
+      background: #4f46e5;
+    }
+  }
+
+  &.success {
+    background: #10b981;
+    color: #fff;
+    &:hover {
+      background: #059669;
+    }
+  }
+}
+
+.update-error {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #ef4444;
+}
+</style>
