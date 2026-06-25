@@ -266,13 +266,13 @@ onUnmounted(() => {
   justify-content: center;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.82);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   transition: all 0.12s;
   -webkit-app-region: no-drag;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: var(--voxver-bg-hover);
     color: #fff;
   }
   &.has-unread {
@@ -287,7 +287,7 @@ onUnmounted(() => {
     height: 16px;
     padding: 0 4px;
     border-radius: 8px;
-    background: var(--mcla-error, #ef4444);
+    background: var(--voxver-error, #ef4444);
     color: #fff;
     font-size: 10px;
     font-weight: 700;
@@ -305,10 +305,10 @@ onUnmounted(() => {
   z-index: 10002;
   width: 340px;
   max-height: 420px;
-  background: var(--mcla-bg-elevated, #fff);
-  border: 1px solid var(--mcla-border-color, #e2e8f0);
-  border-radius: var(--mcla-radius-lg, 12px);
-  box-shadow: var(--mcla-shadow-lg, 0 8px 30px rgba(0, 0, 0, 0.18));
+  background: var(--voxver-bg-elevated, #fff);
+  border: 1px solid var(--voxver-border-color, #e2e8f0);
+  border-radius: var(--voxver-radius-lg, 12px);
+  box-shadow: var(--voxver-shadow-lg, 0 8px 30px rgba(0, 0, 0, 0.18));
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -319,13 +319,13 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 10px 14px;
-  border-bottom: 1px solid var(--mcla-border-color, #e2e8f0);
+  border-bottom: 1px solid var(--voxver-border-color, #e2e8f0);
   flex-shrink: 0;
 }
 .pxn-title {
   font-size: 13px;
   font-weight: 700;
-  color: var(--mcla-text-primary, #1e293b);
+  color: var(--voxver-text-primary, #1e293b);
 }
 .pxn-header-actions {
   display: flex;
@@ -337,17 +337,17 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--mcla-border-color, #e2e8f0);
-  border-radius: var(--mcla-radius-sm, 6px);
+  border: 1px solid var(--voxver-border-color, #e2e8f0);
+  border-radius: var(--voxver-radius-sm, 6px);
   background: transparent;
-  color: var(--mcla-text-muted, #94a3b8);
+  color: var(--voxver-text-muted, #94a3b8);
   cursor: pointer;
   transition: all 0.12s;
 
   &:hover {
-    border-color: var(--mcla-primary-400, #818cf8);
-    color: var(--mcla-primary-600, #4f46e5);
-    background: var(--mcla-primary-light, rgba(99, 102, 234, 0.08));
+    border-color: var(--voxver-primary-400, #818cf8);
+    color: var(--voxver-primary-600, #4f46e5);
+    background: var(--voxver-primary-light, rgba(99, 102, 234, 0.08));
   }
 }
 
@@ -369,7 +369,7 @@ onUnmounted(() => {
   padding: 32px 16px;
   text-align: center;
   font-size: 13px;
-  color: var(--mcla-text-muted, #94a3b8);
+  color: var(--voxver-text-muted, #94a3b8);
 }
 
 .pxn-item {
@@ -382,7 +382,7 @@ onUnmounted(() => {
   position: relative;
 
   &:hover {
-    background: var(--mcla-primary-light, rgba(99, 102, 234, 0.06));
+    background: var(--voxver-primary-light, rgba(99, 102, 234, 0.06));
   }
 
   &.unread {
@@ -394,16 +394,16 @@ onUnmounted(() => {
 
   /* type colors */
   &.type-success .pxn-item-icon {
-    color: var(--mcla-success, #22c55e);
+    color: var(--voxver-success, #22c55e);
   }
   &.type-error .pxn-item-icon {
-    color: var(--mcla-error, #ef4444);
+    color: var(--voxver-error, #ef4444);
   }
   &.type-warning .pxn-item-icon {
-    color: var(--mcla-warning, #f59e0b);
+    color: var(--voxver-warning, #f59e0b);
   }
   &.type-info .pxn-item-icon {
-    color: var(--mcla-primary, #6366f1);
+    color: var(--voxver-primary, #6366f1);
   }
 }
 
@@ -415,7 +415,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   border-radius: 6px;
-  background: var(--mcla-bg-secondary, #f1f5f9);
+  background: var(--voxver-bg-secondary, #f1f5f9);
   margin-top: 1px;
 }
 
@@ -426,12 +426,12 @@ onUnmounted(() => {
 .pxn-item-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--mcla-text-primary, #1e293b);
+  color: var(--voxver-text-primary, #1e293b);
   margin-bottom: 2px;
 }
 .pxn-item-body {
   font-size: 12px;
-  color: var(--mcla-text-secondary, #475569);
+  color: var(--voxver-text-secondary, #475569);
   line-height: 1.4;
   /* 最多两行 */
   display: -webkit-box;
@@ -441,7 +441,7 @@ onUnmounted(() => {
 }
 .pxn-item-time {
   font-size: 11px;
-  color: var(--mcla-text-muted, #94a3b8);
+  color: var(--voxver-text-muted, #94a3b8);
   margin-top: 3px;
 }
 
@@ -452,14 +452,14 @@ onUnmounted(() => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--mcla-primary, #6366f1);
+  background: var(--voxver-primary, #6366f1);
   border: none;
   cursor: pointer;
   flex-shrink: 0;
   padding: 0;
 
   &:hover {
-    background: var(--mcla-primary-600, #4f46e5);
+    background: var(--voxver-primary-600, #4f46e5);
     transform: scale(1.2);
   }
 }

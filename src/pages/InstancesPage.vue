@@ -276,7 +276,7 @@
         fill="none"
         stroke="currentColor"
         stroke-width="1.2"
-        style="color: var(--mcla-text-muted); margin-bottom: 12px"
+        style="color: var(--voxver-text-muted); margin-bottom: 12px"
       >
         <rect x="3" y="3" width="18" height="18" rx="3" />
         <line x1="9" y1="9" x2="15" y2="15" />
@@ -396,7 +396,7 @@
               height="48"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="var(--mcla-success)"
+              stroke="var(--voxver-success)"
               stroke-width="2"
             >
               <polyline points="20 6 9 17 4 12" />
@@ -671,7 +671,7 @@ async function doExport() {
   try {
     const destPath = await window.electronAPI?.dialog?.selectFile({
       title: '导出实例',
-      filters: [{ name: 'MCLA 导出包', extensions: ['mcla'] }]
+      filters: [{ name: 'VoxVer 导出包', extensions: ['mcla'] }]
     })
     if (!destPath) return
     const fullPath = destPath.endsWith('.mcla') ? destPath : destPath + '.mcla'
@@ -755,12 +755,12 @@ onMounted(() => {
   font-size: 17px;
   font-weight: 700;
   margin: 0;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
 }
 
 .instance-count {
   font-size: 12px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 }
 
 .toolbar-right {
@@ -772,16 +772,16 @@ onMounted(() => {
 /* 视图切换 */
 .view-toggle {
   display: flex;
-  background: var(--mcla-bg-primary);
-  border-radius: var(--mcla-radius-sm);
-  border: 1px solid var(--mcla-border-color);
+  background: var(--voxver-bg-primary);
+  border-radius: var(--voxver-radius-sm);
+  border: 1px solid var(--voxver-border-color);
 
   .toggle-btn {
     width: 32px;
     height: 30px;
     border: none;
     background: transparent;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -790,11 +790,11 @@ onMounted(() => {
     transition: all 0.12s;
 
     &:hover {
-      color: var(--mcla-text-secondary);
+      color: var(--voxver-text-secondary);
     }
     &.active {
-      background: var(--mcla-bg-elevated);
-      color: var(--mcla-primary-600);
+      background: var(--voxver-bg-elevated);
+      color: var(--voxver-primary-600);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
   }
@@ -805,19 +805,19 @@ onMounted(() => {
   align-items: center;
   gap: 5px;
   padding: 7px 16px;
-  background: var(--mcla-primary);
+  background: var(--voxver-primary);
   color: #fff;
   border: none;
-  border-radius: var(--mcla-radius-sm);
+  border-radius: var(--voxver-radius-sm);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
 
   &:hover {
-    background: var(--mcla-primary-hover);
+    background: var(--voxver-primary-hover);
     transform: translateY(-1px);
-    box-shadow: var(--mcla-shadow-md);
+    box-shadow: var(--voxver-shadow-md);
   }
   &:active {
     transform: scale(0.97);
@@ -827,16 +827,16 @@ onMounted(() => {
 .btn-cancel {
   padding: 7px 20px;
   background: transparent;
-  color: var(--mcla-text-secondary);
-  border: 1.5px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-sm);
+  color: var(--voxver-text-secondary);
+  border: 1.5px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
 
   &:hover {
-    background: var(--mcla-bg-tertiary);
+    background: var(--voxver-bg-tertiary);
   }
 }
 
@@ -846,14 +846,14 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 7px 12px;
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-sm);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
   margin-bottom: 16px;
   flex-shrink: 0;
 
   svg {
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     flex-shrink: 0;
   }
   input {
@@ -861,11 +861,11 @@ onMounted(() => {
     border: none;
     outline: none;
     font-size: 13px;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
     background: transparent;
 
     &::placeholder {
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
     }
   }
 }
@@ -892,25 +892,25 @@ onMounted(() => {
 }
 
 .instance-card {
-  background: var(--mcla-bg-elevated);
-  border: 1.5px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-lg);
+  background: var(--voxver-bg-elevated);
+  border: 1.5px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-lg);
   overflow: hidden;
   cursor: pointer;
-  transition: all var(--mcla-transition-normal);
+  transition: all var(--voxver-transition-normal);
   display: flex;
   flex-direction: column;
-  box-shadow: var(--mcla-shadow-sm);
+  box-shadow: var(--voxver-shadow-sm);
   height: 160px; /* 调整高度更紧凑 */
 
   &:hover {
     transform: translateY(-3px);
-    box-shadow: var(--mcla-shadow-glow-primary);
-    border-color: var(--mcla-primary-400);
+    box-shadow: var(--voxver-shadow-glow-primary);
+    border-color: var(--voxver-primary-400);
   }
 
   &.selected {
-    border-color: var(--mcla-primary-500);
+    border-color: var(--voxver-primary-500);
     box-shadow: 0 0 0 3px rgba(99, 102, 234, 0.15);
   }
 }
@@ -952,7 +952,7 @@ onMounted(() => {
   padding: 1px 6px;
   font-size: 10px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--voxver-text-primary);
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(4px);
   border-radius: 4px;
@@ -967,7 +967,7 @@ onMounted(() => {
     margin: 0;
     font-size: 13px;
     font-weight: 700;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -985,7 +985,7 @@ onMounted(() => {
     align-items: center;
     gap: 3px;
     font-size: 10px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
 
     svg {
       flex-shrink: 0;
@@ -997,7 +997,7 @@ onMounted(() => {
 /* 操作按钮 */
 .card-actions {
   display: flex;
-  border-top: 1.5px solid var(--mcla-border-color);
+  border-top: 1.5px solid var(--voxver-border-color);
   padding: 2px;
 
   .action-btn {
@@ -1005,30 +1005,30 @@ onMounted(() => {
     height: 34px;
     border: none;
     background: transparent;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--mcla-radius-sm);
+    border-radius: var(--voxver-radius-sm);
     transition: all 0.12s;
 
     &:hover {
-      background: var(--mcla-bg-tertiary);
-      color: var(--mcla-primary-600);
+      background: var(--voxver-bg-tertiary);
+      color: var(--voxver-primary-600);
     }
 
     &.launch {
       &:hover {
-        background: var(--mcla-primary);
+        background: var(--voxver-primary);
         color: #fff;
       }
     }
 
     &.danger {
       &:hover {
-        background: var(--mcla-error-bg);
-        color: var(--mcla-error);
+        background: var(--voxver-error-bg);
+        color: var(--voxver-error);
       }
     }
   }
@@ -1048,27 +1048,27 @@ onMounted(() => {
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: var(--mcla-bg-elevated);
+  background: var(--voxver-bg-elevated);
   border: 1px solid transparent;
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    border-color: var(--mcla-border-color);
+    border-color: var(--voxver-border-color);
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
   }
 
   &.selected {
-    border-color: var(--mcla-primary-500);
-    background: var(--mcla-primary-50);
+    border-color: var(--voxver-primary-500);
+    background: var(--voxver-primary-50);
   }
 }
 
 .list-icon {
   width: 42px;
   height: 42px;
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1090,13 +1090,13 @@ onMounted(() => {
     margin: 0;
     font-size: 14px;
     font-weight: 600;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
   }
 
   .list-meta {
     margin: 2px 0 0;
     font-size: 12px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 }
 
@@ -1115,22 +1115,22 @@ onMounted(() => {
     height: 30px;
     border: none;
     background: transparent;
-    color: var(--mcla-primary-500);
+    color: var(--voxver-primary-500);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--mcla-radius-sm);
+    border-radius: var(--voxver-radius-sm);
     transition: all 0.12s;
 
     &:hover {
-      background: var(--mcla-primary);
+      background: var(--voxver-primary);
       color: #fff;
     }
     &.danger {
-      color: var(--mcla-error);
+      color: var(--voxver-error);
       &:hover {
-        background: var(--mcla-error);
+        background: var(--voxver-error);
         color: #fff;
       }
     }
@@ -1144,7 +1144,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   flex: 1;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
 
   p {
     margin: 0 0 6px;
@@ -1152,7 +1152,7 @@ onMounted(() => {
   }
   .hint {
     font-size: 12px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 }
 
@@ -1169,19 +1169,19 @@ onMounted(() => {
 }
 
 .modal-content {
-  background: var(--mcla-bg-elevated);
-  border-radius: var(--mcla-radius-xl);
+  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-xl);
   padding: 28px 24px;
   width: 420px;
   max-width: 90vw;
-  box-shadow: var(--mcla-shadow-xl);
-  border: 1px solid var(--mcla-border-color);
+  box-shadow: var(--voxver-shadow-xl);
+  border: 1px solid var(--voxver-border-color);
 
   h3 {
     margin: 0 0 20px;
     font-size: 17px;
     font-weight: 700;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
   }
 
   form {
@@ -1202,7 +1202,7 @@ onMounted(() => {
     display: block;
     font-size: 12px;
     font-weight: 600;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
     margin-bottom: 5px;
   }
 
@@ -1210,20 +1210,20 @@ onMounted(() => {
   select {
     width: 100%;
     padding: 8px 12px;
-    border: 1.5px solid var(--mcla-border-color);
-    border-radius: var(--mcla-radius-sm);
+    border: 1.5px solid var(--voxver-border-color);
+    border-radius: var(--voxver-radius-sm);
     font-size: 13px;
-    color: var(--mcla-text-primary);
-    background: var(--mcla-bg-primary);
+    color: var(--voxver-text-primary);
+    background: var(--voxver-bg-primary);
     outline: none;
     transition: all 0.15s;
 
     &:focus {
-      border-color: var(--mcla-primary-400);
+      border-color: var(--voxver-primary-400);
       box-shadow: 0 0 0 3px rgba(99, 102, 234, 0.1);
     }
     &::placeholder {
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
     }
   }
 }
@@ -1234,18 +1234,18 @@ onMounted(() => {
   gap: 5px;
   padding: 7px 14px;
   background: transparent;
-  color: var(--mcla-text-secondary);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-sm);
+  color: var(--voxver-text-secondary);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
 
   &:hover:not(:disabled) {
-    border-color: var(--mcla-primary-300);
-    color: var(--mcla-primary);
-    background: var(--mcla-primary-light);
+    border-color: var(--voxver-primary-300);
+    color: var(--voxver-primary);
+    background: var(--voxver-primary-light);
   }
   &:disabled {
     opacity: 0.5;
@@ -1263,7 +1263,7 @@ onMounted(() => {
 /* ====== $t('instance.import')/$t('instance.export')弹窗 ====== */
 .import-hint {
   font-size: 13px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   margin: 0 0 16px;
   line-height: 1.5;
 }
@@ -1275,18 +1275,18 @@ onMounted(() => {
   input {
     flex: 1;
     padding: 8px 12px;
-    border: 1.5px solid var(--mcla-border-color);
-    border-radius: var(--mcla-radius-sm);
+    border: 1.5px solid var(--voxver-border-color);
+    border-radius: var(--voxver-radius-sm);
     font-size: 13px;
-    color: var(--mcla-text-primary);
-    background: var(--mcla-bg-primary);
+    color: var(--voxver-text-primary);
+    background: var(--voxver-bg-primary);
     outline: none;
 
     &:focus {
-      border-color: var(--mcla-primary-400);
+      border-color: var(--voxver-primary-400);
     }
     &::placeholder {
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
     }
   }
 }
@@ -1301,7 +1301,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   font-size: 13px;
   padding: 20px 0;
 }
@@ -1309,8 +1309,8 @@ onMounted(() => {
 .spinner {
   width: 28px;
   height: 28px;
-  border: 3px solid var(--mcla-border-color);
-  border-top-color: var(--mcla-primary-500);
+  border: 3px solid var(--voxver-border-color);
+  border-top-color: var(--voxver-primary-500);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -1334,7 +1334,7 @@ onMounted(() => {
 
   .result-label {
     font-size: 11px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     font-weight: 600;
     text-transform: uppercase;
   }
@@ -1342,7 +1342,7 @@ onMounted(() => {
   .result-value {
     font-size: 14px;
     font-weight: 600;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
   }
 }
 
@@ -1354,18 +1354,18 @@ onMounted(() => {
   p {
     margin: 12px 0 0;
     font-size: 14px;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
   }
 }
 
 .result-error p {
-  color: var(--mcla-error);
+  color: var(--voxver-error);
 }
 
 /* $t('instance.export')选项 */
 .export-desc {
   font-size: 13px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   margin: -12px 0 16px;
 }
 
@@ -1381,13 +1381,13 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   cursor: pointer;
 
   input[type='checkbox'] {
     width: 16px;
     height: 16px;
-    accent-color: var(--mcla-primary);
+    accent-color: var(--voxver-primary);
   }
 }
 </style>

@@ -231,7 +231,7 @@
             height="40"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="var(--mcla-text-muted)"
+            stroke="var(--voxver-text-muted)"
             stroke-width="1.5"
           >
             <path
@@ -760,24 +760,24 @@ watch(instanceId, () => {
     gap: 4px;
     padding: 6px 12px;
     background: transparent;
-    border: 1px solid var(--mcla-border-color);
-    border-radius: var(--mcla-radius-md);
-    color: var(--mcla-text-secondary);
+    border: 1px solid var(--voxver-border-color);
+    border-radius: var(--voxver-radius-md);
+    color: var(--voxver-text-secondary);
     font-size: 13px;
     cursor: pointer;
-    transition: all var(--mcla-transition-fast);
+    transition: all var(--voxver-transition-fast);
 
     &:hover {
-      color: var(--mcla-primary);
-      border-color: var(--mcla-primary-400);
-      background: var(--mcla-primary-light);
+      color: var(--voxver-primary);
+      border-color: var(--voxver-primary-400);
+      background: var(--voxver-primary-light);
     }
   }
 
   .instance-name {
     font-size: 22px;
     font-weight: 700;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
     flex: 1;
   }
 
@@ -787,16 +787,16 @@ watch(instanceId, () => {
 
     .action-btn {
       padding: 7px 10px;
-      border: 1px solid var(--mcla-border-color);
-      border-radius: var(--mcla-radius-md);
+      border: 1px solid var(--voxver-border-color);
+      border-radius: var(--voxver-radius-md);
       background: transparent;
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
       cursor: pointer;
-      transition: all var(--mcla-transition-fast);
+      transition: all var(--voxver-transition-fast);
 
       &:hover {
-        color: var(--mcla-primary);
-        border-color: var(--mcla-primary-300);
+        color: var(--voxver-primary);
+        border-color: var(--voxver-primary-300);
       }
       &.active {
         color: #f59e0b;
@@ -815,14 +815,14 @@ watch(instanceId, () => {
   justify-content: center;
   gap: 12px;
   padding: 80px 0;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 
   button {
     padding: 8px 20px;
-    background: var(--mcla-gradient-primary);
+    background: var(--voxver-gradient-primary);
     color: #fff;
     border: none;
-    border-radius: var(--mcla-radius-md);
+    border-radius: var(--voxver-radius-md);
     cursor: pointer;
   }
 }
@@ -830,8 +830,8 @@ watch(instanceId, () => {
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid var(--mcla-border-color);
-  border-top-color: var(--mcla-primary-500);
+  border: 3px solid var(--voxver-border-color);
+  border-top-color: var(--voxver-primary-500);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -842,16 +842,16 @@ watch(instanceId, () => {
 }
 
 .info-section {
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-lg);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-lg);
   padding: 20px 24px;
   margin-bottom: 16px;
 
   .section-title {
     font-size: 15px;
     font-weight: 650;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
     margin-bottom: 16px;
     display: flex;
     align-items: center;
@@ -859,7 +859,7 @@ watch(instanceId, () => {
 
     .mod-count {
       font-size: 12px;
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
       font-weight: 400;
     }
   }
@@ -882,23 +882,23 @@ watch(instanceId, () => {
     label {
       font-size: 11.5px;
       font-weight: 600;
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
       text-transform: uppercase;
       letter-spacing: 0.4px;
     }
 
     .value {
       font-size: 14px;
-      color: var(--mcla-text-primary);
+      color: var(--voxver-text-primary);
       font-weight: 500;
     }
 
     .version-badge {
       display: inline-block;
       padding: 2px 10px;
-      background: var(--mcla-info-light);
-      color: var(--mcla-info);
-      border-radius: var(--mcla-radius-sm);
+      background: var(--voxver-info-light);
+      color: var(--voxver-info);
+      border-radius: var(--voxver-radius-sm);
       font-weight: 600;
       font-size: 13px;
     }
@@ -906,33 +906,33 @@ watch(instanceId, () => {
     .loader-badge {
       display: inline-block;
       padding: 2px 10px;
-      background: var(--mcla-success-light);
-      color: var(--mcla-success);
-      border-radius: var(--mcla-radius-sm);
+      background: var(--voxver-success-light);
+      color: var(--voxver-success);
+      border-radius: var(--voxver-radius-sm);
       font-weight: 600;
       font-size: 13px;
     }
 
     .path-value {
-      font-family: var(--mcla-font-mono);
+      font-family: var(--voxver-font-mono);
       font-size: 13px;
       word-break: break-all;
-      color: var(--mcla-text-secondary);
+      color: var(--voxver-text-secondary);
     }
 
     .edit-input {
       padding: 8px 12px;
-      background: var(--mcla-bg-input);
-      border: 1px solid var(--mcla-border-color);
-      border-radius: var(--mcla-radius-md);
-      color: var(--mcla-text-primary);
+      background: var(--voxver-bg-input);
+      border: 1px solid var(--voxver-border-color);
+      border-radius: var(--voxver-radius-md);
+      color: var(--voxver-text-primary);
       font-size: 14px;
       outline: none;
-      transition: all var(--mcla-transition-fast);
+      transition: all var(--voxver-transition-fast);
 
       &:focus {
-        border-color: var(--mcla-border-color-focus);
-        box-shadow: var(--mcla-input-focus-shadow);
+        border-color: var(--voxver-border-color-focus);
+        box-shadow: var(--voxver-input-focus-shadow);
       }
 
       &.number-input {
@@ -945,18 +945,18 @@ watch(instanceId, () => {
 .save-btn {
   margin-top: 14px;
   padding: 8px 24px;
-  background: var(--mcla-gradient-primary);
+  background: var(--voxver-gradient-primary);
   color: #fff;
   border: none;
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
 
   &:hover:not(:disabled) {
     filter: brightness(1.06);
-    box-shadow: var(--mcla-shadow-glow-primary);
+    box-shadow: var(--voxver-shadow-glow-primary);
   }
   &:disabled {
     opacity: 0.5;
@@ -967,7 +967,7 @@ watch(instanceId, () => {
 .empty-state {
   text-align: center;
   padding: 48px 0;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 
   p {
     margin: 12px 0 16px;
@@ -976,22 +976,22 @@ watch(instanceId, () => {
   .link-btn {
     display: inline-block;
     padding: 8px 20px;
-    color: var(--mcla-primary-500);
+    color: var(--voxver-primary-500);
     font-size: 13.5px;
     font-weight: 600;
     text-decoration: none;
-    border: 1px solid var(--mcla-primary-300);
-    border-radius: var(--mcla-radius-md);
-    transition: all var(--mcla-transition-fast);
+    border: 1px solid var(--voxver-primary-300);
+    border-radius: var(--voxver-radius-md);
+    transition: all var(--voxver-transition-fast);
 
     &:hover {
-      background: var(--mcla-primary-light);
+      background: var(--voxver-primary-light);
     }
   }
 }
 
 .hint-text {
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   font-size: 13px;
   text-align: center;
   padding: 20px;
@@ -1021,16 +1021,16 @@ watch(instanceId, () => {
   width: 30px;
   height: 30px;
   background: transparent;
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
-  color: var(--mcla-text-muted);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
+  color: var(--voxver-text-muted);
   cursor: pointer;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
 
   &:hover {
-    color: var(--mcla-primary);
-    border-color: var(--mcla-primary-300);
-    background: var(--mcla-primary-light);
+    color: var(--voxver-primary);
+    border-color: var(--voxver-primary-300);
+    background: var(--voxver-primary-light);
   }
 }
 
@@ -1039,15 +1039,15 @@ watch(instanceId, () => {
   align-items: center;
   gap: 8px;
   padding: 16px 0;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   font-size: 13px;
 }
 
 .spinner-sm {
   width: 16px;
   height: 16px;
-  border: 2px solid var(--mcla-border-color);
-  border-top-color: var(--mcla-primary-500);
+  border: 2px solid var(--voxver-border-color);
+  border-top-color: var(--voxver-primary-500);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -1063,7 +1063,7 @@ watch(instanceId, () => {
     width: 4px;
   }
   &::-webkit-scrollbar-thumb {
-    background: var(--mcla-border-color);
+    background: var(--voxver-border-color);
     border-radius: 2px;
   }
 }
@@ -1073,14 +1073,14 @@ watch(instanceId, () => {
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  background: var(--mcla-bg-input);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
-  transition: all var(--mcla-transition-fast);
+  background: var(--voxver-bg-input);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
+  transition: all var(--voxver-transition-fast);
 
   &:hover {
-    border-color: var(--mcla-border-color-focus);
-    background: var(--mcla-bg-elevated);
+    border-color: var(--voxver-border-color-focus);
+    background: var(--voxver-bg-elevated);
   }
 
   &.mod-disabled {
@@ -1089,7 +1089,7 @@ watch(instanceId, () => {
 }
 
 .mod-icon {
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   flex-shrink: 0;
 }
 
@@ -1101,7 +1101,7 @@ watch(instanceId, () => {
     display: block;
     font-size: 13.5px;
     font-weight: 600;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1113,10 +1113,10 @@ watch(instanceId, () => {
     gap: 8px;
     margin-top: 2px;
     font-size: 11px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
 
     .mod-version {
-      color: var(--mcla-info);
+      color: var(--voxver-info);
     }
   }
 }
@@ -1130,19 +1130,19 @@ watch(instanceId, () => {
 
 .status-badge {
   padding: 2px 8px;
-  border-radius: var(--mcla-radius-sm);
+  border-radius: var(--voxver-radius-sm);
   font-size: 11px;
   font-weight: 600;
 
   &.status-active {
-    background: var(--mcla-success-light);
-    color: var(--mcla-success);
+    background: var(--voxver-success-light);
+    color: var(--voxver-success);
   }
 
   &.status-disabled {
-    background: var(--mcla-bg-input);
-    color: var(--mcla-text-muted);
-    border: 1px solid var(--mcla-border-color);
+    background: var(--voxver-bg-input);
+    color: var(--voxver-text-muted);
+    border: 1px solid var(--voxver-border-color);
   }
 
   &.status-incompatible {
@@ -1163,15 +1163,15 @@ watch(instanceId, () => {
   width: 26px;
   height: 26px;
   background: transparent;
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-sm);
-  color: var(--mcla-text-muted);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
+  color: var(--voxver-text-muted);
   cursor: pointer;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
 
   &:hover {
-    color: var(--mcla-primary);
-    border-color: var(--mcla-primary-300);
+    color: var(--voxver-primary);
+    border-color: var(--voxver-primary-300);
   }
 }
 
@@ -1187,17 +1187,17 @@ watch(instanceId, () => {
   align-items: center;
   gap: 10px;
   padding: 8px 12px;
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   cursor: pointer;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
 
   &:hover {
-    background: var(--mcla-bg-input);
+    background: var(--voxver-bg-input);
   }
 }
 
 .config-icon {
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   flex-shrink: 0;
 }
 
@@ -1209,13 +1209,13 @@ watch(instanceId, () => {
     display: block;
     font-size: 13px;
     font-weight: 600;
-    color: var(--mcla-text-primary);
-    font-family: var(--mcla-font-mono);
+    color: var(--voxver-text-primary);
+    font-family: var(--voxver-font-mono);
   }
 
   .config-meta {
     font-size: 11px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 }
 
@@ -1227,20 +1227,20 @@ watch(instanceId, () => {
   height: 26px;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: var(--mcla-radius-sm);
-  color: var(--mcla-text-muted);
+  border-radius: var(--voxver-radius-sm);
+  color: var(--voxver-text-muted);
   cursor: pointer;
   opacity: 0;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
 
   .config-item:hover & {
     opacity: 1;
-    border-color: var(--mcla-border-color);
+    border-color: var(--voxver-border-color);
   }
 
   &:hover {
-    color: var(--mcla-primary);
-    border-color: var(--mcla-primary-300);
+    color: var(--voxver-primary);
+    border-color: var(--voxver-primary-300);
   }
 }
 
@@ -1260,7 +1260,7 @@ watch(instanceId, () => {
 
 .editor-hint {
   font-size: 12px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 }
 
 .toolbar-actions {
@@ -1271,29 +1271,29 @@ watch(instanceId, () => {
 .reset-btn {
   padding: 6px 16px;
   background: transparent;
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
-  color: var(--mcla-text-secondary);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
+  color: var(--voxver-text-secondary);
   font-size: 13px;
   cursor: pointer;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
 
   &:hover {
-    color: var(--mcla-text-primary);
-    border-color: var(--mcla-text-muted);
+    color: var(--voxver-text-primary);
+    border-color: var(--voxver-text-muted);
   }
 }
 
 .save-config-btn {
   padding: 6px 20px;
-  background: var(--mcla-gradient-primary);
+  background: var(--voxver-gradient-primary);
   color: #fff;
   border: none;
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
 
   &:hover:not(:disabled) {
     filter: brightness(1.06);
@@ -1308,19 +1308,19 @@ watch(instanceId, () => {
   width: 100%;
   height: 400px;
   padding: 14px 16px;
-  background: var(--mcla-bg-input);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
-  color: var(--mcla-text-primary);
-  font-family: var(--mcla-font-mono);
+  background: var(--voxver-bg-input);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
+  color: var(--voxver-text-primary);
+  font-family: var(--voxver-font-mono);
   font-size: 13px;
   line-height: 1.6;
   resize: vertical;
   outline: none;
-  transition: border-color var(--mcla-transition-fast);
+  transition: border-color var(--voxver-transition-fast);
 
   &:focus {
-    border-color: var(--mcla-border-color-focus);
+    border-color: var(--voxver-border-color-focus);
   }
 }
 
@@ -1329,7 +1329,7 @@ watch(instanceId, () => {
   font-size: 12px;
   padding: 8px 12px;
   background: rgba(239, 68, 68, 0.1);
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   border: 1px solid rgba(239, 68, 68, 0.2);
 }
 

@@ -1,5 +1,5 @@
 /**
- * MCLA 亮色主题
+ * VoxVer 亮色主题
  *
  * 使用方式：通过 [data-theme="light"] 选择器激活
  * 保持像素/游戏风格，但用浅色背景呈现
@@ -8,7 +8,10 @@
 [data-theme='light'] {
   /* ====== 主色调（亮色下稍深一点保证对比度） ====== */
   --voxver-primary: #4f46e5;
-  --voxver-primary-light: rgba(99, 102, 234, 0.1);
+  --voxver-primary-light: rgba(79, 70, 229, 0.1);
+  --voxver-primary-hover: #4338ca;
+  --voxver-primary-active: #3730a3;
+  --voxver-primary-muted: #a5b4fc;
   --voxver-primary-50: #eef2ff;
   --voxver-primary-100: #e0e7ff;
   --voxver-primary-200: #c7d2fe;
@@ -17,36 +20,42 @@
   --voxver-primary-500: #6366f1;
   --voxver-primary-600: #4f46e5;
   --voxver-primary-700: #4338ca;
+  --voxver-primary-800: #3730a3;
+  --voxver-primary-900: #312e81;
 
-  /* ====== 渐变色 ====== */
-  --voxver-gradient-primary: linear-gradient(135deg, #4f46e5, #7c3aed, #8b5cf6);
-  --voxver-gradient-secondary: linear-gradient(135deg, #db2777, #ec4899);
-  --voxver-gradient-success: linear-gradient(135deg, #059669, #10b981);
-  --voxver-gradient-warning: linear-gradient(135deg, #d97706, #f59e0b);
-  --voxver-gradient-error: linear-gradient(135deg, #dc2626, #ef4444);
+  /* ====== 渐变色（亮色版更柔和） ====== */
+  --voxver-gradient-primary: linear-gradient(135deg, #818cf8 0%, #a5b4fc 100%);
+  --voxver-gradient-secondary: linear-gradient(135deg, #f472b6 0%, #fb7185 100%);
+  --voxver-gradient-success: linear-gradient(135deg, #4ade80 0%, #34d399 100%);
+  --voxver-gradient-warning: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
+  --voxver-gradient-error: linear-gradient(135deg, #f87171 0%, #fb7185 100%);
+  --voxver-gradient-info: linear-gradient(135deg, #38bdf8 0%, #60a5fa 100%);
 
   /* ====== 背景色 ====== */
-  --voxver-bg-primary: #F5F5FA;       /* 最浅背景 - 主背景 */
-  --voxver-bg-secondary: #FFFFFF;     /* 白色背景 - 卡片/面板 */
-  --voxver-bg-elevated: #FFFFFF;      /* 浮起层 - 侧栏/弹窗 */
-  --voxver-bg-hover: #EEEDF5;         /* 悬停态 */
-  --voxver-bg-active: #E0DEF0;        /* 激活/选中 */
-  --voxver-bg-input: #F8F8FC;         /* 输入框背景 */
-  --voxver-bg-overlay: rgba(0, 0, 0, 0.35); /* 遮罩层 */
+  --voxver-bg-primary: #F8F9FC;
+  --voxver-bg-secondary: #FFFFFF;
+  --voxver-bg-tertiary: #F1F2F7;
+  --voxver-bg-elevated: #FFFFFF;
+  --voxver-bg-hover: #EEF0F7;
+  --voxver-bg-active: #E2E5F0;
+  --voxver-bg-input: #F5F6FA;
+  --voxver-bg-overlay: rgba(0, 0, 0, 0.35);
 
   /* ====== 文字颜色 ====== */
-  --voxver-text-primary: #1A1A2E;     /* 主文字 */
-  --voxver-text-secondary: #555570;   /* 次要文字 */
-  --voxver-text-muted: #9999AD;       /* 弱化文字 / 占位符 */
-  --voxver-text-inverse: #FFFFFF;     /* 反色文字 */
-  --voxver-text-link: #4f46e5;        /* 链接色 */
-  --voxver-text-error: #DC2626;       /* 错误文字 */
-  --voxver-text-success: #16A34A;     /* 成功文字 */
-  --voxver-text-warning: #D97706;     /* 警告文字 */
+  --voxver-text-primary: #1E1B4B;
+  --voxver-text-secondary: #4B5563;
+  --voxver-text-tertiary: #6B7280;
+  --voxver-text-muted: #9CA3AF;
+  --voxver-text-inverse: #FFFFFF;
+  --voxver-text-link: #4f46e5;
+  --voxver-text-error: #DC2626;
+  --voxver-text-success: #16A34A;
+  --voxver-text-warning: #D97706;
 
   /* ====== 边框颜色 ====== */
-  --voxver-border-color: #E0DFEA;
-  --voxver-border-color-light: #EBEAF2;
+  --voxver-border-color: #E5E7EB;
+  --voxver-border-color-light: #F3F4F6;
+  --voxver-border-strong: #D1D5DB;
   --voxver-border-color-focus: #6366f1;
   --voxver-border-color-error: #ef4444;
 
@@ -61,16 +70,18 @@
   --voxver-info-light: rgba(59, 130, 246, 0.08);
 
   /* ====== 阴影（亮色下更轻） ====== */
-  --voxver-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-  --voxver-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --voxver-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10);
+  --voxver-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --voxver-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --voxver-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --voxver-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
 
   /* ====== 发光阴影（亮色下减弱） ====== */
-  --voxver-shadow-glow-primary: 0 4px 20px rgba(99, 102, 234, 0.18);
-  --voxver-shadow-glow-secondary: 0 4px 20px rgba(240, 147, 251, 0.18);
-  --voxver-shadow-glow-success: 0 4px 20px rgba(34, 197, 94, 0.18);
-  --voxver-shadow-glow-warning: 0 4px 20px rgba(245, 158, 11, 0.18);
-  --voxver-shadow-glow-error: 0 4px 20px rgba(239, 68, 68, 0.18);
+  --voxver-shadow-glow-primary: 0 4px 16px rgba(99, 102, 234, 0.2);
+  --voxver-shadow-glow-secondary: 0 4px 16px rgba(240, 147, 251, 0.2);
+  --voxver-shadow-glow-success: 0 4px 16px rgba(34, 197, 94, 0.2);
+  --voxver-shadow-glow-warning: 0 4px 16px rgba(245, 158, 11, 0.2);
+  --voxver-shadow-glow-error: 0 4px 16px rgba(239, 68, 68, 0.2);
+  --voxver-shadow-glow-info: 0 4px 16px rgba(14, 165, 233, 0.2);
 
   /* ====== 输入框焦点阴影 ====== */
   --voxver-input-focus-shadow: 0 0 0 3px rgba(99, 102, 234, 0.15);
@@ -100,7 +111,217 @@
   border-color: var(--voxver-border-color);
 }
 
-/* 标题栏在亮色下调整 */
+[data-theme='light'] .mcla-btn {
+  background: var(--voxver-bg-secondary);
+  color: var(--voxver-text-primary);
+  border-color: var(--voxver-border-color);
+
+  &:hover {
+    background: var(--voxver-bg-hover);
+    border-color: var(--voxver-border-strong);
+  }
+
+  &:active {
+    background: var(--voxver-bg-active);
+  }
+
+  &.mcla-btn-primary {
+    background: var(--voxver-gradient-primary);
+    color: #fff;
+    border-color: transparent;
+  }
+}
+
+/* 标题栏在亮色下调整 - 更柔和的渐变 */
 [data-theme='light'] .titlebar {
-  background: linear-gradient(180deg, #4f46e5, #6366f1) !important;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+}
+
+/* 浅色模式下的按钮特殊处理 */
+[data-theme='light'] .btn-primary,
+[data-theme='light'] button.primary {
+  color: #fff;
+}
+
+/* 浅色模式下拉选择框 */
+[data-theme='light'] select {
+  background: var(--voxver-bg-secondary);
+  color: var(--voxver-text-primary);
+  border-color: var(--voxver-border-color);
+}
+
+/* 浅色模式下表格 */
+[data-theme='light'] table {
+  color: var(--voxver-text-primary);
+}
+
+[data-theme='light'] th {
+  background: var(--voxver-bg-tertiary);
+  color: var(--voxver-text-secondary);
+}
+
+[data-theme='light'] tr:hover {
+  background: var(--voxver-bg-hover);
+}
+
+/* 浅色模式下侧边栏 */
+[data-theme='light'] .sidebar {
+  background: var(--voxver-bg-secondary);
+  border-right-color: var(--voxver-border-color);
+}
+
+/* 浅色模式下导航项 */
+[data-theme='light'] .nav-item {
+  color: var(--voxver-text-secondary);
+
+  &:hover {
+    background: var(--voxver-bg-hover);
+    color: var(--voxver-text-primary);
+  }
+
+  &.active {
+    background: var(--voxver-primary-light);
+    color: var(--voxver-primary);
+  }
+}
+
+/* ====== 亮色模式 - 功能色背景（图标、Badge 等） ====== */
+[data-theme='light'] {
+  --voxver-success-bg: #dcfce7;
+  --voxver-warning-bg: #fef3c7;
+  --voxver-error-bg: #fee2e2;
+  --voxver-info-bg: #e0f2fe;
+}
+
+/* 亮色模式下 Badge 使用深色文字（暗色 Badge 在 light.scss 无覆盖时保持可见） */
+[data-theme='light'] .mcla-badge-success { color: #166534; }
+[data-theme='light'] .mcla-badge-warning { color: #92400e; }
+[data-theme='light'] .mcla-badge-error { color: #991b1b; }
+[data-theme='light'] .mcla-badge-info { color: #075985; }
+
+/* 亮色模式下 Alert */
+[data-theme='light'] .mcla-alert-info {
+  background: var(--voxver-info-bg);
+  color: #075985;
+}
+[data-theme='light'] .mcla-alert-success {
+  background: var(--voxver-success-bg);
+  color: #166534;
+}
+[data-theme='light'] .mcla-alert-warning {
+  background: var(--voxver-warning-bg);
+  color: #92400e;
+}
+[data-theme='light'] .mcla-alert-error {
+  background: var(--voxver-error-bg);
+  color: #991b1b;
+}
+
+/* 亮色模式下对话框/模态框 */
+[data-theme='light'] .mcla-modal,
+[data-theme='light'] .modal-content {
+  background: var(--voxver-bg-secondary);
+  border-color: var(--voxver-border-color);
+}
+
+[data-theme='light'] .mcla-modal-header {
+  border-bottom-color: var(--voxver-border-color);
+}
+
+[data-theme='light'] .mcla-modal-footer {
+  border-top-color: var(--voxver-border-color);
+}
+
+/* 亮色模式下 Tab 组件 */
+[data-theme='light'] .mcla-tab {
+  color: var(--voxver-text-secondary);
+  border-bottom-color: transparent;
+
+  &:hover {
+    color: var(--voxver-text-primary);
+  }
+
+  &.mcla-tab-active {
+    color: var(--voxver-primary);
+    border-bottom-color: var(--voxver-primary);
+  }
+}
+
+[data-theme='light'] .mcla-tabs-pill .mcla-tab {
+  background: var(--voxver-bg-tertiary);
+  color: var(--voxver-text-secondary);
+
+  &:hover {
+    background: var(--voxver-bg-hover);
+    color: var(--voxver-text-primary);
+  }
+
+  &.mcla-tab-active {
+    background: var(--voxver-gradient-primary);
+    color: #fff;
+  }
+}
+
+/* 亮色模式下下拉菜单 */
+[data-theme='light'] .mcla-dropdown,
+[data-theme='light'] .mcla-menu {
+  background: var(--voxver-bg-secondary);
+  border-color: var(--voxver-border-color);
+  box-shadow: var(--voxver-shadow-lg);
+}
+
+[data-theme='light'] .mcla-menu-item {
+  color: var(--voxver-text-primary);
+
+  &:hover {
+    background: var(--voxver-bg-hover);
+  }
+}
+
+/* 亮色模式下空状态 */
+[data-theme='light'] .mcla-empty-icon {
+  color: var(--voxver-text-tertiary);
+}
+
+/* 亮色模式下骨架屏 */
+[data-theme='light'] .mcla-skeleton {
+  background: var(--voxver-bg-tertiary);
+}
+
+/* 亮色模式下页面导航 */
+[data-theme='light'] .mcla-page-item {
+  background: var(--voxver-bg-secondary);
+  color: var(--voxver-text-primary);
+  border-color: var(--voxver-border-color);
+
+  &:hover {
+    background: var(--voxver-bg-hover);
+  }
+
+  &.mcla-page-active {
+    background: var(--voxver-gradient-primary);
+    color: #fff;
+    border-color: transparent;
+  }
+}
+
+/* 亮色模式下头像组边框 */
+[data-theme='light'] .mcla-avatar-group .mcla-avatar:not(:first-child) {
+  border-color: var(--voxver-bg-secondary);
+}
+
+/* 亮色模式下分割线 */
+[data-theme='light'] .mcla-divider {
+  background: var(--voxver-border-color);
+}
+
+/* 亮色模式下进度条 */
+[data-theme='light'] .mcla-progress {
+  background: var(--voxver-bg-tertiary);
+}
+
+/* 亮色模式下 tooltip */
+[data-theme='light'] .mcla-tooltip {
+  background: var(--voxver-text-primary);
+  color: var(--voxver-bg-primary);
 }

@@ -401,10 +401,10 @@ async function createMinecraftFolder() {
   } catch (err) {}
 }
 
-// 在 MCLA 安装目录下新建 .minecraft（无文件夹状态使用）
+// 在 VoxVer 安装目录下新建 .minecraft（无文件夹状态使用）
 async function createMinecraftFolderHere() {
   try {
-    // 获取 MCLA 安装目录，直接在安装目录下创建 .minecraft
+    // 获取 VoxVer 安装目录，直接在安装目录下创建 .minecraft
     const appPath = await api.path.getAppPath()
     const minecraftPath = appPath.replace(/[\\/]+$/, '') + '/.minecraft'
 
@@ -442,8 +442,8 @@ async function loadVersionsFromFolder(gameDir: string) {
     return
   }
   // 恢复上次选中的版本（精确匹配 + 前缀模糊匹配）
-  const lastId = localStorage.getItem('mcla_last_version') || ''
-  const savedName = localStorage.getItem('mcla_last_version_name') || ''
+  const lastId = localStorage.getItem('voxver_last_version') || ''
+  const savedName = localStorage.getItem('voxver_last_version_name') || ''
   try {
     const res = await api.versions.scanFolder(gameDir)
     if (res?.ok) {
@@ -495,7 +495,7 @@ async function removeVersion(id: string) {
 </script>
 
 <style scoped lang="scss">
-/* ====== MCLA Design System ====== */
+/* ====== VoxVer Design System ====== */
 .vs-overlay {
   /* 遮罩层 */
   position: fixed;
@@ -514,22 +514,22 @@ async function removeVersion(id: string) {
   max-width: 92vw;
   height: 520px;
   max-height: 85vh;
-  background: var(--mcla-bg-elevated);
-  border-radius: var(--mcla-radius-xl);
-  border: 1px solid var(--mcla-border-color);
+  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-xl);
+  border: 1px solid var(--voxver-border-color);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow:
-    var(--mcla-shadow-xl),
+    var(--voxver-shadow-xl),
     0 0 0 1px rgba(99, 102, 234, 0.1);
 }
 
 /* ---- 标题栏 ---- */
 .vs-header {
   height: 42px;
-  background: var(--mcla-bg-secondary);
-  border-bottom: 1px solid var(--mcla-border-color);
+  background: var(--voxver-bg-secondary);
+  border-bottom: 1px solid var(--voxver-border-color);
   display: flex;
   align-items: center;
   padding: 0 12px;
@@ -543,24 +543,24 @@ async function removeVersion(id: string) {
   height: 30px;
   border: none;
   background: transparent;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--mcla-radius-sm);
+  border-radius: var(--voxver-radius-sm);
   transition: all 0.12s;
   -webkit-app-region: no-drag;
   &:hover {
-    background: var(--mcla-bg-hover);
-    color: var(--mcla-text-primary);
+    background: var(--voxver-bg-hover);
+    color: var(--voxver-text-primary);
   }
 }
 
 .vs-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
 }
 
 .vs-wc {
@@ -577,15 +577,15 @@ async function removeVersion(id: string) {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--mcla-text-tertiary);
+    color: var(--voxver-text-tertiary);
     transition: background 0.12s;
     &:hover {
-      background: var(--mcla-bg-hover);
-      color: var(--mcla-text-primary);
+      background: var(--voxver-bg-hover);
+      color: var(--voxver-text-primary);
     }
     &.vs-close:hover {
       background: rgba(239, 68, 68, 0.15);
-      color: var(--mcla-error);
+      color: var(--voxver-error);
     }
   }
 }
@@ -601,8 +601,8 @@ async function removeVersion(id: string) {
 .vs-sidebar {
   width: 220px;
   min-width: 180px;
-  background: var(--mcla-bg-secondary);
-  border-right: 1px solid var(--mcla-border-color);
+  background: var(--voxver-bg-secondary);
+  border-right: 1px solid var(--voxver-border-color);
   padding: 16px 14px;
   flex-shrink: 0;
   display: flex;
@@ -613,7 +613,7 @@ async function removeVersion(id: string) {
     width: 4px;
   }
   &::-webkit-scrollbar-thumb {
-    background: var(--mcla-border-color);
+    background: var(--voxver-border-color);
     border-radius: 2px;
   }
 }
@@ -622,7 +622,7 @@ async function removeVersion(id: string) {
   margin: 0 0 10px;
   font-size: 11px;
   font-weight: 700;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
@@ -635,7 +635,7 @@ async function removeVersion(id: string) {
   gap: 10px;
   padding: 20px 10px;
   text-align: center;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 
   svg {
     opacity: 0.4;
@@ -655,7 +655,7 @@ async function removeVersion(id: string) {
 
   .action-item {
     .action-icon.create {
-      color: var(--mcla-primary-muted);
+      color: var(--voxver-primary-muted);
     }
   }
 }
@@ -664,13 +664,13 @@ async function removeVersion(id: string) {
 .current-folder {
   padding: 10px 12px;
   background: rgba(99, 102, 234, 0.08);
-  border-radius: var(--mcla-radius-md);
-  border-left: 3px solid var(--mcla-primary);
+  border-radius: var(--voxver-radius-md);
+  border-left: 3px solid var(--voxver-primary);
 
   .cf-label {
     font-size: 12px;
     font-weight: 600;
-    color: var(--mcla-primary-muted);
+    color: var(--voxver-primary-muted);
     margin-bottom: 4px;
   }
 
@@ -683,7 +683,7 @@ async function removeVersion(id: string) {
 
   .cf-name {
     font-size: 12px;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
     font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -692,10 +692,10 @@ async function removeVersion(id: string) {
 
   .cf-path {
     font-size: 10px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     word-break: break-all;
     line-height: 1.4;
-    font-family: var(--mcla-font-mono);
+    font-family: var(--voxver-font-mono);
     padding-left: 18px;
   }
 }
@@ -703,7 +703,7 @@ async function removeVersion(id: string) {
 /* 分隔线 */
 .sidebar-divider {
   height: 1px;
-  background: var(--mcla-border-color);
+  background: var(--voxver-border-color);
   margin: 14px 0 10px;
 }
 
@@ -720,7 +720,7 @@ async function removeVersion(id: string) {
   flex-direction: column;
   justify-content: center;
   padding: 7px 28px 7px 10px;
-  border-radius: var(--mcla-radius-sm);
+  border-radius: var(--voxver-radius-sm);
   cursor: pointer;
   transition: background 0.12s;
   gap: 2px;
@@ -738,7 +738,7 @@ async function removeVersion(id: string) {
 
   .fi-name {
     font-size: 12px;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -746,7 +746,7 @@ async function removeVersion(id: string) {
 
   .fi-path {
     font-size: 10px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -759,14 +759,14 @@ async function removeVersion(id: string) {
     top: 50%;
     transform: translateY(-50%);
     font-size: 10px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     opacity: 0;
     transition: opacity 0.12s;
     padding: 2px 4px;
     border-radius: 3px;
 
     &:hover {
-      color: var(--mcla-error);
+      color: var(--voxver-error);
       background: rgba(239, 68, 68, 0.08);
     }
   }
@@ -781,7 +781,7 @@ async function removeVersion(id: string) {
   margin: 0 0 8px;
   font-size: 11px;
   font-weight: 500;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 }
 
 /* 操作按钮列表 */
@@ -798,21 +798,21 @@ async function removeVersion(id: string) {
   padding: 8px 10px;
   border: none;
   background: transparent;
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   font-size: 12px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   transition: all 0.13s;
   text-align: left;
 
   &:hover {
     background: rgba(99, 102, 234, 0.08);
-    color: var(--mcla-primary-muted);
+    color: var(--voxver-primary-muted);
     .action-icon.add {
-      color: var(--mcla-success);
+      color: var(--voxver-success);
     }
     .action-icon.import {
-      color: var(--mcla-primary-muted);
+      color: var(--voxver-primary-muted);
     }
   }
 
@@ -820,10 +820,10 @@ async function removeVersion(id: string) {
     font-size: 14px;
     flex-shrink: 0;
     &.add {
-      color: var(--mcla-success);
+      color: var(--voxver-success);
     }
     &.import {
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
     }
   }
 }
@@ -832,7 +832,7 @@ async function removeVersion(id: string) {
 .vs-main {
   flex: 1;
   overflow-y: auto;
-  background: var(--mcla-bg-primary);
+  background: var(--voxver-bg-primary);
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
@@ -845,16 +845,16 @@ async function removeVersion(id: string) {
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: var(--mcla-border-color);
+    background: var(--voxver-border-color);
     border-radius: 3px;
   }
 }
 
 /* 内容区块 */
 .content-section {
-  background: var(--mcla-bg-elevated);
-  border-radius: var(--mcla-radius-lg);
-  border: 1px solid var(--mcla-border-color);
+  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-lg);
+  border: 1px solid var(--voxver-border-color);
   overflow: hidden;
 
   .sec-header {
@@ -868,19 +868,19 @@ async function removeVersion(id: string) {
     &.clickable {
       cursor: pointer;
       &:hover {
-        background: var(--mcla-bg-hover);
+        background: var(--voxver-bg-hover);
       }
     }
 
     .sec-header-title {
       font-size: 13px;
       font-weight: 700;
-      color: var(--mcla-text-primary);
+      color: var(--voxver-text-primary);
     }
 
     svg {
       flex-shrink: 0;
-      color: var(--mcla-text-tertiary);
+      color: var(--voxver-text-tertiary);
     }
   }
 
@@ -911,11 +911,11 @@ async function removeVersion(id: string) {
   align-items: center;
   gap: 10px;
   padding: 9px 8px;
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   transition: background 0.12s;
 
   &:hover {
-    background: var(--mcla-bg-hover);
+    background: var(--voxver-bg-hover);
   }
 
   .iv-check {
@@ -924,7 +924,7 @@ async function removeVersion(id: string) {
     input[type='radio'] {
       width: 15px;
       height: 15px;
-      accent-color: var(--mcla-primary);
+      accent-color: var(--voxver-primary);
       cursor: pointer;
     }
   }
@@ -937,13 +937,13 @@ async function removeVersion(id: string) {
       margin: 0;
       font-size: 13px;
       font-weight: 600;
-      color: var(--mcla-text-primary);
+      color: var(--voxver-text-primary);
     }
 
     .iv-detail {
       margin: 2px 0 0;
       font-size: 11px;
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
     }
   }
 
@@ -952,7 +952,7 @@ async function removeVersion(id: string) {
     height: 26px;
     border: none;
     background: transparent;
-    border-radius: var(--mcla-radius-sm);
+    border-radius: var(--voxver-radius-sm);
     font-size: 13px;
     cursor: pointer;
     opacity: 0;
@@ -976,7 +976,7 @@ async function removeVersion(id: string) {
 .empty-hint {
   text-align: center;
   padding: 30px 0 16px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 
   p {
     margin: 8px 0 0;

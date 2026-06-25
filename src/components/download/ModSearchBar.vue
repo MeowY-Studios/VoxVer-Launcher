@@ -133,9 +133,9 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-lg);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-lg);
 
   flex-wrap: wrap;
 }
@@ -147,18 +147,18 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: var(--mcla-bg-input);
-  border: 1.5px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
-  transition: all var(--mcla-transition-fast);
+  background: var(--voxver-bg-input);
+  border: 1.5px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
+  transition: all var(--voxver-transition-fast);
 
   &:focus-within {
-    border-color: var(--mcla-border-color-focus);
-    box-shadow: var(--mcla-input-focus-shadow);
+    border-color: var(--voxver-border-color-focus);
+    box-shadow: var(--voxver-input-focus-shadow);
   }
 
   svg {
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     flex-shrink: 0;
   }
 
@@ -167,25 +167,25 @@ onMounted(() => {
     background: transparent;
     border: none;
     outline: none;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
     font-size: 14px;
 
     &::placeholder {
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
     }
   }
 
   .clear-btn {
     padding: 0 4px;
     font-size: 18px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     background: none;
     border: none;
     cursor: pointer;
     line-height: 1;
 
     &:hover {
-      color: var(--mcla-text-primary);
+      color: var(--voxver-text-primary);
     }
   }
 }
@@ -193,9 +193,9 @@ onMounted(() => {
 .platform-switch {
   display: flex;
   gap: 3px;
-  background: var(--mcla-bg-input);
+  background: var(--voxver-bg-input);
   padding: 3px;
-  border-radius: var(--mcla-radius-sm);
+  border-radius: var(--voxver-radius-sm);
 
   .platform-btn {
     padding: 6px 14px;
@@ -204,17 +204,17 @@ onMounted(() => {
     background: transparent;
     font-size: 12.5px;
     font-weight: 600;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     cursor: pointer;
     transition: all 0.15s;
 
     &.active {
       background: #fff;
-      color: var(--mcla-primary-700);
+      color: var(--voxver-primary-700);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
     &:hover:not(.active) {
-      color: var(--mcla-text-secondary);
+      color: var(--voxver-text-secondary);
     }
   }
 }
@@ -226,22 +226,22 @@ onMounted(() => {
 
   .cat-tab {
     padding: 5px 12px;
-    border: 1px solid var(--mcla-border-color);
-    border-radius: var(--mcla-radius-sm);
+    border: 1px solid var(--voxver-border-color);
+    border-radius: var(--voxver-radius-sm);
     background: transparent;
     font-size: 12px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     cursor: pointer;
     transition: all 0.12s;
 
     &.active {
-      background: var(--mcla-primary-light);
-      border-color: var(--mcla-primary-300);
-      color: var(--mcla-primary-600);
+      background: var(--voxver-primary-light);
+      border-color: var(--voxver-primary-300);
+      color: var(--voxver-primary-600);
       font-weight: 600;
     }
     &:hover:not(.active) {
-      color: var(--mcla-text-secondary);
+      color: var(--voxver-text-secondary);
     }
   }
 }
@@ -251,19 +251,19 @@ onMounted(() => {
   align-items: center;
   gap: 5px;
   padding: 9px 20px;
-  background: var(--mcla-gradient-primary);
+  background: var(--voxver-gradient-primary);
   color: #fff;
   border: none;
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
 
   &:hover:not(:disabled) {
     filter: brightness(1.06);
-    box-shadow: var(--mcla-shadow-glow-primary);
+    box-shadow: var(--voxver-shadow-glow-primary);
   }
   &:disabled {
     opacity: 0.45;

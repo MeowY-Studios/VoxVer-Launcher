@@ -92,18 +92,18 @@ const shortUuid = computed(() => {
   align-items: center;
   gap: 14px;
   padding: 12px 16px;
-  background: var(--mcla-bg-elevated);
-  border: 1.5px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-lg);
-  transition: all var(--mcla-transition-fast);
+  background: var(--voxver-bg-elevated);
+  border: 1.5px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-lg);
+  transition: all var(--voxver-transition-fast);
 
   &:hover {
-    border-color: var(--mcla-primary-200);
-    box-shadow: var(--mcla-shadow-sm);
+    border-color: var(--voxver-primary-200);
+    box-shadow: var(--voxver-shadow-sm);
   }
 
   &.active {
-    border-color: var(--mcla-primary-400);
+    border-color: var(--voxver-primary-400);
     background: linear-gradient(to right, rgba(99, 102, 234, 0.04), transparent);
   }
 }
@@ -115,7 +115,7 @@ const shortUuid = computed(() => {
   .avatar-steve {
     width: 48px;
     height: 48px;
-    border-radius: var(--mcla-radius-md);
+    border-radius: var(--voxver-radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -124,7 +124,7 @@ const shortUuid = computed(() => {
   }
 
   .avatar-ms {
-    background: var(--mcla-gradient-primary);
+    background: var(--voxver-gradient-primary);
     svg {
       color: #fff !important;
     }
@@ -151,12 +151,12 @@ const shortUuid = computed(() => {
     letter-spacing: 0.3px;
 
     &.microsoft {
-      background: var(--mcla-primary-light);
-      color: var(--mcla-primary-700);
+      background: var(--voxver-primary-light);
+      color: var(--voxver-primary-700);
     }
 
     &.offline {
-      background: var(--mcla-warning-light);
+      background: var(--voxver-warning-light);
       color: #b45309;
     }
   }
@@ -170,14 +170,14 @@ const shortUuid = computed(() => {
   .card-name {
     font-size: 15px;
     font-weight: 650;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
     margin: 0 0 2px;
   }
 
   .card-uuid {
-    font-family: var(--mcla-font-mono);
+    font-family: var(--voxver-font-mono);
     font-size: 11px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     margin: 0;
   }
 
@@ -189,7 +189,7 @@ const shortUuid = computed(() => {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--mcla-text-muted);
+    background: var(--voxver-text-muted);
 
     &.online {
       background: #22c55e;
@@ -207,10 +207,10 @@ const shortUuid = computed(() => {
     padding: 6px 14px;
     font-size: 12px;
     font-weight: 600;
-    border: 1px solid var(--mcla-border-color);
-    border-radius: var(--mcla-radius-sm);
+    border: 1px solid var(--voxver-border-color);
+    border-radius: var(--voxver-radius-sm);
     background: transparent;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
     cursor: pointer;
     transition: all 0.12s;
 
@@ -219,9 +219,9 @@ const shortUuid = computed(() => {
     }
 
     &.primary {
-      color: var(--mcla-primary-600);
+      color: var(--voxver-primary-600);
       &:hover {
-        background: var(--mcla-primary-light);
+        background: var(--voxver-primary-light);
       }
     }
 

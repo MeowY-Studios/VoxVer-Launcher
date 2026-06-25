@@ -159,24 +159,24 @@ const relativeTime = computed(() => {
 <style scoped lang="scss">
 .instance-card {
   position: relative;
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-lg);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-lg);
   overflow: hidden;
   cursor: pointer;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: var(--mcla-shadow-lg);
+    box-shadow: var(--voxver-shadow-lg);
     .card-actions {
       opacity: 1;
     }
   }
 
   &.selected {
-    border-color: var(--mcla-primary-400);
-    box-shadow: var(--mcla-shadow-glow-primary);
+    border-color: var(--voxver-primary-400);
+    box-shadow: var(--voxver-shadow-glow-primary);
   }
 }
 
@@ -189,7 +189,7 @@ const relativeTime = computed(() => {
   .cover-icon {
     font-size: 36px;
     font-weight: 800;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--voxver-text-secondary);
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
 
@@ -207,7 +207,7 @@ const relativeTime = computed(() => {
 .card-name {
   font-size: 14.5px;
   font-weight: 650;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   margin: 0 0 4px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -216,15 +216,15 @@ const relativeTime = computed(() => {
 
 .card-version {
   font-size: 12px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   margin: 0 0 8px;
 
   .loader-tag {
     margin-left: 6px;
     padding: 1px 6px;
     font-size: 11px;
-    background: var(--mcla-success-light);
-    color: var(--mcla-success);
+    background: var(--voxver-success-light);
+    color: var(--voxver-success);
     border-radius: 3px;
     font-weight: 600;
   }
@@ -239,7 +239,7 @@ const relativeTime = computed(() => {
     align-items: center;
     gap: 3px;
     font-size: 11.5px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 }
 
@@ -278,7 +278,7 @@ const relativeTime = computed(() => {
   padding: 5px;
   background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(6px);
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   opacity: 0;
   transition: opacity 0.15s;
 
@@ -286,13 +286,13 @@ const relativeTime = computed(() => {
     padding: 5px 7px;
     border: none;
     background: transparent;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--voxver-text-secondary);
     cursor: pointer;
     border-radius: 4px;
     transition: all 0.1s;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: var(--voxver-bg-hover);
       color: #fff;
     }
     &.danger:hover {

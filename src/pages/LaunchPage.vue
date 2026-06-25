@@ -221,7 +221,7 @@ async function handleLaunch() {
   statusMessage.value = '正在构建启动参数...'
   crashReport.value = null
   pxProgressRef.value?.open()
-  addLog('[MCLA] 开始启动流程...')
+  addLog('[VoxVer] 开始启动流程...')
 
   try {
     // 从 versionsStore 获取当前选中的版本
@@ -243,13 +243,13 @@ async function handleLaunch() {
     if (!versionId && !instanceId) {
       hasError.value = true
       statusMessage.value = '请先选择一个游戏版本'
-      addLog('[MCLA] 未选择版本，无法启动')
+      addLog('[VoxVer] 未选择版本，无法启动')
       isLaunching.value = false
       return
     }
 
     addLog(
-      `[MCLA] 启动参数: instanceId="${instanceId}", accountId="${accountId}", versionId="${versionId}"`
+      `[VoxVer] 启动参数: instanceId="${instanceId}", accountId="${accountId}", versionId="${versionId}"`
     )
 
     const result = await window.electronAPI?.game.launch(
@@ -257,11 +257,11 @@ async function handleLaunch() {
       accountId || 'default',
       versionId
     )
-    addLog(`[MCLA] launch IPC 返回: ${JSON.stringify(result)}`)
+    addLog(`[VoxVer] launch IPC 返回: ${JSON.stringify(result)}`)
   } catch (e: any) {
     hasError.value = true
     statusMessage.value = e.message || '启动失败'
-    addLog(`[MCLA] 启动失败: ${e.message || e}`)
+    addLog(`[VoxVer] 启动失败: ${e.message || e}`)
   } finally {
     // 保持 isLaunching，progress 事件会在成功时设为 false
   }
@@ -275,7 +275,7 @@ async function terminateGame() {
     }
     isRunning.value = false
     statusMessage.value = '游戏已终止'
-    addLog('[MCLA] 游戏进程已手动终止')
+    addLog('[VoxVer] 游戏进程已手动终止')
   } catch (e) {}
 }
 
@@ -384,8 +384,8 @@ async function restoreDefaultPath() {
 onMounted(async () => {
   // 加载上次选中的版本（从 localStorage，App.vue onVersionSelect 会写这里）
   try {
-    const lastVersionId = localStorage.getItem('mcla_last_version') || ''
-    const lastVersionName = localStorage.getItem('mcla_last_version_name') || ''
+    const lastVersionId = localStorage.getItem('voxver_last_version') || ''
+    const lastVersionName = localStorage.getItem('voxver_last_version_name') || ''
     if (lastVersionId) {
       const versionsStore = useVersionsStore()
       versionsStore.setCurrentVersion(lastVersionId)
@@ -423,7 +423,7 @@ onMounted(async () => {
     exitListener = (code: number) => {
       isRunning.value = false
       isLaunching.value = false
-      addLog(`[MCLA] 游戏进程退出，退出码: ${code}`)
+      addLog(`[VoxVer] 游戏进程退出，退出码: ${code}`)
       if (code !== 0) {
         hasError.value = true
         statusMessage.value = `游戏异常退出 (exit code ${code})`
@@ -485,11 +485,11 @@ onUnmounted(() => {
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
   font-size: 12px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   max-width: 560px;
   width: 100%;
 
@@ -503,10 +503,10 @@ onUnmounted(() => {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
 
     &.not-found {
-      color: var(--mcla-text-error);
+      color: var(--voxver-text-error);
     }
   }
 
@@ -525,14 +525,14 @@ onUnmounted(() => {
     padding: 0;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: var(--mcla-radius-sm);
-    color: var(--mcla-text-muted);
+    border-radius: var(--voxver-radius-sm);
+    color: var(--voxver-text-muted);
     cursor: pointer;
     transition: all 0.15s;
 
     &:hover {
-      color: var(--mcla-primary);
-      border-color: var(--mcla-primary);
+      color: var(--voxver-primary);
+      border-color: var(--voxver-primary);
       background: rgba(99, 102, 241, 0.1);
     }
   }
@@ -547,14 +547,14 @@ onUnmounted(() => {
   width: 220px;
   height: 80px;
   border: none;
-  border-radius: var(--mcla-radius-xl);
-  background: var(--mcla-gradient-primary);
+  border-radius: var(--voxver-radius-xl);
+  background: var(--voxver-gradient-primary);
   color: #fff;
   font-size: 22px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: var(--mcla-shadow-glow-primary);
+  box-shadow: var(--voxver-shadow-glow-primary);
 
   /* 光泽效果 */
   &::before {
@@ -565,7 +565,7 @@ onUnmounted(() => {
     right: 0;
     height: 50%;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.15), transparent);
-    border-radius: var(--mcla-radius-xl) var(--mcla-radius-xl) 0 0;
+    border-radius: var(--voxver-radius-xl) var(--voxver-radius-xl) 0 0;
     pointer-events: none;
   }
 
@@ -644,11 +644,11 @@ onUnmounted(() => {
 
 .status-msg {
   font-size: 13.5px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   min-height: 20px;
 
   &.error {
-    color: var(--mcla-text-error);
+    color: var(--voxver-text-error);
   }
 }
 
@@ -656,9 +656,9 @@ onUnmounted(() => {
 .console-section {
   width: 100%;
   max-width: 900px;
-  background: var(--mcla-bg-primary);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-lg);
+  background: var(--voxver-bg-primary);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-lg);
   overflow: hidden;
   flex: 1;
   min-height: 280px;
@@ -672,13 +672,13 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 10px 16px;
-  background: var(--mcla-bg-elevated);
-  border-bottom: 1px solid var(--mcla-border-color);
+  background: var(--voxver-bg-elevated);
+  border-bottom: 1px solid var(--voxver-border-color);
 
   h3 {
     font-size: 13.5px;
     font-weight: 650;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
   }
 
   .console-actions {
@@ -690,15 +690,15 @@ onUnmounted(() => {
     padding: 4px 12px;
     font-size: 12px;
     background: transparent;
-    border: 1px solid var(--mcla-border-color);
-    border-radius: var(--mcla-radius-sm);
-    color: var(--mcla-text-muted);
+    border: 1px solid var(--voxver-border-color);
+    border-radius: var(--voxver-radius-sm);
+    color: var(--voxver-text-muted);
     cursor: pointer;
     transition: all 0.12s;
 
     &:hover {
-      color: var(--mcla-primary);
-      border-color: var(--mcla-primary-300);
+      color: var(--voxver-primary);
+      border-color: var(--voxver-primary-300);
     }
 
     &.danger:hover {
@@ -713,10 +713,10 @@ onUnmounted(() => {
   flex: 1;
   overflow-y: auto;
   padding: 12px 16px;
-  font-family: var(--mcla-font-mono);
+  font-family: var(--voxver-font-mono);
   font-size: 12.5px;
   line-height: 1.7;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
 
   &::-webkit-scrollbar {
     width: 5px;
@@ -725,7 +725,7 @@ onUnmounted(() => {
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: var(--mcla-scrollbar-thumb);
+    background: var(--voxver-scrollbar-thumb);
     border-radius: 3px;
   }
 }
@@ -748,7 +748,7 @@ onUnmounted(() => {
 
 .log-empty {
   text-align: center;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   padding: 60px 0;
   font-style: italic;
 }
@@ -757,10 +757,10 @@ onUnmounted(() => {
 .crash-panel {
   width: 100%;
   max-width: 900px;
-  background: var(--mcla-bg-elevated);
+  background: var(--voxver-bg-elevated);
   border: 1px solid #fca5a5;
   border-left: 4px solid #ef4444;
-  border-radius: var(--mcla-radius-lg);
+  border-radius: var(--voxver-radius-lg);
   overflow: hidden;
 }
 
@@ -774,17 +774,17 @@ onUnmounted(() => {
   h3 {
     font-size: 15px;
     font-weight: 700;
-    color: var(--mcla-text-error);
+    color: var(--voxver-text-error);
   }
 }
 
 .crash-body {
   padding: 14px 18px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   font-size: 13.5px;
 
   .crash-cause {
-    color: var(--mcla-text-error);
+    color: var(--voxver-text-error);
     margin-bottom: 10px;
   }
 
@@ -803,25 +803,25 @@ onUnmounted(() => {
 
     summary {
       cursor: pointer;
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
       font-size: 12px;
       outline: none;
 
       &:hover {
-        color: var(--mcla-text-secondary);
+        color: var(--voxver-text-secondary);
       }
     }
 
     pre {
       margin-top: 8px;
       padding: 10px 12px;
-      background: var(--mcla-bg-primary);
-      border-radius: var(--mcla-radius-md);
+      background: var(--voxver-bg-primary);
+      border-radius: var(--voxver-radius-md);
       font-size: 11px;
       line-height: 1.5;
       max-height: 180px;
       overflow-y: auto;
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
     }
   }
 }

@@ -301,7 +301,7 @@
               height="18"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="var(--mcla-blue)"
+              stroke="var(--voxver-primary)"
               stroke-width="2"
             >
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
@@ -655,7 +655,7 @@ onMounted(() => {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  background: var(--mcla-bg, #0f0f17);
+  background: var(--voxver-bg-primary, #0f0f17);
 }
 
 /* ====== 加载 / 错误 ====== */
@@ -667,22 +667,22 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: var(--mcla-text-muted, #6c7086);
+  color: var(--voxver-text-muted, #6c7086);
   font-size: 13px;
 }
 
 .btn-retry {
   padding: 6px 20px;
-  border: 1px solid var(--mcla-border-color, #45475a);
+  border: 1px solid var(--voxver-border-color, #45475a);
   border-radius: 6px;
   background: transparent;
-  color: var(--mcla-text-secondary, #a6adc8);
+  color: var(--voxver-text-secondary, #a6adc8);
   cursor: pointer;
   font-size: 13px;
   transition: all 0.12s;
   &:hover {
-    border-color: var(--mcla-blue, #6366f1);
-    color: var(--mcla-blue, #6366f1);
+    border-color: var(--voxver-primary, #6366f1);
+    color: var(--voxver-primary, #6366f1);
   }
 }
 
@@ -700,7 +700,7 @@ onMounted(() => {
   flex-shrink: 0;
   overflow-y: auto;
   padding: 20px 16px;
-  border-right: 1px solid var(--mcla-border-color, #313244);
+  border-right: 1px solid var(--voxver-border-color, #313244);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -709,7 +709,7 @@ onMounted(() => {
     width: 4px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.07);
+    background: var(--voxver-bg-hover);
     border-radius: 2px;
   }
 }
@@ -726,7 +726,7 @@ onMounted(() => {
   border-radius: 10px;
   overflow: hidden;
   flex-shrink: 0;
-  background: var(--mcla-bg-secondary, #181825);
+  background: var(--voxver-bg-secondary, #181825);
 
   img {
     width: 100%;
@@ -755,7 +755,7 @@ onMounted(() => {
   margin: 0 0 6px;
   font-size: 15px;
   font-weight: 700;
-  color: var(--mcla-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary, #cdd6f4);
   word-break: break-word;
   line-height: 1.3;
 }
@@ -782,7 +782,7 @@ onMounted(() => {
 .mod-desc {
   margin: 0;
   font-size: 12px;
-  color: var(--mcla-text-secondary, #a6adc8);
+  color: var(--voxver-text-secondary, #a6adc8);
   line-height: 1.6;
   display: -webkit-box;
   -webkit-line-clamp: 4;
@@ -802,10 +802,10 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: var(--mcla-text-secondary, #a6adc8);
+  color: var(--voxver-text-secondary, #a6adc8);
 
   svg {
-    color: var(--mcla-text-muted, #6c7086);
+    color: var(--voxver-text-muted, #6c7086);
     flex-shrink: 0;
   }
 }
@@ -820,10 +820,10 @@ onMounted(() => {
   padding: 2px 7px;
   font-size: 10px;
   font-weight: 500;
-  background: var(--mcla-bg-secondary, #181825);
-  color: var(--mcla-text-secondary, #a6adc8);
+  background: var(--voxver-bg-secondary, #181825);
+  color: var(--voxver-text-secondary, #a6adc8);
   border-radius: 4px;
-  border: 1px solid var(--mcla-border-color, #313244);
+  border: 1px solid var(--voxver-border-color, #313244);
 }
 
 .loader-row {
@@ -835,7 +835,7 @@ onMounted(() => {
 
 .loader-label {
   font-size: 11px;
-  color: var(--mcla-text-muted, #6c7086);
+  color: var(--voxver-text-muted, #6c7086);
   flex-shrink: 0;
 }
 
@@ -844,7 +844,7 @@ onMounted(() => {
   font-size: 10px;
   font-weight: 600;
   background: rgba(99, 102, 241, 0.1);
-  color: var(--mcla-blue, #6366f1);
+  color: var(--voxver-primary, #6366f1);
   border-radius: 4px;
   border: 1px solid rgba(99, 102, 241, 0.2);
 }
@@ -856,12 +856,12 @@ onMounted(() => {
   padding: 7px 10px;
   border-radius: 6px;
   font-size: 12px;
-  color: var(--mcla-text-secondary, #a6adc8);
+  color: var(--voxver-text-secondary, #a6adc8);
   background: rgba(99, 102, 241, 0.06);
   border: 1px solid rgba(99, 102, 241, 0.15);
 
   svg {
-    color: var(--mcla-blue, #6366f1);
+    color: var(--voxver-primary, #6366f1);
     flex-shrink: 0;
   }
 
@@ -882,7 +882,7 @@ onMounted(() => {
   gap: 7px;
   margin-top: auto;
   padding-top: 8px;
-  border-top: 1px solid var(--mcla-border-color, #313244);
+  border-top: 1px solid var(--voxver-border-color, #313244);
 }
 
 .btn-ext {
@@ -892,23 +892,23 @@ onMounted(() => {
   gap: 6px;
   width: 100%;
   height: 32px;
-  border: 1px solid var(--mcla-border-color, #313244);
+  border: 1px solid var(--voxver-border-color, #313244);
   border-radius: 7px;
-  background: var(--mcla-bg-secondary, #181825);
-  color: var(--mcla-text-secondary, #a6adc8);
+  background: var(--voxver-bg-secondary, #181825);
+  color: var(--voxver-text-secondary, #a6adc8);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.13s;
 
   &:hover {
-    border-color: var(--mcla-blue, #6366f1);
-    color: var(--mcla-blue, #6366f1);
+    border-color: var(--voxver-primary, #6366f1);
+    color: var(--voxver-primary, #6366f1);
   }
 
   &.primary {
-    background: var(--mcla-blue, #6366f1);
-    border-color: var(--mcla-blue, #6366f1);
+    background: var(--voxver-primary, #6366f1);
+    border-color: var(--voxver-primary, #6366f1);
     color: #fff;
     &:hover {
       filter: brightness(1.1);
@@ -929,7 +929,7 @@ onMounted(() => {
     width: 5px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.07);
+    background: var(--voxver-bg-hover);
     border-radius: 3px;
   }
 }
@@ -939,28 +939,28 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 6px;
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--mcla-border-color, #313244);
+  border-bottom: 1px solid var(--voxver-border-color, #313244);
 }
 
 .vf-tab {
   padding: 4px 10px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--mcla-text-secondary, #a6adc8);
-  background: var(--mcla-bg-secondary, #181825);
-  border: 1px solid var(--mcla-border-color, #313244);
+  color: var(--voxver-text-secondary, #a6adc8);
+  background: var(--voxver-bg-secondary, #181825);
+  border: 1px solid var(--voxver-border-color, #313244);
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.12s;
 
   &:hover {
-    border-color: var(--mcla-blue, #6366f1);
-    color: var(--mcla-blue, #6366f1);
+    border-color: var(--voxver-primary, #6366f1);
+    color: var(--voxver-primary, #6366f1);
   }
   &.active {
     background: rgba(99, 102, 241, 0.1);
-    border-color: var(--mcla-blue, #6366f1);
-    color: var(--mcla-blue, #6366f1);
+    border-color: var(--voxver-primary, #6366f1);
+    color: var(--voxver-primary, #6366f1);
   }
 }
 
@@ -971,7 +971,7 @@ onMounted(() => {
   gap: 10px;
   padding: 20px;
   font-size: 13px;
-  color: var(--mcla-text-muted, #6c7086);
+  color: var(--voxver-text-muted, #6c7086);
 }
 
 /* 分组列表 */
@@ -982,8 +982,8 @@ onMounted(() => {
 }
 
 .version-group {
-  background: var(--mcla-bg-elevated, #1e1e2e);
-  border: 1px solid var(--mcla-border-color, #313244);
+  background: var(--voxver-bg-elevated, #1e1e2e);
+  border: 1px solid var(--voxver-border-color, #313244);
   border-radius: 9px;
   overflow: hidden;
   transition: border-color 0.13s;
@@ -1004,7 +1004,7 @@ onMounted(() => {
   transition: background 0.12s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--voxver-bg-hover);
   }
   &.expanded {
     background: rgba(99, 102, 241, 0.05);
@@ -1014,19 +1014,19 @@ onMounted(() => {
 .group-version {
   font-size: 13px;
   font-weight: 600;
-  color: var(--mcla-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary, #cdd6f4);
   flex: 1;
   text-align: left;
 }
 
 .group-count {
   font-size: 11px;
-  color: var(--mcla-text-muted, #6c7086);
+  color: var(--voxver-text-muted, #6c7086);
   margin-right: 10px;
 }
 
 .group-arrow {
-  color: var(--mcla-text-muted, #6c7086);
+  color: var(--voxver-text-muted, #6c7086);
   transition: transform 0.2s;
   flex-shrink: 0;
 
@@ -1040,7 +1040,7 @@ onMounted(() => {
 }
 
 .group-files {
-  border-top: 1px solid var(--mcla-border-color, #313244);
+  border-top: 1px solid var(--voxver-border-color, #313244);
 }
 
 .file-row {
@@ -1048,14 +1048,14 @@ onMounted(() => {
   align-items: center;
   gap: 12px;
   padding: 10px 16px;
-  border-bottom: 1px solid var(--mcla-border-color, #313244);
+  border-bottom: 1px solid var(--voxver-border-color, #313244);
   transition: background 0.12s;
 
   &:last-child {
     border-bottom: none;
   }
   &:hover {
-    background: rgba(255, 255, 255, 0.025);
+    background: var(--voxver-bg-hover);
   }
 }
 
@@ -1068,7 +1068,7 @@ onMounted(() => {
   display: block;
   font-size: 12.5px;
   font-weight: 500;
-  color: var(--mcla-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary, #cdd6f4);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1080,7 +1080,7 @@ onMounted(() => {
   gap: 8px;
   margin-top: 3px;
   font-size: 11px;
-  color: var(--mcla-text-muted, #6c7086);
+  color: var(--voxver-text-muted, #6c7086);
 
   span:not(:last-child)::after {
     content: '·';
@@ -1098,16 +1098,16 @@ onMounted(() => {
   padding: 1px 6px;
   font-size: 10px;
   font-weight: 500;
-  background: var(--mcla-bg-secondary, #181825);
-  color: var(--mcla-text-secondary, #a6adc8);
+  background: var(--voxver-bg-secondary, #181825);
+  color: var(--voxver-text-secondary, #a6adc8);
   border-radius: 3px;
-  border: 1px solid var(--mcla-border-color, #313244);
+  border: 1px solid var(--voxver-border-color, #313244);
 }
 
 .btn-download {
   height: 30px;
   padding: 0 14px;
-  background: var(--mcla-gradient-primary, linear-gradient(135deg, #6366f1, #8b5cf6));
+  background: var(--voxver-gradient-primary, linear-gradient(135deg, #6366f1, #8b5cf6));
   border: none;
   border-radius: 6px;
   color: #fff;
@@ -1133,8 +1133,8 @@ onMounted(() => {
 .spin-lg {
   width: 32px;
   height: 32px;
-  border: 2.5px solid var(--mcla-border-color, #45475a);
-  border-top-color: var(--mcla-blue, #6366f1);
+  border: 2.5px solid var(--voxver-border-color, #45475a);
+  border-top-color: var(--voxver-primary, #6366f1);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -1165,8 +1165,8 @@ onMounted(() => {
 .confirm-panel {
   width: 380px;
   max-width: 90vw;
-  background: var(--mcla-bg-elevated, #1e1e2e);
-  border: 1px solid var(--mcla-border-color, #313244);
+  background: var(--voxver-bg-elevated, #1e1e2e);
+  border: 1px solid var(--voxver-border-color, #313244);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
@@ -1177,10 +1177,10 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   padding: 14px 18px;
-  border-bottom: 1px solid var(--mcla-border-color, #313244);
+  border-bottom: 1px solid var(--voxver-border-color, #313244);
   font-size: 14px;
   font-weight: 700;
-  color: var(--mcla-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary, #cdd6f4);
 }
 
 .confirm-body {
@@ -1191,17 +1191,17 @@ onMounted(() => {
   margin: 0 0 8px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--mcla-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary, #cdd6f4);
   word-break: break-all;
 }
 
 .confirm-target {
   margin: 0;
   font-size: 13px;
-  color: var(--mcla-text-secondary, #a6adc8);
+  color: var(--voxver-text-secondary, #a6adc8);
 
   strong {
-    color: var(--mcla-blue, #6366f1);
+    color: var(--voxver-primary, #6366f1);
   }
 }
 
@@ -1210,22 +1210,22 @@ onMounted(() => {
   justify-content: flex-end;
   gap: 10px;
   padding: 12px 18px;
-  border-top: 1px solid var(--mcla-border-color, #313244);
+  border-top: 1px solid var(--voxver-border-color, #313244);
 }
 
 .btn-cancel {
   padding: 7px 18px;
-  border: 1px solid var(--mcla-border-color, #45475a);
+  border: 1px solid var(--voxver-border-color, #45475a);
   border-radius: 6px;
   background: transparent;
-  color: var(--mcla-text-secondary, #a6adc8);
+  color: var(--voxver-text-secondary, #a6adc8);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.12s;
 
   &:hover {
-    border-color: var(--mcla-text-muted, #6c7086);
-    color: var(--mcla-text-primary, #cdd6f4);
+    border-color: var(--voxver-text-muted, #6c7086);
+    color: var(--voxver-text-primary, #cdd6f4);
   }
 }
 
@@ -1233,7 +1233,7 @@ onMounted(() => {
   padding: 7px 18px;
   border: none;
   border-radius: 6px;
-  background: var(--mcla-gradient-primary, linear-gradient(135deg, #6366f1, #8b5cf6));
+  background: var(--voxver-gradient-primary, linear-gradient(135deg, #6366f1, #8b5cf6));
   color: #fff;
   font-size: 13px;
   font-weight: 600;

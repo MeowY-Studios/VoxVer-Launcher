@@ -510,6 +510,21 @@ const api = {
         callback(data)
       ipcRenderer.on('mod:update-progress', listener)
       return () => ipcRenderer.removeListener('mod:update-progress', listener)
+    },
+    // 依赖管理
+    checkDependencies: (mods: LocalMod[], mcVersion?: string, loader?: string) =>
+      ipcRenderer.invoke('mod:check-dependencies', { mods, mcVersion, loader }),
+    installDependencies: (mod: LocalMod, gameDir: string, mcVersion?: string, loader?: string) =>
+      ipcRenderer.invoke('mod:install-dependencies', { mod, gameDir, mcVersion, loader }),
+    onDependencyProgress: (
+      callback: (data: { modPath: string; depName: string; progress: number }) => void
+    ) => {
+      const listener = (
+        _event: IpcRendererEvent,
+        data: { modPath: string; depName: string; progress: number }
+      ) => callback(data)
+      ipcRenderer.on('mod:dependency-progress', listener)
+      return () => ipcRenderer.removeListener('mod:dependency-progress', listener)
     }
   },
 
@@ -611,6 +626,113 @@ const api = {
       return () => ipcRenderer.removeListener('backup:progress', listener)
     }
   },
+
+  // 分享功能（P2P 实例分享）
+  share: (() => {
+    const packListeners = new Map<Function, Function>()
+    const sessionListeners = new Map<Function, Function>()
+    const progressListeners = new Map<Function, Function>()
+
+    return {
+      startInstance: (instanceId: string) =>
+        ipcRenderer.invoke('share:start-instance', { instanceId }),
+      stopShare: (sessionId: string) =>
+        ipcRenderer.invoke('share:stop-share', { sessionId }),
+      receiveInstance: (shareCode: string) =>
+        ipcRenderer.invoke('share:receive-instance', { shareCode }),
+      importReceived: (sessionId: string) =>
+        ipcRenderer.invoke('share:import-received', { sessionId }),
+      closeSession: (sessionId: string) =>
+        ipcRenderer.invoke('share:close-session', { sessionId }),
+      getSession: (sessionId: string) =>
+        ipcRenderer.invoke('share:get-session', { sessionId }),
+      onPackProgress: (
+        callback: (event: Event, data: { instanceId: string; stage: string; progress: number }) => void
+      ) => {
+        const listener = (
+          _event: IpcRendererEvent,
+          data: { instanceId: string; stage: string; progress: number }
+        ) => callback(_event, data)
+        packListeners.set(callback, listener)
+        ipcRenderer.on('share:pack-progress', listener)
+        return () => ipcRenderer.removeListener('share:pack-progress', listener)
+      },
+      onSessionUpdate: (
+        callback: (event: Event, data: { sessionId: string; session: { sessionId: string; shareCode?: string; type?: string; status: string; transferredChunks: number; totalChunks: number; error?: string; instanceName?: string; mcVersion?: string; loaderType?: string } }) => void
+      ) => {
+        const listener = (
+          _event: IpcRendererEvent,
+          data: { sessionId: string; session: { sessionId: string; shareCode?: string; type?: string; status: string; transferredChunks: number; totalChunks: number; error?: string; instanceName?: string; mcVersion?: string; loaderType?: string } }
+        ) => callback(_event, data)
+        sessionListeners.set(callback, listener)
+        ipcRenderer.on('share:session-update', listener)
+        return () => ipcRenderer.removeListener('share:session-update', listener)
+      },
+      onProgressUpdate: (
+        callback: (
+          event: Event,
+          data: {
+            sessionId: string
+            progress: {
+              transferredChunks: number
+              totalChunks: number
+              bytesPerSecond: number
+              estimatedRemaining: number
+            }
+          }
+        ) => void
+      ) => {
+        const listener = (
+          _event: IpcRendererEvent,
+          data: {
+            sessionId: string
+            progress: {
+              transferredChunks: number
+              totalChunks: number
+              bytesPerSecond: number
+              estimatedRemaining: number
+            }
+          }
+        ) => callback(_event, data)
+        progressListeners.set(callback, listener)
+        ipcRenderer.on('share:progress-update', listener)
+        return () => ipcRenderer.removeListener('share:progress-update', listener)
+      },
+      removePackProgressListener: (
+        callback: (event: Event, data: { instanceId: string; stage: string; progress: number }) => void
+      ) => {
+        const listener = packListeners.get(callback)
+        if (listener) {
+          ipcRenderer.removeListener('share:pack-progress', listener as (...args: any[]) => void)
+          packListeners.delete(callback)
+        }
+      },
+      removeSessionUpdateListener: (
+        callback: (
+          event: Event,
+          data: { sessionId: string; session: { sessionId: string; status: string; transferredChunks: number; totalChunks: number; error?: string } }
+        ) => void
+      ) => {
+        const listener = sessionListeners.get(callback)
+        if (listener) {
+          ipcRenderer.removeListener('share:session-update', listener as (...args: any[]) => void)
+          sessionListeners.delete(callback)
+        }
+      },
+      removeProgressUpdateListener: (
+        callback: (
+          event: Event,
+          data: { sessionId: string; progress: { transferredChunks: number; totalChunks: number; bytesPerSecond: number; estimatedRemaining: number } }
+        ) => void
+      ) => {
+        const listener = progressListeners.get(callback)
+        if (listener) {
+          ipcRenderer.removeListener('share:progress-update', listener as (...args: any[]) => void)
+          progressListeners.delete(callback)
+        }
+      }
+    }
+  })(),
 
   // 日志系统（诊断导出 + 日志级别控制）
   logger: {

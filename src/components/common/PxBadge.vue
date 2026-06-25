@@ -48,7 +48,7 @@ const badgeClasses = computed(() => [
   gap: 5px;
   padding: 2px 10px;
   font-size: 11px;
-  font-weight: var(--mcla-font-medium, 500);
+  font-weight: var(--voxver-font-medium, 500);
   border-radius: 9999px;
   white-space: nowrap;
   line-height: 1.5;
@@ -103,35 +103,35 @@ const badgeClasses = computed(() => [
 
 /* Variants */
 .px-badge--primary {
-  background: var(--mcla-primary-100, rgba(99, 102, 234, 0.12));
-  color: var(--mcla-primary-700, #4338ca);
+  background: var(--voxver-primary-100, rgba(99, 102, 234, 0.12));
+  color: var(--voxver-primary-700, #4338ca);
 }
 .px-badge--success {
-  background: var(--mcla-success-bg, #dcfce7);
+  background: var(--voxver-success-bg, #dcfce7);
   color: #166534;
 }
 .px-badge--warning {
-  background: var(--mcla-warning-bg, #fef3c7);
+  background: var(--voxver-warning-bg, #fef3c7);
   color: #92400e;
 }
 .px-badge--error {
-  background: var(--mcla-error-bg, #fee2e2);
+  background: var(--voxver-error-bg, #fee2e2);
   color: #991b1b;
 }
 .px-badge--info {
-  background: var(--mcla-info-bg, #e0f2fe);
+  background: var(--voxver-info-bg, #e0f2fe);
   color: #075985;
 }
 .px-badge--gradient {
-  background: var(--mcla-gradient-primary);
+  background: var(--voxver-gradient-primary);
   color: #fff;
 }
 
 /* Outline variant */
 .px-badge--outline.px-badge--primary {
   background: transparent;
-  color: var(--mcla-primary-600, #4f46e5);
-  border: 1px solid var(--mcla-primary-300, #a5b4fc);
+  color: var(--voxver-primary-600, #4f46e5);
+  border: 1px solid var(--voxver-primary-300, #a5b4fc);
 }
 .px-badge--outline.px-badge--success {
   background: transparent;

@@ -82,33 +82,36 @@
         <button class="btn-primary" @click="refreshVersions">{{ $t('common.retry') }}</button>
       </div>
 
-      <!-- 版本列表（按需渲染：首次 100 条 + 滚动加载更多） -->
-      <div class="versions-list" v-else-if="displayedVersions.length">
-        <div
-          class="version-item"
-          v-for="version in displayedVersions"
-          :key="version.id"
-          :class="{ selected: selectedVersion === version.id }"
-          @click="selectVersion(version.id)"
+      <!-- 版本列表（虚拟滚动） -->
+      <div class="versions-list-wrapper" v-else-if="totalFiltered > 0">
+        <VirtualScroll
+          :items="filteredVersions(activeFilter)"
+          :item-height="56"
+          :overscan="8"
+          :get-item-key="(item: any) => item.id"
+          class="versions-virtual-list"
         >
-          <div class="version-info">
-            <div class="version-id">{{ version.id }}</div>
-            <div class="version-type" :class="version.type">{{ getVersionTypeLabel(version.type) }}</div>
-            <div class="version-date">{{ formatDate(version.releaseTime) }}</div>
-          </div>
-          <div class="version-actions">
-            <button class="btn-sm btn-ghost" @click.stop="selectVersion(version.id)">
-              {{ selectedVersion === version.id ? $t('version.selected') : $t('version.select') }}
-            </button>
-          </div>
-        </div>
-
-        <!-- "加载更多"：如果还有剩余数据 -->
-        <div class="load-more" v-if="hasMoreData" @click="loadMore">
-          <button class="btn-ghost" :disabled="loading">
-            {{ $t('version.loadMore') }}（{{ $t('version.remaining') }} {{ totalFiltered - displayedVersions.length }} {{ $t('version.items') }}）
-          </button>
-        </div>
+          <template #item="{ item: version }">
+            <div
+              class="version-item"
+              :class="{ selected: selectedVersion === version.id }"
+              @click="selectVersion(version.id)"
+            >
+              <div class="version-info">
+                <div class="version-id">{{ version.id }}</div>
+                <div class="version-type" :class="version.type">
+                  {{ getVersionTypeLabel(version.type) }}
+                </div>
+                <div class="version-date">{{ formatDate(version.releaseTime) }}</div>
+              </div>
+              <div class="version-actions">
+                <button class="btn-sm btn-ghost" @click.stop="selectVersion(version.id)">
+                  {{ selectedVersion === version.id ? $t('version.selected') : $t('version.select') }}
+                </button>
+              </div>
+            </div>
+          </template>
+        </VirtualScroll>
       </div>
 
       <!-- 空状态 -->
@@ -186,6 +189,7 @@ import { useI18n } from 'vue-i18n'
 import { useVersionsStore } from '../stores/versions.store'
 import { useInstancesStore } from '../stores/instances.store'
 import { getCurrentLocale } from '../locale/i18n'
+import VirtualScroll from '../components/common/VirtualScroll.vue'
 
 const { t } = useI18n()
 
@@ -203,8 +207,6 @@ const error = computed(() => versionsStore.error)
 // ===== 页面级 UI 状态 =====
 const searchKeyword = ref('')
 const activeFilter = ref<'all' | 'release' | 'snapshot' | 'old'>('all')
-const pageSize = 100
-const displayedCount = ref(pageSize)
 const selectedVersion = ref('')
 const selectedLoader = ref('')
 const modLoaderLoading = ref(false)
@@ -229,14 +231,6 @@ function filteredVersions(filter: 'all' | 'release' | 'snapshot' | 'old') {
 /** 当前 Tab + 搜索后的完整数据 */
 const totalFiltered = computed(() => filteredVersions(activeFilter.value).length)
 
-/** 实际渲染的数据（分页） */
-const displayedVersions = computed(() =>
-  filteredVersions(activeFilter.value).slice(0, displayedCount.value)
-)
-
-/** 是否还有更多数据可加载 */
-const hasMoreData = computed(() => displayedVersions.value.length < totalFiltered.value)
-
 // ===== 事件处理 =====
 
 /** 从 store 请求版本列表（store 内部处理缓存） */
@@ -246,7 +240,6 @@ async function fetchVersions() {
 
 /** 强制刷新（跳过前端缓存） */
 async function refreshVersions() {
-  displayedCount.value = pageSize
   await versionsStore.fetchVersions(true)
 }
 
@@ -304,11 +297,6 @@ async function installModLoader() {
   }
 }
 
-/** 加载更多（分页） */
-function loadMore() {
-  displayedCount.value += pageSize
-}
-
 /** 日期格式化 */
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString(getCurrentLocale().replace('-', '_'))
@@ -325,11 +313,6 @@ function getVersionTypeLabel(type: string): string {
   }
   return labels[type] || type
 }
-
-// ===== 监听：搜索关键词变化时重置分页计数 =====
-watch([searchKeyword, activeFilter], () => {
-  displayedCount.value = pageSize
-})
 
 // ===== 初始化：进入页面从 store 加载版本列表（store 管理缓存）=====
 onMounted(() => {
@@ -354,8 +337,8 @@ onMounted(() => {
 
 .versions-section,
 .modloader-section {
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 10px;
   margin-bottom: 16px;
   overflow: hidden;
@@ -366,7 +349,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--mcla-border);
+  border-bottom: 1px solid var(--voxver-border-color);
 
   h3 {
     margin: 0;
@@ -383,16 +366,16 @@ onMounted(() => {
 
 .search-input {
   padding: 6px 10px;
-  border: 1px solid var(--mcla-border-color);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 6px;
-  background: var(--mcla-bg-primary);
-  color: var(--mcla-text-primary);
+  background: var(--voxver-bg-primary);
+  color: var(--voxver-text-primary);
   font-size: 12px;
   width: 180px;
 
   &:focus {
     outline: none;
-    border-color: var(--mcla-primary);
+    border-color: var(--voxver-primary);
   }
   &:disabled {
     opacity: 0.5;
@@ -405,8 +388,8 @@ onMounted(() => {
   display: flex;
   gap: 4px;
   padding: 8px 16px;
-  border-bottom: 1px solid var(--mcla-border);
-  background: var(--mcla-bg-primary);
+  border-bottom: 1px solid var(--voxver-border-color);
+  background: var(--voxver-bg-primary);
 }
 
 .filter-tab {
@@ -415,15 +398,15 @@ onMounted(() => {
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   transition: all 0.15s;
 
   &:hover {
-    background: var(--mcla-bg-secondary);
+    background: var(--voxver-bg-secondary);
   }
   &.active {
-    background: var(--mcla-primary);
+    background: var(--voxver-primary);
     color: white;
     font-weight: 600;
   }
@@ -441,14 +424,14 @@ onMounted(() => {
   padding: 12px;
   border-radius: 6px;
   margin-bottom: 8px;
-  background: var(--mcla-bg-primary);
+  background: var(--voxver-bg-primary);
 
   > div {
     background: linear-gradient(
       90deg,
-      var(--mcla-border-color) 25%,
-      var(--mcla-bg-secondary) 50%,
-      var(--mcla-border-color) 75%
+      var(--voxver-border-color) 25%,
+      var(--voxver-bg-secondary) 50%,
+      var(--voxver-border-color) 75%
     );
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
@@ -496,16 +479,20 @@ onMounted(() => {
 }
 
 .error-text {
-  color: var(--mcla-danger, #dc2626);
+  color: var(--voxver-danger, #dc2626);
   font-size: 13px;
   margin: 0 0 16px;
 }
 
-/* ===== 版本列表 ===== */
-.versions-list {
+/* ===== 版本列表（虚拟滚动） ===== */
+.versions-list-wrapper {
+  height: 600px;
   padding: 16px;
-  max-height: 600px;
-  overflow-y: auto;
+  overflow: hidden;
+}
+
+.versions-virtual-list {
+  height: 100%;
 }
 
 .version-item {
@@ -515,19 +502,21 @@ onMounted(() => {
   padding: 12px;
   border-radius: 6px;
   margin-bottom: 8px;
-  background: var(--mcla-bg-primary);
+  background: var(--voxver-bg-primary);
   transition: all 0.15s;
   cursor: pointer;
   border: 1px solid transparent;
+  height: 56px;
+  box-sizing: border-box;
 
   &:hover {
-    background: var(--mcla-bg-secondary);
-    border-color: var(--mcla-border-color);
+    background: var(--voxver-bg-secondary);
+    border-color: var(--voxver-border-color);
   }
 
   &.selected {
-    border-color: var(--mcla-primary);
-    background: color-mix(in srgb, var(--mcla-primary) 8%, var(--mcla-bg-primary));
+    border-color: var(--voxver-primary);
+    background: color-mix(in srgb, var(--voxver-primary) 8%, var(--voxver-bg-primary));
   }
 }
 
@@ -565,38 +554,12 @@ onMounted(() => {
 
 .version-date {
   font-size: 12px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 }
 
 .version-actions {
   display: flex;
   gap: 4px;
-}
-
-/* ===== "加载更多" ===== */
-.load-more {
-  padding: 12px 0 4px;
-  text-align: center;
-
-  button {
-    padding: 6px 16px;
-    font-size: 12px;
-    background: transparent;
-    border: 1px solid var(--mcla-border-color);
-    border-radius: 6px;
-    color: var(--mcla-text-secondary);
-    cursor: pointer;
-    transition: all 0.15s;
-
-    &:hover:not(:disabled) {
-      border-color: var(--mcla-primary);
-      color: var(--mcla-primary);
-    }
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
 }
 
 /* ===== ModLoader 表单 ===== */
@@ -611,7 +574,7 @@ onMounted(() => {
     display: block;
     font-size: 12px;
     font-weight: 600;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
     margin-bottom: 5px;
   }
 }
@@ -619,15 +582,15 @@ onMounted(() => {
 .input-field {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid var(--mcla-border-color);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 6px;
-  background: var(--mcla-bg-primary);
-  color: var(--mcla-text-primary);
+  background: var(--voxver-bg-primary);
+  color: var(--voxver-text-primary);
   font-size: 13px;
 
   &:focus {
     outline: none;
-    border-color: var(--mcla-primary);
+    border-color: var(--voxver-primary);
   }
 }
 
@@ -647,12 +610,12 @@ onMounted(() => {
 
 .loader-empty {
   font-size: 12px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   padding: 8px 0;
 }
 
 .muted {
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 }
 
 /* ===== 按钮 ===== */
@@ -661,17 +624,17 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   padding: 8px 20px;
-  background: var(--mcla-primary);
+  background: var(--voxver-primary);
   color: #fff;
   border: none;
-  border-radius: var(--mcla-radius-sm);
+  border-radius: var(--voxver-radius-sm);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
 
   &:hover:not(:disabled) {
-    background: var(--mcla-primary-hover);
+    background: var(--voxver-primary-hover);
   }
   &:disabled {
     opacity: 0.5;
@@ -686,16 +649,16 @@ onMounted(() => {
 
 .btn-ghost {
   background: transparent;
-  border: 1px solid var(--mcla-border-color);
-  color: var(--mcla-text-secondary);
-  border-radius: var(--mcla-radius-xs);
+  border: 1px solid var(--voxver-border-color);
+  color: var(--voxver-text-secondary);
+  border-radius: var(--voxver-radius-xs);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.15s;
 
   &:hover:not(:disabled) {
-    border-color: var(--mcla-primary-400);
-    color: var(--mcla-primary-600);
+    border-color: var(--voxver-primary-400);
+    color: var(--voxver-primary-600);
   }
 }
 
@@ -703,7 +666,7 @@ onMounted(() => {
 .empty-state {
   padding: 32px;
   text-align: center;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   font-size: 13px;
 }
 </style>

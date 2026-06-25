@@ -13,7 +13,7 @@
         height="32"
         viewBox="0 0 24 24"
         fill="none"
-        stroke="var(--mcla-text-muted)"
+        stroke="var(--voxver-text-muted)"
         stroke-width="1.5"
       >
         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
@@ -128,18 +128,18 @@ function formatSpeed(bytesPerSec: number): string {
   h3 {
     font-size: 14px;
     font-weight: 650;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
   }
   .queue-count {
     font-size: 12px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 }
 
 .queue-empty {
   text-align: center;
   padding: 36px 0;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 
   p {
     margin-top: 8px;
@@ -158,12 +158,12 @@ function formatSpeed(bytesPerSec: number): string {
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
 
   &.active {
-    border-color: var(--mcla-primary-300);
+    border-color: var(--voxver-primary-300);
   }
   &.error {
     border-color: rgba(239, 68, 68, 0.35);
@@ -172,7 +172,7 @@ function formatSpeed(bytesPerSec: number): string {
 
 .task-name {
   font-size: 13px;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   min-width: 140px;
   max-width: 180px;
   overflow: hidden;
@@ -189,14 +189,14 @@ function formatSpeed(bytesPerSec: number): string {
   .progress-bar {
     flex: 1;
     height: 6px;
-    background: var(--mcla-bg-hover);
+    background: var(--voxver-bg-hover);
     border-radius: 3px;
     overflow: hidden;
   }
 
   .progress-fill {
     height: 100%;
-    background: var(--mcla-gradient-primary);
+    background: var(--voxver-gradient-primary);
     border-radius: 3px;
     transition: width 0.2s ease;
 
@@ -218,7 +218,7 @@ function formatSpeed(bytesPerSec: number): string {
   .progress-text {
     font-size: 11.5px;
     font-weight: 600;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
     min-width: 34px;
     text-align: right;
   }
@@ -231,16 +231,16 @@ function formatSpeed(bytesPerSec: number): string {
   text-align: right;
 
   &.pending {
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
   &.downloading {
-    color: var(--mcla-primary-500);
+    color: var(--voxver-primary-500);
   }
   &.paused {
     color: #f59e0b;
   }
   &.completed {
-    color: var(--mcla-success);
+    color: var(--voxver-success);
   }
   &.failed {
     color: #ef4444;
@@ -253,7 +253,7 @@ function formatSpeed(bytesPerSec: number): string {
   line-height: 1;
   background: transparent;
   border: none;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   cursor: pointer;
   border-radius: 3px;
   transition: all 0.1s;
@@ -271,27 +271,27 @@ function formatSpeed(bytesPerSec: number): string {
   gap: 8px;
   margin-top: 12px;
   padding: 10px 14px;
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
 
   .label {
     font-size: 12px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     white-space: nowrap;
   }
 
   .overall-bar {
     flex: 1;
     height: 8px;
-    background: var(--mcla-bg-hover);
+    background: var(--voxver-bg-hover);
     border-radius: 4px;
     overflow: hidden;
   }
 
   .overall-fill {
     height: 100%;
-    background: var(--mcla-gradient-success);
+    background: var(--voxver-gradient-success);
     border-radius: 4px;
     transition: width 0.25s;
   }
@@ -299,13 +299,13 @@ function formatSpeed(bytesPerSec: number): string {
   .overall-pct {
     font-size: 12px;
     font-weight: 600;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
     min-width: 36px;
     text-align: right;
   }
   .overall-speed {
     font-size: 11.5px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     min-width: 60px;
     text-align: right;
   }

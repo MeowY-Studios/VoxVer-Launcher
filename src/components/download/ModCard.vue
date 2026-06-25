@@ -100,16 +100,16 @@ function formatNum(n: number): string {
   display: flex;
   gap: 14px;
   padding: 14px;
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-lg);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-lg);
   cursor: pointer;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: var(--mcla-shadow-md);
-    border-color: var(--mcla-primary-200);
+    box-shadow: var(--voxver-shadow-md);
+    border-color: var(--voxver-primary-200);
   }
 }
 
@@ -117,9 +117,9 @@ function formatNum(n: number): string {
   flex-shrink: 0;
   width: 72px;
   height: 72px;
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   overflow: hidden;
-  background: var(--mcla-bg-hover);
+  background: var(--voxver-bg-hover);
 
   img {
     width: 100%;
@@ -133,7 +133,7 @@ function formatNum(n: number): string {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 }
 
@@ -145,7 +145,7 @@ function formatNum(n: number): string {
 .mod-name {
   font-size: 14.5px;
   font-weight: 650;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   margin: 0 0 3px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -154,13 +154,13 @@ function formatNum(n: number): string {
 
 .mod-author {
   font-size: 12px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   margin: 0 0 5px;
 }
 
 .mod-desc {
   font-size: 12.5px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   margin: 0 0 10px;
   display: -webkit-box;
   display: box;
@@ -182,10 +182,10 @@ function formatNum(n: number): string {
     align-items: center;
     gap: 3px;
     font-size: 11.5px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
 
     &.downloads svg {
-      stroke: var(--mcla-success);
+      stroke: var(--voxver-success);
     }
     &.follows svg {
       fill: #f472b6;
@@ -218,8 +218,8 @@ function formatNum(n: number): string {
   .loader-chip {
     padding: 1px 8px;
     font-size: 11px;
-    background: var(--mcla-primary-light);
-    color: var(--mcla-primary-600);
+    background: var(--voxver-primary-light);
+    color: var(--voxver-primary-600);
     border-radius: 3px;
     font-weight: 600;
   }
@@ -229,9 +229,9 @@ function formatNum(n: number): string {
   flex-shrink: 0;
   align-self: center;
   padding: 9px;
-  background: var(--mcla-gradient-primary);
+  background: var(--voxver-gradient-primary);
   border: none;
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   color: #fff;
   cursor: pointer;
   transition: all 0.15s;

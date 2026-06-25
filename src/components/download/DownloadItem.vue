@@ -90,9 +90,9 @@ function formatSize(b: number): string {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
   transition: all 0.12s;
 
   &.pending {
@@ -101,8 +101,8 @@ function formatSize(b: number): string {
   &.downloading {
     border-color: rgba(99, 102, 234, 0.25);
     .item-icon svg {
-      stroke: var(--mcla-primary-500);
-      color: var(--mcla-primary-500);
+      stroke: var(--voxver-primary-500);
+      color: var(--voxver-primary-500);
     }
   }
   &.completed {
@@ -130,7 +130,7 @@ function formatSize(b: number): string {
   }
 
   &:hover:not(.compact) {
-    box-shadow: var(--mcla-shadow-sm);
+    box-shadow: var(--voxver-shadow-sm);
   }
 }
 
@@ -141,7 +141,7 @@ function formatSize(b: number): string {
   justify-content: center;
   width: 28px;
   height: 28px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 
   svg {
     flex-shrink: 0;
@@ -156,7 +156,7 @@ function formatSize(b: number): string {
 .item-name {
   font-size: 13px;
   font-weight: 500;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -172,14 +172,14 @@ function formatSize(b: number): string {
   .progress-track {
     flex: 1;
     height: 5px;
-    background: var(--mcla-bg-hover);
+    background: var(--voxver-bg-hover);
     border-radius: 3px;
     overflow: hidden;
   }
 
   .progress-fill {
     height: 100%;
-    background: var(--mcla-gradient-primary);
+    background: var(--voxver-gradient-primary);
     border-radius: 3px;
     transition: width 0.25s ease;
   }
@@ -188,7 +188,7 @@ function formatSize(b: number): string {
   .size-info {
     flex-shrink: 0;
     font-size: 11px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     white-space: nowrap;
   }
 }
@@ -203,7 +203,7 @@ function formatSize(b: number): string {
   padding: 4px;
   background: transparent;
   border: none;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   cursor: pointer;
   border-radius: 4px;
   transition: all 0.1s;
@@ -225,8 +225,8 @@ function formatSize(b: number): string {
   font-weight: 700;
 
   &.done {
-    background: var(--mcla-success-light);
-    color: var(--mcla-success);
+    background: var(--voxver-success-light);
+    color: var(--voxver-success);
   }
   &.failed {
     background: rgba(239, 68, 68, 0.1);

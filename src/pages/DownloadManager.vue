@@ -253,7 +253,7 @@
             height="64"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="rgba(255,255,255,0.1)"
+            stroke="var(--voxver-border-color)"
             stroke-width="1.5"
           >
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
@@ -469,13 +469,13 @@ function deleteSelected() {
   gap: 12px;
   padding: 16px 20px;
   background: rgba(0, 0, 0, 0.3);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--voxver-border-color);
   flex-shrink: 0;
 }
 
 .back-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--voxver-bg-hover);
+  border: 1px solid var(--voxver-border-color-light);
   border-radius: 10px;
   width: 40px;
   height: 40px;
@@ -487,7 +487,7 @@ function deleteSelected() {
   transition: all 0.25s ease;
 }
 .back-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--voxver-primary-light);
   color: #fff;
   transform: translateX(-2px);
 }
@@ -528,7 +528,7 @@ function deleteSelected() {
   justify-content: space-between;
   padding: 12px 20px;
   gap: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--voxver-border-color);
   flex-shrink: 0;
 }
 
@@ -536,8 +536,8 @@ function deleteSelected() {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--voxver-bg-hover);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 10px;
   padding: 8px 14px;
   flex: 1;
@@ -576,7 +576,7 @@ function deleteSelected() {
   transition: all 0.2s;
 }
 .tab-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--voxver-bg-hover);
   color: #9ca3af;
 }
 .tab-btn.active {
@@ -585,7 +585,7 @@ function deleteSelected() {
 }
 
 .tab-count {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--voxver-bg-hover);
   padding: 2px 8px;
   border-radius: 10px;
   font-size: 11px;
@@ -606,8 +606,8 @@ function deleteSelected() {
 
 .stat-item {
   flex: 1;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--voxver-bg-hover);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 10px;
   padding: 12px;
   display: flex;
@@ -617,8 +617,8 @@ function deleteSelected() {
   transition: all 0.2s;
 }
 .stat-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--voxver-bg-hover);
+  border-color: var(--voxver-border-color-light);
 }
 
 .stat-value {
@@ -658,8 +658,8 @@ function deleteSelected() {
   display: flex;
   align-items: center;
   gap: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--voxver-bg-hover);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 14px;
   padding: 16px;
   transition: all 0.25s ease;
@@ -667,8 +667,8 @@ function deleteSelected() {
   overflow: hidden;
 }
 .task-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--voxver-bg-hover);
+  border-color: var(--voxver-border-color-light);
   transform: translateY(-1px);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
 }
@@ -713,7 +713,7 @@ function deleteSelected() {
 .checkmark {
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid var(--voxver-border-color-light);
   border-radius: 6px;
   display: block;
   transition: all 0.2s;
@@ -834,7 +834,7 @@ function deleteSelected() {
 .task-bar-wrap {
   position: relative;
   height: 6px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--voxver-bg-hover);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -875,7 +875,7 @@ function deleteSelected() {
   transform: translateY(-50%);
   font-size: 11px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--voxver-text-tertiary);
 }
 
 .task-actions {
@@ -1008,11 +1008,11 @@ function deleteSelected() {
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--voxver-bg-hover);
   color: #e5e7eb;
 }
 .btn-selection:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--voxver-bg-hover);
 }
 .btn-selection.danger {
   background: rgba(239, 68, 68, 0.2);
@@ -1026,7 +1026,7 @@ function deleteSelected() {
 .dm-footer {
   flex-shrink: 0;
   padding: 18px 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--voxver-border-color);
   display: flex;
   flex-direction: column;
   align-items: center;

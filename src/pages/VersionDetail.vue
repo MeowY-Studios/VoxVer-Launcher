@@ -433,12 +433,12 @@ onMounted(() => {
   align-items: center;
   gap: 12px;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--voxver-border-color);
 }
 
 .back-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--voxver-bg-hover);
+  border: 1px solid var(--voxver-border-color-light);
   border-radius: 8px;
   width: 36px;
   height: 36px;
@@ -450,7 +450,7 @@ onMounted(() => {
   transition: all 0.2s;
 }
 .back-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--voxver-primary-light);
   color: #fff;
 }
 
@@ -490,7 +490,7 @@ onMounted(() => {
   gap: 16px;
   padding: 24px 20px;
   background: rgba(99, 102, 241, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--voxver-border-color);
 }
 
 .vd-icon {
@@ -573,8 +573,8 @@ onMounted(() => {
 
 .loader-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  background: var(--voxver-bg-hover);
+  border: 1.5px solid var(--voxver-border-color);
   border-radius: 12px;
   padding: 14px;
   cursor: pointer;
@@ -665,7 +665,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--voxver-border-color);
 }
 .modal-header h3 {
   font-size: 16px;
@@ -712,7 +712,7 @@ onMounted(() => {
   transition: background 0.2s;
 }
 .version-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--voxver-bg-hover);
 }
 .version-item.selected {
   background: rgba(99, 102, 241, 0.15);
@@ -758,13 +758,13 @@ onMounted(() => {
   display: flex;
   gap: 12px;
   padding: 16px 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--voxver-border-color);
 }
 
 .btn-cancel {
   flex: 1;
   padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 8px;
   background: transparent;
   color: #888;
@@ -773,7 +773,7 @@ onMounted(() => {
   transition: all 0.2s;
 }
 .btn-cancel:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--voxver-bg-hover);
   color: #fff;
 }
 
@@ -800,7 +800,7 @@ onMounted(() => {
 .vd-footer {
   margin-top: auto;
   padding: 16px 20px 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--voxver-border-color);
 }
 
 .target-folder-row {
@@ -819,8 +819,8 @@ onMounted(() => {
 }
 
 .btn-browse {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--voxver-bg-hover);
+  border: 1px solid var(--voxver-border-color-light);
   border-radius: 6px;
   width: 28px;
   height: 28px;
@@ -832,7 +832,7 @@ onMounted(() => {
   transition: all 0.2s;
 }
 .btn-browse:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--voxver-primary-light);
   color: #fff;
 }
 

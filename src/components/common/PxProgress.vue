@@ -27,7 +27,7 @@ export interface PxProgressProps {
   showPercent?: boolean
   size?: 'sm' | 'md' | 'lg'
   animated?: boolean
-  gradient?: string // 自定义渐变，如 'var(--mcla-gradient-success)'
+  gradient?: string // 自定义渐变，如 'var(--voxver-gradient-success)'
   indeterminate?: boolean
 }
 
@@ -56,21 +56,21 @@ const displayPercent = computed(() => {
   margin-bottom: 6px;
 }
 .px-progress__label {
-  font-size: var(--mcla-text-xs);
-  color: var(--mcla-text-secondary);
+  font-size: var(--voxver-text-xs);
+  color: var(--voxver-text-secondary);
 }
 .px-progress__percent {
-  font-size: var(--mcla-text-xs);
-  font-weight: var(--mcla-font-semibold);
-  color: var(--mcla-text-secondary);
+  font-size: var(--voxver-text-xs);
+  font-weight: var(--voxver-font-semibold);
+  color: var(--voxver-text-secondary);
   min-width: 40px;
   text-align: right;
 }
 
 .px-progress__track {
   width: 100%;
-  background: var(--mcla-bg-tertiary);
-  border-radius: var(--mcla-radius-full);
+  background: var(--voxver-bg-tertiary);
+  border-radius: var(--voxver-radius-full);
   overflow: hidden;
 }
 .px-progress__track--sm {
@@ -85,8 +85,8 @@ const displayPercent = computed(() => {
 
 .px-progress__bar {
   height: 100%;
-  background: var(--mcla-gradient-primary);
-  border-radius: var(--mcla-radius-full);
+  background: var(--voxver-gradient-primary);
+  border-radius: var(--voxver-radius-full);
   transition: width 0.4s ease;
 }
 

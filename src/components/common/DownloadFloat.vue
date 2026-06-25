@@ -306,20 +306,20 @@ onUnmounted(() => {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
-  color: var(--mcla-text-secondary);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
+  color: var(--voxver-text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 9999;
-  transition: all var(--mcla-transition-fast);
-  box-shadow: var(--mcla-shadow-md);
+  transition: all var(--voxver-transition-fast);
+  box-shadow: var(--voxver-shadow-md);
 
   &:hover {
-    color: var(--mcla-primary);
-    border-color: var(--mcla-primary-400);
+    color: var(--voxver-primary);
+    border-color: var(--voxver-primary-400);
     transform: scale(1.08);
   }
 }
@@ -349,13 +349,13 @@ onUnmounted(() => {
   right: 20px;
   width: 340px;
   max-height: 420px;
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-lg);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-lg);
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--mcla-shadow-lg);
+  box-shadow: var(--voxver-shadow-lg);
   overflow: hidden;
 }
 
@@ -364,41 +364,41 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  border-bottom: 1px solid var(--mcla-border-color);
+  border-bottom: 1px solid var(--voxver-border-color);
   flex-shrink: 0;
 }
 
 .dm-title {
   font-size: 13px;
   font-weight: 650;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
 }
 
 .dm-count {
   font-size: 11px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 }
 
 .dm-close-btn {
   margin-left: auto;
   background: transparent;
   border: none;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   cursor: pointer;
   padding: 2px;
-  border-radius: var(--mcla-radius-sm);
-  transition: all var(--mcla-transition-fast);
+  border-radius: var(--voxver-radius-sm);
+  transition: all var(--voxver-transition-fast);
 
   &:hover {
-    color: var(--mcla-text-primary);
-    background: var(--mcla-bg-input);
+    color: var(--voxver-text-primary);
+    background: var(--voxver-bg-input);
   }
 }
 
 .dm-empty {
   padding: 32px 0;
   text-align: center;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   font-size: 13px;
 }
 
@@ -411,7 +411,7 @@ onUnmounted(() => {
     width: 4px;
   }
   &::-webkit-scrollbar-thumb {
-    background: var(--mcla-border-color);
+    background: var(--voxver-border-color);
     border-radius: 2px;
   }
 }
@@ -422,17 +422,17 @@ onUnmounted(() => {
   align-items: flex-start;
   gap: 8px;
   padding: 8px 14px;
-  transition: background var(--mcla-transition-fast);
+  transition: background var(--voxver-transition-fast);
 
   &:hover {
-    background: var(--mcla-bg-input);
+    background: var(--voxver-bg-input);
   }
 }
 
 .dm-item-icon {
   flex-shrink: 0;
   margin-top: 2px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 }
 
 .dm-status-completed .dm-item-icon {
@@ -450,7 +450,7 @@ onUnmounted(() => {
 .dm-item-name {
   font-size: 12.5px;
   font-weight: 600;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -467,14 +467,14 @@ onUnmounted(() => {
   flex: 1;
   height: 4px;
   border-radius: 2px;
-  background: var(--mcla-bg-input);
+  background: var(--voxver-bg-input);
   overflow: hidden;
 }
 
 .dm-bar-fill {
   height: 100%;
   border-radius: 2px;
-  background: var(--mcla-primary);
+  background: var(--voxver-primary);
   transition: width 0.3s ease;
 }
 
@@ -488,8 +488,8 @@ onUnmounted(() => {
 
 .dm-item-pct {
   font-size: 11px;
-  color: var(--mcla-text-muted);
-  font-family: var(--mcla-font-mono);
+  color: var(--voxver-text-muted);
+  font-family: var(--voxver-font-mono);
   min-width: 32px;
   text-align: right;
 }
@@ -499,8 +499,8 @@ onUnmounted(() => {
   gap: 8px;
   margin-top: 2px;
   font-size: 10.5px;
-  color: var(--mcla-text-muted);
-  font-family: var(--mcla-font-mono);
+  color: var(--voxver-text-muted);
+  font-family: var(--voxver-font-mono);
 }
 
 .dm-item-error {
@@ -514,15 +514,15 @@ onUnmounted(() => {
   margin-top: 2px;
   width: 20px;
   height: 20px;
-  border-radius: var(--mcla-radius-sm);
+  border-radius: var(--voxver-radius-sm);
   border: none;
   background: transparent;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
 
   &:hover {
     color: #ef4444;

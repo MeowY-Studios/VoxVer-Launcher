@@ -258,7 +258,7 @@
 
       <!-- 邮箱复制提示弹窗 -->
       <PxModal v-model="showEmailModal" :title="$t('common.tip')" size="sm">
-        <p style="color: rgba(255, 255, 255, 0.88); font-size: 14px; margin: 0; text-align: center">
+        <p style="color: var(--voxver-text-primary); font-size: 14px; margin: 0; text-align: center">
           {{ $t('more.emailCopied') }}
         </p>
         <template #footer>
@@ -450,31 +450,31 @@ const faqList = [
 
 .page-header {
   margin-bottom: 28px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid var(--voxver-border-color);
   padding-bottom: 16px;
 }
 
 .page-title {
   font-size: 26px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--voxver-text-primary);
   margin: 0 0 4px;
   font-family: 'Courier New', monospace;
 }
 
 .page-subtitle {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--voxver-text-muted);
   margin: 0;
 }
 
 .section-title {
   font-size: 15px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--voxver-text-primary);
   margin: 0 0 14px;
   font-family: 'Courier New', monospace;
-  border-left: 3px solid var(--mcla-primary, #6366f1);
+  border-left: 3px solid var(--voxver-primary, #6366f1);
   padding-left: 10px;
 }
 
@@ -488,8 +488,8 @@ const faqList = [
   flex-direction: column;
   gap: 0;
   padding: 20px;
-  background: var(--mcla-surface-2, #1e1e2e);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--voxver-surface-2, #1e1e2e);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 10px;
 }
 
@@ -518,12 +518,12 @@ const faqList = [
 .author-name {
   font-size: 15px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.92);
+  color: var(--voxver-text-primary);
 }
 
 .author-desc {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--voxver-text-muted);
   margin-top: 2px;
 }
 
@@ -533,7 +533,7 @@ const faqList = [
 
 .about-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--voxver-border-color);
 }
 
 .author-btn,
@@ -551,33 +551,33 @@ const faqList = [
 }
 
 .author-btn.primary {
-  background: rgba(99, 102, 241, 0.25);
-  color: #a5b4fc;
+  background: var(--voxver-primary-light);
+  color: var(--voxver-primary-300);
   border: 1px solid rgba(99, 102, 241, 0.35);
   &:hover {
-    background: rgba(99, 102, 241, 0.35);
+    background: var(--voxver-primary-light);
   }
 }
 
 .app-btn {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--voxver-bg-hover);
+  color: var(--voxver-text-secondary);
+  border: 1px solid var(--voxver-border-color-light);
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    background: var(--voxver-bg-hover);
+    color: var(--voxver-text-primary);
   }
 }
 
 .app-name {
   font-size: 18px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--voxver-text-primary);
 }
 
 .app-version {
   font-size: 12px;
-  color: rgba(99, 102, 241, 0.9);
+  color: var(--voxver-primary-500);
   margin-top: 2px;
   font-weight: 600;
 }
@@ -606,8 +606,8 @@ const faqList = [
 .gallery-item {
   border-radius: 8px;
   overflow: hidden;
-  background: var(--mcla-surface, #f5f5f5);
-  border: 1px solid var(--mcla-border, #e0e0e0);
+  background: var(--voxver-surface, #f5f5f5);
+  border: 1px solid var(--voxver-border-color, #e0e0e0);
   transition:
     transform 0.2s,
     box-shadow 0.2s;
@@ -615,7 +615,7 @@ const faqList = [
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 6px 20px var(--voxver-primary-light);
   }
 }
 
@@ -623,7 +623,7 @@ const faqList = [
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  background: #1a1a2e;
+  background: var(--voxver-bg-primary);
 }
 
 .gallery-img {
@@ -657,7 +657,7 @@ const faqList = [
 }
 .gallery-desc {
   font-size: 11px;
-  color: var(--mcla-text-muted, #888);
+  color: var(--voxver-text-muted, #888);
   margin: 0;
   padding: 6px 10px;
   text-align: center;
@@ -676,12 +676,12 @@ const faqList = [
 
 .credit-item {
   padding: 14px 16px;
-  background: var(--mcla-surface-2, #1e1e2e);
-  border: 1px solid var(--mcla-border-2, rgba(255, 255, 255, 0.08));
+  background: var(--voxver-surface-2, #1e1e2e);
+  border: 1px solid var(--voxver-border-2, var(--voxver-border-color));
   border-radius: 8px;
   transition: border-color 0.2s;
   &:hover {
-    border-color: rgba(99, 102, 241, 0.4);
+    border-color: var(--voxver-primary-400);
   }
 }
 
@@ -700,19 +700,19 @@ const faqList = [
 .credit-name {
   font-size: 13px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--voxver-text-primary);
 }
 .credit-tag {
   font-size: 10px;
   padding: 1px 6px;
-  background: rgba(99, 102, 241, 0.25);
-  color: #a5b4fc;
+  background: var(--voxver-primary-light);
+  color: var(--voxver-primary-300);
   border-radius: 4px;
   font-weight: 600;
 }
 .credit-desc {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--voxver-text-muted);
   margin: 0;
   line-height: 1.6;
 }
@@ -726,10 +726,10 @@ const faqList = [
   display: flex;
   flex-direction: column;
   gap: 1px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--voxver-bg-hover);
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--voxver-bg-hover);
 }
 
 .oss-item {
@@ -737,10 +737,10 @@ const faqList = [
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: var(--mcla-surface-2, #1e1e2e);
+  background: var(--voxver-surface-2, #1e1e2e);
   transition: background 0.15s;
   &:hover {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--voxver-bg-hover);
   }
 }
 
@@ -753,18 +753,18 @@ const faqList = [
 .oss-name {
   font-size: 13px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--voxver-text-primary);
 }
 .oss-version {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.06);
+  color: var(--voxver-text-muted);
+  background: var(--voxver-bg-hover);
   padding: 1px 6px;
   border-radius: 4px;
 }
 
 .oss-link {
-  color: rgba(99, 102, 241, 0.8);
+  color: var(--voxver-primary-400);
   opacity: 0.8;
   transition: opacity 0.15s;
   &:hover {
@@ -779,9 +779,9 @@ const faqList = [
 .oss-license {
   font-size: 11px;
   padding: 1px 8px;
-  background: rgba(99, 102, 241, 0.12);
+  background: var(--voxver-primary-light);
   border-radius: 4px;
-  color: #a5b4fc;
+  color: var(--voxver-primary-300);
   font-weight: 600;
   min-width: 42px;
   text-align: center;
@@ -795,13 +795,13 @@ const faqList = [
 .copyright-card {
   padding: 20px 24px;
   background: rgba(99, 102, 241, 0.06);
-  border: 1px solid rgba(99, 102, 241, 0.15);
+  border: 1px solid var(--voxver-primary-light);
   border-radius: 10px;
 }
 
 .copyright-text {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--voxver-text-muted);
   line-height: 1.8;
   margin: 0 0 10px;
   &:last-child {
@@ -809,14 +809,14 @@ const faqList = [
   }
 }
 .copyright-muted {
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--voxver-text-tertiary);
   font-size: 11px;
 }
 
 .copyright-link {
   display: inline-block;
   margin-top: 10px;
-  color: #818cf8;
+  color: var(--voxver-primary-400);
   font-size: 13px;
   text-decoration: none;
   &:hover {
@@ -834,21 +834,21 @@ const faqList = [
 
 .faq-item {
   padding: 16px 20px;
-  background: var(--mcla-surface-2, #1e1e2e);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--voxver-surface-2, #1e1e2e);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 10px;
 }
 
 .faq-q {
   font-size: 14px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--voxver-text-primary);
   margin-bottom: 8px;
 }
 
 .faq-a {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--voxver-text-muted);
   line-height: 1.7;
 }
 
@@ -867,8 +867,8 @@ const faqList = [
 
 .feedback-card {
   padding: 24px 20px;
-  background: var(--mcla-surface-2, #1e1e2e);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--voxver-surface-2, #1e1e2e);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 12px;
   text-align: center;
   display: flex;
@@ -880,15 +880,15 @@ const faqList = [
     box-shadow 0.2s;
 
   &:hover {
-    border-color: rgba(99, 102, 241, 0.4);
-    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.08);
+    border-color: var(--voxver-primary-400);
+    box-shadow: 0 4px 16px var(--voxver-primary-light);
   }
 }
 
 .feedback-icon {
   width: 44px;
   height: 44px;
-  background: rgba(99, 102, 241, 0.15);
+  background: var(--voxver-primary-light);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -896,19 +896,19 @@ const faqList = [
 }
 
 .feedback-icon svg {
-  color: #818cf8;
+  color: var(--voxver-primary-400);
 }
 
 .feedback-title {
   font-size: 15px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--voxver-text-primary);
   margin: 0;
 }
 
 .feedback-desc {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--voxver-text-muted);
   line-height: 1.7;
   margin: 0;
 }
@@ -916,27 +916,27 @@ const faqList = [
 .feedback-btn {
   display: inline-block;
   padding: 7px 18px;
-  background: rgba(99, 102, 241, 0.2);
-  color: #a5b4fc;
+  background: var(--voxver-primary-light);
+  color: var(--voxver-primary-300);
   border-radius: 20px;
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  border: 1px solid var(--voxver-primary-light);
   transition:
     background 0.2s,
     transform 0.15s;
 
   &:hover {
-    background: rgba(99, 102, 241, 0.3);
+    background: var(--voxver-primary-light);
     transform: translateY(-1px);
   }
 }
 
 .modal-btn {
   padding: 8px 24px;
-  background: rgba(99, 102, 241, 0.25);
-  color: #a5b4fc;
+  background: var(--voxver-primary-light);
+  color: var(--voxver-primary-300);
   border: 1px solid rgba(99, 102, 241, 0.35);
   border-radius: 8px;
   font-size: 14px;
@@ -944,7 +944,7 @@ const faqList = [
   cursor: pointer;
   transition: all 0.2s;
   &:hover {
-    background: rgba(99, 102, 241, 0.35);
+    background: var(--voxver-primary-light);
   }
 }
 
@@ -960,8 +960,8 @@ const faqList = [
 .update-section {
   margin-top: 16px;
   padding: 16px;
-  background: rgba(99, 102, 241, 0.08);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  background: var(--voxver-primary-light);
+  border: 1px solid var(--voxver-primary-light);
   border-radius: 8px;
 }
 
@@ -972,13 +972,13 @@ const faqList = [
 .update-version {
   font-size: 14px;
   font-weight: 700;
-  color: #a5b4fc;
+  color: var(--voxver-primary-300);
   margin-bottom: 4px;
 }
 
 .update-notes {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--voxver-text-tertiary);
   line-height: 1.6;
 }
 
@@ -989,7 +989,7 @@ const faqList = [
 .progress-bar {
   width: 100%;
   height: 8px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--voxver-bg-hover);
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 6px;
@@ -1004,7 +1004,7 @@ const faqList = [
 
 .progress-text {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--voxver-text-muted);
   text-align: right;
 }
 

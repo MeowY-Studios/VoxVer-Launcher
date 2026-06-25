@@ -348,13 +348,13 @@ watch(
 )
 
 onMounted(() => {
-  window.electronAPI.share.onSessionUpdate(handleSessionUpdate)
-  window.electronAPI.share.onProgressUpdate(handleProgressUpdate)
+  window.electronAPI?.share?.onSessionUpdate?.(handleSessionUpdate)
+  window.electronAPI?.share?.onProgressUpdate?.(handleProgressUpdate)
 })
 
 onUnmounted(() => {
-  window.electronAPI.share.removeSessionUpdateListener(handleSessionUpdate)
-  window.electronAPI.share.removeProgressUpdateListener(handleProgressUpdate)
+  window.electronAPI?.share?.removeSessionUpdateListener?.(handleSessionUpdate)
+  window.electronAPI?.share?.removeProgressUpdateListener?.(handleProgressUpdate)
 })
 </script>
 
@@ -374,12 +374,12 @@ onUnmounted(() => {
 .receive-stage-title {
   font-size: 18px;
   font-weight: 600;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
 }
 
 .receive-stage-subtitle {
   font-size: 13px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   margin-bottom: 16px;
   line-height: 1.6;
 }
@@ -408,29 +408,29 @@ onUnmounted(() => {
 .receive-code-digit {
   width: 44px;
   height: 56px;
-  background: var(--mcla-bg-tertiary);
-  border: 2px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-sm);
+  background: var(--voxver-bg-tertiary);
+  border: 2px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
   text-align: center;
   font-size: 24px;
   font-weight: 700;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   font-family: 'Press Start 2P', monospace;
   outline: none;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
 }
 .receive-code-digit:focus {
-  border-color: var(--mcla-primary-color);
+  border-color: var(--voxver-primary-color);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 .receive-code-digit--filled {
-  border-color: var(--mcla-primary-color);
+  border-color: var(--voxver-primary-color);
   background: rgba(59, 130, 246, 0.08);
 }
 
 .receive-info {
-  background: var(--mcla-bg-tertiary);
-  border-radius: var(--mcla-radius-md);
+  background: var(--voxver-bg-tertiary);
+  border-radius: var(--voxver-radius-md);
   padding: 12px 16px;
   width: 100%;
   max-width: 320px;
@@ -448,12 +448,12 @@ onUnmounted(() => {
 
 .receive-info-label {
   font-size: 12px;
-  color: var(--mcla-text-tertiary);
+  color: var(--voxver-text-tertiary);
 }
 
 .receive-info-value {
   font-size: 13px;
   font-weight: 600;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
 }
 </style>

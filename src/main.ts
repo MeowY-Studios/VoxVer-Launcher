@@ -4,7 +4,7 @@ import App from './App.vue'
 import router from './router'
 import i18n from './locale/i18n'
 
-// MCLA Design System
+// VoxVer Design System
 import './styles/pixel-ui.css'
 import './styles/global.scss'
 import './styles/animations.scss'

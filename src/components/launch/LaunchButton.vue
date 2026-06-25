@@ -81,12 +81,12 @@ const btnClass = computed(() => ({
   justify-content: center;
   gap: 4px;
   border: none;
-  border-radius: var(--mcla-radius-lg);
+  border-radius: var(--voxver-radius-lg);
   cursor: pointer;
   color: #fff;
   position: relative;
   overflow: hidden;
-  transition: all var(--mcla-transition-normal);
+  transition: all var(--voxver-transition-normal);
 
   /* 光泽 */
   &::before {
@@ -115,8 +115,8 @@ const btnClass = computed(() => ({
   }
 
   /* 默认渐变 */
-  background: var(--mcla-gradient-primary);
-  box-shadow: var(--mcla-shadow-glow-primary);
+  background: var(--voxver-gradient-primary);
+  box-shadow: var(--voxver-shadow-glow-primary);
 
   .btn-icon {
     display: flex;
@@ -214,7 +214,7 @@ const btnClass = computed(() => ({
   }
 
   .btn-version {
-    color: rgba(255, 255, 255, 0.72);
+    color: var(--voxver-text-secondary);
   }
 }
 </style>

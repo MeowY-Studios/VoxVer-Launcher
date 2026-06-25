@@ -235,7 +235,7 @@ async function cancelDownload(id: string) {
   right: 12px;
   width: 300px;
   background: rgba(18, 18, 24, 0.97);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--voxver-border-color-light);
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
@@ -248,7 +248,7 @@ async function cancelDownload(id: string) {
   align-items: center;
   justify-content: space-between;
   padding: 10px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--voxver-border-color);
 }
 
 .fp-title {
@@ -270,7 +270,7 @@ async function cancelDownload(id: string) {
   height: 24px;
   border-radius: 6px;
   border: none;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--voxver-bg-hover);
   color: #888;
   display: flex;
   align-items: center;
@@ -279,7 +279,7 @@ async function cancelDownload(id: string) {
   transition: all 0.2s;
 }
 .fp-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--voxver-bg-hover);
   color: #ccc;
 }
 .fp-close:hover {
@@ -298,7 +298,7 @@ async function cancelDownload(id: string) {
 
 .fp-task {
   padding: 10px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--voxver-bg-hover);
   border-radius: 8px;
 }
 
@@ -331,7 +331,7 @@ async function cancelDownload(id: string) {
 
 .fp-bar-wrap {
   height: 6px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--voxver-bg-hover);
   border-radius: 3px;
   overflow: hidden;
   margin-bottom: 4px;
@@ -368,7 +368,7 @@ async function cancelDownload(id: string) {
 
 .fp-task-dismiss {
   font-size: 10px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--voxver-bg-hover);
   border: none;
   color: #666;
   padding: 2px 8px;
@@ -386,7 +386,7 @@ async function cancelDownload(id: string) {
   padding: 10px;
   background: rgba(99, 102, 241, 0.08);
   border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--voxver-border-color);
   color: #6366f1;
   font-size: 12px;
   cursor: pointer;
@@ -451,7 +451,7 @@ async function cancelDownload(id: string) {
   height: 18px;
   border-radius: 4px;
   border: none;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--voxver-bg-hover);
   color: #666;
   display: flex;
   align-items: center;

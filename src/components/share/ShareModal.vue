@@ -372,12 +372,12 @@ onUnmounted(() => {
 .share-stage-title {
   font-size: 18px;
   font-weight: 600;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
 }
 
 .share-stage-subtitle {
   font-size: 13px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   margin-bottom: 8px;
 }
 
@@ -392,8 +392,8 @@ onUnmounted(() => {
 }
 
 .share-code {
-  background: var(--mcla-bg-tertiary);
-  border-radius: var(--mcla-radius-md);
+  background: var(--voxver-bg-tertiary);
+  border-radius: var(--voxver-radius-md);
   padding: 16px 20px;
   margin-top: 8px;
   width: 100%;
@@ -402,7 +402,7 @@ onUnmounted(() => {
 
 .share-code-label {
   font-size: 12px;
-  color: var(--mcla-text-tertiary);
+  color: var(--voxver-text-tertiary);
   margin-bottom: 8px;
 }
 
@@ -416,15 +416,15 @@ onUnmounted(() => {
 .share-code-digit {
   width: 36px;
   height: 44px;
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-sm);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 20px;
   font-weight: 700;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   font-family: 'Press Start 2P', monospace;
 }
 
@@ -435,17 +435,17 @@ onUnmounted(() => {
   gap: 6px;
   width: 100%;
   padding: 8px 12px;
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-sm);
-  color: var(--mcla-text-secondary);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   font-size: 13px;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
 }
 .share-code-copy:hover {
-  background: var(--mcla-bg-hover);
-  color: var(--mcla-text-primary);
+  background: var(--voxver-bg-hover);
+  color: var(--voxver-text-primary);
 }
 
 .share-link {
@@ -462,10 +462,10 @@ onUnmounted(() => {
 .share-link-input input {
   width: 100%;
   padding: 8px 12px;
-  background: var(--mcla-bg-tertiary);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-sm);
-  color: var(--mcla-text-secondary);
+  background: var(--voxver-bg-tertiary);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
+  color: var(--voxver-text-secondary);
   font-size: 12px;
   font-family: monospace;
 }
@@ -476,15 +476,15 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--mcla-bg-tertiary);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-sm);
-  color: var(--mcla-text-secondary);
+  background: var(--voxver-bg-tertiary);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
 }
 .share-link-copy:hover {
-  background: var(--mcla-bg-hover);
-  color: var(--mcla-text-primary);
+  background: var(--voxver-bg-hover);
+  color: var(--voxver-text-primary);
 }
 </style>

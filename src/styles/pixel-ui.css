@@ -12,7 +12,7 @@
 
 /* ==========================================================================
 
-  MCLA Design System - 像素×渐变混搭版
+  VoxVer Design System - 像素×渐变混搭版
   基于 Pixel-UI Custom + Gradient 合并改造
   前缀: --voxver- / .mcla-
 
@@ -665,7 +665,7 @@ svg[class*="mcla-icon"] {
 .mcla-nav-link:hover, .mcla-nav-link-active { color: var(--voxver-primary-500); background: var(--voxver-primary-50); }
 
 /* ==========================================================================
-   12. 侧边导航 (Sidebar) — MCLA 启动器专用
+   12. 侧边导航 (Sidebar) — VoxVer 启动器专用
    ========================================================================== */
 
 .mcla-sidebar {
@@ -922,7 +922,7 @@ svg[class*="mcla-icon"] {
 .mcla-empty-desc { font-size: var(--voxver-text-sm); color: var(--voxver-text-tertiary); max-width: 320px; margin-bottom: var(--voxver-space-4); }
 
 /* ==========================================================================
-   23. MCLA 专用组件
+   23. VoxVer 专用组件
    ========================================================================== */
 
 /* ---- 实例卡片 ---- */

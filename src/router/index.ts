@@ -81,7 +81,7 @@ const router = createRouter({
 router.beforeEach((to) => {
   const title = to.meta.title as string
   if (title) {
-    document.title = `${title} - MCLA`
+    document.title = `${title} - VoxVer`
   }
 })
 

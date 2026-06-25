@@ -192,6 +192,13 @@ function createWindow(): BrowserWindow {
     return { action: 'deny' }
   })
 
+  // 压制开发模式下 Electron 的 CSP 安全警告（打包后不会出现）
+  mainWindow.webContents.on('console-message', (_event, _level, message) => {
+    if (message.includes('Electron Security Warning')) {
+      _event.preventDefault()
+    }
+  })
+
   // 渲染进程崩溃时记录错误
   mainWindow.webContents.on('render-process-gone', (_event, details) => {
     writeLog(`[FATAL] Render process gone: reason=${details.reason}`)

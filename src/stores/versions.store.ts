@@ -5,7 +5,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 /** 本地存储缓存 Key（版本列表持久化，离线可用） */
-const CACHE_KEY = 'mcla_versions_cache'
+const CACHE_KEY = 'voxver_versions_cache'
 /** 前端缓存过期时间（10 分钟） */
 const CACHE_TTL = 10 * 60 * 1000
 

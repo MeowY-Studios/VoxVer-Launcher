@@ -116,7 +116,7 @@
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2"
-                  style="color: var(--mcla-text-muted)"
+                  style="color: var(--voxver-text-muted)"
                 >
                   <circle cx="12" cy="12" r="10" />
                   <path d="M2 12h20" />
@@ -555,8 +555,8 @@ function generateUUID(): string {
   bottom: 0;
   width: 420px;
   max-width: 100%;
-  background: var(--mcla-bg-elevated, #1a1a2e);
-  border-left: 1px solid var(--mcla-border-color, rgba(255, 255, 255, 0.08));
+  background: var(--voxver-bg-elevated, #1a1a2e);
+  border-left: 1px solid var(--voxver-border-color, rgba(255, 255, 255, 0.08));
   display: flex;
   flex-direction: column;
   overflow: visible;
@@ -566,7 +566,7 @@ function generateUUID(): string {
 /* ===== 标题栏 ===== */
 .acc-header {
   height: 44px;
-  background: var(--mcla-gradient-primary);
+  background: var(--voxver-gradient-primary);
   display: flex;
   align-items: center;
   padding: 0 12px;
@@ -577,7 +577,7 @@ function generateUUID(): string {
 .acc-back {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   padding: 4px;
   border-radius: 6px;
@@ -585,7 +585,7 @@ function generateUUID(): string {
   align-items: center;
   transition: all 0.15s;
   &:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: var(--voxver-bg-hover);
     color: #fff;
   }
 }
@@ -608,15 +608,15 @@ function generateUUID(): string {
   height: 28px;
   border: none;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  background: var(--voxver-bg-hover);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.15s;
   &:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: var(--voxver-bg-hover);
     color: #fff;
   }
   &.acc-close:hover {
@@ -637,8 +637,8 @@ function generateUUID(): string {
 
 /* ===== 区块 ===== */
 .acc-section {
-  background: var(--mcla-bg-primary, rgba(255, 255, 255, 0.03));
-  border: 1px solid var(--mcla-border-color, rgba(255, 255, 255, 0.06));
+  background: var(--voxver-bg-primary, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--voxver-border-color, rgba(255, 255, 255, 0.06));
   border-radius: 10px;
   overflow: visible;
   min-width: 0;
@@ -649,7 +649,7 @@ function generateUUID(): string {
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  border-bottom: 1px solid var(--mcla-border-color, rgba(255, 255, 255, 0.06));
+  border-bottom: 1px solid var(--voxver-border-color, rgba(255, 255, 255, 0.06));
 }
 
 .acc-section-title {
@@ -663,16 +663,16 @@ function generateUUID(): string {
   border-radius: 7px;
   font-size: 12px;
   font-weight: 600;
-  border: 1px solid var(--mcla-border-color, rgba(255, 255, 255, 0.1));
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--mcla-text-muted);
+  border: 1px solid var(--voxver-border-color, rgba(255, 255, 255, 0.1));
+  background: var(--voxver-bg-hover);
+  color: var(--voxver-text-muted);
   &.success {
-    background: rgba(255, 255, 255, 0.06);
-    color: var(--mcla-text-secondary);
+    background: var(--voxver-bg-hover);
+    color: var(--voxver-text-secondary);
   }
   &.default {
-    background: rgba(255, 255, 255, 0.06);
-    color: var(--mcla-text-muted);
+    background: var(--voxver-bg-hover);
+    color: var(--voxver-text-muted);
   }
 }
 
@@ -684,7 +684,7 @@ function generateUUID(): string {
     .acc-empty-hint {
       margin: 0 0 12px;
       font-size: 12px;
-      color: var(--mcla-text-secondary);
+      color: var(--voxver-text-secondary);
     }
   }
 }
@@ -695,8 +695,8 @@ function generateUUID(): string {
   align-items: center;
   gap: 10px;
   padding: 10px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--voxver-bg-hover);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 8px;
   &.acc-profile-active {
     border-color: #22c55e;
@@ -731,7 +731,7 @@ function generateUUID(): string {
   .acc-uuid {
     margin: 2px 0 0;
     font-size: 10px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     font-family: monospace;
     white-space: nowrap;
     overflow: hidden;
@@ -758,26 +758,26 @@ function generateUUID(): string {
   display: block;
   font-size: 11px;
   font-weight: 600;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   margin-bottom: 5px;
 }
 
 .acc-input {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid var(--mcla-border-color, rgba(255, 255, 255, 0.1));
+  border: 1px solid var(--voxver-border-color, rgba(255, 255, 255, 0.1));
   border-radius: 7px;
   font-size: 13px;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   background: rgba(0, 0, 0, 0.2);
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.15s;
   &:focus {
-    border-color: var(--mcla-primary-400, #818cf8);
+    border-color: var(--voxver-primary-400, #818cf8);
   }
   &::placeholder {
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 }
 
@@ -799,7 +799,7 @@ function generateUUID(): string {
 
 .acc-error {
   font-size: 11px;
-  color: var(--mcla-error, #f87171);
+  color: var(--voxver-error, #f87171);
 }
 
 /* ===== 按钮 ===== */
@@ -813,15 +813,15 @@ function generateUUID(): string {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
-  border: 1px solid var(--mcla-border-color, rgba(255, 255, 255, 0.1));
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--mcla-text-secondary);
+  border: 1px solid var(--voxver-border-color, rgba(255, 255, 255, 0.1));
+  background: var(--voxver-bg-hover);
+  color: var(--voxver-text-secondary);
   &:hover {
-    border-color: var(--mcla-primary-400);
-    color: var(--mcla-primary-400);
+    border-color: var(--voxver-primary-400);
+    color: var(--voxver-primary-400);
   }
   &.acc-btn-danger {
-    color: var(--mcla-error, #f87171);
+    color: var(--voxver-error, #f87171);
     &:hover {
       background: rgba(248, 113, 113, 0.1);
       border-color: #f87171;
@@ -834,7 +834,7 @@ function generateUUID(): string {
   align-items: center;
   gap: 5px;
   padding: 8px 18px;
-  background: var(--mcla-primary, #6366f1);
+  background: var(--voxver-primary, #6366f1);
   color: #fff;
   border: none;
   border-radius: 7px;
@@ -843,7 +843,7 @@ function generateUUID(): string {
   cursor: pointer;
   transition: all 0.15s;
   &:hover:not(:disabled) {
-    background: var(--mcla-primary-hover, #4f46e5);
+    background: var(--voxver-primary-hover, #4f46e5);
   }
   &:disabled {
     opacity: 0.6;
@@ -855,12 +855,12 @@ function generateUUID(): string {
   display: inline-flex;
   align-items: center;
   padding: 7px 16px;
-  border: 1px solid var(--mcla-border-color, rgba(255, 255, 255, 0.12));
+  border: 1px solid var(--voxver-border-color, rgba(255, 255, 255, 0.12));
   background: transparent;
   border-radius: 7px;
   font-size: 13px;
   cursor: pointer;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   transition: all 0.15s;
   &:hover {
     border-color: currentColor;
@@ -869,17 +869,17 @@ function generateUUID(): string {
 
 .acc-btn-ghost {
   padding: 7px 12px;
-  border: 1px solid var(--mcla-border-color, rgba(255, 255, 255, 0.1));
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--mcla-text-secondary);
+  border: 1px solid var(--voxver-border-color, rgba(255, 255, 255, 0.1));
+  background: var(--voxver-bg-hover);
+  color: var(--voxver-text-secondary);
   border-radius: 7px;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
   &:hover {
-    border-color: var(--mcla-primary-400);
-    color: var(--mcla-primary-400);
+    border-color: var(--voxver-primary-400);
+    color: var(--voxver-primary-400);
   }
 }
 
@@ -934,8 +934,8 @@ function generateUUID(): string {
 }
 
 .modal-card {
-  background: var(--mcla-bg-elevated, #1a1a2e);
-  border: 1px solid var(--mcla-border-color, rgba(255, 255, 255, 0.08));
+  background: var(--voxver-bg-elevated, #1a1a2e);
+  border: 1px solid var(--voxver-border-color, rgba(255, 255, 255, 0.08));
   border-radius: 14px;
   width: 420px;
   max-width: calc(100vw - 32px);
@@ -948,7 +948,7 @@ function generateUUID(): string {
   align-items: center;
   justify-content: space-between;
   padding: 14px 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--voxver-border-color);
   .modal-title {
     font-size: 14px;
     font-weight: 700;
@@ -958,11 +958,11 @@ function generateUUID(): string {
     border: none;
     font-size: 16px;
     cursor: pointer;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     padding: 2px 6px;
     border-radius: 4px;
     &:hover {
-      background: rgba(255, 255, 255, 0.08);
+      background: var(--voxver-bg-hover);
     }
   }
 }
@@ -974,7 +974,7 @@ function generateUUID(): string {
 
 .modal-footer {
   padding: 12px 18px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--voxver-border-color);
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -986,14 +986,14 @@ function generateUUID(): string {
 }
 .device-flow-hint {
   font-size: 13px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   margin: 0 0 10px;
 }
 .device-flow-link {
   display: inline-block;
   font-size: 14px;
   font-weight: 700;
-  color: var(--mcla-primary, #6366f1);
+  color: var(--voxver-primary, #6366f1);
   text-decoration: none;
   margin-bottom: 14px;
   &:hover {
@@ -1011,16 +1011,16 @@ function generateUUID(): string {
   font-size: 26px;
   font-weight: 900;
   letter-spacing: 4px;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--mcla-border-color);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 8px;
   padding: 6px 18px;
   font-family: 'Courier New', monospace;
 }
 .device-flow-tip {
   font-size: 12px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   margin: 0 0 14px;
 }
 .loader-row {
@@ -1028,7 +1028,7 @@ function generateUUID(): string {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   font-size: 12px;
 }
 
@@ -1041,7 +1041,7 @@ function generateUUID(): string {
   padding: 10px 0;
   .processing-text {
     font-size: 13px;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
     margin: 0;
   }
 }
@@ -1063,7 +1063,7 @@ function generateUUID(): string {
     color: #34a853;
   }
   &.error-box p {
-    color: var(--mcla-error, #ea4335);
+    color: var(--voxver-error, #ea4335);
     font-size: 13px;
     font-weight: 400;
   }
@@ -1074,8 +1074,8 @@ function generateUUID(): string {
   display: inline-block;
   width: 16px;
   height: 16px;
-  border: 2px solid var(--mcla-border-color, rgba(255, 255, 255, 0.1));
-  border-top-color: var(--mcla-primary, #6366f1);
+  border: 2px solid var(--voxver-border-color, rgba(255, 255, 255, 0.1));
+  border-top-color: var(--voxver-primary, #6366f1);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;

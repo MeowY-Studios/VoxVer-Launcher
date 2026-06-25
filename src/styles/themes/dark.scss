@@ -1,5 +1,5 @@
 /**
- * MCLA 暗色主题
+ * VoxVer 暗色主题
  *
  * 使用方式：通过 [data-theme="dark"] 选择器激活
  * App.vue 初始化时或用户在设置页切换时设置
@@ -95,4 +95,23 @@
 
 [data-theme='dark'] ::placeholder {
   color: var(--voxver-text-muted);
+}
+
+/* ====== 暗色模式 - 功能色背景 ====== */
+[data-theme='dark'] {
+  --voxver-success-bg: rgba(34, 197, 94, 0.15);
+  --voxver-warning-bg: rgba(245, 158, 11, 0.15);
+  --voxver-error-bg: rgba(239, 68, 68, 0.15);
+  --voxver-info-bg: rgba(59, 130, 246, 0.15);
+}
+
+/* 暗色模式下 Badge 使用亮色文字 */
+[data-theme='dark'] .mcla-badge-success { color: #86efac; }
+[data-theme='dark'] .mcla-badge-warning { color: #fcd34d; }
+[data-theme='dark'] .mcla-badge-error { color: #fca5a5; }
+[data-theme='dark'] .mcla-badge-info { color: #7dd3fc; }
+
+/* 暗色模式下列表/导航的 scrollbar */
+[data-theme='dark'] .sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
 }

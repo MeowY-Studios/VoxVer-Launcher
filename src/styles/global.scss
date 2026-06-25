@@ -1,7 +1,19 @@
 /* ============================================
-   MCLA Global Styles
+   VoxVer Global Styles
    基础样式补充（pixel-ui.css 已包含重置和组件样式）
    ============================================ */
+
+/* ---- 兼容性变量别名（旧 --mcla- 变量迁移，保留类名 .mcla-sidebar 等供 pixel-ui.css 使用）---- */
+:root {
+  --voxver-surface: var(--voxver-bg-secondary);
+  --voxver-surface-2: var(--voxver-bg-tertiary);
+  --voxver-border-2: var(--voxver-border-strong);
+  --voxver-primary-bg: var(--voxver-primary-light);
+  --voxver-primary-color: var(--voxver-primary);
+  --voxver-blue-hover: var(--voxver-primary-hover);
+  --voxver-green: var(--voxver-success);
+  --voxver-danger: var(--voxver-error);
+}
 
 /* ---- 滚动条（全局统一）---- */
 ::-webkit-scrollbar {

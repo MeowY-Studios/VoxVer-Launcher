@@ -2,11 +2,29 @@ import { promises as fs, createReadStream } from 'fs'
 import * as path from 'path'
 import * as crypto from 'crypto'
 import { logger } from '../utils/logger'
+import { ModrinthService, ModrinthProject } from './modrinth.service'
 const log = logger.child('ModService')
 
 const AdmZip = require('adm-zip')
 
 const MR_BASE = 'https://api.modrinth.com/v2'
+
+/** Mod 依赖信息 */
+export interface ModDependencyInfo {
+  project_id: string
+  project_type: string
+  dependency_type: 'required' | 'optional' | 'incompatible' | 'embedded'
+  version_id?: string
+  project?: ModrinthProject
+}
+
+/** Mod 依赖检查结果 */
+export interface ModDependencyCheckResult {
+  mod: ModInfo
+  dependencies: ModDependencyInfo[]
+  missingDependencies: ModDependencyInfo[]
+  installedDependencies: ModDependencyInfo[]
+}
 
 /** Mod 更新信息 */
 export interface ModUpdateInfo {
@@ -700,5 +718,247 @@ export class ModService {
       log.error('[ModService] 更新 mod 失败:', e)
       return null
     }
+  }
+
+  // ─────────────────────────────────────────────
+  // Mod 依赖管理（Modrinth API）
+  // ─────────────────────────────────────────────
+
+  private modrinthService: ModrinthService = new ModrinthService()
+
+  /**
+   * 检查单个 Mod 的依赖关系
+   * @param mod 要检查的 Mod
+   * @param installedMods 已安装的 Mod 列表（用于比对）
+   * @param mcVersion MC 版本
+   * @param loader ModLoader 类型
+   */
+  async checkModDependencies(
+    mod: ModInfo,
+    installedMods: ModInfo[],
+    mcVersion?: string,
+    loader?: string
+  ): Promise<ModDependencyCheckResult> {
+    const result: ModDependencyCheckResult = {
+      mod,
+      dependencies: [],
+      missingDependencies: [],
+      installedDependencies: []
+    }
+
+    try {
+      const hash = await this.computeFileHash(mod.filePath)
+      const versionInfo = await this.getVersionByHash(hash)
+
+      if (!versionInfo) {
+        return result
+      }
+
+      const dependencies = await this.getVersionDependencies(versionInfo.id)
+      result.dependencies = dependencies
+
+      const installedIds = new Set<string>()
+      for (const installedMod of installedMods) {
+        if (installedMod.filePath === mod.filePath) continue
+        try {
+          const installedHash = await this.computeFileHash(installedMod.filePath)
+          const installedVersion = await this.getVersionByHash(installedHash)
+          if (installedVersion) {
+            installedIds.add(installedVersion.project_id)
+          }
+        } catch {
+          // 忽略计算失败的 mod
+        }
+      }
+
+      for (const dep of dependencies) {
+        if (dep.dependency_type === 'required') {
+          if (installedIds.has(dep.project_id)) {
+            result.installedDependencies.push(dep)
+          } else {
+            result.missingDependencies.push(dep)
+          }
+        }
+      }
+
+      if (result.missingDependencies.length > 0) {
+        const projectIds = result.missingDependencies.map((d) => d.project_id)
+        const projects = await this.modrinthService.getProjects(projectIds)
+        const projectMap = new Map(projects.map((p) => [p.id, p]))
+        result.missingDependencies = result.missingDependencies.map((d) => ({
+          ...d,
+          project: projectMap.get(d.project_id)
+        }))
+      }
+    } catch (e) {
+      log.error('[ModService] 检查 Mod 依赖失败:', e)
+    }
+
+    return result
+  }
+
+  /**
+   * 批量检查 Mod 依赖
+   */
+  async checkModsDependencies(
+    mods: ModInfo[],
+    mcVersion?: string,
+    loader?: string
+  ): Promise<ModDependencyCheckResult[]> {
+    const enabledMods = mods.filter((m) => m.enabled && m.filePath.endsWith('.jar'))
+    if (enabledMods.length === 0) return []
+
+    const results: ModDependencyCheckResult[] = []
+
+    for (const mod of enabledMods) {
+      const result = await this.checkModDependencies(mod, enabledMods, mcVersion, loader)
+      results.push(result)
+    }
+
+    return results
+  }
+
+  /**
+   * 通过 hash 获取版本信息
+   */
+  private async getVersionByHash(hash: string): Promise<MrVersionFile | null> {
+    try {
+      const resp = await fetch(`${MR_BASE}/version_file/${hash}?algorithm=sha1`, {
+        headers: { 'User-Agent': 'VoxVer-Launcher/1.0' }
+      })
+      if (resp.ok) {
+        return (await resp.json()) as MrVersionFile
+      }
+      return null
+    } catch (e) {
+      log.warn('[ModService] 通过 hash 获取版本信息失败:', hash, e)
+      return null
+    }
+  }
+
+  /**
+   * 获取版本的依赖关系
+   */
+  private async getVersionDependencies(versionId: string): Promise<ModDependencyInfo[]> {
+    try {
+      const resp = await fetch(`${MR_BASE}/version/${versionId}`, {
+        headers: { 'User-Agent': 'VoxVer-Launcher/1.0' }
+      })
+      if (resp.ok) {
+        const data = (await resp.json()) as any
+        return (data.dependencies || []) as ModDependencyInfo[]
+      }
+      return []
+    } catch (e) {
+      log.warn('[ModService] 获取版本依赖失败:', versionId, e)
+      return []
+    }
+  }
+
+  /**
+   * 自动安装缺失的依赖
+   * @param mod 目标 Mod
+   * @param gameDir 游戏目录
+   * @param mcVersion MC 版本
+   * @param loader ModLoader 类型
+   * @param onProgress 进度回调
+   */
+  async installMissingDependencies(
+    mod: ModInfo,
+    gameDir: string,
+    mcVersion?: string,
+    loader?: string,
+    onProgress?: (depName: string, progress: number) => void
+  ): Promise<{ success: ModInfo[]; failed: string[] }> {
+    const installedMods = await this.getInstalledMods(gameDir)
+    const depCheck = await this.checkModDependencies(mod, installedMods, mcVersion, loader)
+
+    const success: ModInfo[] = []
+    const failed: string[] = []
+
+    for (const dep of depCheck.missingDependencies) {
+      if (dep.dependency_type !== 'required') continue
+
+      try {
+        onProgress?.(dep.project?.title || dep.project_id, 0)
+
+        const versions = await this.modrinthService.getProjectVersions(dep.project_id, {
+          game_versions: mcVersion ? [mcVersion] : undefined,
+          loaders: loader ? [loader] : undefined
+        })
+
+        if (versions.length === 0) {
+          failed.push(dep.project?.title || dep.project_id)
+          continue
+        }
+
+        const latestVersion = versions[0]
+        const primaryFile = latestVersion.files.find((f) => f.primary) || latestVersion.files[0]
+
+        if (!primaryFile) {
+          failed.push(dep.project?.title || dep.project_id)
+          continue
+        }
+
+        const tempPath = path.join(gameDir, 'mods', `temp_${dep.project_id}.jar`)
+        await this.downloadFile(primaryFile.url, tempPath, (progress) => {
+          onProgress?.(dep.project?.title || dep.project_id, progress)
+        })
+
+        const installedMod = await this.installMod(tempPath, gameDir)
+        try {
+          await fs.unlink(tempPath)
+        } catch {
+          /* ignore */
+        }
+
+        if (installedMod) {
+          success.push(installedMod)
+        } else {
+          failed.push(dep.project?.title || dep.project_id)
+        }
+
+        onProgress?.(dep.project?.title || dep.project_id, 1)
+      } catch (e) {
+        log.error('[ModService] 安装依赖失败:', dep.project_id, e)
+        failed.push(dep.project?.title || dep.project_id)
+      }
+    }
+
+    return { success, failed }
+  }
+
+  /**
+   * 下载文件到指定路径
+   */
+  private async downloadFile(
+    url: string,
+    destPath: string,
+    onProgress?: (progress: number) => void
+  ): Promise<void> {
+    const resp = await fetch(url, {
+      headers: { 'User-Agent': 'VoxVer-Launcher/1.0' }
+    })
+    if (!resp.ok) throw new Error(`下载失败: ${resp.status} ${resp.statusText}`)
+
+    const contentLength = Number(resp.headers.get('content-length') ?? '0')
+    const chunks: Buffer[] = []
+    let downloaded = 0
+
+    if (resp.body) {
+      const reader = resp.body.getReader()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        chunks.push(Buffer.from(value))
+        downloaded += value.length
+        if (contentLength > 0 && onProgress) {
+          onProgress(downloaded / contentLength)
+        }
+      }
+    }
+
+    const buffer = Buffer.concat(chunks)
+    await fs.writeFile(destPath, buffer)
   }
 }

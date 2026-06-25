@@ -92,6 +92,18 @@ export class ModrinthService {
     return this.fetchJson<ModrinthProject>(`${MR_BASE}/project/${projectId}`)
   }
 
+  /**
+   * 批量获取项目信息
+   * @param projectIds 项目 ID 列表
+   */
+  async getProjects(projectIds: string[]): Promise<ModrinthProject[]> {
+    if (projectIds.length === 0) return []
+    const qs = new URLSearchParams({
+      ids: JSON.stringify(projectIds)
+    })
+    return this.fetchJson<ModrinthProject[]>(`${MR_BASE}/projects?${qs}`)
+  }
+
   async getProjectVersions(
     projectId: string,
     options: { game_versions?: string[]; loaders?: string[] } = {}

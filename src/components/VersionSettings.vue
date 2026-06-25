@@ -1029,7 +1029,7 @@ const navItems = [
 </script>
 
 <style scoped lang="scss">
-/* ====== MCLA Design System ====== */
+/* ====== VoxVer Design System ====== */
 
 /* ---- 遮罩层 ---- */
 .ver-settings-overlay {
@@ -1049,20 +1049,20 @@ const navItems = [
   max-width: 90vw;
   height: 560px;
   max-height: 85vh;
-  background: var(--mcla-bg-elevated);
-  border-radius: var(--mcla-radius-xl);
-  border: 1px solid var(--mcla-border-color);
+  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-xl);
+  border: 1px solid var(--voxver-border-color);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--mcla-shadow-xl);
+  box-shadow: var(--voxver-shadow-xl);
 }
 
 /* ---- 标题栏 ---- */
 .vs-header {
   height: 42px;
-  background: var(--mcla-bg-secondary);
-  border-bottom: 1px solid var(--mcla-border-color);
+  background: var(--voxver-bg-secondary);
+  border-bottom: 1px solid var(--voxver-border-color);
   display: flex;
   align-items: center;
   padding: 0 12px;
@@ -1076,24 +1076,24 @@ const navItems = [
   height: 30px;
   border: none;
   background: transparent;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--mcla-radius-sm);
+  border-radius: var(--voxver-radius-sm);
   transition: all 0.12s;
   -webkit-app-region: no-drag;
   &:hover {
-    background: var(--mcla-bg-hover);
-    color: var(--mcla-text-primary);
+    background: var(--voxver-bg-hover);
+    color: var(--voxver-text-primary);
   }
 }
 
 .vs-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1113,15 +1113,15 @@ const navItems = [
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--mcla-text-tertiary);
+    color: var(--voxver-text-tertiary);
     transition: background 0.12s;
     &:hover {
-      background: var(--mcla-bg-hover);
-      color: var(--mcla-text-primary);
+      background: var(--voxver-bg-hover);
+      color: var(--voxver-text-primary);
     }
     &.vs-close:hover {
       background: rgba(239, 68, 68, 0.15);
-      color: var(--mcla-error);
+      color: var(--voxver-error);
     }
   }
 }
@@ -1136,8 +1136,8 @@ const navItems = [
 /* ---- 左侧导航 ---- */
 .vs-nav {
   width: 160px;
-  background: var(--mcla-bg-secondary);
-  border-right: 1px solid var(--mcla-border-color);
+  background: var(--voxver-bg-secondary);
+  border-right: 1px solid var(--voxver-border-color);
   padding: 10px 0;
   flex-shrink: 0;
   display: flex;
@@ -1154,7 +1154,7 @@ const navItems = [
   background: transparent;
   font-size: 13px;
   font-weight: 500;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   text-align: left;
   transition: all 0.12s;
@@ -1163,19 +1163,19 @@ const navItems = [
   > span {
     flex-shrink: 0;
     display: flex;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 
   &:hover {
-    color: var(--mcla-primary-muted);
+    color: var(--voxver-primary-muted);
     background: rgba(99, 102, 234, 0.08);
     > span {
-      color: var(--mcla-primary-muted);
+      color: var(--voxver-primary-muted);
     }
   }
 
   &.active {
-    color: var(--mcla-primary-muted);
+    color: var(--voxver-primary-muted);
     font-weight: 600;
     background: rgba(99, 102, 234, 0.06);
 
@@ -1186,12 +1186,12 @@ const navItems = [
       top: 4px;
       bottom: 4px;
       width: 3px;
-      background: var(--mcla-primary);
+      background: var(--voxver-primary);
       border-radius: 0 2px 2px 0;
     }
 
     > span {
-      color: var(--mcla-primary-muted);
+      color: var(--voxver-primary-muted);
     }
   }
 }
@@ -1201,7 +1201,7 @@ const navItems = [
   flex: 1;
   overflow-y: auto;
   padding: 20px 24px;
-  background: var(--mcla-bg-primary);
+  background: var(--voxver-bg-primary);
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -1210,7 +1210,7 @@ const navItems = [
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: var(--mcla-border-color);
+    background: var(--voxver-border-color);
     border-radius: 3px;
   }
 }
@@ -1221,15 +1221,15 @@ const navItems = [
   align-items: center;
   gap: 14px;
   padding: 16px 18px;
-  background: var(--mcla-bg-elevated);
-  border-radius: var(--mcla-radius-lg);
-  border: 1px solid var(--mcla-border-color);
+  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-lg);
+  border: 1px solid var(--voxver-border-color);
   margin-bottom: 14px;
 
   .ver-icon {
     width: 44px;
     height: 44px;
-    border-radius: var(--mcla-radius-md);
+    border-radius: var(--voxver-radius-md);
     background: rgba(99, 102, 234, 0.1);
     display: flex;
     align-items: center;
@@ -1242,21 +1242,21 @@ const navItems = [
       margin: 0;
       font-size: 15px;
       font-weight: 700;
-      color: var(--mcla-text-primary);
+      color: var(--voxver-text-primary);
     }
     .ver-sub {
       margin: 3px 0 0;
       font-size: 12px;
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
     }
   }
 }
 
 /* ---- 区块 ---- */
 .vs-section {
-  background: var(--mcla-bg-elevated);
-  border-radius: var(--mcla-radius-lg);
-  border: 1px solid var(--mcla-border-color);
+  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-lg);
+  border: 1px solid var(--voxver-border-color);
   padding: 16px 18px;
   margin-bottom: 14px;
 
@@ -1264,12 +1264,12 @@ const navItems = [
     margin: 0 0 12px;
     font-size: 13px;
     font-weight: 700;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
   }
 
   .desc-text {
     font-size: 12px;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
     line-height: 1.55;
     margin: 0 0 12px;
   }
@@ -1291,7 +1291,7 @@ const navItems = [
     min-width: 70px;
     font-size: 13px;
     font-weight: 500;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
   }
 }
 
@@ -1299,23 +1299,23 @@ const navItems = [
 .form-input {
   flex: 1;
   padding: 8px 12px;
-  border: 1.5px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
+  border: 1.5px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
   font-size: 13px;
-  color: var(--mcla-text-primary);
-  background: var(--mcla-bg-primary);
+  color: var(--voxver-text-primary);
+  background: var(--voxver-bg-primary);
   outline: none;
   transition: border-color 0.14s;
 
   &:focus {
-    border-color: var(--mcla-primary);
+    border-color: var(--voxver-primary);
     box-shadow: 0 0 0 3px rgba(99, 102, 234, 0.15);
   }
   &.short {
     flex: 0 0 80px;
   }
   &.mono {
-    font-family: var(--mcla-font-mono);
+    font-family: var(--voxver-font-mono);
     font-size: 12px;
   }
 }
@@ -1323,19 +1323,19 @@ const navItems = [
 .form-textarea {
   flex: 1;
   padding: 8px 12px;
-  border: 1.5px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
+  border: 1.5px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
   font-size: 12px;
   font-family: inherit;
-  color: var(--mcla-text-primary);
-  background: var(--mcla-bg-primary);
+  color: var(--voxver-text-primary);
+  background: var(--voxver-bg-primary);
   outline: none;
   resize: vertical;
   min-height: 60px;
   transition: border-color 0.14s;
 
   &:focus {
-    border-color: var(--mcla-primary);
+    border-color: var(--voxver-primary);
     box-shadow: 0 0 0 3px rgba(99, 102, 234, 0.15);
   }
 }
@@ -1360,19 +1360,19 @@ const navItems = [
 
 .browse-btn {
   padding: 8px 16px;
-  border: 1.5px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
-  background: var(--mcla-bg-elevated);
+  border: 1.5px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
+  background: var(--voxver-bg-elevated);
   font-size: 12px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.13s;
   flex-shrink: 0;
 
   &:hover {
-    border-color: var(--mcla-primary);
-    color: var(--mcla-primary);
+    border-color: var(--voxver-primary);
+    color: var(--voxver-primary);
   }
   &.small {
     padding: 8px 12px;
@@ -1386,7 +1386,7 @@ const navItems = [
   gap: 6px;
   font-size: 13px;
   font-weight: normal;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   min-width: auto !important;
   cursor: pointer;
   margin-right: 16px;
@@ -1395,7 +1395,7 @@ const navItems = [
   input[type='checkbox'] {
     width: 15px;
     height: 15px;
-    accent-color: var(--mcla-primary);
+    accent-color: var(--voxver-primary);
     cursor: pointer;
   }
 }
@@ -1416,29 +1416,29 @@ const navItems = [
 
 /* 独立按钮组 */
 .vs-content > .form-btns {
-  background: var(--mcla-bg-elevated);
-  border-radius: var(--mcla-radius-lg);
-  border: 1px solid var(--mcla-border-color);
+  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-lg);
+  border: 1px solid var(--voxver-border-color);
   padding: 14px 18px;
 }
 
 .form-action-btn {
   padding: 8px 18px;
-  border: 1.5px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
-  background: var(--mcla-bg-elevated);
+  border: 1.5px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
+  background: var(--voxver-bg-elevated);
   font-size: 12px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   transition: all 0.13s;
 
   &:hover {
-    border-color: var(--mcla-primary);
-    color: var(--mcla-primary);
+    border-color: var(--voxver-primary);
+    color: var(--voxver-primary);
   }
 
   &.primary {
-    background: var(--mcla-gradient-primary);
+    background: var(--voxver-gradient-primary);
     border-color: transparent;
     color: #fff;
     &:hover {
@@ -1448,18 +1448,18 @@ const navItems = [
 
   &.outline {
     &:hover {
-      border-color: var(--mcla-primary);
-      color: var(--mcla-primary);
+      border-color: var(--voxver-primary);
+      color: var(--voxver-primary);
       background: rgba(99, 102, 234, 0.06);
     }
   }
 
   &.danger {
     border-color: rgba(239, 68, 68, 0.5);
-    color: var(--mcla-error);
+    color: var(--voxver-error);
     &:hover {
       background: rgba(239, 68, 68, 0.1);
-      border-color: var(--mcla-error);
+      border-color: var(--voxver-error);
     }
   }
 
@@ -1481,7 +1481,7 @@ const navItems = [
 
 .memory-sep {
   font-size: 12px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   user-select: none;
 }
 
@@ -1497,40 +1497,40 @@ const navItems = [
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: var(--mcla-bg-elevated);
-  border-radius: var(--mcla-radius-md);
+  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-md);
   border: 1px solid transparent;
   transition: all 0.12s;
 
   &:hover {
-    border-color: var(--mcla-border-color);
+    border-color: var(--voxver-border-color);
   }
 
   .mod-name {
     flex: 1;
     font-size: 13px;
     font-weight: 600;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
   }
   .mod-ver {
     font-size: 11px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 
   .mod-remove {
     padding: 4px 12px;
-    border: 1px solid var(--mcla-border-color);
-    border-radius: var(--mcla-radius-sm);
-    background: var(--mcla-bg-elevated);
+    border: 1px solid var(--voxver-border-color);
+    border-radius: var(--voxver-radius-sm);
+    background: var(--voxver-bg-elevated);
     font-size: 11px;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
     cursor: pointer;
     opacity: 0;
     transition: all 0.12s;
 
     &:hover {
-      border-color: var(--mcla-error);
-      color: var(--mcla-error);
+      border-color: var(--voxver-error);
+      color: var(--voxver-error);
     }
   }
 
@@ -1542,7 +1542,7 @@ const navItems = [
 .empty-state {
   text-align: center;
   padding: 36px 0;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 
   p {
     margin: 10px 0 0;
@@ -1583,13 +1583,13 @@ const navItems = [
 .complete-status-text {
   font-size: 16px;
   font-weight: 600;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   margin: 4px 0 0;
 }
 
 .complete-status-sub {
   font-size: 12px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   margin: 0;
   word-break: break-all;
   text-align: center;
@@ -1598,8 +1598,8 @@ const navItems = [
 .complete-spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid var(--mcla-border-color);
-  border-top-color: var(--mcla-primary);
+  border: 3px solid var(--voxver-border-color);
+  border-top-color: var(--voxver-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -1614,9 +1614,9 @@ const navItems = [
   width: 100%;
   max-height: 200px;
   overflow-y: auto;
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
   padding: 8px 12px;
   text-align: left;
   margin-top: 12px;
@@ -1627,7 +1627,7 @@ const navItems = [
   align-items: center;
   gap: 6px;
   padding: 4px 0;
-  border-bottom: 1px solid var(--mcla-border-color);
+  border-bottom: 1px solid var(--voxver-border-color);
   &:last-child {
     border-bottom: none;
   }
@@ -1643,14 +1643,14 @@ const navItems = [
 
 .missing-file-path {
   font-size: 11px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   word-break: break-all;
   font-family: monospace;
 }
 
 .missing-file-more {
   font-size: 11px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   text-align: center;
   padding: 4px 0 0;
 }
@@ -1663,15 +1663,15 @@ const navItems = [
 .dl-progress-bar {
   width: 100%;
   height: 8px;
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .dl-progress-fill {
   height: 100%;
-  background: var(--mcla-primary);
+  background: var(--voxver-primary);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
@@ -1679,13 +1679,13 @@ const navItems = [
 .dl-progress-text {
   font-size: 13px;
   font-weight: 600;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   margin: 8px 0 2px;
 }
 
 .dl-progress-file {
   font-size: 11px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   font-family: monospace;
   word-break: break-all;
   margin: 0;
@@ -1710,9 +1710,9 @@ const navItems = [
   gap: 8px;
   padding: 10px 14px;
   background: rgba(99, 102, 234, 0.08);
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   font-size: 12px;
-  color: var(--mcla-primary-muted);
+  color: var(--voxver-primary-muted);
   margin-bottom: 14px;
 
   svg {
@@ -1725,7 +1725,7 @@ const navItems = [
     background: none;
     border: none;
     font-size: 16px;
-    color: var(--mcla-primary-muted);
+    color: var(--voxver-primary-muted);
     cursor: pointer;
     padding: 0 2px;
     line-height: 1;
@@ -1748,14 +1748,14 @@ const navItems = [
   gap: 5px;
   font-size: 13px;
   cursor: pointer;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
 
   input {
-    accent-color: var(--mcla-primary);
+    accent-color: var(--voxver-primary);
   }
 
   &.active {
-    color: var(--mcla-primary-muted);
+    color: var(--voxver-primary-muted);
     font-weight: 600;
   }
 }
@@ -1768,7 +1768,7 @@ const navItems = [
 .mem-slider {
   width: 100%;
   height: 4px;
-  accent-color: var(--mcla-primary);
+  accent-color: var(--voxver-primary);
   cursor: pointer;
 }
 
@@ -1776,7 +1776,7 @@ const navItems = [
 .mem-stats {
   display: flex;
   justify-content: space-between;
-  border-top: 1px solid var(--mcla-border-color);
+  border-top: 1px solid var(--voxver-border-color);
   padding-top: 8px;
   margin-top: 10px;
 }
@@ -1788,12 +1788,12 @@ const navItems = [
 
   .mem-stat-label {
     font-size: 11px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
   .mem-stat-value {
     font-size: 14px;
     font-weight: 700;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
   }
 }
 
@@ -1815,7 +1815,7 @@ const navItems = [
   user-select: none;
 
   &:hover {
-    color: var(--mcla-primary-muted);
+    color: var(--voxver-primary-muted);
   }
   svg {
     flex-shrink: 0;
@@ -1867,10 +1867,10 @@ const navItems = [
   width: 100%;
   padding: 11px 0;
   margin-top: 8px;
-  background: var(--mcla-gradient-primary);
+  background: var(--voxver-gradient-primary);
   color: #fff;
   border: none;
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -1889,9 +1889,9 @@ const navItems = [
   align-items: center;
   gap: 8px;
   padding: 9px 14px;
-  background: var(--mcla-bg-primary);
-  border: 1.5px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
+  background: var(--voxver-bg-primary);
+  border: 1.5px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
   margin-bottom: 10px;
 
   svg {
@@ -1903,11 +1903,11 @@ const navItems = [
     border: none;
     outline: none;
     font-size: 13px;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
     background: transparent;
 
     &::placeholder {
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
     }
   }
 }
@@ -1921,8 +1921,8 @@ const navItems = [
 }
 
 .form-action-btn.primary-outline {
-  border-color: var(--mcla-primary);
-  color: var(--mcla-primary);
+  border-color: var(--voxver-primary);
+  color: var(--voxver-primary);
   &:hover {
     background: rgba(99, 102, 234, 0.06);
   }
@@ -1940,20 +1940,20 @@ const navItems = [
   border: none;
   background: transparent;
   font-size: 12px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   transition: all 0.13s;
 
   &.active {
-    background: var(--mcla-gradient-primary);
+    background: var(--voxver-gradient-primary);
     color: #fff;
     font-weight: 600;
   }
 
   &:hover:not(.active) {
     background: rgba(99, 102, 234, 0.08);
-    color: var(--mcla-primary-muted);
+    color: var(--voxver-primary-muted);
   }
 
   .mod-tab-count {
@@ -1978,19 +1978,19 @@ const navItems = [
   align-items: center;
   gap: 10px;
   padding: 9px 10px;
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   transition: background 0.12s;
   position: relative;
 
   &:hover {
-    background: var(--mcla-bg-hover);
+    background: var(--voxver-bg-hover);
   }
 }
 
 .mod-icon-img {
   width: 32px;
   height: 32px;
-  border-radius: var(--mcla-radius-sm);
+  border-radius: var(--voxver-radius-sm);
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -1998,8 +1998,8 @@ const navItems = [
 .mod-icon-default {
   width: 32px;
   height: 32px;
-  border-radius: var(--mcla-radius-sm);
-  background: var(--mcla-gradient-primary);
+  border-radius: var(--voxver-radius-sm);
+  background: var(--voxver-gradient-primary);
   color: #fff;
   font-size: 14px;
   font-weight: 700;
@@ -2036,12 +2036,12 @@ const navItems = [
 .mod-name-text {
   font-size: 13px;
   font-weight: 700;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
 }
 
 .mod-ver-text {
   font-size: 11px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   white-space: nowrap;
 }
 
@@ -2057,7 +2057,7 @@ const navItems = [
 .mod-desc-text {
   margin: 2px 0 0;
   font-size: 11px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   line-height: 1.35;
   white-space: nowrap;
   overflow: hidden;
@@ -2068,7 +2068,7 @@ const navItems = [
   display: inline-block;
   padding: 0 5px;
   font-size: 10px;
-  color: var(--mcla-primary-muted);
+  color: var(--voxver-primary-muted);
   background: rgba(99, 102, 234, 0.08);
   border-radius: 3px;
   margin-right: 4px;
@@ -2093,7 +2093,7 @@ const navItems = [
   height: 26px;
   border: none;
   background: transparent;
-  border-radius: var(--mcla-radius-sm);
+  border-radius: var(--voxver-radius-sm);
   font-size: 13px;
   cursor: pointer;
   display: flex;
@@ -2102,7 +2102,7 @@ const navItems = [
   transition: all 0.12s;
 
   &:hover {
-    background: var(--mcla-bg-hover);
+    background: var(--voxver-bg-hover);
   }
   &.danger:hover {
     background: rgba(239, 68, 68, 0.1);
@@ -2170,12 +2170,12 @@ const navItems = [
   gap: 6px;
   cursor: pointer;
   font-size: 12px;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
 
   input[type='checkbox'] {
     width: 14px;
     height: 14px;
-    accent-color: var(--mcla-primary);
+    accent-color: var(--voxver-primary);
     cursor: pointer;
     flex-shrink: 0;
   }
@@ -2193,7 +2193,7 @@ const navItems = [
   }
   .tree-sub {
     font-size: 11px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     margin-left: 4px;
     flex-shrink: 0;
     min-width: unset;
@@ -2215,9 +2215,9 @@ const navItems = [
   margin-top: 10px;
   padding: 10px 12px;
   background: rgba(99, 102, 234, 0.06);
-  border-radius: var(--mcla-radius-md);
+  border-radius: var(--voxver-radius-md);
   font-size: 11px;
-  color: var(--mcla-primary-muted);
+  color: var(--voxver-primary-muted);
   line-height: 1.55;
 }
 
@@ -2233,14 +2233,14 @@ const navItems = [
   align-items: center;
   gap: 8px;
   padding: 12px 36px;
-  background: var(--mcla-gradient-primary);
+  background: var(--voxver-gradient-primary);
   color: #fff;
   border: none;
-  border-radius: var(--mcla-radius-full);
+  border-radius: var(--voxver-radius-full);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: var(--mcla-shadow-glow-primary);
+  box-shadow: var(--voxver-shadow-glow-primary);
   transition: all 0.16s;
 
   &:hover {

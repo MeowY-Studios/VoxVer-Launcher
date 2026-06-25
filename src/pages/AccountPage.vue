@@ -63,7 +63,7 @@
           fill="none"
           stroke="currentColor"
           stroke-width="2"
-          style="flex-shrink: 0; color: var(--mcla-text-muted)"
+          style="flex-shrink: 0; color: var(--voxver-text-muted)"
         >
           <circle cx="12" cy="12" r="10" />
           <path d="M2 12h20" />
@@ -518,14 +518,14 @@ function generateUUID(): string {
 
 /* ====== 账户区块 ====== */
 .account-section {
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 10px;
   margin-bottom: 16px;
   overflow: hidden;
 
   &.offline .section-header svg {
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
   }
 }
 
@@ -534,7 +534,7 @@ function generateUUID(): string {
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--mcla-border);
+  border-bottom: 1px solid var(--voxver-border-color);
 
   .section-title {
     flex: 1;
@@ -554,8 +554,8 @@ function generateUUID(): string {
     color: #137333;
   }
   &.default {
-    background: var(--mcla-bg-primary);
-    color: var(--mcla-text-muted);
+    background: var(--voxver-bg-primary);
+    color: var(--voxver-text-muted);
   }
 }
 
@@ -568,7 +568,7 @@ function generateUUID(): string {
     p {
       margin: 0 0 12px;
       font-size: 13px;
-      color: var(--mcla-text-secondary);
+      color: var(--voxver-text-secondary);
     }
   }
 }
@@ -623,7 +623,7 @@ img.profile-avatar {
   border-radius: 4px;
   object-fit: cover;
   flex-shrink: 0;
-  border: 2px solid var(--mcla-border-color);
+  border: 2px solid var(--voxver-border-color);
   image-rendering: pixelated; /* 像素风皮肤不要模糊 */
   background: #8b5e3c; /* 默认 Steve 棕色底 */
 }
@@ -637,7 +637,7 @@ img.profile-avatar {
   .profile-uuid {
     margin: 2px 0 0;
     font-size: 11px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     font-family: monospace;
   }
 }
@@ -650,7 +650,7 @@ img.profile-avatar {
     display: block;
     font-size: 12px;
     font-weight: 600;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
     margin-bottom: 5px;
   }
 }
@@ -658,20 +658,20 @@ img.profile-avatar {
 .input-field {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-sm);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
   font-size: 13px;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   outline: none;
   transition: border-color 0.15s;
   box-sizing: border-box;
-  background: var(--mcla-bg-primary);
+  background: var(--voxver-bg-primary);
 
   &:focus {
-    border-color: var(--mcla-primary-400);
+    border-color: var(--voxver-primary-400);
   }
   &::placeholder {
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 }
 
@@ -694,7 +694,7 @@ img.profile-avatar {
 
 .form-error {
   font-size: 12px;
-  color: var(--mcla-error);
+  color: var(--voxver-error);
 }
 
 /* ====== 按钮 ====== */
@@ -703,17 +703,17 @@ img.profile-avatar {
   align-items: center;
   gap: 6px;
   padding: 8px 20px;
-  background: var(--mcla-primary);
+  background: var(--voxver-primary);
   color: #fff;
   border: none;
-  border-radius: var(--mcla-radius-sm);
+  border-radius: var(--voxver-radius-sm);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
 
   &:hover:not(:disabled) {
-    background: var(--mcla-primary-hover);
+    background: var(--voxver-primary-hover);
   }
   &:disabled {
     opacity: 0.6;
@@ -729,9 +729,9 @@ img.profile-avatar {
   display: inline-flex;
   align-items: center;
   padding: 6px 16px;
-  border: 1px solid var(--mcla-border-color);
+  border: 1px solid var(--voxver-border-color);
   background: transparent;
-  border-radius: var(--mcla-radius-sm);
+  border-radius: var(--voxver-radius-sm);
   font-size: 12px;
   cursor: pointer;
   transition: all 0.15s;
@@ -740,9 +740,9 @@ img.profile-avatar {
     border-color: currentColor;
   }
   &.btn-danger {
-    color: var(--mcla-error);
+    color: var(--voxver-error);
     &:hover {
-      background: var(--mcla-error-bg);
+      background: var(--voxver-error-bg);
     }
   }
 }
@@ -751,17 +751,17 @@ img.profile-avatar {
   font-size: 12px;
 }
 .btn-ghost {
-  background: var(--mcla-bg-primary);
-  border: 1px solid var(--mcla-border-color);
-  color: var(--mcla-text-secondary);
-  border-radius: var(--mcla-radius-xs);
+  background: var(--voxver-bg-primary);
+  border: 1px solid var(--voxver-border-color);
+  color: var(--voxver-text-secondary);
+  border-radius: var(--voxver-radius-xs);
   font-size: 12px;
   cursor: pointer;
   padding: 6px 12px;
 
   &:hover {
-    border-color: var(--mcla-primary-400);
-    color: var(--mcla-primary-600);
+    border-color: var(--voxver-primary-400);
+    color: var(--voxver-primary-600);
   }
 }
 
@@ -796,8 +796,8 @@ img.profile-avatar {
 }
 
 .modal-card {
-  background: var(--mcla-bg-elevated, #fff);
-  border: 1px solid var(--mcla-border-color, #e0e0e0);
+  background: var(--voxver-bg-elevated, #fff);
+  border: 1px solid var(--voxver-border-color, #e0e0e0);
   border-radius: 14px;
   width: 420px;
   max-width: calc(100vw - 32px);
@@ -810,7 +810,7 @@ img.profile-avatar {
   align-items: center;
   justify-content: space-between;
   padding: 14px 18px;
-  border-bottom: 1px solid var(--mcla-border-color, #e0e0e0);
+  border-bottom: 1px solid var(--voxver-border-color, #e0e0e0);
 
   .modal-title {
     font-size: 14px;
@@ -821,13 +821,13 @@ img.profile-avatar {
     border: none;
     font-size: 16px;
     cursor: pointer;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     padding: 2px 6px;
     border-radius: 4px;
     line-height: 1;
 
     &:hover {
-      background: var(--mcla-bg-primary);
+      background: var(--voxver-bg-primary);
     }
   }
 }
@@ -839,7 +839,7 @@ img.profile-avatar {
 
 .modal-footer {
   padding: 12px 18px;
-  border-top: 1px solid var(--mcla-border-color, #e0e0e0);
+  border-top: 1px solid var(--voxver-border-color, #e0e0e0);
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -851,7 +851,7 @@ img.profile-avatar {
 
   .device-flow-hint {
     font-size: 13px;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
     margin: 0 0 10px;
   }
 
@@ -859,7 +859,7 @@ img.profile-avatar {
     display: inline-block;
     font-size: 14px;
     font-weight: 700;
-    color: var(--mcla-primary, #0078d4);
+    color: var(--voxver-primary, #0078d4);
     text-decoration: none;
     margin-bottom: 14px;
 
@@ -880,17 +880,17 @@ img.profile-avatar {
     font-size: 26px;
     font-weight: 900;
     letter-spacing: 4px;
-    color: var(--mcla-text-primary);
+    color: var(--voxver-text-primary);
     font-family: 'Courier New', monospace;
-    background: var(--mcla-bg-primary);
-    border: 1px solid var(--mcla-border-color);
+    background: var(--voxver-bg-primary);
+    border: 1px solid var(--voxver-border-color);
     border-radius: 8px;
     padding: 6px 18px;
   }
 
   .device-flow-tip {
     font-size: 12px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     margin: 0 0 14px;
   }
 
@@ -899,7 +899,7 @@ img.profile-avatar {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
     font-size: 12px;
   }
 }
@@ -914,7 +914,7 @@ img.profile-avatar {
 
   .processing-text {
     font-size: 13px;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
     margin: 0;
   }
 }
@@ -938,7 +938,7 @@ img.profile-avatar {
     color: #137333;
   }
   &.error-box p {
-    color: var(--mcla-error, #ea4335);
+    color: var(--voxver-error, #ea4335);
     font-size: 13px;
     font-weight: 400;
   }
@@ -958,12 +958,12 @@ img.profile-avatar {
   justify-content: center;
   gap: 6px;
   padding: 9px 14px;
-  background: var(--mcla-bg-elevated);
-  border: 1px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-sm);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
   font-size: 12px;
   font-weight: 600;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   text-decoration: none;
   transition: all 0.15s;
 
@@ -973,9 +973,9 @@ img.profile-avatar {
   }
 
   &:hover {
-    border-color: var(--mcla-primary-400);
-    color: var(--mcla-primary);
-    background: var(--mcla-primary-bg);
+    border-color: var(--voxver-primary-400);
+    color: var(--voxver-primary);
+    background: var(--voxver-primary-bg);
     svg {
       opacity: 1;
     }
@@ -987,8 +987,8 @@ img.profile-avatar {
   display: inline-block;
   width: 16px;
   height: 16px;
-  border: 2px solid var(--mcla-border-color, #e0e0e0);
-  border-top-color: var(--mcla-primary, #0078d4);
+  border: 2px solid var(--voxver-border-color, #e0e0e0);
+  border-top-color: var(--voxver-primary, #0078d4);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;

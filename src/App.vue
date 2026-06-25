@@ -374,6 +374,8 @@
 
       <!-- 主内容区 -->
       <main class="main-content">
+        <div class="main-content-bg" :style="bgStyle"></div>
+        <div v-if="bgOverlayVisible" class="main-content-overlay" :style="overlayStyle"></div>
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
             <component :is="Component" />
@@ -409,12 +411,13 @@ import VersionSettings from './components/VersionSettings.vue'
 import VersionSelect from './components/VersionSelect.vue'
 import AccountManager from './components/AccountManager.vue'
 import DownloadFloat from './components/DownloadFloat.vue'
-import { useVersionsStore, useAccountsStore, useInstancesStore, useDownloadStore } from './stores'
+import { useVersionsStore, useAccountsStore, useInstancesStore, useDownloadStore, useAppStore } from './stores'
 
 const route = useRoute()
 const router = useRouter()
 const currentRoute = computed(() => route.path)
 const isElectron = ref(false)
+const appStore = useAppStore()
 const versionsStore = useVersionsStore()
 const accountsStore = useAccountsStore()
 const instancesStore = useInstancesStore()
@@ -440,6 +443,21 @@ const versionGameDir = computed(() => {
 const currentInstanceId = computed(
   () => instancesStore.instances.find((i) => i.path === versionGameDir.value)?.id ?? ''
 )
+
+// 背景设置
+const bgStyle = computed(() => {
+  if (appStore.bgImageMode !== 'custom' || !appStore.bgImagePath) return {}
+  const blur = appStore.themeBgBlur > 0 ? `blur(${appStore.themeBgBlur}px)` : ''
+  return {
+    backgroundImage: `url("${appStore.bgImagePath}")`,
+    filter: blur
+  }
+})
+const bgOverlayVisible = computed(() => appStore.bgColorOverlay && appStore.bgImageMode === 'custom' && !!appStore.bgImagePath)
+const overlayStyle = computed(() => ({
+  backgroundColor: appStore.bgOverlayColor,
+  opacity: appStore.bgDimAmount > 0 ? appStore.bgDimAmount / 100 : 0.35
+}))
 
 // 版本被删除后刷新
 async function onVersionDeleted() {
@@ -663,6 +681,9 @@ const moreCategories = [
 
 onMounted(async () => {
   isElectron.value = !!window.electronAPI
+
+  // 初始化主题
+  appStore.init()
 
   // 获取 .minecraft 路径（优先 last_selected_folder，其次自定义路径，最后默认）
   if (window.electronAPI?.path) {
@@ -1050,8 +1071,9 @@ function handleSettingsCategory(itemId: string) {
   left: 50%;
   transform: translateX(-50%);
   overflow-x: auto;
-  -webkit-app-region: no-drag;
-  z-index: 1;
+  -webkit-app-region: no-drag !important;
+  pointer-events: auto !important;
+  z-index: 100;
 
   &::-webkit-scrollbar {
     display: none;
@@ -1076,6 +1098,8 @@ function handleSettingsCategory(itemId: string) {
   flex-shrink: 0;
   backdrop-filter: blur(4px);
   line-height: 1;
+  -webkit-app-region: no-drag !important;
+  pointer-events: auto !important;
 
   svg,
   span {
@@ -1670,8 +1694,9 @@ function handleSettingsCategory(itemId: string) {
   }
 }
 
-/* ====== 主内容区 ====== */
+/* ====== 背景层 ====== */
 .main-content {
+  position: relative;
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
@@ -1691,6 +1716,34 @@ function handleSettingsCategory(itemId: string) {
   &::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 0, 0, 0.22);
   }
+}
+
+.main-content-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.main-content-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.main-content > :not(.main-content-bg):not(.main-content-overlay) {
+  position: relative;
+  z-index: 2;
 }
 
 .fade-enter-active,

@@ -9,7 +9,7 @@
             height="40"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="var(--mcla-primary-400)"
+            stroke="var(--voxver-primary-400)"
             stroke-width="1.5"
           >
             <path
@@ -199,12 +199,12 @@ onMounted(() => {
 
 /* 欢迎卡片 — 紧凑自适应 */
 .welcome-card {
-  background: var(--mcla-bg-elevated);
-  border-radius: var(--mcla-radius-lg);
+  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-lg);
   padding: 28px 24px;
   text-align: center;
-  border: 1px solid var(--mcla-border-color);
-  box-shadow: var(--mcla-shadow-sm);
+  border: 1px solid var(--voxver-border-color);
+  box-shadow: var(--voxver-shadow-sm);
 }
 
 .wc-icon {
@@ -222,15 +222,15 @@ onMounted(() => {
 
 .wc-title {
   margin: 0 0 4px;
-  font-size: var(--mcla-text-xl);
-  font-weight: var(--mcla-font-bold);
-  color: var(--mcla-text-primary);
+  font-size: var(--voxver-text-xl);
+  font-weight: var(--voxver-font-bold);
+  color: var(--voxver-text-primary);
 }
 
 .wc-desc {
   margin: 0 0 18px;
-  font-size: var(--mcla-text-sm);
-  color: var(--mcla-text-secondary);
+  font-size: var(--voxver-text-sm);
+  color: var(--voxver-text-secondary);
 }
 
 .wc-actions {
@@ -245,29 +245,29 @@ onMounted(() => {
   align-items: center;
   gap: 5px;
   padding: 8px 16px;
-  background: var(--mcla-bg-elevated);
-  border: 1.5px solid var(--mcla-border-color);
-  border-radius: var(--mcla-radius-md);
-  font-size: var(--mcla-text-sm);
-  font-weight: var(--mcla-font-medium);
-  color: var(--mcla-text-secondary);
+  background: var(--voxver-bg-elevated);
+  border: 1.5px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
+  font-size: var(--voxver-text-sm);
+  font-weight: var(--voxver-font-medium);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
 
   &:hover {
-    border-color: var(--mcla-primary-400);
-    color: var(--mcla-primary-600);
-    box-shadow: var(--mcla-shadow-glow-primary);
+    border-color: var(--voxver-primary-400);
+    color: var(--voxver-primary-600);
+    box-shadow: var(--voxver-shadow-glow-primary);
   }
 
   &.wc-btn--primary {
-    background: var(--mcla-gradient-primary);
+    background: var(--voxver-gradient-primary);
     border-color: transparent;
     color: #fff;
 
     &:hover {
       filter: brightness(1.06);
-      box-shadow: var(--mcla-shadow-glow-primary);
+      box-shadow: var(--voxver-shadow-glow-primary);
     }
   }
 }
@@ -276,9 +276,9 @@ onMounted(() => {
 .recent-section {
   .sec-title {
     margin: 0 0 8px;
-    font-size: var(--mcla-text-base);
-    font-weight: var(--mcla-font-bold);
-    color: var(--mcla-text-primary);
+    font-size: var(--voxver-text-base);
+    font-weight: var(--voxver-font-bold);
+    color: var(--voxver-text-primary);
   }
 }
 
@@ -293,22 +293,22 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  background: var(--mcla-bg-elevated);
-  border-radius: var(--mcla-radius-md);
+  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-md);
   cursor: pointer;
-  transition: all var(--mcla-transition-fast);
+  transition: all var(--voxver-transition-fast);
   border: 1px solid transparent;
 
   &:hover {
-    border-color: var(--mcla-border-color);
-    box-shadow: var(--mcla-shadow-sm);
+    border-color: var(--voxver-border-color);
+    box-shadow: var(--voxver-shadow-sm);
   }
 
   .ri-icon {
     width: 34px;
     height: 34px;
-    border-radius: var(--mcla-radius-md);
-    background: var(--mcla-gradient-primary);
+    border-radius: var(--voxver-radius-md);
+    background: var(--voxver-gradient-primary);
     color: #fff;
     font-size: 15px;
     font-weight: 700;
@@ -316,7 +316,7 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: var(--mcla-shadow-glow-primary);
+    box-shadow: var(--voxver-shadow-glow-primary);
   }
 
   .ri-info {
@@ -333,13 +333,13 @@ onMounted(() => {
     .ri-meta {
       margin: 2px 0 0;
       font-size: 11px;
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
     }
   }
 
   .ri-time {
     font-size: 11px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     white-space: nowrap;
     flex-shrink: 0;
   }

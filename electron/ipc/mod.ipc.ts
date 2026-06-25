@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron'
 import { promises as fs, existsSync } from 'fs'
 import * as path from 'path'
-import { ModService, ModInfo, ModUpdateInfo } from '../services/mod.service'
+import { ModService, ModInfo, ModUpdateInfo, ModDependencyCheckResult } from '../services/mod.service'
 
 /**
  * 注册 Mod 管理 IPC handlers
@@ -235,6 +235,52 @@ export function registerModIpcHandlers(modService: ModService) {
           })
         })
         if (!result) return { ok: false, error: '更新失败' }
+        return { ok: true, data: result }
+      } catch (error: any) {
+        return { ok: false, error: error.message }
+      }
+    }
+  )
+
+  /**
+   * 检查 Mod 依赖关系
+   * @param mods ModInfo[] 要检查的 mod 列表
+   * @param mcVersion string 当前 MC 版本（可选）
+   * @param loader string mod loader（可选）
+   */
+  ipcMain.handle('mod:check-dependencies', async (_event, { mods, mcVersion, loader }) => {
+    try {
+      const results = await modService.checkModsDependencies(mods, mcVersion, loader)
+      return { ok: true, data: results }
+    } catch (error: any) {
+      return { ok: false, error: error.message }
+    }
+  })
+
+  /**
+   * 自动安装缺失的依赖
+   * @param mod ModInfo 目标 Mod
+   * @param gameDir string 游戏目录
+   * @param mcVersion string MC 版本
+   * @param loader string ModLoader 类型
+   */
+  ipcMain.handle(
+    'mod:install-dependencies',
+    async (event, { mod, gameDir, mcVersion, loader }) => {
+      try {
+        const result = await modService.installMissingDependencies(
+          mod,
+          gameDir,
+          mcVersion,
+          loader,
+          (depName, progress) => {
+            event.sender.send('mod:dependency-progress', {
+              modPath: mod.filePath,
+              depName,
+              progress
+            })
+          }
+        )
         return { ok: true, data: result }
       } catch (error: any) {
         return { ok: false, error: error.message }

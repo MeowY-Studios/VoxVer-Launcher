@@ -571,7 +571,7 @@
             height="48"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="var(--mcla-blue)"
+            stroke="var(--voxver-primary)"
             stroke-width="1.5"
           >
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
@@ -1394,7 +1394,7 @@ watch(
     width: 44px;
     height: 44px;
     border-radius: 10px;
-    background: linear-gradient(135deg, var(--mcla-blue), #42a5f5);
+    background: linear-gradient(135deg, var(--voxver-primary), #42a5f5);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1406,12 +1406,12 @@ watch(
     margin: 0;
     font-size: 16px;
     font-weight: 700;
-    color: var(--mcla-text);
+    color: var(--voxver-text-primary);
   }
   .dl-subtitle {
     margin: 2px 0 0;
     font-size: 12px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 }
 
@@ -1425,12 +1425,12 @@ watch(
 
 .ver-tab {
   padding: 7px 16px;
-  border: 1.5px solid var(--mcla-border);
+  border: 1.5px solid var(--voxver-border-color);
   border-radius: 7px;
-  background: var(--mcla-surface);
+  background: var(--voxver-surface);
   font-size: 13px;
   font-weight: 500;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   transition: all 0.14s;
   display: flex;
@@ -1438,12 +1438,12 @@ watch(
   gap: 4px;
 
   &:hover {
-    border-color: var(--mcla-blue);
-    color: var(--mcla-blue);
+    border-color: var(--voxver-primary);
+    color: var(--voxver-primary);
   }
   &.active {
-    background: var(--mcla-blue);
-    border-color: var(--mcla-blue);
+    background: var(--voxver-primary);
+    border-color: var(--voxver-primary);
     color: #fff;
   }
 
@@ -1459,14 +1459,14 @@ watch(
   align-items: center;
   gap: 8px;
   padding: 7px 12px;
-  background: var(--mcla-surface);
-  border: 1px solid var(--mcla-border);
+  background: var(--voxver-surface);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 7px;
   margin-bottom: 14px;
   flex-shrink: 0;
 
   svg {
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     flex-shrink: 0;
   }
   input {
@@ -1474,10 +1474,10 @@ watch(
     border: none;
     outline: none;
     font-size: 13px;
-    color: var(--mcla-text);
+    color: var(--voxver-text-primary);
     background: transparent;
     &::placeholder {
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
     }
   }
 
@@ -1486,7 +1486,7 @@ watch(
     height: 28px;
     border: none;
     background: transparent;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     cursor: pointer;
     border-radius: 6px;
     display: flex;
@@ -1494,8 +1494,8 @@ watch(
     justify-content: center;
     transition: all 0.12s;
     &:hover {
-      background: var(--mcla-bg);
-      color: var(--mcla-blue);
+      background: var(--voxver-bg-primary);
+      color: var(--voxver-primary);
     }
   }
 }
@@ -1508,14 +1508,14 @@ watch(
 }
 
 .acc-group {
-  background: var(--mcla-bg-elevated);
-  border-radius: var(--mcla-radius-lg);
-  border: 1.5px solid var(--mcla-border-color);
+  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-lg);
+  border: 1.5px solid var(--voxver-border-color);
   overflow: hidden;
-  box-shadow: var(--mcla-shadow-sm);
+  box-shadow: var(--voxver-shadow-sm);
 
   &:hover {
-    border-color: var(--mcla-primary-200);
+    border-color: var(--voxver-primary-200);
   }
 }
 
@@ -1528,27 +1528,27 @@ watch(
   border: none;
   background: transparent;
   cursor: pointer;
-  transition: background var(--mcla-transition-fast);
+  transition: background var(--voxver-transition-fast);
 
   &:hover {
-    background: var(--mcla-bg-hover);
+    background: var(--voxver-bg-hover);
   }
 
   .acc-title {
     font-size: 14.5px;
-    font-weight: var(--mcla-font-bold);
-    color: var(--mcla-text-primary);
+    font-weight: var(--voxver-font-bold);
+    color: var(--voxver-text-primary);
   }
 
   .acc-count {
     font-size: 12px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     margin-left: auto;
   }
 
   .acc-arrow {
-    color: var(--mcla-text-tertiary);
-    transition: transform var(--mcla-transition-normal);
+    color: var(--voxver-text-tertiary);
+    transition: transform var(--voxver-transition-normal);
     flex-shrink: 0;
   }
 
@@ -1558,19 +1558,19 @@ watch(
 }
 
 .acc-body {
-  border-top: 1.5px solid var(--mcla-border-strong);
+  border-top: 1.5px solid var(--voxver-border-strong);
   display: flex;
   flex-direction: column;
   gap: 4px;
   padding: 8px 10px 10px;
-  background: var(--mcla-bg-secondary);
+  background: var(--voxver-bg-secondary);
 }
 
 .acc-empty {
   text-align: center;
   padding: 16px;
   font-size: 12.5px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 }
 
 .ver-item {
@@ -1578,14 +1578,14 @@ watch(
   align-items: center;
   gap: 14px;
   padding: 12px 14px;
-  background: var(--mcla-surface);
+  background: var(--voxver-surface);
   border-radius: 8px;
   border: 1px solid transparent;
   transition: all 0.14s;
 
   &:hover {
-    border-color: var(--mcla-border);
-    border-left-color: var(--mcla-blue);
+    border-color: var(--voxver-border-color);
+    border-left-color: var(--voxver-primary);
     border-left-width: 3px;
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
   }
@@ -1615,7 +1615,7 @@ watch(
   .ver-name {
     font-size: 14px;
     font-weight: 700;
-    color: var(--mcla-text);
+    color: var(--voxver-text-primary);
   }
 
   .ver-type-tag {
@@ -1644,14 +1644,14 @@ watch(
 
   .ver-date {
     font-size: 11px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     margin-left: auto;
   }
 
   .ver-desc {
     margin: 3px 0 0;
     font-size: 12px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 }
 
@@ -1670,11 +1670,11 @@ watch(
 .va-btn {
   height: 30px;
   padding: 0 12px;
-  border: 1.5px solid var(--mcla-border);
+  border: 1.5px solid var(--voxver-border-color);
   border-radius: 6px;
-  background: var(--mcla-bg-elevated);
+  background: var(--voxver-bg-elevated);
   font-size: 12px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   transition: all 0.12s;
   display: flex;
@@ -1682,20 +1682,20 @@ watch(
   gap: 4px;
 
   &:hover {
-    border-color: var(--mcla-blue);
-    color: var(--mcla-blue);
+    border-color: var(--voxver-primary);
+    color: var(--voxver-primary);
   }
   &.primary {
-    background: var(--mcla-blue);
-    border-color: var(--mcla-blue);
+    background: var(--voxver-primary);
+    border-color: var(--voxver-primary);
     color: #fff;
     &:hover {
-      background: var(--mcla-blue-hover);
+      background: var(--voxver-blue-hover);
     }
   }
   &.is-dl {
-    background: var(--mcla-blue-hover);
-    border-color: var(--mcla-blue);
+    background: var(--voxver-blue-hover);
+    border-color: var(--voxver-primary);
     color: #fff;
     cursor: wait;
     opacity: 0.85;
@@ -1724,7 +1724,7 @@ watch(
 .ver-empty {
   text-align: center;
   padding: 48px 20px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   p {
     margin: 8px 0 0;
     font-size: 13px;
@@ -1741,25 +1741,25 @@ watch(
 
 .btn-loadmore {
   padding: 8px 24px;
-  border: 1.5px solid var(--mcla-border);
+  border: 1.5px solid var(--voxver-border-color);
   border-radius: 7px;
-  background: var(--mcla-surface);
+  background: var(--voxver-surface);
   font-size: 13px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   transition: all 0.13s;
   &:hover {
-    border-color: var(--mcla-blue);
-    color: var(--mcla-blue);
+    border-color: var(--voxver-primary);
+    color: var(--voxver-primary);
   }
 }
 
 /* ====== 社区资源 ====== */
 .filter-section {
-  background: var(--mcla-surface);
+  background: var(--voxver-surface);
   border-radius: 10px;
   padding: 18px 20px;
-  border: 1px solid var(--mcla-border-light);
+  border: 1px solid var(--voxver-border-color-light);
   margin-bottom: 16px;
 }
 
@@ -1767,7 +1767,7 @@ watch(
   margin: 0 0 14px;
   font-size: 15px;
   font-weight: 700;
-  color: var(--mcla-text);
+  color: var(--voxver-text-primary);
 }
 
 .filter-grid {
@@ -1785,7 +1785,7 @@ watch(
   label {
     font-size: 13px;
     font-weight: 500;
-    color: var(--mcla-text);
+    color: var(--voxver-text-primary);
     white-space: nowrap;
     min-width: 36px;
   }
@@ -1794,15 +1794,15 @@ watch(
   .f-select {
     flex: 1;
     padding: 8px 10px;
-    border: 1.5px solid var(--mcla-border);
+    border: 1.5px solid var(--voxver-border-color);
     border-radius: 7px;
     font-size: 13px;
-    color: var(--mcla-text);
-    background: var(--mcla-bg-elevated);
+    color: var(--voxver-text-primary);
+    background: var(--voxver-bg-elevated);
     outline: none;
     transition: all 0.14s;
     &:focus {
-      border-color: var(--mcla-blue);
+      border-color: var(--voxver-primary);
       box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.08);
     }
   }
@@ -1815,12 +1815,12 @@ watch(
 
 .btn-search {
   padding: 8px 28px;
-  background: var(--mcla-bg-elevated);
-  border: 1.5px solid var(--mcla-blue);
+  background: var(--voxver-bg-elevated);
+  border: 1.5px solid var(--voxver-primary);
   border-radius: 7px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--mcla-blue);
+  color: var(--voxver-primary);
 
   cursor: pointer;
   transition: all 0.14s;
@@ -1830,22 +1830,22 @@ watch(
 }
 .btn-reset {
   padding: 8px 20px;
-  background: var(--mcla-bg-elevated);
-  border: 1.5px solid var(--mcla-border);
+  background: var(--voxver-bg-elevated);
+  border: 1.5px solid var(--voxver-border-color);
   border-radius: 7px;
   font-size: 13px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
 
   cursor: pointer;
   transition: all 0.14s;
   &:hover {
     border-color: #999;
-    color: var(--mcla-text);
+    color: var(--voxver-text-primary);
   }
 }
 .btn-secondary {
   padding: 8px 20px;
-  background: var(--mcla-bg-elevated);
+  background: var(--voxver-bg-elevated);
   border: 1.5px solid #43a047;
   border-radius: 7px;
   font-size: 13px;
@@ -1862,9 +1862,9 @@ watch(
 .loading-section {
   text-align: center;
   padding: 56px 20px;
-  background: var(--mcla-surface);
+  background: var(--voxver-surface);
   border-radius: 10px;
-  border: 1px solid var(--mcla-border-light);
+  border: 1px solid var(--voxver-border-color-light);
   .load-icon {
     margin-bottom: 12px;
     animation: bounce 1.4s infinite ease-in-out;
@@ -1872,7 +1872,7 @@ watch(
   .load-text {
     margin: 0;
     font-size: 14px;
-    color: var(--mcla-blue);
+    color: var(--voxver-primary);
     font-weight: 500;
   }
 }
@@ -1897,17 +1897,17 @@ watch(
   display: flex;
   gap: 12px;
   padding: 12px;
-  background: var(--mcla-surface);
+  background: var(--voxver-surface);
   border-radius: 8px;
-  border: 1px solid var(--mcla-border-light);
+  border: 1px solid var(--voxver-border-color-light);
   border-left: 3px solid transparent;
   transition: all 0.15s ease;
   cursor: pointer;
   position: relative;
 
   &:hover {
-    border-color: var(--mcla-primary-300, rgba(99, 102, 241, 0.5));
-    border-left-color: var(--mcla-blue, #6366f1);
+    border-color: var(--voxver-primary-300, rgba(99, 102, 241, 0.5));
+    border-left-color: var(--voxver-primary, #6366f1);
     background: rgba(99, 102, 241, 0.04);
     box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
     transform: translateX(2px);
@@ -1919,7 +1919,7 @@ watch(
     border-radius: 6px;
     object-fit: cover;
     flex-shrink: 0;
-    background: var(--mcla-bg);
+    background: var(--voxver-bg-primary);
   }
 
   .res-thumb-placeholder {
@@ -1947,7 +1947,7 @@ watch(
     .res-name {
       font-size: 14px;
       font-weight: 600;
-      color: var(--mcla-text);
+      color: var(--voxver-text-primary);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1965,8 +1965,8 @@ watch(
       font-weight: 500;
       padding: 1px 5px;
       border-radius: 3px;
-      background: var(--mcla-bg);
-      color: var(--mcla-text-secondary);
+      background: var(--voxver-bg-primary);
+      color: var(--voxver-text-secondary);
       flex-shrink: 0;
     }
   }
@@ -1974,7 +1974,7 @@ watch(
   .res-desc-row {
     .res-desc {
       font-size: 12px;
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1987,11 +1987,11 @@ watch(
     gap: 12px;
     flex-wrap: wrap;
     font-size: 11px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     margin-top: 2px;
 
     .res-version {
-      color: var(--mcla-text-secondary);
+      color: var(--voxver-text-secondary);
       font-weight: 500;
     }
 
@@ -2002,12 +2002,12 @@ watch(
       svg {
         width: 11px;
         height: 11px;
-        color: var(--mcla-text-muted);
+        color: var(--voxver-text-muted);
       }
     }
 
     .res-time {
-      color: var(--mcla-text-muted);
+      color: var(--voxver-text-muted);
     }
 
     .res-platform {
@@ -2033,7 +2033,7 @@ watch(
 .empty-section {
   text-align: center;
   padding: 48px 20px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   font-size: 14px;
 }
 
@@ -2053,17 +2053,17 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--mcla-border-color, #313244);
+  border: 1px solid var(--voxver-border-color, #313244);
   border-radius: 7px;
-  background: var(--mcla-bg-elevated, #1e1e2e);
-  color: var(--mcla-text-secondary, #a6adc8);
+  background: var(--voxver-bg-elevated, #1e1e2e);
+  color: var(--voxver-text-secondary, #a6adc8);
   cursor: pointer;
   transition: all 0.13s;
   flex-shrink: 0;
 
   &:hover:not(:disabled) {
-    border-color: var(--mcla-blue, #6366f1);
-    color: var(--mcla-blue, #6366f1);
+    border-color: var(--voxver-primary, #6366f1);
+    color: var(--voxver-primary, #6366f1);
   }
 
   &:disabled {
@@ -2080,7 +2080,7 @@ watch(
   justify-content: center;
   padding: 0 10px;
   border-radius: 7px;
-  background: var(--mcla-blue, #6366f1);
+  background: var(--voxver-primary, #6366f1);
   color: #fff;
   font-size: 13px;
   font-weight: 600;
@@ -2100,10 +2100,10 @@ watch(
   gap: 7px;
   height: 36px;
   padding: 0 28px;
-  border: 1px solid var(--mcla-blue, #6366f1);
+  border: 1px solid var(--voxver-primary, #6366f1);
   border-radius: 8px;
   background: transparent;
-  color: var(--mcla-blue, #6366f1);
+  color: var(--voxver-primary, #6366f1);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -2126,9 +2126,9 @@ watch(
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  border: 1.5px solid var(--mcla-border);
-  background: var(--mcla-surface);
-  color: var(--mcla-text-secondary);
+  border: 1.5px solid var(--voxver-border-color);
+  background: var(--voxver-surface);
+  color: var(--voxver-text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2138,8 +2138,8 @@ watch(
   z-index: 50;
 
   &:hover {
-    border-color: var(--mcla-blue);
-    color: var(--mcla-blue);
+    border-color: var(--voxver-primary);
+    color: var(--voxver-primary);
     transform: translateY(-2px);
     box-shadow: 0 4px 14px rgba(99, 102, 241, 0.2);
   }

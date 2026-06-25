@@ -228,6 +228,9 @@ interface ElectronAPI {
     checkUpdate: (mods: unknown[], mcVersion?: string, loader?: string) => Promise<IpcResult>
     update: (mod: unknown, updateInfo: unknown) => Promise<IpcResult>
     onUpdateProgress: (callback: (data: unknown) => void) => () => void
+    checkDependencies: (mods: unknown[], mcVersion?: string, loader?: string) => Promise<IpcResult>
+    installDependencies: (mod: unknown, gameDir: string, mcVersion?: string, loader?: string) => Promise<IpcResult>
+    onDependencyProgress: (callback: (data: unknown) => void) => () => void
   }
   updater: {
     check: () => Promise<unknown>
@@ -266,19 +269,15 @@ interface ElectronAPI {
     onProgress: (callback: (progress: unknown) => void) => () => void
   }
   share: {
-    pack: (instanceId: string, options?: unknown) => Promise<IpcResult<{ shareCode: string; shareLink: string }>>
-    receive: (shareCode: string) => Promise<IpcResult<unknown>>
-    cancel: () => Promise<void>
-    onProgress: (callback: (data: unknown) => void) => () => void
-    onComplete: (callback: (data: unknown) => void) => () => void
     startInstance: (instanceId: string) => Promise<ShareStartResult>
     stopShare: (sessionId: string) => void
     closeSession: (sessionId: string) => void
     receiveInstance: (shareCode: string) => Promise<{ sessionId: string }>
     importReceived: (sessionId: string) => Promise<ShareImportResult>
-    onPackProgress: (callback: (event: Event, data: { instanceId: string; stage: string; progress: number }) => void) => void
-    onSessionUpdate: (callback: (event: Event, data: { sessionId: string; session: ShareSession }) => void) => void
-    onProgressUpdate: (callback: (event: Event, data: { sessionId: string; progress: { transferredChunks: number; totalChunks: number; bytesPerSecond: number; estimatedRemaining: number } }) => void) => void
+    getSession: (sessionId: string) => Promise<unknown>
+    onPackProgress: (callback: (event: Event, data: { instanceId: string; stage: string; progress: number }) => void) => () => void
+    onSessionUpdate: (callback: (event: Event, data: { sessionId: string; session: ShareSession }) => void) => () => void
+    onProgressUpdate: (callback: (event: Event, data: { sessionId: string; progress: { transferredChunks: number; totalChunks: number; bytesPerSecond: number; estimatedRemaining: number } }) => void) => () => void
     removePackProgressListener: (callback: (event: Event, data: { instanceId: string; stage: string; progress: number }) => void) => void
     removeSessionUpdateListener: (callback: (event: Event, data: { sessionId: string; session: ShareSession }) => void) => void
     removeProgressUpdateListener: (callback: (event: Event, data: { sessionId: string; progress: { transferredChunks: number; totalChunks: number; bytesPerSecond: number; estimatedRemaining: number } }) => void) => void

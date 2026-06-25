@@ -569,6 +569,45 @@
             </div>
           </div>
 
+          <!-- 主题模式 -->
+          <div class="row">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.themeMode') }}</label>
+            </div>
+            <div class="row-control">
+              <div class="theme-mode-options">
+                <button
+                  class="theme-mode-btn"
+                  :class="{ active: appStore.theme === 'dark' }"
+                  @click="appStore.setTheme('dark')"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                  </svg>
+                  <span>{{ $t('settings.themeDark') }}</span>
+                </button>
+                <button
+                  class="theme-mode-btn"
+                  :class="{ active: appStore.theme === 'light' }"
+                  @click="appStore.setTheme('light')"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/>
+                    <line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                  </svg>
+                  <span>{{ $t('settings.themeLight') }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- 主题色 -->
           <div class="row">
             <div class="row-main">
@@ -599,6 +638,65 @@
                 <option value="zh-CN">简体中文</option>
                 <option value="en-US">English</option>
               </select>
+            </div>
+          </div>
+
+          <!-- 字号 -->
+          <div class="row">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.fontSize') }}</label>
+            </div>
+            <div class="row-control">
+              <div class="input-group compact">
+                <input
+                  type="range"
+                  class="range"
+                  v-model.number="s.fontSize"
+                  min="12"
+                  max="20"
+                  step="1"
+                />
+                <span class="range-val">{{ s.fontSize }}px</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 动画 -->
+          <div class="row">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.animations') }}</label>
+            </div>
+            <div class="row-control">
+              <label class="chk">
+                <input type="checkbox" v-model="s.enableAnimations" />
+                {{ s.enableAnimations ? $t('settings.enabled') : $t('settings.disabled') }}
+              </label>
+            </div>
+          </div>
+
+          <!-- 特效 -->
+          <div class="row">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.effects') }}</label>
+            </div>
+            <div class="row-control">
+              <label class="chk">
+                <input type="checkbox" v-model="s.enableEffects" />
+                {{ s.enableEffects ? $t('settings.enabled') : $t('settings.disabled') }}
+              </label>
+            </div>
+          </div>
+
+          <!-- 音效 -->
+          <div class="row">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.sounds') }}</label>
+            </div>
+            <div class="row-control">
+              <label class="chk">
+                <input type="checkbox" v-model="s.enableSounds" />
+                {{ s.enableSounds ? $t('settings.enabled') : $t('settings.disabled') }}
+              </label>
             </div>
           </div>
         </div>
@@ -642,25 +740,77 @@
             </div>
             <div class="row-control">
               <div class="input-group">
-                <select class="sel" v-model="s.bgImageMode">
+                <select class="sel" :value="appStore.bgImageMode" @change="appStore.setBgImageMode(($event.target as HTMLSelectElement).value as 'none' | 'custom')">
                   <option value="none">{{ $t('settings.noBgImage') }}</option>
                   <option value="custom">{{ $t('settings.customImage') }}</option>
                 </select>
-                <button v-if="s.bgImageMode === 'custom'" class="btn-sm" @click="browseBgImage">
+                <button v-if="appStore.bgImageMode === 'custom'" class="btn-sm" @click="browseBgImage">
                   {{ $t('settings.selectImage') }}
                 </button>
               </div>
             </div>
           </div>
 
-          <div class="row" v-if="s.bgImageMode === 'custom'">
+          <div class="row" v-if="appStore.bgImageMode === 'custom'">
             <div class="row-main">
-              <label class="row-label"></label>
+              <label class="row-label">{{ $t('settings.colorOverlay') }}</label>
             </div>
             <div class="row-control">
-              <label class="chk"
-                ><input type="checkbox" v-model="s.bgColorOverlay" /> {{ $t('settings.colorOverlay') }}</label
-              >
+              <div class="input-group">
+                <label class="chk"
+                  ><input type="checkbox" :checked="appStore.bgColorOverlay" @change="appStore.setBgColorOverlay(($event.target as HTMLInputElement).checked)" /> {{ $t('settings.enabled') }}</label
+                >
+                <input
+                  v-if="appStore.bgColorOverlay"
+                  type="color"
+                  class="color-picker"
+                  :value="appStore.bgOverlayColor"
+                  @input="appStore.setBgOverlayColor(($event.target as HTMLInputElement).value)"
+                  style="width: 36px; height: 36px; border: none; border-radius: 6px; cursor: pointer; flex-shrink: 0"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- 背景模糊 -->
+          <div class="row" v-if="appStore.bgImageMode === 'custom'">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.bgBlur') }}</label>
+            </div>
+            <div class="row-control">
+              <div class="input-group compact">
+                <input
+                  type="range"
+                  class="range"
+                  :value="appStore.themeBgBlur"
+                  @input="appStore.setThemeBgBlur(Number(($event.target as HTMLInputElement).value))"
+                  min="0"
+                  max="20"
+                  step="1"
+                />
+                <span class="range-val">{{ appStore.themeBgBlur }}px</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 背景暗化 -->
+          <div class="row" v-if="appStore.bgImageMode === 'custom'">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.bgDim') }}</label>
+            </div>
+            <div class="row-control">
+              <div class="input-group compact">
+                <input
+                  type="range"
+                  class="range"
+                  :value="appStore.bgDimAmount"
+                  @input="appStore.setBgDimAmount(Number(($event.target as HTMLInputElement).value))"
+                  min="0"
+                  max="100"
+                  step="5"
+                />
+                <span class="range-val">{{ appStore.bgDimAmount }}%</span>
+              </div>
             </div>
           </div>
 
@@ -1482,7 +1632,7 @@
           关于与鸣谢
         </h3>
         <p class="about-redirect-desc">
-          关于 MCLA、鸣谢、开源项目使用说明等内容已移至「更多」页面。
+          关于 VoxVer、鸣谢、开源项目使用说明等内容已移至「更多」页面。
         </p>
         <div class="btn-row" style="margin-top: 14px">
           <button class="action-btn primary" @click="router.push('/more')">
@@ -1584,8 +1734,10 @@
 import { reactive, inject, computed, onMounted, watch, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { setLocale } from '../locale/i18n'
+import { useAppStore } from '../stores/app.store'
 
 const router = useRouter()
+const appStore = useAppStore()
 
 const settingsActive = inject('settingsActive') as any
 const activeCategory = computed(() => settingsActive?.value || 'launch')
@@ -1619,13 +1771,6 @@ const collapsed = reactive<Record<string, boolean>>({
 function toggleSec(key: string) {
   collapsed[key] = !collapsed[key]
 }
-
-watch(
-  () => s.lang,
-  (newLang) => {
-    setLocale(newLang as any)
-  }
-)
 
 // Java 检测状态
 const isDetectingJava = ref(false)
@@ -1687,14 +1832,15 @@ const s = reactive({
 
   // 个性化
   opacity: 100,
-  themeColor: '#6366f1',
-  lang: (localStorage.getItem('mcla-language') as 'zh-CN' | 'en-US') || 'zh-CN',
-  bgImageMode: 'none',
-  bgImagePath: '',
-  bgColorOverlay: false,
+  themeColor: localStorage.getItem('voxver_themeColor') || '#6366f1',
+  lang: (localStorage.getItem('voxver-language') as 'zh-CN' | 'en-US') || 'zh-CN',
   bgMusicMode: 'none',
   titleBarMode: 'default',
   homeContent: 'blank',
+  fontSize: 14,
+  enableAnimations: true,
+  enableEffects: true,
+  enableSounds: true,
 
   // 其他
   downloadSource: 'bmclapi',
@@ -1714,7 +1860,6 @@ const s = reactive({
   // P2: 主题自定义
   themeCustomColor: '#6366f1',
   themeBgOpacity: 100,
-  themeBgBlur: 0,
 
   // P2: 整合包工具
   modpackInstancePath: '',
@@ -1734,6 +1879,16 @@ const s = reactive({
   // v0.5.3: 调试模式
   debugMode: false
 })
+
+// 监听语言变更，同步到 vue-i18n 和 localStorage
+watch(
+  () => s.lang,
+  (newLang) => {
+    if (newLang && typeof newLang === 'string') {
+      setLocale(newLang as 'zh-CN' | 'en-US')
+    }
+  }
+)
 
 // P2 状态变量
 const hotkeyList = ref<any[]>([])
@@ -1918,7 +2073,7 @@ async function browseBgImage() {
     filters: [{ name: '图片文件', extensions: ['png', 'jpg', 'jpeg', 'webp', 'bmp'] }]
   })
   if (path) {
-    s.bgImagePath = path
+    appStore.setBgImagePath(path)
   }
 }
 async function openMcDir() {
@@ -2253,8 +2408,8 @@ async function importBgImage() {
     if (!path) return
     const local = await window.electronAPI?.theme?.importBackground(path)
     if (local) {
-      s.bgImageMode = 'custom'
-      s.bgImagePath = local
+      appStore.setBgImageMode('custom')
+      appStore.setBgImagePath(local)
       window.electronAPI?.notification?.send({
         title: '成功',
         body: '背景已保存到启动器目录',
@@ -2465,6 +2620,12 @@ function setupUpdateListener() {
 
 // P2 初始化
 onMounted(async () => {
+  // 先恢复主题色（避免等待异步操作）
+  const savedColor = localStorage.getItem('voxver_themeColor')
+  if (savedColor && /^#[0-9a-f]{6}$/i.test(savedColor)) {
+    s.themeColor = savedColor
+  }
+
   await loadHotkeys()
   await listBackups()
   setupUpdateListener()
@@ -2473,36 +2634,69 @@ onMounted(async () => {
 // ====== 主题色应用：用户选择颜色后实时更新全局 CSS 变量 ======
 function applyThemeColor(hex: string) {
   s.themeColor = hex
+  localStorage.setItem('voxver_themeColor', hex)
   const root = document.documentElement
+  const rgb = hexToRgb(hex)
 
   // 核心主色
-  root.style.setProperty('--mcla-primary', hex)
-  // 自动生成色阶（简化版：基于亮度插值）
-  root.style.setProperty(
-    '--mcla-gradient-primary',
-    `linear-gradient(135deg, ${hex}, ${adjustHex(hex, 35)})`
-  )
-  root.style.setProperty('--mcla-shadow-glow-primary', `0 4px 20px ${hexToRgba(hex, 0.35)}`)
+  root.style.setProperty('--voxver-primary', hex)
+
+  // 自动生成完整色阶
+  const shades = generatePalette(rgb)
+  for (const [key, val] of Object.entries(shades)) {
+    root.style.setProperty(key, val)
+  }
+
+  // 渐变色和阴影
+  const darker = mixColor(rgb, { r: 0, g: 0, b: 0 }, 0.2)
+  root.style.setProperty('--voxver-gradient-primary', `linear-gradient(135deg, ${hex}, ${darker})`)
+  root.style.setProperty('--voxver-shadow-glow-primary', `0 4px 20px rgba(${rgb.r},${rgb.g},${rgb.b},0.35)`)
 }
 
-// 辅助：hex 转 rgba
-function hexToRgba(hex: string, alpha: number): string {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `rgba(${r},${g},${b},${alpha})`
+function hexToRgb(hex: string) {
+  return {
+    r: parseInt(hex.slice(1, 3), 16),
+    g: parseInt(hex.slice(3, 5), 16),
+    b: parseInt(hex.slice(5, 7), 16)
+  }
 }
 
-// 辅助：调整 hex 亮度（+/- 偏移量）
-function adjustHex(hex: string, offset: number): string {
-  let r = parseInt(hex.slice(1, 3), 16)
-  let g = parseInt(hex.slice(3, 5), 16)
-  let b = parseInt(hex.slice(5, 7), 16)
-  r = Math.min(255, Math.max(0, r + offset))
-  g = Math.min(255, Math.max(0, g + offset))
-  b = Math.min(255, Math.max(0, b + offset))
-  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+/** 混合两个颜色 */
+function mixColor(a: { r: number; g: number; b: number }, b: { r: number; g: number; b: number }, t: number) {
+  const r = Math.round(a.r + (b.r - a.r) * t)
+  const g = Math.round(a.g + (b.g - a.g) * t)
+  const b_ = Math.round(a.b + (b.b - a.b) * t)
+  return `rgb(${r},${g},${b_})`
 }
+
+function toHex(r: number, g: number, b: number) {
+  return '#' + [r, g, b].map((c) => Math.max(0, Math.min(255, Math.round(c))).toString(16).padStart(2, '0')).join('')
+}
+
+/** 根据主色生成完整色阶 */
+function generatePalette(rgb: { r: number; g: number; b: number }) {
+  const white = { r: 255, g: 255, b: 255 }
+  const black = { r: 0, g: 0, b: 0 }
+  return {
+    '--voxver-primary-light': `rgba(${rgb.r},${rgb.g},${rgb.b},0.15)`,
+    '--voxver-primary-hover': toHex(rgb.r * 0.9, rgb.g * 0.9, rgb.b * 0.9),
+    '--voxver-primary-active': toHex(rgb.r * 0.8, rgb.g * 0.8, rgb.b * 0.8),
+    '--voxver-primary-muted': toHex(rgb.r + (255 - rgb.r) * 0.5, rgb.g + (255 - rgb.g) * 0.5, rgb.b + (255 - rgb.b) * 0.5),
+    '--voxver-primary-50': toHex(rgb.r + (255 - rgb.r) * 0.95, rgb.g + (255 - rgb.g) * 0.95, rgb.b + (255 - rgb.b) * 0.95),
+    '--voxver-primary-100': toHex(rgb.r + (255 - rgb.r) * 0.9, rgb.g + (255 - rgb.g) * 0.9, rgb.b + (255 - rgb.b) * 0.9),
+    '--voxver-primary-200': toHex(rgb.r + (255 - rgb.r) * 0.75, rgb.g + (255 - rgb.g) * 0.75, rgb.b + (255 - rgb.b) * 0.75),
+    '--voxver-primary-300': toHex(rgb.r + (255 - rgb.r) * 0.6, rgb.g + (255 - rgb.g) * 0.6, rgb.b + (255 - rgb.b) * 0.6),
+    '--voxver-primary-400': toHex(rgb.r + (255 - rgb.r) * 0.4, rgb.g + (255 - rgb.g) * 0.4, rgb.b + (255 - rgb.b) * 0.4),
+    '--voxver-primary-500': toHex(rgb.r, rgb.g, rgb.b),
+    '--voxver-primary-600': toHex(rgb.r * 0.85, rgb.g * 0.85, rgb.b * 0.85),
+    '--voxver-primary-700': toHex(rgb.r * 0.7, rgb.g * 0.7, rgb.b * 0.7),
+    '--voxver-primary-800': toHex(rgb.r * 0.55, rgb.g * 0.55, rgb.b * 0.55),
+    '--voxver-primary-900': toHex(rgb.r * 0.4, rgb.g * 0.4, rgb.b * 0.4)
+  }
+}
+
+// 辅助：hex 转 rgba — 不再使用，但保留以供外部调用
+
 </script>
 
 <style scoped lang="scss">
@@ -2531,21 +2725,21 @@ function adjustHex(hex: string, offset: number): string {
     margin: 0 0 14px;
     font-size: 14px;
     font-weight: 700;
-    color: var(--mcla-text);
+    color: var(--voxver-text-primary);
     display: flex;
     align-items: center;
     gap: 8px;
     padding-bottom: 10px;
-    border-bottom: 1.5px solid var(--mcla-border-light);
+    border-bottom: 1.5px solid var(--voxver-border-color-light);
 
     svg {
-      color: var(--mcla-blue);
+      color: var(--voxver-primary);
       flex-shrink: 0;
     }
 
     .sec-arrow {
       margin-left: auto;
-      color: var(--mcla-text-muted, #888);
+      color: var(--voxver-text-muted, #888);
       transition: transform 0.2s ease;
       &.open {
         transform: rotate(180deg);
@@ -2570,14 +2764,14 @@ function adjustHex(hex: string, offset: number): string {
   .row-label {
     font-size: 13px;
     font-weight: 600;
-    color: var(--mcla-text);
+    color: var(--voxver-text-primary);
     display: block;
   }
 
   .row-desc {
     margin: 3px 0 0;
     font-size: 11.5px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     line-height: 1.4;
   }
 
@@ -2593,23 +2787,23 @@ function adjustHex(hex: string, offset: number): string {
   .row-hint {
     margin: 4px 0 0;
     font-size: 11px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 }
 
 /* ---- 输入控件 ---- */
 .inp {
   padding: 8px 12px;
-  border: 1.5px solid var(--mcla-border);
+  border: 1.5px solid var(--voxver-border-color);
   border-radius: 7px;
   font-size: 13px;
-  color: var(--mcla-text);
-  background: var(--mcla-bg-elevated);
+  color: var(--voxver-text-primary);
+  background: var(--voxver-bg-elevated);
   outline: none;
   transition: all 0.14s;
 
   &:focus {
-    border-color: var(--mcla-blue);
+    border-color: var(--voxver-primary);
     box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.08);
   }
 
@@ -2618,17 +2812,17 @@ function adjustHex(hex: string, offset: number): string {
     text-align: center;
   }
   &::placeholder {
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 }
 
 .sel {
   padding: 8px 32px 8px 12px;
-  border: 1.5px solid var(--mcla-border);
+  border: 1.5px solid var(--voxver-border-color);
   border-radius: 7px;
   font-size: 13px;
-  color: var(--mcla-text);
-  background: var(--mcla-bg-elevated)
+  color: var(--voxver-text-primary);
+  background: var(--voxver-bg-elevated)
     url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6f9a' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")
     no-repeat right 10px center;
   outline: none;
@@ -2637,7 +2831,7 @@ function adjustHex(hex: string, offset: number): string {
   transition: all 0.14s;
 
   &:focus {
-    border-color: var(--mcla-blue);
+    border-color: var(--voxver-primary);
     box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.08);
   }
 }
@@ -2645,19 +2839,19 @@ function adjustHex(hex: string, offset: number): string {
 .textarea {
   width: 100%;
   padding: 8px 12px;
-  border: 1.5px solid var(--mcla-border);
+  border: 1.5px solid var(--voxver-border-color);
   border-radius: 7px;
   font-size: 12.5px;
   font-family: 'Consolas', 'Courier New', monospace;
-  color: var(--mcla-text);
-  background: var(--mcla-bg-elevated);
+  color: var(--voxver-text-primary);
+  background: var(--voxver-bg-elevated);
   outline: none;
   resize: vertical;
   min-height: 56px;
   transition: all 0.14s;
 
   &:focus {
-    border-color: var(--mcla-blue);
+    border-color: var(--voxver-primary);
     box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.08);
   }
 }
@@ -2680,19 +2874,19 @@ function adjustHex(hex: string, offset: number): string {
 
 .btn-sm {
   padding: 8px 16px;
-  border: 1.5px solid var(--mcla-border);
+  border: 1.5px solid var(--voxver-border-color);
   border-radius: 7px;
-  background: var(--mcla-bg-elevated);
+  background: var(--voxver-bg-elevated);
   font-size: 12px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.13s;
   flex-shrink: 0;
 
   &:hover {
-    border-color: var(--mcla-blue);
-    color: var(--mcla-blue);
+    border-color: var(--voxver-primary);
+    color: var(--voxver-primary);
   }
 }
 
@@ -2705,7 +2899,7 @@ function adjustHex(hex: string, offset: number): string {
 
 .java-list-title {
   font-size: 12px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   margin: 4px 0;
 }
 
@@ -2714,21 +2908,21 @@ function adjustHex(hex: string, offset: number): string {
   flex-direction: column;
   gap: 2px;
   padding: 6px 10px;
-  background: var(--mcla-bg-elevated);
+  background: var(--voxver-bg-elevated);
   border-radius: 6px;
   margin-bottom: 4px;
-  border: 1px solid var(--mcla-border);
+  border: 1px solid var(--voxver-border-color);
 }
 
 .java-info {
   font-size: 13px;
-  color: var(--mcla-text);
+  color: var(--voxver-text-primary);
   font-weight: 500;
 }
 
 .java-path {
   font-size: 11px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   word-break: break-all;
 }
 
@@ -2770,9 +2964,9 @@ function adjustHex(hex: string, offset: number): string {
   flex-direction: column;
   gap: 8px;
   padding: 12px;
-  background: var(--mcla-bg-elevated);
+  background: var(--voxver-bg-elevated);
   border-radius: 8px;
-  border: 1px solid var(--mcla-border);
+  border: 1px solid var(--voxver-border-color);
 }
 
 .progress-info {
@@ -2784,24 +2978,24 @@ function adjustHex(hex: string, offset: number): string {
 
 .progress-step {
   font-weight: 600;
-  color: var(--mcla-blue);
+  color: var(--voxver-primary);
 }
 
 .progress-text {
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
 }
 
 .progress-bar-container {
   width: 100%;
   height: 6px;
-  background: var(--mcla-border);
+  background: var(--voxver-border-color);
   border-radius: 3px;
   overflow: hidden;
 }
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--mcla-blue), #42a5f5);
+  background: linear-gradient(90deg, var(--voxver-primary), #42a5f5);
   border-radius: 3px;
   transition: width 0.3s ease;
 }
@@ -2821,7 +3015,7 @@ function adjustHex(hex: string, offset: number): string {
 
 .java-list-title {
   font-size: 12px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   margin: 0;
   font-weight: 500;
 }
@@ -2839,19 +3033,19 @@ function adjustHex(hex: string, offset: number): string {
   align-items: flex-start;
   gap: 12px;
   padding: 12px;
-  background: var(--mcla-bg-elevated);
+  background: var(--voxver-bg-elevated);
   border-radius: 8px;
-  border: 1px solid var(--mcla-border);
+  border: 1px solid var(--voxver-border-color);
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: var(--mcla-blue);
+    border-color: var(--voxver-primary);
     box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
   }
 }
 
 .java-item-default {
-  border-color: var(--mcla-blue);
+  border-color: var(--voxver-primary);
   background: rgba(99, 102, 241, 0.05);
 }
 
@@ -2867,9 +3061,9 @@ function adjustHex(hex: string, offset: number): string {
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: var(--mcla-bg);
+  background: var(--voxver-bg-primary);
   border-radius: 8px;
-  color: var(--mcla-blue);
+  color: var(--voxver-primary);
   flex-shrink: 0;
 }
 
@@ -2891,18 +3085,18 @@ function adjustHex(hex: string, offset: number): string {
 .java-vendor {
   font-size: 13px;
   font-weight: 600;
-  color: var(--mcla-text);
+  color: var(--voxver-text-primary);
 }
 
 .java-version {
   font-size: 13px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
 }
 
 .java-badge {
   font-size: 10px;
   padding: 2px 6px;
-  background: var(--mcla-blue);
+  background: var(--voxver-primary);
   color: white;
   border-radius: 4px;
   font-weight: 500;
@@ -2919,7 +3113,7 @@ function adjustHex(hex: string, offset: number): string {
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
 
   svg {
     flex-shrink: 0;
@@ -2928,7 +3122,7 @@ function adjustHex(hex: string, offset: number): string {
 
 .java-path {
   font-size: 11px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   word-break: break-all;
   font-family: 'Consolas', 'Courier New', monospace;
 }
@@ -2954,20 +3148,20 @@ function adjustHex(hex: string, offset: number): string {
 .java-not-found-icon {
   display: flex;
   justify-content: center;
-  color: var(--mcla-red);
+  color: var(--voxver-error);
 }
 
 .java-not-found-text {
   h4 {
     margin: 0 0 4px;
     font-size: 14px;
-    color: var(--mcla-text);
+    color: var(--voxver-text-primary);
   }
 
   p {
     margin: 0;
     font-size: 12px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 }
 
@@ -2984,23 +3178,23 @@ function adjustHex(hex: string, offset: number): string {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  border: 1.5px solid var(--mcla-border);
+  border: 1.5px solid var(--voxver-border-color);
   border-radius: 7px;
-  background: var(--mcla-bg-elevated);
+  background: var(--voxver-bg-elevated);
   font-size: 12px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   text-decoration: none;
   transition: all 0.13s;
 
   &:hover {
-    border-color: var(--mcla-blue);
-    color: var(--mcla-blue);
+    border-color: var(--voxver-primary);
+    color: var(--voxver-primary);
   }
 }
 
 .sep {
   font-size: 12px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   user-select: none;
   flex-shrink: 0;
 }
@@ -3011,7 +3205,7 @@ function adjustHex(hex: string, offset: number): string {
   height: 4px;
   -webkit-appearance: none;
   appearance: none;
-  background: var(--mcla-border);
+  background: var(--voxver-border-color);
   border-radius: 2px;
   outline: none;
 
@@ -3020,7 +3214,7 @@ function adjustHex(hex: string, offset: number): string {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: var(--mcla-blue);
+    background: var(--voxver-primary);
     cursor: pointer;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
     transition: transform 0.12s;
@@ -3035,14 +3229,14 @@ function adjustHex(hex: string, offset: number): string {
   text-align: right;
   font-size: 13px;
   font-weight: 600;
-  color: var(--mcla-blue);
+  color: var(--voxver-primary);
   flex-shrink: 0;
 }
 
 /* ---- 内存进度条 ---- */
 .memory-bar {
   height: 8px;
-  background: var(--mcla-bg);
+  background: var(--voxver-bg-primary);
   border-radius: 4px;
   margin-top: 8px;
   overflow: hidden;
@@ -3051,7 +3245,7 @@ function adjustHex(hex: string, offset: number): string {
 .bar-fill {
   height: 100%;
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--mcla-blue), #42a5f5);
+  background: linear-gradient(90deg, var(--voxver-primary), #42a5f5);
   transition: width 0.3s ease;
   display: flex;
   align-items: center;
@@ -3073,14 +3267,45 @@ function adjustHex(hex: string, offset: number): string {
   align-items: center;
   gap: 7px;
   font-size: 13px;
-  color: var(--mcla-text);
+  color: var(--voxver-text-primary);
   cursor: pointer;
 
   input[type='checkbox'] {
     width: 16px;
     height: 16px;
-    accent-color: var(--mcla-blue);
+    accent-color: var(--voxver-primary);
     cursor: pointer;
+  }
+}
+
+/* ---- 主题模式切换 ---- */
+.theme-mode-options {
+  display: flex;
+  gap: 8px;
+}
+
+.theme-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--voxver-radius-md);
+  border: 1.5px solid var(--voxver-border-color);
+  background: var(--voxver-bg-elevated);
+  color: var(--voxver-text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: var(--voxver-primary-400);
+    color: var(--voxver-primary-600);
+  }
+
+  &.active {
+    background: var(--voxver-primary-light);
+    border-color: var(--voxver-primary);
+    color: var(--voxver-primary);
   }
 }
 
@@ -3104,17 +3329,17 @@ function adjustHex(hex: string, offset: number): string {
     transform: scale(1.12);
   }
   &.active {
-    border-color: var(--mcla-text);
+    border-color: var(--voxver-text-primary);
     box-shadow:
       0 0 0 2px #fff,
-      0 0 0 4px var(--mcla-text);
+      0 0 0 4px var(--voxver-text-primary);
   }
 }
 
 /* ---- 功能隐藏表格 ---- */
 .sec-desc {
   font-size: 12px;
-  color: var(--mcla-text-muted, #888);
+  color: var(--voxver-text-muted, #888);
   margin: 0 0 12px;
   line-height: 1.6;
 }
@@ -3128,7 +3353,7 @@ function adjustHex(hex: string, offset: number): string {
 
 .fh-row-label {
   font-size: 13px;
-  color: var(--mcla-text);
+  color: var(--voxver-text-primary);
   display: flex;
   align-items: center;
   padding: 5px 8px 5px 0;
@@ -3145,11 +3370,11 @@ function adjustHex(hex: string, offset: number): string {
   transition: background 0.12s;
 
   &:hover:not(.fh-pad):not(.disabled) {
-    background: var(--mcla-bg);
+    background: var(--voxver-bg-primary);
   }
 
   &.hidden .feat-name {
-    color: var(--mcla-text-muted, #aaa);
+    color: var(--voxver-text-muted, #aaa);
     text-decoration: line-through;
     opacity: 0.6;
   }
@@ -3158,14 +3383,14 @@ function adjustHex(hex: string, offset: number): string {
     cursor: not-allowed;
     opacity: 0.55;
     .feat-name {
-      color: var(--mcla-text-muted, #aaa);
+      color: var(--voxver-text-muted, #aaa);
     }
   }
 
   input[type='checkbox'] {
     width: 14px;
     height: 14px;
-    accent-color: var(--mcla-blue);
+    accent-color: var(--voxver-primary);
     cursor: pointer;
     flex-shrink: 0;
   }
@@ -3176,7 +3401,7 @@ function adjustHex(hex: string, offset: number): string {
 
   .feat-name {
     font-size: 13px;
-    color: var(--mcla-text);
+    color: var(--voxver-text-primary);
     transition:
       color 0.15s,
       opacity 0.15s;
@@ -3221,19 +3446,19 @@ function adjustHex(hex: string, offset: number): string {
   transition: background 0.12s;
 
   &:hover {
-    background: var(--mcla-bg);
+    background: var(--voxver-bg-primary);
   }
 
   input[type='checkbox'] {
     width: 16px;
     height: 16px;
-    accent-color: var(--mcla-blue);
+    accent-color: var(--voxver-primary);
     cursor: pointer;
   }
 
   .feat-name {
     font-size: 13px;
-    color: var(--mcla-text);
+    color: var(--voxver-text-primary);
   }
 }
 
@@ -3245,7 +3470,7 @@ function adjustHex(hex: string, offset: number): string {
 
   &.danger-zone {
     padding-top: 14px;
-    border-top: 1px dashed var(--mcla-border);
+    border-top: 1px dashed var(--voxver-border-color);
   }
 }
 
@@ -3254,12 +3479,12 @@ function adjustHex(hex: string, offset: number): string {
   align-items: center;
   gap: 6px;
   padding: 8px 18px;
-  border: 1.5px solid var(--mcla-border);
+  border: 1.5px solid var(--voxver-border-color);
   border-radius: 7px;
-  background: var(--mcla-bg-elevated);
+  background: var(--voxver-bg-elevated);
   font-size: 12.5px;
   font-weight: 500;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   transition: all 0.13s;
 
@@ -3268,8 +3493,8 @@ function adjustHex(hex: string, offset: number): string {
   }
 
   &:hover {
-    border-color: var(--mcla-blue);
-    color: var(--mcla-blue);
+    border-color: var(--voxver-primary);
+    color: var(--voxver-primary);
   }
 
   &.outline:hover {
@@ -3278,10 +3503,10 @@ function adjustHex(hex: string, offset: number): string {
 
   &.danger {
     border-color: rgba(229, 57, 53, 0.4);
-    color: var(--mcla-red);
+    color: var(--voxver-error);
     &:hover {
-      background: var(--mcla-red);
-      border-color: var(--mcla-red);
+      background: var(--voxver-error);
+      border-color: var(--voxver-error);
       color: #fff;
     }
   }
@@ -3291,9 +3516,9 @@ function adjustHex(hex: string, offset: number): string {
 .about-box {
   text-align: center;
   padding: 28px 24px;
-  background: var(--mcla-bg);
+  background: var(--voxver-bg-primary);
   border-radius: 10px;
-  border: 1px solid var(--mcla-border-light);
+  border: 1px solid var(--voxver-border-color-light);
 
   .about-logo {
     width: 72px;
@@ -3319,26 +3544,26 @@ function adjustHex(hex: string, offset: number): string {
   .about-ver {
     margin: 0 0 14px;
     font-size: 12px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
   }
 
   .about-info {
     font-size: 12px;
-    color: var(--mcla-text-secondary);
+    color: var(--voxver-text-secondary);
     line-height: 1.8;
   }
 }
 
 .about-redirect-desc {
   font-size: 13px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   line-height: 1.7;
   margin: 0;
 }
 
 .link-item {
   font-size: 12.5px;
-  color: var(--mcla-blue);
+  color: var(--voxver-primary);
   text-decoration: none;
   margin-right: 18px;
   transition: opacity 0.12s;
@@ -3381,17 +3606,17 @@ function adjustHex(hex: string, offset: number): string {
   gap: 8px;
   padding: 7px 20px;
   font-size: 13px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   user-select: none;
   transition: color 0.12s;
 
   &.active {
-    color: var(--mcla-text);
+    color: var(--voxver-text-primary);
     font-weight: 500;
   }
   &:hover:not(.active) {
-    color: var(--mcla-text);
+    color: var(--voxver-text-primary);
   }
 }
 
@@ -3399,19 +3624,19 @@ function adjustHex(hex: string, offset: number): string {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  border: 1.5px solid var(--mcla-border);
+  border: 1.5px solid var(--voxver-border-color);
   flex-shrink: 0;
   position: relative;
   transition: border-color 0.13s;
 
   &.checked {
-    border-color: var(--mcla-blue);
+    border-color: var(--voxver-primary);
     &::after {
       content: '';
       position: absolute;
       inset: 2.5px;
       border-radius: 50%;
-      background: var(--mcla-blue);
+      background: var(--voxver-primary);
     }
   }
 }
@@ -3432,7 +3657,7 @@ function adjustHex(hex: string, offset: number): string {
 
 .skin-expand-label {
   font-size: 13px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   white-space: nowrap;
   min-width: 64px;
 }
@@ -3449,18 +3674,18 @@ function adjustHex(hex: string, offset: number): string {
 .btn-outline {
   padding: 6px 20px;
   font-size: 13px;
-  border: 1px solid var(--mcla-border);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 6px;
-  background: var(--mcla-bg-elevated);
-  color: var(--mcla-text);
+  background: var(--voxver-bg-elevated);
+  color: var(--voxver-text-primary);
   cursor: pointer;
   transition:
     border-color 0.13s,
     background 0.13s;
 
   &:hover {
-    border-color: var(--mcla-blue);
-    color: var(--mcla-blue);
+    border-color: var(--voxver-primary);
+    color: var(--voxver-primary);
     background: rgba(21, 101, 192, 0.05);
   }
 }
@@ -3477,35 +3702,35 @@ function adjustHex(hex: string, offset: number): string {
 .progress-box {
   margin-top: 12px;
   padding: 12px;
-  background: var(--mcla-bg);
+  background: var(--voxver-bg-primary);
   border-radius: 7px;
-  border: 1px solid var(--mcla-border-light);
+  border: 1px solid var(--voxver-border-color-light);
 }
 
 .progress-label {
   font-size: 12.5px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
   margin-bottom: 8px;
 }
 
 .progress-bar-wrap {
   width: 100%;
   height: 8px;
-  background: var(--mcla-bg-elevated);
+  background: var(--voxver-bg-elevated);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--mcla-primary, #6366f1), var(--mcla-blue));
+  background: linear-gradient(90deg, var(--voxver-primary, #6366f1), var(--voxver-primary));
   transition: width 0.2s ease;
   border-radius: 4px;
 }
 
 .progress-sub {
   font-size: 11.5px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   margin-top: 6px;
   word-break: break-all;
 }
@@ -3514,18 +3739,18 @@ function adjustHex(hex: string, offset: number): string {
 .sec-subtitle {
   font-size: 13.5px;
   font-weight: 600;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
   margin: 4px 0 10px;
   padding: 0;
 }
 
 /* ---- 小按钮 danger ---- */
 .btn-sm.danger-btn {
-  color: var(--mcla-red);
+  color: var(--voxver-error);
   border-color: rgba(229, 57, 53, 0.3);
   &:hover {
-    background: var(--mcla-red);
-    border-color: var(--mcla-red);
+    background: var(--voxver-error);
+    border-color: var(--voxver-error);
     color: #fff;
   }
 }
@@ -3534,7 +3759,7 @@ function adjustHex(hex: string, offset: number): string {
 .backup-list {
   margin-top: 16px;
   padding-top: 12px;
-  border-top: 1px dashed var(--mcla-border);
+  border-top: 1px dashed var(--voxver-border-color);
 }
 
 .backup-item {
@@ -3542,10 +3767,10 @@ function adjustHex(hex: string, offset: number): string {
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
-  background: var(--mcla-bg);
+  background: var(--voxver-bg-primary);
   border-radius: 7px;
   margin-bottom: 6px;
-  border: 1px solid var(--mcla-border-light);
+  border: 1px solid var(--voxver-border-color-light);
 }
 
 .backup-info {
@@ -3555,12 +3780,12 @@ function adjustHex(hex: string, offset: number): string {
 .backup-name {
   font-size: 13px;
   font-weight: 500;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
 }
 
 .backup-meta {
   font-size: 11.5px;
-  color: var(--mcla-text-muted);
+  color: var(--voxver-text-muted);
   margin-top: 3px;
   display: flex;
   gap: 14px;
@@ -3572,27 +3797,27 @@ function adjustHex(hex: string, offset: number): string {
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  background: var(--mcla-bg);
+  background: var(--voxver-bg-primary);
   border-radius: 8px;
-  border: 1px solid var(--mcla-border-light);
+  border: 1px solid var(--voxver-border-color-light);
 
   &.checking {
-    border-color: var(--mcla-blue);
+    border-color: var(--voxver-primary);
     background: rgba(21, 101, 192, 0.05);
   }
 
   &.available {
-    border-color: var(--mcla-green);
+    border-color: var(--voxver-green);
     background: rgba(46, 125, 50, 0.05);
   }
 
   &.error {
-    border-color: var(--mcla-red);
+    border-color: var(--voxver-error);
     background: rgba(229, 57, 53, 0.05);
   }
 
   &.up-to-date {
-    border-color: var(--mcla-border-light);
+    border-color: var(--voxver-border-color-light);
   }
 }
 
@@ -3604,11 +3829,11 @@ function adjustHex(hex: string, offset: number): string {
 .update-text {
   flex: 1;
   font-size: 13px;
-  color: var(--mcla-text-primary);
+  color: var(--voxver-text-primary);
 
   .update-notes {
     font-size: 11.5px;
-    color: var(--mcla-text-muted);
+    color: var(--voxver-text-muted);
     margin-top: 4px;
     line-height: 1.5;
     max-width: 400px;
@@ -3629,7 +3854,7 @@ function adjustHex(hex: string, offset: number): string {
 
 .progress-text {
   font-size: 12px;
-  color: var(--mcla-text-secondary);
+  color: var(--voxver-text-secondary);
 }
 
 .progress-bar-wrap.small {
