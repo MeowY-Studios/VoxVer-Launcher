@@ -52,9 +52,7 @@ const router = createRouter({
     },
     {
       path: '/more',
-      name: 'more',
-      component: () => import('../pages/MorePage.vue'),
-      meta: { title: '更多' }
+      redirect: '/settings'
     },
     {
       path: '/download/version/:versionId',

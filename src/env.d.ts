@@ -286,6 +286,10 @@ interface ElectronAPI {
     setLevel: (level: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR') => Promise<void>
     exportDiagnostics: () => Promise<IpcResult & { path?: string }>
   }
+
+  devTools: {
+    open: () => Promise<void>
+  }
 }
 
 declare global {

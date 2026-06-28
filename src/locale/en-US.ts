@@ -302,7 +302,7 @@ export default {
 
   more: {
     about: 'About & Credits',
-    aboutSubtitle: 'About VoxVer Launcher, open source projects & acknowledgments',
+    aboutSubtitle: 'View version info, update status & project links',
     aboutSection: 'About',
     sidebar: {
       about: 'About',
@@ -342,7 +342,14 @@ export default {
     otherContactDesc: 'For other questions or business cooperation, contact us via email.',
     sendEmail: 'Send Email',
     emailCopied: 'Email copied, please go to your email client to send the message',
-    confirm: 'OK'
+    confirm: 'OK',
+    projectLicense: 'Project License',
+    ossDependencies: 'Open Source Dependencies',
+    fontLicense: 'Font License',
+    voxverAttribution: 'VoxVer Attribution',
+    licenseDesc: 'VoxVer Launcher is open-source software released under the GNU General Public License v3.0 (GPLv3). You are free to use, modify, and distribute this software in accordance with the terms of the GPLv3 license.',
+    fontLicenseText: 'The Noto Sans SC font used in this software is released under the SIL Open Font License 1.1. Some interface icons are from the Lucide icon library, used under the MIT license.',
+    attributionText: 'VoxVer Launcher is developed and maintained by the VoxVer Launcher Team (Meow Studio). Minecraft is a trademark of Mojang Studios. This project has no affiliation with Mojang Studios or Microsoft.'
   },
 
   mod: {
@@ -721,10 +728,32 @@ export default {
     about: 'About',
     debug: 'Debug',
     diagnostics: 'Diagnostics',
-    sidebar: {
-      launch: 'Launch',
+    group: {
+      general: 'General',
+      game: 'Game',
       personalize: 'Personalize',
+      network: 'Network',
       other: 'Other'
+    },
+    sidebar: {
+      home: 'Home',
+      account: 'Account',
+      about: 'About',
+      copyright: 'Copyright',
+      gameProfile: 'Game Account & Profile',
+      javaMemory: 'JVM & Memory',
+      gameDir: 'Game Directory',
+      advanced: 'Advanced',
+      theme: 'Theme & Background',
+      interface: 'Interface',
+      lang: 'Language',
+      accessibility: 'Accessibility',
+      downloadNet: 'Download',
+      online: 'Online',
+      authService: 'Auth Service',
+      service: 'Service & Feedback',
+      sponsor: 'Sponsor Us',
+      developer: 'Developer'
     },
     language: 'Language',
     theme: 'Theme',

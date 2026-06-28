@@ -739,6 +739,11 @@ const api = {
     setLevel: (level: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR') =>
       ipcRenderer.invoke('logger:set-level', level),
     exportDiagnostics: () => ipcRenderer.invoke('logger:export-diagnostics')
+  },
+
+  // 开发者工具
+  devTools: {
+    open: () => ipcRenderer.invoke('devtools:open')
   }
 }
 

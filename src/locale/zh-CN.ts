@@ -302,8 +302,14 @@ export default {
 
   more: {
     about: '关于与鸣谢',
-    aboutSubtitle: '关于 VoxVer Launcher、开源项目与致谢',
+    aboutSubtitle: '查看版本信息、更新状态与项目相关链接',
     aboutSection: '关于',
+    group: {
+      general: '通用',
+      game: '游戏',
+      personalize: '个性化',
+      other: '其他'
+    },
     sidebar: {
       about: '关于',
       help: '帮助',
@@ -342,7 +348,14 @@ export default {
     otherContactDesc: '其他问题或商务合作，可通过邮箱联系我们。',
     sendEmail: '发送邮件',
     emailCopied: '邮箱已复制，请前去邮箱发送邮件及内容',
-    confirm: '确定'
+    confirm: '确定',
+    projectLicense: '项目协议',
+    ossDependencies: '开源依赖',
+    fontLicense: '字体授权',
+    voxverAttribution: 'VoxVer 归属',
+    licenseDesc: 'VoxVer Launcher 是遵循 GNU General Public License v3.0（GPLv3）协议发行的开源软件。您可以自由使用、修改和分发本软件，但必须遵守 GPLv3 协议的条款。',
+    fontLicenseText: '本软件使用的 Noto Sans SC 字体基于 SIL Open Font License 1.1 协议发布。部分界面图标来源于 Lucide 图标库，基于 MIT 协议使用。',
+    attributionText: 'VoxVer Launcher 由 VoxVer Launcher Team（Meow Studio）开发与维护。Minecraft 是 Mojang Studios 的商标。本项目与 Mojang Studios 及 Microsoft 之间不存在任何关联关系。'
   },
 
   mod: {
@@ -721,10 +734,32 @@ export default {
     about: '关于',
     debug: '调试',
     diagnostics: '诊断',
-    sidebar: {
-      launch: '启动',
+    group: {
+      general: '通用',
+      game: '游戏',
       personalize: '个性化',
+      network: '网络',
       other: '其他'
+    },
+    sidebar: {
+      home: '主页',
+      account: '账户',
+      about: '关于',
+      copyright: '版权',
+      gameProfile: '游戏账户与档案',
+      javaMemory: 'Java虚拟机与内存',
+      gameDir: '游戏目录',
+      advanced: '高级设置',
+      theme: '主题与背景',
+      interface: '主界面',
+      lang: '语言',
+      accessibility: '辅助功能',
+      downloadNet: '下载',
+      online: '联机',
+      authService: '安全识别服务',
+      service: '服务与反馈',
+      sponsor: '赞助我们',
+      developer: '开发者选项'
     },
     language: '语言',
     theme: '主题',

@@ -21,6 +21,9 @@ export function registerWindowHandlers(mainWindow: BrowserWindow): void {
   // 获取应用版本号（从 package.json）
   ipcMain.handle('app:get-version', () => app.getVersion())
 
+  // 打开开发者工具
+  ipcMain.handle('devtools:open', () => mainWindow.webContents.openDevTools())
+
   // 最大化状态变化通知渲染进程
   mainWindow.on('maximize', () => {
     mainWindow.webContents.send('window:maximized-changed', true)

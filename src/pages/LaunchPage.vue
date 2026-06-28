@@ -99,6 +99,15 @@
       </p>
     </div>
 
+    <!-- 账户管理入口 -->
+    <button class="btn-account-manage" @click="goAccountSettings">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+      账户管理
+    </button>
+
     <!-- 游戏日志控制台 -->
     <section class="console-section">
       <div class="console-header">
@@ -168,11 +177,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, inject } from 'vue'
+import { useRouter } from 'vue-router'
 import { useVersionsStore, useAccountsStore, useInstancesStore } from '../stores'
 import PxLaunchProgress from '../components/common/PxLaunchProgress.vue'
 
 const pxProgressRef = ref<InstanceType<typeof PxLaunchProgress> | null>(null)
+
+const router = useRouter()
+const settingsActive = inject('settingsActive') as any
+const accountsStore = useAccountsStore()
 
 // ====== 状态 ======
 const isLaunching = ref(false)
@@ -226,7 +240,6 @@ async function handleLaunch() {
   try {
     // 从 versionsStore 获取当前选中的版本
     const versionsStore = useVersionsStore()
-    const accountsStore = useAccountsStore()
     const instancesStore = useInstancesStore()
 
     // 优先用 instancesStore 的当前实例
@@ -378,6 +391,12 @@ async function restoreDefaultPath() {
   setTimeout(() => {
     statusMessage.value = ''
   }, 3000)
+}
+
+/** 跳转到设置页面的游戏账户与档案 */
+function goAccountSettings() {
+  settingsActive.value = 'profile'
+  router.push('/settings')
 }
 
 // ====== 生命周期 ======
@@ -652,7 +671,27 @@ onUnmounted(() => {
   }
 }
 
-/* ====== 日志控制台 ====== */
+/* ====== 账户管理入口 ====== */
+.btn-account-manage {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid color-mix(in oklab, var(--voxver-text-primary) 10%, transparent);
+  border-radius: var(--voxver-radius-md);
+  background: transparent;
+  color: var(--voxver-text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  &:hover {
+    background: color-mix(in oklab, var(--voxver-accent) 10%, transparent);
+    border-color: color-mix(in oklab, var(--voxver-accent) 30%, transparent);
+    color: var(--voxver-accent);
+  }
+}
+
+/* ====== 控制台 ====== */
 .console-section {
   width: 100%;
   max-width: 900px;

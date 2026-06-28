@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.5.5-6366f1?style=for-the-badge&labelColor=1e1e2e)
+![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.6.0-6366f1?style=flat-square&labelColor=1e1e2e)
 ![Electron](https://img.shields.io/badge/Electron-33-478cbf?style=flat-square&logo=electron&logoColor=white)
 ![Vue](https://img.shields.io/badge/Vue-3.5-4db08b?style=flat-square&logo=vuedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6?style=flat-square&logo=typescript&logoColor=white)
