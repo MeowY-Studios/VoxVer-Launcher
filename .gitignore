@@ -9,7 +9,7 @@ node_modules/
 # ========== 构建输出 ==========
 out/
 dist/
-build/                          # electron-builder 打包产物（NSIS / unpacked）
+build/                         
 
 # ========== 开发日志 ==========
 *.log
@@ -17,7 +17,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-build-log.txt                   # 本地构建日志
+build-log.txt                 
 
 # ========== IDE / 编辑器 ==========
 .idea/
@@ -61,14 +61,14 @@ coverage/
 .workbuddy/
 
 # ========== Electron 专属 ==========
-electron-builder.yml.bak        # electron-builder 备份
-electron-builder.env           # 构建环境变量缓存
-release/                        # 手动构建输出
+electron-builder.yml.bak      
+electron-builder.env          
+release/                       
 
 # ========== 图像资源（非源文件）==========
 # *.ico 在根目录忽略，但 resources/icons/ 中的应用图标需要提交
 /*.ico
-40348278.jpg                    # 截图等临时图片
+40348278.jpg                  
 
 # ========== 操作系统 ==========
 $RECYCLE.BIN/
