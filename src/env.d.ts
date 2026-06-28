@@ -204,7 +204,7 @@ interface ElectronAPI {
   }
   notification: {
     send: (payload: unknown) => Promise<void>
-    getHistory: (limit?: number) => Promise<unknown[]>
+    getHistory: (limit?: number) => Promise<{ ok: boolean; data: unknown[]; error?: string }>
     markRead: (id: string) => Promise<void>
     markAllRead: () => Promise<void>
     clear: () => Promise<void>

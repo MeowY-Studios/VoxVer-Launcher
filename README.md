@@ -69,6 +69,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 | [📜 更新日志](CHANGELOG.md) | 各版本详细变更记录 |
 | [📢 声明与致谢](NOTICE.md) | 第三方依赖、商标声明 |
 | [⚖️ 协议](LICENSE) | MIT 开源协议全文 |
+| [📝 文档网站](voxver.linpork.top) | voxver 文档网站，包含安装指南、使用说明、故障排除等。 |
 
 ---
 

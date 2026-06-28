@@ -647,7 +647,7 @@ const api = {
       getSession: (sessionId: string) =>
         ipcRenderer.invoke('share:get-session', { sessionId }),
       onPackProgress: (
-        callback: (event: Event, data: { instanceId: string; stage: string; progress: number }) => void
+        callback: (event: IpcRendererEvent, data: { instanceId: string; stage: string; progress: number }) => void
       ) => {
         const listener = (
           _event: IpcRendererEvent,
@@ -658,7 +658,7 @@ const api = {
         return () => ipcRenderer.removeListener('share:pack-progress', listener)
       },
       onSessionUpdate: (
-        callback: (event: Event, data: { sessionId: string; session: { sessionId: string; shareCode?: string; type?: string; status: string; transferredChunks: number; totalChunks: number; error?: string; instanceName?: string; mcVersion?: string; loaderType?: string } }) => void
+        callback: (event: IpcRendererEvent, data: { sessionId: string; session: { sessionId: string; shareCode?: string; type?: string; status: string; transferredChunks: number; totalChunks: number; error?: string; instanceName?: string; mcVersion?: string; loaderType?: string } }) => void
       ) => {
         const listener = (
           _event: IpcRendererEvent,
@@ -670,7 +670,7 @@ const api = {
       },
       onProgressUpdate: (
         callback: (
-          event: Event,
+          event: IpcRendererEvent,
           data: {
             sessionId: string
             progress: {
@@ -699,7 +699,7 @@ const api = {
         return () => ipcRenderer.removeListener('share:progress-update', listener)
       },
       removePackProgressListener: (
-        callback: (event: Event, data: { instanceId: string; stage: string; progress: number }) => void
+        callback: (event: IpcRendererEvent, data: { instanceId: string; stage: string; progress: number }) => void
       ) => {
         const listener = packListeners.get(callback)
         if (listener) {
@@ -709,7 +709,7 @@ const api = {
       },
       removeSessionUpdateListener: (
         callback: (
-          event: Event,
+          event: IpcRendererEvent,
           data: { sessionId: string; session: { sessionId: string; status: string; transferredChunks: number; totalChunks: number; error?: string } }
         ) => void
       ) => {
