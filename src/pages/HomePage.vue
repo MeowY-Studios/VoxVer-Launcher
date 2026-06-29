@@ -2,7 +2,7 @@
   <div class="home-page">
     <!-- 空状态 / 欢迎区（PCL2 风格：右侧留白） -->
     <div class="welcome-area">
-      <div class="welcome-card">
+      <div class="welcome-card vox-card">
         <div class="wc-icon">
           <svg
             width="40"
@@ -21,7 +21,7 @@
         <p class="wc-desc">{{ $t('home.welcomeTip') }}</p>
 
         <div class="wc-actions">
-          <button class="wc-btn" @click="$router.push('/instances')">
+          <button class="vox-btn" @click="$router.push('/instances')">
             <svg
               width="16"
               height="16"
@@ -34,7 +34,7 @@
             </svg>
             {{ $t('instance.instances') }}
           </button>
-          <button class="wc-btn" @click="$router.push('/downloads')">
+          <button class="vox-btn" @click="$router.push('/downloads')">
             <svg
               width="16"
               height="16"
@@ -47,7 +47,7 @@
             </svg>
             {{ $t('download.downloads') }}
           </button>
-          <button class="wc-btn" @click="$router.push('/settings')">
+          <button class="vox-btn" @click="$router.push('/settings')">
             <svg
               width="16"
               height="16"
@@ -63,7 +63,7 @@
             </svg>
             {{ $t('settings.settings') }}
           </button>
-          <button class="wc-btn wc-btn--primary" @click="openReceiveModal">
+          <button class="vox-btn" @click="openReceiveModal">
             <svg
               width="16"
               height="16"
@@ -85,12 +85,26 @@
 
       <!-- 最近实例 -->
       <div v-if="recentInstances.length" class="recent-section">
-        <h3 class="sec-title">{{ $t('home.recent') }}</h3>
-        <div class="recent-list">
+        <h3 class="vox-sec-title">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          {{ $t('home.recent') }}
+        </h3>
+        <p class="vox-sec-desc">{{ $t('home.recentDesc') }}</p>
+        <div class="vox-card-grid">
           <div
             v-for="inst in recentInstances"
             :key="inst.id"
-            class="recent-item"
+            class="vox-list-card vox-card-hover"
             @click="$router.push('/instances')"
           >
             <span class="ri-icon">{{ inst.name[0] }}</span>
@@ -184,27 +198,21 @@ onMounted(() => {
 .home-page {
   padding: 24px 28px;
   min-height: 100%;
-  /* 自适应：内容区随窗口撑开 */
   display: flex;
   flex-direction: column;
 }
 
 .welcome-area {
-  /* 去掉 max-width 限制，让卡片自适应 */
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* 欢迎卡片 — 紧凑自适应 */
+/* 欢迎卡片 — 视觉样式由 .vox-card 提供，此处仅保留布局 */
 .welcome-card {
-  background: var(--voxver-bg-elevated);
-  border-radius: var(--voxver-radius-lg);
   padding: 28px 24px;
   text-align: center;
-  border: 1px solid var(--voxver-border-color);
-  box-shadow: var(--voxver-shadow-sm);
 }
 
 .wc-icon {
@@ -240,108 +248,46 @@ onMounted(() => {
   flex-wrap: wrap;
 }
 
-.wc-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 16px;
-  background: var(--voxver-bg-elevated);
-  border: 1.5px solid var(--voxver-border-color);
+/* 列表项内部布局（卡片样式由 .vox-list-card 提供） */
+.ri-icon {
+  width: 34px;
+  height: 34px;
   border-radius: var(--voxver-radius-md);
-  font-size: var(--voxver-text-sm);
-  font-weight: var(--voxver-font-medium);
-  color: var(--voxver-text-secondary);
-  cursor: pointer;
-  transition: all var(--voxver-transition-fast);
-
-  &:hover {
-    border-color: var(--voxver-primary-400);
-    color: var(--voxver-primary-600);
-    box-shadow: var(--voxver-shadow-glow-primary);
-  }
-
-  &.wc-btn--primary {
-    background: var(--voxver-gradient-primary);
-    border-color: transparent;
-    color: #fff;
-
-    &:hover {
-      filter: brightness(1.06);
-      box-shadow: var(--voxver-shadow-glow-primary);
-    }
-  }
-}
-
-/* 最近实例 */
-.recent-section {
-  .sec-title {
-    margin: 0 0 8px;
-    font-size: var(--voxver-text-base);
-    font-weight: var(--voxver-font-bold);
-    color: var(--voxver-text-primary);
-  }
-}
-
-.recent-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 6px;
-}
-
-.recent-item {
+  background: var(--voxver-gradient-primary);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: var(--voxver-bg-elevated);
-  border-radius: var(--voxver-radius-md);
-  cursor: pointer;
-  transition: all var(--voxver-transition-fast);
-  border: 1px solid transparent;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: var(--voxver-shadow-glow-primary);
+}
 
-  &:hover {
-    border-color: var(--voxver-border-color);
-    box-shadow: var(--voxver-shadow-sm);
+.ri-info {
+  flex: 1;
+  min-width: 0;
+
+  .ri-name {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .ri-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: var(--voxver-radius-md);
-    background: var(--voxver-gradient-primary);
-    color: #fff;
-    font-size: 15px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    box-shadow: var(--voxver-shadow-glow-primary);
-  }
-
-  .ri-info {
-    flex: 1;
-    min-width: 0;
-    .ri-name {
-      margin: 0;
-      font-size: 13px;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .ri-meta {
-      margin: 2px 0 0;
-      font-size: 11px;
-      color: var(--voxver-text-muted);
-    }
-  }
-
-  .ri-time {
+  .ri-meta {
+    margin: 2px 0 0;
     font-size: 11px;
     color: var(--voxver-text-muted);
-    white-space: nowrap;
-    flex-shrink: 0;
   }
+}
+
+.ri-time {
+  font-size: 11px;
+  color: var(--voxver-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 </style>

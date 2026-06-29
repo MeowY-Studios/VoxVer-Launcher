@@ -110,7 +110,11 @@ const api = {
 
   // 应用信息
   app: {
-    getVersion: () => ipcRenderer.invoke('app:get-version')
+    getVersion: () => ipcRenderer.invoke('app:get-version'),
+    getPaths: () => ipcRenderer.invoke('app:get-paths'),
+    getRuntimeInfo: () => ipcRenderer.invoke('app:get-runtime-info'),
+    clearCache: () => ipcRenderer.invoke('app:clear-cache'),
+    resetSettings: () => ipcRenderer.invoke('app:reset-settings')
   },
 
   // 应用配置
@@ -376,7 +380,9 @@ const api = {
     selectFile: (options?: {
       title?: string
       filters?: Array<{ name: string; extensions: string[] }>
-    }) => ipcRenderer.invoke('dialog:select-file', options ?? {})
+    }) => ipcRenderer.invoke('dialog:select-file', options ?? {}),
+    readAsDataURL: (filePath: string) =>
+      ipcRenderer.invoke('file:read-as-data-url', filePath) as Promise<string | null>
   },
 
   // Shell 操作

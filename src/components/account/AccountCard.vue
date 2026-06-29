@@ -10,7 +10,7 @@
             height="28"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#6366f1"
+            stroke="var(--voxver-primary)"
             stroke-width="1.2"
           >
             <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
@@ -92,7 +92,7 @@ const shortUuid = computed(() => {
   align-items: center;
   gap: 14px;
   padding: 12px 16px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1.5px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-lg);
   transition: all var(--voxver-transition-fast);
@@ -104,7 +104,7 @@ const shortUuid = computed(() => {
 
   &.active {
     border-color: var(--voxver-primary-400);
-    background: linear-gradient(to right, rgba(99, 102, 234, 0.04), transparent);
+    background: linear-gradient(to right, color-mix(in oklab, var(--voxver-primary) 4%, transparent), transparent);
   }
 }
 
@@ -131,7 +131,7 @@ const shortUuid = computed(() => {
   }
 
   .avatar-steve {
-    border-radius: 6px;
+    border-radius: var(--voxver-radius-sm);
     image-rendering: pixelated;
     svg {
       width: 100%;

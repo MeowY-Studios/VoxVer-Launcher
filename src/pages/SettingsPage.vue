@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="settings-page">
     <!-- ========== 主页 ========== -->
     <template v-if="activeCategory === 'home'">
@@ -47,13 +47,13 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
             </span>
           </button>
-          <button class="quick-grid-item" @click="switchCategory('launch')">
+          <button class="quick-grid-item" @click="switchCategory('advanced')">
             <div class="quick-grid-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <polygon points="5 3 19 12 5 21 5 3" />
               </svg>
             </div>
-            <span class="quick-grid-label">启动设置</span>
+            <span class="quick-grid-label">高级设置</span>
             <span class="quick-grid-arrow">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
             </span>
@@ -868,610 +868,271 @@
           </div>
         </div>
       </section>
+
+      <!-- 全局快捷键 -->
+      <div class="memory-alloc-card">
+        <div style="margin-bottom: 12px">
+          <div class="debug-mode-label">{{ $t('settings.globalHotkeys') }}</div>
+          <div class="debug-mode-desc">{{ $t('settings.hotkeyDesc') }} <code>Ctrl+Shift+L</code>、<code>Alt+F12</code></div>
+        </div>
+        <div class="mem-custom-row" style="margin-bottom:10px">
+          <div class="row-main">
+            <label class="row-label">{{ $t('settings.launchGame') }}</label>
+            <p class="row-desc">{{ $t('settings.launchGameDesc') }}</p>
+          </div>
+          <div class="input-group compact" style="flex:1;max-width:260px">
+            <input type="text" class="inp" v-model="s.hotkeyLaunch" placeholder="Ctrl+Shift+L" />
+            <button class="btn-sm" @click="updateHotkey('launch-game', s.hotkeyLaunch)">{{ $t('settings.save') }}</button>
+          </div>
+        </div>
+        <div class="mem-custom-row" style="margin-bottom:10px">
+          <div class="row-main">
+            <label class="row-label">{{ $t('settings.toggleWindow') }}</label>
+            <p class="row-desc">{{ $t('settings.toggleWindowDesc') }}</p>
+          </div>
+          <div class="input-group compact" style="flex:1;max-width:260px">
+            <input type="text" class="inp" v-model="s.hotkeyToggleWindow" placeholder="Ctrl+Shift+H" />
+            <button class="btn-sm" @click="updateHotkey('toggle-window', s.hotkeyToggleWindow)">{{ $t('settings.save') }}</button>
+          </div>
+        </div>
+        <div class="mem-custom-row" style="margin-bottom:10px">
+          <div class="row-main">
+            <label class="row-label">{{ $t('settings.openHome') }}</label>
+            <p class="row-desc">{{ $t('settings.openHomeDesc') }}</p>
+          </div>
+          <div class="input-group compact" style="flex:1;max-width:260px">
+            <input type="text" class="inp" v-model="s.hotkeyOpenHome" placeholder="Ctrl+Shift+O" />
+            <button class="btn-sm" @click="updateHotkey('open-home', s.hotkeyOpenHome)">{{ $t('settings.save') }}</button>
+          </div>
+        </div>
+        <div class="mem-custom-row" style="margin-bottom:10px">
+          <div class="row-main">
+            <label class="row-label">{{ $t('settings.openSettings') }}</label>
+            <p class="row-desc">{{ $t('settings.openSettingsDesc') }}</p>
+          </div>
+          <div class="input-group compact" style="flex:1;max-width:260px">
+            <input type="text" class="inp" v-model="s.hotkeyOpenSettings" placeholder="Ctrl+," />
+            <button class="btn-sm" @click="updateHotkey('open-settings', s.hotkeyOpenSettings)">{{ $t('settings.save') }}</button>
+          </div>
+        </div>
+        <div class="btn-row" style="padding-top:6px">
+          <button class="action-btn outline" @click="reloadHotkeys">{{ $t('settings.reloadHotkeys') }}</button>
+        </div>
+      </div>
     </template>
 
     <!-- ========== 个性化 ========== -->
     <template v-if="activeCategory === 'personalize'">
-      <section class="sec">
-        <h3 class="sec-title" @click="toggleSec('appearance')">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <circle cx="13.5" cy="6.5" r="2.5" />
-            <path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5z" />
-          </svg>
-          {{ $t('settings.appearance') }}
-          <svg
-            class="sec-arrow"
-            :class="{ open: collapsed.appearance }"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </h3>
+      <!-- 外观 -->
+      <div class="memory-alloc-card" style="margin-top: 12px">
+        <div style="margin-bottom: 12px">
+          <div class="debug-mode-label">{{ $t('settings.appearance') }}</div>
+        </div>
 
-        <div class="sec-body" v-show="collapsed.appearance">
-          <!-- 不透明度 -->
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.opacity') }}</label>
-            </div>
-            <div class="row-control">
-              <div class="input-group compact">
-                <input
-                  type="range"
-                  class="range"
-                  v-model.number="s.opacity"
-                  min="30"
-                  max="100"
-                  step="5"
-                />
-                <span class="range-val">{{ s.opacity }}%</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 主题模式 -->
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.themeMode') }}</label>
-            </div>
-            <div class="row-control">
-              <div class="theme-mode-options">
-                <button
-                  class="theme-mode-btn"
-                  :class="{ active: appStore.theme === 'dark' }"
-                  @click="appStore.setTheme('dark')"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                  </svg>
-                  <span>{{ $t('settings.themeDark') }}</span>
-                </button>
-                <button
-                  class="theme-mode-btn"
-                  :class="{ active: appStore.theme === 'light' }"
-                  @click="appStore.setTheme('light')"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="5"/>
-                    <line x1="12" y1="1" x2="12" y2="3"/>
-                    <line x1="12" y1="21" x2="12" y2="23"/>
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                    <line x1="1" y1="12" x2="3" y2="12"/>
-                    <line x1="21" y1="12" x2="23" y2="12"/>
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                  </svg>
-                  <span>{{ $t('settings.themeLight') }}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- 主题色 -->
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.themeColor') }}</label>
-            </div>
-            <div class="row-control">
-              <div class="color-options">
-                <button
-                  v-for="c in colorPresets"
-                  :key="c.name"
-                  class="color-swatch"
-                  :class="{ active: s.themeColor === c.value }"
-                  :style="{ background: c.value }"
-                  @click="applyThemeColor(c.value)"
-                  :title="c.name"
-                ></button>
-              </div>
-            </div>
-          </div>
-
-          <!-- 语言 -->
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.interfaceLanguage') }}</label>
-            </div>
-            <div class="row-control">
-              <select class="sel" v-model="s.lang">
-                <option value="zh-CN">简体中文</option>
-                <option value="en-US">English</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- 字号 -->
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.fontSize') }}</label>
-            </div>
-            <div class="row-control">
-              <div class="input-group compact">
-                <input
-                  type="range"
-                  class="range"
-                  v-model.number="s.fontSize"
-                  min="12"
-                  max="20"
-                  step="1"
-                />
-                <span class="range-val">{{ s.fontSize }}px</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 动画 -->
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.animations') }}</label>
-            </div>
-            <div class="row-control">
-              <label class="chk">
-                <input type="checkbox" v-model="s.enableAnimations" />
-                {{ s.enableAnimations ? $t('settings.enabled') : $t('settings.disabled') }}
-              </label>
-            </div>
-          </div>
-
-          <!-- 特效 -->
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.effects') }}</label>
-            </div>
-            <div class="row-control">
-              <label class="chk">
-                <input type="checkbox" v-model="s.enableEffects" />
-                {{ s.enableEffects ? $t('settings.enabled') : $t('settings.disabled') }}
-              </label>
-            </div>
-          </div>
-
-          <!-- 音效 -->
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.sounds') }}</label>
-            </div>
-            <div class="row-control">
-              <label class="chk">
-                <input type="checkbox" v-model="s.enableSounds" />
-                {{ s.enableSounds ? $t('settings.enabled') : $t('settings.disabled') }}
-              </label>
-            </div>
+        <!-- 不透明度 -->
+        <div class="mem-custom-row">
+          <label class="row-label">{{ $t('settings.opacity') }}</label>
+          <div class="input-group compact" style="flex:1">
+            <input type="range" class="range" style="flex:1" v-model.number="s.opacity" min="30" max="100" step="5" />
+            <span class="range-val">{{ s.opacity }}%</span>
           </div>
         </div>
-        <!-- /sec-body -->
-      </section>
 
-      <section class="sec">
-        <h3 class="sec-title" @click="toggleSec('background')">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-            <circle cx="8.5" cy="8.5" r="1.5" />
-            <polyline points="21 15 16 10 5 21" />
-          </svg>
-          {{ $t('settings.background') }}
-          <svg
-            class="sec-arrow"
-            :class="{ open: collapsed.background }"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </h3>
-
-        <div class="sec-body" v-show="collapsed.background">
-          <!-- 背景图片 -->
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.bgImage') }}</label>
-            </div>
-            <div class="row-control">
-              <div class="input-group">
-                <select class="sel" :value="appStore.bgImageMode" @change="appStore.setBgImageMode(($event.target as HTMLSelectElement).value as 'none' | 'custom')">
-                  <option value="none">{{ $t('settings.noBgImage') }}</option>
-                  <option value="custom">{{ $t('settings.customImage') }}</option>
-                </select>
-                <button v-if="appStore.bgImageMode === 'custom'" class="btn-sm" @click="browseBgImage">
-                  {{ $t('settings.selectImage') }}
-                </button>
+        <!-- 主题模式（Koring 风格预览缩略图） -->
+        <div style="margin-top: 14px">
+          <label class="row-label" style="margin-bottom:6px;display:block">{{ $t('settings.themeMode') }}</label>
+          <p class="row-desc" style="margin-bottom:10px">{{ $t('settings.themeModeDesc') }}</p>
+          <div class="theme-preview-row">
+            <button
+              v-for="opt in themePreviewOptions"
+              :key="opt.value"
+              type="button"
+              class="theme-preview-card"
+              :class="{ active: appStore.theme === opt.value }"
+              @click="appStore.setTheme(opt.value)"
+            >
+              <div class="theme-preview-window" :class="opt.value">
+                <template v-if="opt.value === 'auto'">
+                  <div class="tpw-half tpw-light">
+                    <div class="tpw-titlebar"><span></span><span></span><span></span></div>
+                    <div class="tpw-content"><div class="tpw-bar w-full"></div><div class="tpw-bar w-3-4"></div></div>
+                  </div>
+                  <div class="tpw-half tpw-dark">
+                    <div class="tpw-titlebar"><span></span><span></span><span></span></div>
+                    <div class="tpw-content"><div class="tpw-bar w-full"></div><div class="tpw-bar w-3-4"></div></div>
+                  </div>
+                </template>
+                <template v-else>
+                  <div :class="(opt.value === 'dark' || opt.value === 'koring') ? 'tpw-dark' : 'tpw-light'" :data-theme="opt.value" style="width:100%;height:100%">
+                    <div class="tpw-titlebar"><span></span><span></span><span></span></div>
+                    <div class="tpw-content">
+                      <div class="tpw-bar w-full"></div>
+                      <div class="tpw-bar w-3-4"></div>
+                      <div class="tpw-bar w-1-2"></div>
+                    </div>
+                  </div>
+                </template>
               </div>
+              <p class="theme-preview-label">{{ opt.label }}</p>
+            </button>
+          </div>
+        </div>
+
+        <!-- 主题色 -->
+        <div style="margin-top: 14px">
+          <label class="row-label" style="margin-bottom:6px;display:block">{{ $t('settings.themeColor') }}</label>
+          <div class="color-options">
+            <button
+              v-for="c in colorPresets"
+              :key="c.name"
+              class="color-swatch"
+              :class="{ active: s.themeColor === c.value }"
+              :style="{ background: c.value }"
+              @click="applyThemeColor(c.value)"
+              :title="c.name"
+            ></button>
+          </div>
+        </div>
+
+        <!-- 字号 -->
+        <div class="mem-custom-row" style="margin-top:14px">
+          <label class="row-label">{{ $t('settings.fontSize') }}</label>
+          <div class="input-group compact" style="flex:1">
+            <input type="range" class="range" style="flex:1" v-model.number="s.fontSize" min="12" max="20" step="1" />
+            <span class="range-val">{{ s.fontSize }}px</span>
+          </div>
+        </div>
+
+        <!-- 动画 / 特效 / 音效 -->
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:6px">
+          <label class="skin-radio-item" :class="{ active: s.enableAnimations }" @click="s.enableAnimations = !s.enableAnimations">
+            <span class="skin-radio-dot" :class="{ checked: s.enableAnimations }"></span>
+            {{ $t('settings.animations') }}
+          </label>
+          <label class="skin-radio-item" :class="{ active: s.enableEffects }" @click="s.enableEffects = !s.enableEffects">
+            <span class="skin-radio-dot" :class="{ checked: s.enableEffects }"></span>
+            {{ $t('settings.effects') }}
+          </label>
+          <label class="skin-radio-item" :class="{ active: s.enableSounds }" @click="s.enableSounds = !s.enableSounds">
+            <span class="skin-radio-dot" :class="{ checked: s.enableSounds }"></span>
+            {{ $t('settings.sounds') }}
+          </label>
+        </div>
+      </div>
+
+      <!-- 背景（Koring 风格卡片布局） -->
+      <div class="memory-alloc-card" style="margin-top: 12px">
+        <div style="margin-bottom: 12px">
+          <div class="debug-mode-label">{{ $t('settings.background') }}</div>
+        </div>
+
+        <div class="bg-card-list">
+          <!-- 背景图片 -->
+          <div class="bg-card-row">
+            <div class="bg-card-main">
+              <div class="row-label">{{ $t('settings.bgImage') }}</div>
+              <div class="row-desc">{{ $t('settings.bgImageDesc') }}</div>
+            </div>
+            <div class="bg-card-control">
+              <select class="sel" :value="appStore.bgImageMode" @change="appStore.setBgImageMode(($event.target as HTMLSelectElement).value as 'none' | 'custom')">
+                <option value="none">{{ $t('settings.noBgImage') }}</option>
+                <option value="custom">{{ $t('settings.customImage') }}</option>
+              </select>
+              <button v-if="appStore.bgImageMode === 'custom'" class="btn-sm" @click="browseBgImage">
+                {{ $t('settings.selectImageBtn') }}
+              </button>
             </div>
           </div>
 
-          <div class="row" v-if="appStore.bgImageMode === 'custom'">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.colorOverlay') }}</label>
-            </div>
-            <div class="row-control">
-              <div class="input-group">
-                <label class="chk"
-                  ><input type="checkbox" :checked="appStore.bgColorOverlay" @change="appStore.setBgColorOverlay(($event.target as HTMLInputElement).checked)" /> {{ $t('settings.enabled') }}</label
-                >
-                <input
-                  v-if="appStore.bgColorOverlay"
-                  type="color"
-                  class="color-picker"
-                  :value="appStore.bgOverlayColor"
-                  @input="appStore.setBgOverlayColor(($event.target as HTMLInputElement).value)"
-                  style="width: 36px; height: 36px; border: none; border-radius: 6px; cursor: pointer; flex-shrink: 0"
-                />
-              </div>
-            </div>
+          <!-- 背景预览图 -->
+          <div v-if="appStore.bgImageMode === 'custom' && appStore.bgImagePath" class="bg-preview-wrap">
+            <img :src="bgImagePreviewUrl" :alt="$t('settings.bgPreview')" class="bg-preview-img" @error="onBgPreviewError" />
           </div>
 
           <!-- 背景模糊 -->
-          <div class="row" v-if="appStore.bgImageMode === 'custom'">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.bgBlur') }}</label>
+          <div v-if="appStore.bgImageMode === 'custom'" class="bg-card-row">
+            <div class="bg-card-main">
+              <div class="row-label">{{ $t('settings.bgBlur') }}</div>
+              <div class="row-desc">{{ $t('settings.bgBlurDesc') }}，{{ appStore.themeBgBlur }}px</div>
             </div>
-            <div class="row-control">
-              <div class="input-group compact">
-                <input
-                  type="range"
-                  class="range"
-                  :value="appStore.themeBgBlur"
-                  @input="appStore.setThemeBgBlur(Number(($event.target as HTMLInputElement).value))"
-                  min="0"
-                  max="20"
-                  step="1"
-                />
-                <span class="range-val">{{ appStore.themeBgBlur }}px</span>
-              </div>
+            <div class="bg-card-control" style="flex:1;max-width:220px">
+              <input type="range" class="range" style="width:100%" :value="appStore.themeBgBlur" @input="appStore.setThemeBgBlur(Number(($event.target as HTMLInputElement).value))" min="0" max="20" step="1" />
             </div>
           </div>
 
           <!-- 背景暗化 -->
-          <div class="row" v-if="appStore.bgImageMode === 'custom'">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.bgDim') }}</label>
+          <div v-if="appStore.bgImageMode === 'custom'" class="bg-card-row">
+            <div class="bg-card-main">
+              <div class="row-label">{{ $t('settings.bgDim') }}</div>
+              <div class="row-desc">{{ $t('settings.bgDimDesc') }}，{{ appStore.bgDimAmount }}%</div>
             </div>
-            <div class="row-control">
-              <div class="input-group compact">
-                <input
-                  type="range"
-                  class="range"
-                  :value="appStore.bgDimAmount"
-                  @input="appStore.setBgDimAmount(Number(($event.target as HTMLInputElement).value))"
-                  min="0"
-                  max="100"
-                  step="5"
-                />
-                <span class="range-val">{{ appStore.bgDimAmount }}%</span>
-              </div>
+            <div class="bg-card-control" style="flex:1;max-width:220px">
+              <input type="range" class="range" style="width:100%" :value="appStore.bgDimAmount" @input="appStore.setBgDimAmount(Number(($event.target as HTMLInputElement).value))" min="0" max="100" step="5" />
+            </div>
+          </div>
+
+          <!-- 颜色叠加 -->
+          <div v-if="appStore.bgImageMode === 'custom'" class="bg-card-row">
+            <div class="bg-card-main">
+              <div class="row-label">{{ $t('settings.colorOverlay') }}</div>
+            </div>
+            <div class="bg-card-control">
+              <label class="toggle-switch">
+                <input type="checkbox" :checked="appStore.bgColorOverlay" @change="appStore.setBgColorOverlay(($event.target as HTMLInputElement).checked)" />
+                <span class="toggle-slider"></span>
+              </label>
+              <input
+                v-if="appStore.bgColorOverlay"
+                type="color"
+                class="color-picker"
+                :value="appStore.bgOverlayColor"
+                @input="appStore.setBgOverlayColor(($event.target as HTMLInputElement).value)"
+                style="width: 36px; height: 36px; border: none; border-radius: var(--voxver-radius-sm); cursor: pointer; flex-shrink: 0"
+              />
+            </div>
+          </div>
+
+          <!-- 背景图片视差 -->
+          <div v-if="appStore.bgImageMode === 'custom'" class="bg-card-row">
+            <div class="bg-card-main">
+              <div class="row-label">{{ $t('settings.bgParallax') }}</div>
+              <div class="row-desc">{{ $t('settings.bgParallaxDesc') }}</div>
+            </div>
+            <div class="bg-card-control">
+              <label class="toggle-switch">
+                <input type="checkbox" :checked="appStore.bgParallax" @change="appStore.setBgParallax(($event.target as HTMLInputElement).checked)" />
+                <span class="toggle-slider"></span>
+              </label>
             </div>
           </div>
 
           <!-- 背景音乐 -->
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.bgMusic') }}</label>
-              <p class="row-desc">{{ $t('settings.bgMusicDesc') }}</p>
+          <div class="bg-card-row">
+            <div class="bg-card-main">
+              <div class="row-label">{{ $t('settings.bgMusic') }}</div>
+              <div class="row-desc">{{ $t('settings.bgMusicDesc') }}</div>
             </div>
-            <div class="row-control">
-              <div class="input-group">
-                <select class="sel" v-model="s.bgMusicMode">
-                  <option value="none">{{ $t('settings.musicOff') }}</option>
-                  <option value="custom">{{ $t('settings.customMusic') }}</option>
-                </select>
-                <button v-if="s.bgMusicMode === 'custom'" class="btn-sm">{{ $t('settings.selectFolder') }}</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- /sec-body -->
-      </section>
-
-      <section class="sec">
-        <h3 class="sec-title" @click="toggleSec('titlebar')">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-            <line x1="8" y1="21" x2="16" y2="21" />
-            <line x1="12" y1="17" x2="12" y2="21" />
-          </svg>
-          {{ $t('settings.titlebar') }}
-          <svg
-            class="sec-arrow"
-            :class="{ open: collapsed.titlebar }"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </h3>
-
-        <div class="sec-body" v-show="collapsed.titlebar">
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.titlebarMode') }}</label>
-            </div>
-            <div class="row-control">
-              <select class="sel" v-model="s.titleBarMode">
-                <option value="default">{{ $t('settings.defaultTitlebar') }}</option>
-                <option value="none">{{ $t('settings.hideTitlebar') }}</option>
-                <option value="text">{{ $t('settings.textOnly') }}</option>
-                <option value="image">{{ $t('settings.customImageTitlebar') }}</option>
+            <div class="bg-card-control">
+              <select class="sel" v-model="s.bgMusicMode">
+                <option value="none">{{ $t('settings.musicOff') }}</option>
+                <option value="custom">{{ $t('settings.customMusic') }}</option>
               </select>
+              <button v-if="s.bgMusicMode === 'custom'" class="btn-sm">{{ $t('settings.selectFolder') }}</button>
+            </div>
+          </div>
+
+          <!-- 恢复默认 -->
+          <div class="bg-card-row">
+            <div class="bg-card-main">
+              <div class="row-label">{{ $t('settings.restoreDefaultBg') }}</div>
+              <div class="row-desc">{{ $t('settings.restoreDefaultBgDesc') }}</div>
+            </div>
+            <div class="bg-card-control">
+              <button class="btn-sm btn-destructive" @click="onResetBackground">{{ $t('settings.restoreDefaultBg') }}</button>
             </div>
           </div>
         </div>
-        <!-- /sec-body -->
-      </section>
-
-      <section class="sec">
-        <h3 class="sec-title" @click="toggleSec('homepage')">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-            <path d="M2 17l10 5 10-5" />
-            <path d="M2 12l10 5 10-5" />
-          </svg>
-          {{ $t('settings.homepage') }}
-          <svg
-            class="sec-arrow"
-            :class="{ open: collapsed.homepage }"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </h3>
-
-        <div class="sec-body" v-show="collapsed.homepage">
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.homepageContent') }}</label>
-            </div>
-            <div class="row-control">
-              <select class="sel" v-model="s.homeContent">
-                <option value="blank">{{ $t('settings.blankPage') }}</option>
-                <option value="preset">{{ $t('settings.presetHomepage') }}</option>
-                <option value="local">{{ $t('settings.localFile') }}</option>
-                <option value="online">{{ $t('settings.onlineUpdate') }}</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <!-- /sec-body -->
-      </section>
-
-      <section class="sec">
-        <h3 class="sec-title" @click="toggleSec('features')">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
-            />
-            <line x1="1" y1="1" x2="23" y2="23" />
-          </svg>
-          {{ $t('settings.features') }}
-          <svg
-            class="sec-arrow"
-            :class="{ open: collapsed.features }"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </h3>
-
-        <div class="sec-body" v-show="collapsed.features">
-          <p class="sec-desc">
-            {{ $t('settings.featuresDesc') }}
-          </p>
-          <div class="feature-hide-table">
-            <template v-for="row in featureRows" :key="row.label">
-              <span class="fh-row-label">{{ row.label }}</span>
-              <template v-for="feat in row.items" :key="feat.key">
-                <label class="fh-cell" :class="{ hidden: feat.hidden, disabled: feat.disabled }">
-                  <input type="checkbox" v-model="feat.hidden" :disabled="feat.disabled" />
-                  <span class="feat-name">{{ feat.name }}</span>
-                </label>
-              </template>
-              <!-- 补空格占位，保证每行满4列 -->
-              <span
-                v-for="i in 4 - row.items.length"
-                :key="'pad-' + i + row.label"
-                class="fh-cell fh-pad"
-              />
-            </template>
-          </div>
-          <div class="warn-bar warn-orange" style="margin-top: 12px">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            {{ $t('settings.featuresWarning') }}
-          </div>
-        </div>
-        <!-- /sec-body -->
-      </section>
-
-      <!-- ========== 全局快捷键 ========== -->
-      <section class="sec">
-        <h3 class="sec-title" @click="toggleSec('hotkey')">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <rect x="2" y="4" width="20" height="16" rx="2" ry="2" />
-            <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10" />
-          </svg>
-          {{ $t('settings.globalHotkeys') }}
-          <svg
-            class="sec-arrow"
-            :class="{ open: collapsed.hotkey }"
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </h3>
-
-        <div class="sec-body" v-show="collapsed.hotkey">
-          <p class="sec-desc">
-            {{ $t('settings.hotkeyDesc') }}<code>Ctrl+Shift+L</code>、<code
-              >Alt+F12</code
-            >
-          </p>
-
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.launchGame') }}</label>
-              <p class="row-desc">{{ $t('settings.launchGameDesc') }}</p>
-            </div>
-            <div class="row-control">
-              <div class="input-group compact">
-                <input
-                  type="text"
-                  class="inp"
-                  v-model="s.hotkeyLaunch"
-                  placeholder="Ctrl+Shift+L"
-                />
-                <button class="btn-sm" @click="updateHotkey('launch-game', s.hotkeyLaunch)">
-                  {{ $t('settings.save') }}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.toggleWindow') }}</label>
-              <p class="row-desc">{{ $t('settings.toggleWindowDesc') }}</p>
-            </div>
-            <div class="row-control">
-              <div class="input-group compact">
-                <input
-                  type="text"
-                  class="inp"
-                  v-model="s.hotkeyToggleWindow"
-                  placeholder="Ctrl+Shift+H"
-                />
-                <button class="btn-sm" @click="updateHotkey('toggle-window', s.hotkeyToggleWindow)">
-                  {{ $t('settings.save') }}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.openHome') }}</label>
-              <p class="row-desc">{{ $t('settings.openHomeDesc') }}</p>
-            </div>
-            <div class="row-control">
-              <div class="input-group compact">
-                <input
-                  type="text"
-                  class="inp"
-                  v-model="s.hotkeyOpenHome"
-                  placeholder="Ctrl+Shift+O"
-                />
-                <button class="btn-sm" @click="updateHotkey('open-home', s.hotkeyOpenHome)">
-                  {{ $t('settings.save') }}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.openSettings') }}</label>
-              <p class="row-desc">{{ $t('settings.openSettingsDesc') }}</p>
-            </div>
-            <div class="row-control">
-              <div class="input-group compact">
-                <input
-                  type="text"
-                  class="inp"
-                  v-model="s.hotkeyOpenSettings"
-                  placeholder="Ctrl+,"
-                />
-                <button class="btn-sm" @click="updateHotkey('open-settings', s.hotkeyOpenSettings)">
-                  {{ $t('settings.save') }}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="btn-row">
-            <button class="action-btn outline" @click="reloadHotkeys">{{ $t('settings.reloadHotkeys') }}</button>
-          </div>
-        </div>
-        <!-- /sec-body -->
-      </section>
+      </div>
     </template>
 
     <!-- ========== 主界面 ========== -->
@@ -1485,7 +1146,91 @@
           </svg>
           {{ $t('settings.sidebar.interface') }}
         </h3>
-        <p class="sec-desc">自定义主界面布局与显示。</p>
+        <p class="sec-desc">自定义标题栏、主页布局与功能显示。</p>
+
+        <!-- 标题栏 -->
+        <div class="memory-alloc-card" style="margin-top: 12px">
+          <div style="margin-bottom: 10px">
+            <div class="debug-mode-label">{{ $t('settings.titlebar') }}</div>
+            <div class="debug-mode-desc">{{ $t('settings.titlebarMode') }}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label class="skin-radio-item" :class="{ active: s.titleBarMode === 'default' }" @click="s.titleBarMode = 'default'">
+              <span class="skin-radio-dot" :class="{ checked: s.titleBarMode === 'default' }"></span>
+              {{ $t('settings.defaultTitlebar') }}
+            </label>
+            <label class="skin-radio-item" :class="{ active: s.titleBarMode === 'none' }" @click="s.titleBarMode = 'none'">
+              <span class="skin-radio-dot" :class="{ checked: s.titleBarMode === 'none' }"></span>
+              {{ $t('settings.hideTitlebar') }}
+            </label>
+            <label class="skin-radio-item" :class="{ active: s.titleBarMode === 'text' }" @click="s.titleBarMode = 'text'">
+              <span class="skin-radio-dot" :class="{ checked: s.titleBarMode === 'text' }"></span>
+              {{ $t('settings.textOnly') }}
+            </label>
+            <label class="skin-radio-item" :class="{ active: s.titleBarMode === 'image' }" @click="s.titleBarMode = 'image'">
+              <span class="skin-radio-dot" :class="{ checked: s.titleBarMode === 'image' }"></span>
+              {{ $t('settings.customImageTitlebar') }}
+            </label>
+          </div>
+        </div>
+
+        <!-- 主页 -->
+        <div class="memory-alloc-card" style="margin-top: 12px">
+          <div style="margin-bottom: 10px">
+            <div class="debug-mode-label">{{ $t('settings.homepage') }}</div>
+            <div class="debug-mode-desc">{{ $t('settings.homepageContent') }}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label class="skin-radio-item" :class="{ active: s.homeContent === 'blank' }" @click="s.homeContent = 'blank'">
+              <span class="skin-radio-dot" :class="{ checked: s.homeContent === 'blank' }"></span>
+              {{ $t('settings.blankPage') }}
+            </label>
+            <label class="skin-radio-item" :class="{ active: s.homeContent === 'preset' }" @click="s.homeContent = 'preset'">
+              <span class="skin-radio-dot" :class="{ checked: s.homeContent === 'preset' }"></span>
+              {{ $t('settings.presetHomepage') }}
+            </label>
+            <label class="skin-radio-item" :class="{ active: s.homeContent === 'local' }" @click="s.homeContent = 'local'">
+              <span class="skin-radio-dot" :class="{ checked: s.homeContent === 'local' }"></span>
+              {{ $t('settings.localFile') }}
+            </label>
+            <label class="skin-radio-item" :class="{ active: s.homeContent === 'online' }" @click="s.homeContent = 'online'">
+              <span class="skin-radio-dot" :class="{ checked: s.homeContent === 'online' }"></span>
+              {{ $t('settings.onlineUpdate') }}
+            </label>
+          </div>
+        </div>
+
+        <!-- 功能隐藏 -->
+        <div class="memory-alloc-card" style="margin-top: 12px">
+          <div style="margin-bottom: 10px">
+            <div class="debug-mode-label">{{ $t('settings.features') }}</div>
+            <div class="debug-mode-desc">{{ $t('settings.featuresDesc') }}</div>
+          </div>
+          <div class="feature-hide-table">
+            <template v-for="row in featureRows" :key="row.label">
+              <span class="fh-row-label">{{ row.label }}</span>
+              <template v-for="feat in row.items" :key="feat.key">
+                <label class="fh-cell" :class="{ hidden: feat.hidden, disabled: feat.disabled }">
+                  <input type="checkbox" v-model="feat.hidden" :disabled="feat.disabled" />
+                  <span class="feat-name">{{ feat.name }}</span>
+                </label>
+              </template>
+              <span
+                v-for="i in 4 - row.items.length"
+                :key="'pad-' + i + row.label"
+                class="fh-cell fh-pad"
+              />
+            </template>
+          </div>
+          <div class="warn-bar warn-orange" style="margin-top: 12px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            {{ $t('settings.featuresWarning') }}
+          </div>
+        </div>
       </section>
     </template>
 
@@ -1500,16 +1245,86 @@
           </svg>
           {{ $t('settings.sidebar.lang') }}
         </h3>
-        <div class="row">
-          <div class="row-main">
-            <label class="row-label">{{ $t('settings.interfaceLanguage') }}</label>
+        <p class="sec-desc">{{ $t('settings.languageSubtitle') }}</p>
+
+        <!-- 界面语言 - 卡片选择 -->
+        <div style="margin-top:14px">
+          <label class="row-label" style="margin-bottom:8px;display:block">{{ $t('settings.interfaceLanguage') }}</label>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <label class="lang-card" :class="{ active: s.lang === 'zh-CN' }" @click="s.lang = 'zh-CN'">
+              <span class="lang-flag">简</span>
+              <div class="lang-info">
+                <span class="lang-name">{{ $t('settings.langZhCN') }}</span>
+                <span class="lang-desc">{{ $t('settings.langZhCNDesc') }}</span>
+              </div>
+              <span class="lang-check" v-if="s.lang === 'zh-CN'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>
+              </span>
+            </label>
+            <label class="lang-card" :class="{ active: s.lang === 'en-US' }" @click="s.lang = 'en-US'">
+              <span class="lang-flag">En</span>
+              <div class="lang-info">
+                <span class="lang-name">{{ $t('settings.langEnUS') }}</span>
+                <span class="lang-desc">{{ $t('settings.langEnUSDesc') }}</span>
+              </div>
+              <span class="lang-check" v-if="s.lang === 'en-US'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>
+              </span>
+            </label>
           </div>
-          <div class="row-control">
-            <select class="sel" v-model="s.lang">
-              <option value="zh-CN">简体中文</option>
-              <option value="en-US">English</option>
-            </select>
+        </div>
+
+        <!-- 日期时间格式 -->
+        <div style="margin-top:20px">
+          <label class="row-label" style="margin-bottom:4px;display:block">{{ $t('settings.dateFormat') }}</label>
+          <p class="sec-desc" style="margin-bottom:8px">{{ $t('settings.dateFormatDesc') }}</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <label class="skin-radio-item" :class="{ active: s.dateFormat === 'follow' }" @click="s.dateFormat = 'follow'">
+              <span class="skin-radio-dot" :class="{ checked: s.dateFormat === 'follow' }"></span>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span>{{ $t('settings.dateFollowLang') }}</span>
+                <span class="row-hint">{{ $t('settings.dateFollowLangDesc') }}</span>
+              </div>
+            </label>
+            <label class="skin-radio-item" :class="{ active: s.dateFormat === '24h' }" @click="s.dateFormat = '24h'">
+              <span class="skin-radio-dot" :class="{ checked: s.dateFormat === '24h' }"></span>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span>{{ $t('settings.date24h') }}</span>
+                <span class="row-hint">{{ $t('settings.date24hDesc') }}</span>
+              </div>
+            </label>
+            <label class="skin-radio-item" :class="{ active: s.dateFormat === '12h' }" @click="s.dateFormat = '12h'">
+              <span class="skin-radio-dot" :class="{ checked: s.dateFormat === '12h' }"></span>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span>{{ $t('settings.date12h') }}</span>
+                <span class="row-hint">{{ $t('settings.date12hDesc') }}</span>
+              </div>
+            </label>
           </div>
+        </div>
+
+        <!-- 参与翻译 -->
+        <div class="memory-alloc-card" style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="about-logo" style="width:40px;height:40px;border-radius: var(--voxver-radius-md);flex-shrink:0">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M5 8l6 6" />
+                <path d="M4 14l6-6 2-3" />
+                <path d="M2 9h6" />
+                <path d="M10 2v6" />
+                <path d="M14 21v-4a2 2 0 012-2h4" />
+                <path d="M16 14l2 2 4-4" />
+              </svg>
+            </div>
+            <div>
+              <label class="row-label">{{ $t('settings.contributeTranslation') }}</label>
+              <p class="sec-desc" style="margin:2px 0 0">{{ $t('settings.contributeTranslationDesc') }}</p>
+            </div>
+          </div>
+          <a class="action-btn small outline" href="https://github.com/nnkmn/voxver-launcher" target="_blank" rel="noopener" style="flex-shrink:0">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+            {{ $t('settings.goToTranslate') }}
+          </a>
         </div>
       </section>
     </template>
@@ -1520,11 +1335,111 @@
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10" />
-            <path d="M12 8v8M8 12h8" />
+            <path d="M12 8v4M12 16h.01" />
           </svg>
           {{ $t('settings.sidebar.accessibility') }}
         </h3>
-        <p class="sec-desc">辅助功能设置。</p>
+        <p class="sec-desc">优化界面交互体验，让每位用户都能顺畅使用启动器。</p>
+
+        <!-- 屏幕阅读器模式 -->
+        <div class="debug-mode-row">
+          <div class="debug-mode-info">
+            <div class="debug-mode-label">{{ $t('settings.accessibilityScreenReader') }}</div>
+            <div class="debug-mode-desc">{{ $t('settings.accessibilityScreenReaderDesc') }}</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" v-model="s.accessibilityScreenReader" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- 减少动画效果 -->
+        <div class="debug-mode-row">
+          <div class="debug-mode-info">
+            <div class="debug-mode-label">{{ $t('settings.accessibilityReduceMotion') }}</div>
+            <div class="debug-mode-desc">{{ $t('settings.accessibilityReduceMotionDesc') }}</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" v-model="s.accessibilityReduceMotion" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- 高对比度模式 -->
+        <div class="debug-mode-row">
+          <div class="debug-mode-info">
+            <div class="debug-mode-label">{{ $t('settings.accessibilityHighContrast') }}</div>
+            <div class="debug-mode-desc">{{ $t('settings.accessibilityHighContrastDesc') }}</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" v-model="s.accessibilityHighContrast" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- 键盘导航辅助 -->
+        <div class="debug-mode-row">
+          <div class="debug-mode-info">
+            <div class="debug-mode-label">{{ $t('settings.accessibilityKeyboardNav') }}</div>
+            <div class="debug-mode-desc">{{ $t('settings.accessibilityKeyboardNavDesc') }}</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" v-model="s.accessibilityKeyboardNav" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- 字体缩放 -->
+        <div class="memory-alloc-card" style="margin-top: 12px">
+          <div style="margin-bottom: 10px">
+            <div class="debug-mode-label">{{ $t('settings.accessibilityFontScale') }}</div>
+            <div class="debug-mode-desc">{{ $t('settings.accessibilityFontScaleDesc') }}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label class="skin-radio-item" :class="{ active: s.accessibilityFontScale === 'default' }" @click="s.accessibilityFontScale = 'default'">
+              <span class="skin-radio-dot" :class="{ checked: s.accessibilityFontScale === 'default' }"></span>
+              {{ $t('settings.accessibilityFontDefault') }}
+            </label>
+            <label class="skin-radio-item" :class="{ active: s.accessibilityFontScale === 'large' }" @click="s.accessibilityFontScale = 'large'">
+              <span class="skin-radio-dot" :class="{ checked: s.accessibilityFontScale === 'large' }"></span>
+              {{ $t('settings.accessibilityFontLarge') }}
+            </label>
+            <label class="skin-radio-item" :class="{ active: s.accessibilityFontScale === 'xlarge' }" @click="s.accessibilityFontScale = 'xlarge'">
+              <span class="skin-radio-dot" :class="{ checked: s.accessibilityFontScale === 'xlarge' }"></span>
+              {{ $t('settings.accessibilityFontXLarge') }}
+            </label>
+          </div>
+        </div>
+
+        <!-- 色觉辅助 -->
+        <div class="memory-alloc-card" style="margin-top: 12px">
+          <div style="margin-bottom: 10px">
+            <div class="debug-mode-label">{{ $t('settings.accessibilityColorBlind') }}</div>
+            <div class="debug-mode-desc">{{ $t('settings.accessibilityColorBlindDesc') }}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label class="skin-radio-item" :class="{ active: s.accessibilityColorBlind === 'none' }" @click="s.accessibilityColorBlind = 'none'">
+              <span class="skin-radio-dot" :class="{ checked: s.accessibilityColorBlind === 'none' }"></span>
+              {{ $t('settings.accessibilityColorNone') }}
+            </label>
+            <label class="skin-radio-item" :class="{ active: s.accessibilityColorBlind === 'protanopia' }" @click="s.accessibilityColorBlind = 'protanopia'">
+              <span class="skin-radio-dot" :class="{ checked: s.accessibilityColorBlind === 'protanopia' }"></span>
+              {{ $t('settings.accessibilityColorProtanopia') }}
+            </label>
+            <label class="skin-radio-item" :class="{ active: s.accessibilityColorBlind === 'deuteranopia' }" @click="s.accessibilityColorBlind = 'deuteranopia'">
+              <span class="skin-radio-dot" :class="{ checked: s.accessibilityColorBlind === 'deuteranopia' }"></span>
+              {{ $t('settings.accessibilityColorDeuteranopia') }}
+            </label>
+            <label class="skin-radio-item" :class="{ active: s.accessibilityColorBlind === 'tritanopia' }" @click="s.accessibilityColorBlind = 'tritanopia'">
+              <span class="skin-radio-dot" :class="{ checked: s.accessibilityColorBlind === 'tritanopia' }"></span>
+              {{ $t('settings.accessibilityColorTritanopia') }}
+            </label>
+            <label class="skin-radio-item" :class="{ active: s.accessibilityColorBlind === 'monochromat' }" @click="s.accessibilityColorBlind = 'monochromat'">
+              <span class="skin-radio-dot" :class="{ checked: s.accessibilityColorBlind === 'monochromat' }"></span>
+              {{ $t('settings.accessibilityColorMonochromat') }}
+            </label>
+          </div>
+        </div>
       </section>
     </template>
 
@@ -1611,14 +1526,163 @@
     <!-- ========== 安全识别服务 ========== -->
     <template v-if="activeCategory === 'auth-service'">
       <section class="sec">
-        <h3 class="sec-title">
+        <h3 class="sec-title vox-sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
             <path d="M7 11V7a5 5 0 0110 0v4" />
           </svg>
           {{ $t('settings.sidebar.authService') }}
         </h3>
-        <p class="sec-desc">安全识别服务设置。</p>
+        <p class="sec-desc">配置下载文件的安全扫描服务，保护你的游戏环境免受恶意代码侵害。</p>
+      </section>
+
+      <!-- Mod 安全扫描 -->
+      <section class="sec">
+        <h3 class="sec-title vox-sec-title">Mod 安全扫描</h3>
+        <p class="sec-desc">扫描下载的 Mod 和资源文件，检测潜在的恶意代码与可疑行为。</p>
+
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">启用安全扫描</label>
+            <p class="row-desc">下载完成后自动扫描 Mod 文件</p>
+          </div>
+          <div class="row-control">
+            <label class="toggle vox-toggle">
+              <input type="checkbox" v-model="securitySettings.modScan" @change="saveSecuritySettings" />
+              <span class="toggle-slider vox-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">扫描引擎</label>
+            <p class="row-desc">选择用于检测恶意代码的扫描引擎</p>
+          </div>
+          <div class="row-control">
+            <select class="inp vox-input" v-model="securitySettings.scanEngine" @change="saveSecuritySettings">
+              <option value="builtin">内置规则库</option>
+              <option value="virustotal">VirusTotal</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row" v-if="securitySettings.scanEngine === 'virustotal'">
+          <div class="row-main">
+            <label class="row-label">VirusTotal API Key</label>
+            <p class="row-desc">在 virustotal.com 申请免费 API Key</p>
+          </div>
+          <div class="row-control">
+            <input
+              type="text"
+              class="inp vox-input"
+              v-model="securitySettings.virusTotalKey"
+              @change="saveSecuritySettings"
+              placeholder="输入 API Key..."
+              style="width: 240px"
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">扫描灵敏度</label>
+            <p class="row-desc">控制扫描严格程度，灵敏度越高误报可能越多</p>
+          </div>
+          <div class="row-control">
+            <select class="inp vox-input" v-model="securitySettings.sensitivity" @change="saveSecuritySettings">
+              <option value="loose">宽松</option>
+              <option value="standard">标准</option>
+              <option value="strict">严格</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- 文件完整性校验 -->
+      <section class="sec">
+        <h3 class="sec-title vox-sec-title">文件完整性校验</h3>
+        <p class="sec-desc">下载后校验文件 SHA256 哈希，确保文件未被篡改。</p>
+
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">启用哈希校验</label>
+            <p class="row-desc">对比下载文件与服务端记录的哈希值</p>
+          </div>
+          <div class="row-control">
+            <label class="toggle vox-toggle">
+              <input type="checkbox" v-model="securitySettings.hashCheck" @change="saveSecuritySettings" />
+              <span class="toggle-slider vox-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">自动隔离可疑文件</label>
+            <p class="row-desc">检测到风险时自动将文件移至隔离区，不执行安装</p>
+          </div>
+          <div class="row-control">
+            <label class="toggle vox-toggle">
+              <input type="checkbox" v-model="securitySettings.autoQuarantine" @change="saveSecuritySettings" />
+              <span class="toggle-slider vox-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- 信任的下载源 -->
+      <section class="sec">
+        <h3 class="sec-title vox-sec-title">信任的下载源</h3>
+        <p class="sec-desc">来自以下源的文件将跳过部分安全检查。</p>
+
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">Modrinth</label>
+            <p class="row-desc">开源的 Minecraft Mod 分发平台</p>
+          </div>
+          <div class="row-control">
+            <label class="toggle vox-toggle">
+              <input type="checkbox" v-model="securitySettings.trustModrinth" @change="saveSecuritySettings" />
+              <span class="toggle-slider vox-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">CurseForge</label>
+            <p class="row-desc">最大的 Minecraft Mod 社区平台</p>
+          </div>
+          <div class="row-control">
+            <label class="toggle vox-toggle">
+              <input type="checkbox" v-model="securitySettings.trustCurseForge" @change="saveSecuritySettings" />
+              <span class="toggle-slider vox-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- 安全日志 -->
+      <section class="sec">
+        <h3 class="sec-title vox-sec-title">安全日志</h3>
+        <p class="sec-desc">查看近期扫描记录与隔离的文件。</p>
+
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">查看安全日志</label>
+            <p class="row-desc">打开日志目录查看扫描历史</p>
+          </div>
+          <div class="row-control">
+            <button class="action-btn vox-btn" @click="openDirectory('logs')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              打开日志
+            </button>
+          </div>
+        </div>
       </section>
     </template>
 
@@ -1988,25 +2052,9 @@
         <p class="sec-desc">{{ $t('more.helpSubtitle') }}</p>
 
         <div class="faq-list">
-          <div class="faq-item">
-            <div class="faq-question">如何安装 Mod？</div>
-            <div class="faq-answer">在下载页面选择对应游戏版本的 Mod，点击安装即可。支持 CurseForge 和 Modrinth 源。</div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-question">启动游戏时提示 Java 未找到？</div>
-            <div class="faq-answer">请前往「设置 → 启动选项 → 游戏 Java」中手动选择或检测 Java 安装路径。</div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-question">如何导入整合包？</div>
-            <div class="faq-answer">在「设置 → 其他 → 整合包工具」中选择导入 .mrpack 文件即可。</div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-question">如何备份数据？</div>
-            <div class="faq-answer">在「设置 → 其他 → 数据备份与恢复」中创建备份，可用于迁移或恢复。</div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-question">启动器卡顿或显示异常？</div>
-            <div class="faq-answer">尝试在「个性化」中调整界面不透明度、关闭动画或特效。也可以在「开发者选项」中打开调试模式查看日志。</div>
+          <div class="faq-item" v-for="(item, i) in faqItems" :key="i">
+            <div class="faq-question">{{ item.q }}</div>
+            <div class="faq-answer">{{ item.a }}</div>
           </div>
         </div>
       </section>
@@ -2190,6 +2238,138 @@
           </div>
         </div>
       </section>
+
+      <!-- 快捷打开目录 -->
+      <section class="sec">
+        <h3 class="sec-title">{{ $t('settings.devQuickDirs') }}</h3>
+        <p class="sec-desc">{{ $t('settings.devQuickDirsDesc') }}</p>
+        <div class="dev-dir-grid">
+          <button class="dev-dir-card" @click="openDirectory('userData')">
+            <div class="dev-dir-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+            </div>
+            <div class="dev-dir-info">
+              <span class="dev-dir-name">{{ $t('settings.openUserDataDir') }}</span>
+              <span class="dev-dir-desc">{{ $t('settings.openUserDataDirDesc') }}</span>
+            </div>
+          </button>
+          <button class="dev-dir-card" @click="openDirectory('logs')">
+            <div class="dev-dir-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="8" y1="13" x2="16" y2="13" /><line x1="8" y1="17" x2="16" y2="17" /></svg>
+            </div>
+            <div class="dev-dir-info">
+              <span class="dev-dir-name">{{ $t('settings.openLogsDir') }}</span>
+              <span class="dev-dir-desc">{{ $t('settings.openLogsDirDesc') }}</span>
+            </div>
+          </button>
+          <button class="dev-dir-card" @click="openDirectory('cache')">
+            <div class="dev-dir-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" /></svg>
+            </div>
+            <div class="dev-dir-info">
+              <span class="dev-dir-name">{{ $t('settings.openCacheDir') }}</span>
+              <span class="dev-dir-desc">{{ $t('settings.openCacheDirDesc') }}</span>
+            </div>
+          </button>
+          <button class="dev-dir-card" @click="openDirectory('temp')">
+            <div class="dev-dir-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" /></svg>
+            </div>
+            <div class="dev-dir-info">
+              <span class="dev-dir-name">{{ $t('settings.openTempDir') }}</span>
+              <span class="dev-dir-desc">{{ $t('settings.openTempDirDesc') }}</span>
+            </div>
+          </button>
+        </div>
+      </section>
+
+      <!-- 清除缓存 -->
+      <section class="sec">
+        <h3 class="sec-title">{{ $t('settings.clearCache') }}</h3>
+        <p class="sec-desc">{{ $t('settings.clearCacheDesc') }}</p>
+        <div style="margin-top:12px">
+          <button class="action-btn outline" @click="clearCache" :disabled="isClearingCache">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
+            {{ isClearingCache ? $t('settings.clearing') : $t('settings.clearCacheBtn') }}
+          </button>
+        </div>
+      </section>
+
+      <!-- 实验性与性能 -->
+      <section class="sec">
+        <h3 class="sec-title">{{ $t('settings.devExperimental') }}</h3>
+        <p class="sec-desc">{{ $t('settings.devExperimentalDesc') }}</p>
+
+        <div class="debug-mode-row">
+          <div class="debug-mode-label">{{ $t('settings.gpuAcceleration') }}</div>
+          <div class="debug-mode-desc">{{ $t('settings.gpuAccelerationDesc') }}</div>
+          <label class="toggle-switch">
+            <input type="checkbox" v-model="s.gpuAcceleration" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="debug-mode-row">
+          <div class="debug-mode-label">{{ $t('settings.networkLogging') }}</div>
+          <div class="debug-mode-desc">{{ $t('settings.networkLoggingDesc') }}</div>
+          <label class="toggle-switch">
+            <input type="checkbox" v-model="s.networkLogging" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="debug-mode-row">
+          <div class="debug-mode-label">{{ $t('settings.skipCorsCheck') }}</div>
+          <div class="debug-mode-desc">{{ $t('settings.skipCorsCheckDesc') }}</div>
+          <label class="toggle-switch">
+            <input type="checkbox" v-model="s.skipCorsCheck" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- 运行环境信息 -->
+      <section class="sec">
+        <h3 class="sec-title">{{ $t('settings.devEnvInfo') }}</h3>
+        <p class="sec-desc">{{ $t('settings.devEnvInfoDesc') }}</p>
+        <div class="memory-alloc-card" style="margin-top:12px">
+          <div class="env-info-grid" v-if="runtimeInfo">
+            <div class="env-info-item">
+              <span class="env-info-label">{{ $t('settings.devAppVersion') }}</span>
+              <span class="env-info-value">v{{ runtimeInfo.appVersion }}</span>
+            </div>
+            <div class="env-info-item">
+              <span class="env-info-label">{{ $t('settings.electronVersion') }}</span>
+              <span class="env-info-value">{{ runtimeInfo.electron }}</span>
+            </div>
+            <div class="env-info-item">
+              <span class="env-info-label">{{ $t('settings.chromeVersion') }}</span>
+              <span class="env-info-value">{{ runtimeInfo.chrome }}</span>
+            </div>
+            <div class="env-info-item">
+              <span class="env-info-label">{{ $t('settings.nodeVersion') }}</span>
+              <span class="env-info-value">{{ runtimeInfo.node }}</span>
+            </div>
+            <div class="env-info-item">
+              <span class="env-info-label">{{ $t('settings.platform') }}</span>
+              <span class="env-info-value">{{ runtimeInfo.platform }} ({{ runtimeInfo.arch }})</span>
+            </div>
+          </div>
+          <p v-else class="sec-desc">加载中...</p>
+        </div>
+      </section>
+
+      <!-- 重置启动器 -->
+      <section class="sec">
+        <h3 class="sec-title">{{ $t('settings.devResetSettings') }}</h3>
+        <p class="sec-desc">{{ $t('settings.devResetSettingsDesc') }}</p>
+        <div style="margin-top:12px">
+          <button class="btn-destructive" @click="resetSettings">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
+            {{ $t('settings.devResetBtn') }}
+          </button>
+        </div>
+      </section>
     </template>
   </div>
 </template>
@@ -2198,11 +2378,21 @@
 import { reactive, inject, computed, onMounted, watch, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { setLocale } from '../locale/i18n'
+import { useI18n } from 'vue-i18n'
 import { useAppStore } from '../stores/app.store'
 import AccountPage from './AccountPage.vue'
 
 const router = useRouter()
 const appStore = useAppStore()
+const { tm, t } = useI18n()
+const faqItems = computed(() => (tm('more.faq') as Array<{ q: string; a: string }>))
+
+const themePreviewOptions = computed(() => [
+  { value: 'light' as const, label: t('settings.themeLight') },
+  { value: 'auto' as const, label: t('settings.themeAuto') },
+  { value: 'dark' as const, label: t('settings.themeDark') },
+  { value: 'koring' as const, label: t('settings.themeKoring') }
+])
 
 const settingsActive = inject('settingsActive') as any
 const activeCategory = computed(() => settingsActive?.value || 'home')
@@ -2307,8 +2497,9 @@ const s = reactive({
 
   // 个性化
   opacity: 100,
-  themeColor: localStorage.getItem('voxver_themeColor') || '#6366f1',
+  themeColor: localStorage.getItem('voxver_themeColor') || '#14b8a6',
   lang: (localStorage.getItem('voxver-language') as 'zh-CN' | 'en-US') || 'zh-CN',
+  dateFormat: (localStorage.getItem('voxver-dateFormat') as 'follow' | '24h' | '12h') || 'follow',
   bgMusicMode: 'none',
   titleBarMode: 'default',
   homeContent: 'blank',
@@ -2333,7 +2524,7 @@ const s = reactive({
   hotkeyOpenSettings: 'Ctrl+,',
 
   // P2: 主题自定义
-  themeCustomColor: '#6366f1',
+  themeCustomColor: '#14b8a6',
   themeBgOpacity: 100,
 
   // P2: 整合包工具
@@ -2359,7 +2550,18 @@ const s = reactive({
   useProxy: false,
   proxyHost: '127.0.0.1',
   proxyPort: 7890,
-  closeToTray: false
+  closeToTray: false,
+  gpuAcceleration: true,
+  networkLogging: false,
+  skipCorsCheck: false,
+
+  // 辅助功能
+  accessibilityScreenReader: false,
+  accessibilityReduceMotion: false,
+  accessibilityHighContrast: false,
+  accessibilityKeyboardNav: false,
+  accessibilityFontScale: 'default',
+  accessibilityColorBlind: 'none'
 })
 
 // 监听语言变更，同步到 vue-i18n 和 localStorage
@@ -2371,6 +2573,95 @@ watch(
     }
   }
 )
+
+// 监听日期格式变更
+watch(
+  () => s.dateFormat,
+  (v) => {
+    if (v) localStorage.setItem('voxver-dateFormat', v)
+  }
+)
+
+// 字体缩放映射
+const FONT_SCALE_MAP: Record<string, number> = {
+  default: 1,
+  large: 1.15,
+  xlarge: 1.3
+}
+
+function applyFontScale(scale: string) {
+  const factor = FONT_SCALE_MAP[scale] || 1
+  document.documentElement.style.setProperty('--voxver-font-scale', String(factor))
+  localStorage.setItem('voxver_fontScale', scale)
+}
+
+// 监听字体缩放变更
+watch(() => s.accessibilityFontScale, (val) => applyFontScale(val))
+
+// 初始化时恢复字体缩放
+const savedFontScale = localStorage.getItem('voxver_fontScale')
+if (savedFontScale && FONT_SCALE_MAP[savedFontScale]) {
+  s.accessibilityFontScale = savedFontScale
+}
+applyFontScale(s.accessibilityFontScale)
+
+// 色觉辅助
+const CVD_FILTER_MAP: Record<string, string> = {
+  protanopia: 'url(#cvd-protanopia)',
+  deuteranopia: 'url(#cvd-deuteranopia)',
+  tritanopia: 'url(#cvd-tritanopia)',
+  monochromat: 'url(#cvd-monochromat)'
+}
+
+function applyColorBlind(mode: string) {
+  const f = CVD_FILTER_MAP[mode] || ''
+  document.body.style.filter = f
+  localStorage.setItem('voxver_colorBlind', mode)
+}
+
+watch(() => s.accessibilityColorBlind, (val) => applyColorBlind(val))
+
+const savedColorBlind = localStorage.getItem('voxver_colorBlind')
+if (savedColorBlind) {
+  s.accessibilityColorBlind = savedColorBlind
+}
+applyColorBlind(s.accessibilityColorBlind)
+
+// 屏幕阅读器
+function applyScreenReader(enabled: boolean) {
+  document.body.toggleAttribute('data-screen-reader', enabled)
+  localStorage.setItem('voxver_screenReader', String(enabled))
+}
+watch(() => s.accessibilityScreenReader, (val) => applyScreenReader(val))
+if (localStorage.getItem('voxver_screenReader') === 'true') s.accessibilityScreenReader = true
+applyScreenReader(s.accessibilityScreenReader)
+
+// 减少动画
+function applyReduceMotion(enabled: boolean) {
+  document.body.toggleAttribute('data-reduce-motion', enabled)
+  localStorage.setItem('voxver_reduceMotion', String(enabled))
+}
+watch(() => s.accessibilityReduceMotion, (val) => applyReduceMotion(val))
+if (localStorage.getItem('voxver_reduceMotion') === 'true') s.accessibilityReduceMotion = true
+applyReduceMotion(s.accessibilityReduceMotion)
+
+// 高对比度
+function applyHighContrast(enabled: boolean) {
+  document.body.toggleAttribute('data-high-contrast', enabled)
+  localStorage.setItem('voxver_highContrast', String(enabled))
+}
+watch(() => s.accessibilityHighContrast, (val) => applyHighContrast(val))
+if (localStorage.getItem('voxver_highContrast') === 'true') s.accessibilityHighContrast = true
+applyHighContrast(s.accessibilityHighContrast)
+
+// 键盘导航
+function applyKeyboardNav(enabled: boolean) {
+  document.body.toggleAttribute('data-keyboard-nav', enabled)
+  localStorage.setItem('voxver_keyboardNav', String(enabled))
+}
+watch(() => s.accessibilityKeyboardNav, (val) => applyKeyboardNav(val))
+if (localStorage.getItem('voxver_keyboardNav') === 'true') s.accessibilityKeyboardNav = true
+applyKeyboardNav(s.accessibilityKeyboardNav)
 
 // P2 状态变量
 const hotkeyList = ref<any[]>([])
@@ -2403,12 +2694,12 @@ const memoryPercent = computed(() => {
 })
 
 const colorPresets = [
-  { name: '靛蓝紫（默认）', value: '#6366f1' },
-  { name: '玫瑰粉', value: '#ec4899' },
+  { name: '深青墨（默认）', value: '#14b8a6' },
+  { name: '天际蓝', value: '#0ea5e9' },
   { name: '翡翠绿', value: '#10b981' },
   { name: '琥珀橙', value: '#f59e0b' },
   { name: '珊瑚红', value: '#ef4444' },
-  { name: '天际蓝', value: '#0ea5e9' },
+  { name: '玫瑰粉', value: '#ec4899' },
   { name: '紫罗兰', value: '#8b5cf6' }
 ]
 
@@ -2558,6 +2849,33 @@ async function browseBgImage() {
   if (path) {
     appStore.setBgImagePath(path)
   }
+}
+
+const bgImagePreviewUrl = ref('')
+watch(
+  () => appStore.bgImagePath,
+  async (p) => {
+    if (!p) {
+      bgImagePreviewUrl.value = ''
+      return
+    }
+    if (/^https?:\/\//.test(p)) {
+      bgImagePreviewUrl.value = p
+      return
+    }
+    const url = await window.electronAPI?.dialog?.readAsDataURL?.(p)
+    bgImagePreviewUrl.value = url || ''
+  },
+  { immediate: true }
+)
+
+function onBgPreviewError(e: Event) {
+  const img = e.target as HTMLImageElement
+  img.style.display = 'none'
+}
+
+function onResetBackground() {
+  appStore.resetBackgroundSettings()
 }
 async function openMcDir() {
   try {
@@ -3122,11 +3440,117 @@ onMounted(async () => {
     const v = await window.electronAPI?.app?.getVersion?.()
     if (v) appVersion.value = v
   } catch { /* fallback to Alpha */ }
+  loadAppPaths()
+  loadRuntimeInfo()
 })
+
+// ====== 安全识别服务 ======
+const securitySettings = reactive({
+  modScan: localStorage.getItem('voxver_security_modScan') !== 'false',
+  scanEngine: localStorage.getItem('voxver_security_engine') || 'builtin',
+  virusTotalKey: localStorage.getItem('voxver_security_vt_key') || '',
+  sensitivity: localStorage.getItem('voxver_security_sensitivity') || 'standard',
+  hashCheck: localStorage.getItem('voxver_security_hash') !== 'false',
+  autoQuarantine: localStorage.getItem('voxver_security_quarantine') !== 'false',
+  trustModrinth: localStorage.getItem('voxver_security_trust_modrinth') !== 'false',
+  trustCurseForge: localStorage.getItem('voxver_security_trust_curseforge') !== 'false'
+})
+
+function saveSecuritySettings() {
+  localStorage.setItem('voxver_security_modScan', String(securitySettings.modScan))
+  localStorage.setItem('voxver_security_engine', securitySettings.scanEngine)
+  localStorage.setItem('voxver_security_vt_key', securitySettings.virusTotalKey)
+  localStorage.setItem('voxver_security_sensitivity', securitySettings.sensitivity)
+  localStorage.setItem('voxver_security_hash', String(securitySettings.hashCheck))
+  localStorage.setItem('voxver_security_quarantine', String(securitySettings.autoQuarantine))
+  localStorage.setItem('voxver_security_trust_modrinth', String(securitySettings.trustModrinth))
+  localStorage.setItem('voxver_security_trust_curseforge', String(securitySettings.trustCurseForge))
+}
 
 // ====== 开发者选项辅助函数 ======
 function openDevTools() {
   window.electronAPI?.devTools?.open?.()
+}
+
+// 快捷打开目录
+const appPaths = ref<{ userData: string; logs: string; temp: string; cache: string } | null>(null)
+
+async function loadAppPaths() {
+  try {
+    appPaths.value = await window.electronAPI?.app?.getPaths?.() || null
+  } catch { /* ignore */ }
+}
+
+async function openDirectory(key: 'userData' | 'logs' | 'temp' | 'cache') {
+  if (!appPaths.value) await loadAppPaths()
+  const p = appPaths.value?.[key]
+  if (p) {
+    try {
+      await window.electronAPI?.shell?.openPath?.(p)
+    } catch (e: any) {
+      window.electronAPI?.notification?.send({
+        title: '打开失败',
+        body: e?.message || '无法打开目录',
+        type: 'error'
+      })
+    }
+  }
+}
+
+// 清除缓存
+const isClearingCache = ref(false)
+async function clearCache() {
+  if (isClearingCache.value) return
+  isClearingCache.value = true
+  try {
+    await window.electronAPI?.app?.clearCache?.()
+    window.electronAPI?.notification?.send({
+      title: t('settings.cacheCleared'),
+      body: t('settings.clearCacheDesc'),
+      type: 'success'
+    })
+  } catch (e: any) {
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: e?.message || '清除缓存失败',
+      type: 'error'
+    })
+  } finally {
+    isClearingCache.value = false
+  }
+}
+
+// 运行环境信息
+const runtimeInfo = ref<{ appVersion: string; electron: string; chrome: string; node: string; v8: string; platform: string; arch: string } | null>(null)
+
+async function loadRuntimeInfo() {
+  try {
+    runtimeInfo.value = await window.electronAPI?.app?.getRuntimeInfo?.() || null
+  } catch { /* ignore */ }
+}
+
+// 重置启动器
+async function resetSettings() {
+  if (!confirm(t('settings.devResetConfirm'))) return
+  try {
+    const ok = await window.electronAPI?.app?.resetSettings?.()
+    if (ok) {
+      localStorage.clear()
+      window.electronAPI?.window?.close?.()
+    } else {
+      window.electronAPI?.notification?.send({
+        title: '重置失败',
+        body: '无法清除配置目录，请手动删除',
+        type: 'error'
+      })
+    }
+  } catch (e: any) {
+    window.electronAPI?.notification?.send({
+      title: '错误',
+      body: e?.message || '重置失败',
+      type: 'error'
+    })
+  }
 }
 
 function copyEmail() {
@@ -3252,7 +3676,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 
     .sec-arrow {
       margin-left: auto;
-      color: var(--voxver-text-muted, #888);
+      color: var(--voxver-text-muted);
       transition: transform 0.2s ease;
       &.open {
         transform: rotate(180deg);
@@ -3311,7 +3735,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   border-radius: 7px;
   font-size: 13px;
   color: var(--voxver-text-primary);
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   outline: none;
   transition: all 0.14s;
 
@@ -3335,7 +3759,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   border-radius: 7px;
   font-size: 13px;
   color: var(--voxver-text-primary);
-  background: var(--voxver-bg-elevated)
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent)
     url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6f9a' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")
     no-repeat right 10px center;
   outline: none;
@@ -3357,7 +3781,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   font-size: 12.5px;
   font-family: 'Consolas', 'Courier New', monospace;
   color: var(--voxver-text-primary);
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   outline: none;
   resize: vertical;
   min-height: 56px;
@@ -3389,7 +3813,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   padding: 8px 16px;
   border: 1.5px solid var(--voxver-border-color);
   border-radius: 7px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   font-size: 12px;
   color: var(--voxver-text-secondary);
   cursor: pointer;
@@ -3421,8 +3845,8 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   flex-direction: column;
   gap: 2px;
   padding: 6px 10px;
-  background: var(--voxver-bg-elevated);
-  border-radius: 6px;
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
+  border-radius: var(--voxver-radius-sm);
   margin-bottom: 4px;
   border: 1px solid var(--voxver-border-color);
 }
@@ -3506,8 +3930,8 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   flex-direction: column;
   gap: 8px;
   padding: 12px;
-  background: var(--voxver-bg-elevated);
-  border-radius: 8px;
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
+  border-radius: var(--voxver-radius-md);
   border: 1px solid var(--voxver-border-color);
 }
 
@@ -3575,20 +3999,20 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   align-items: flex-start;
   gap: 12px;
   padding: 12px;
-  background: var(--voxver-bg-elevated);
-  border-radius: 8px;
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
+  border-radius: var(--voxver-radius-md);
   border: 1px solid var(--voxver-border-color);
   transition: all 0.2s ease;
 
   &:hover {
     border-color: var(--voxver-primary);
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 2px 8px color-mix(in oklab, var(--voxver-primary) 10%, transparent);
   }
 }
 
 .java-item-default {
   border-color: var(--voxver-primary);
-  background: rgba(99, 102, 241, 0.05);
+  background: color-mix(in oklab, var(--voxver-primary) 5%, transparent);
 }
 
 .java-item-main {
@@ -3603,8 +4027,8 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: var(--voxver-bg-primary);
-  border-radius: 8px;
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
+  border-radius: var(--voxver-radius-md);
   color: var(--voxver-primary);
   flex-shrink: 0;
 }
@@ -3640,7 +4064,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   padding: 2px 6px;
   background: var(--voxver-primary);
   color: white;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
   font-weight: 500;
 }
 
@@ -3683,7 +4107,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   padding: 20px;
   background: rgba(239, 68, 68, 0.05);
   border: 1px dashed rgba(239, 68, 68, 0.3);
-  border-radius: 8px;
+  border-radius: var(--voxver-radius-md);
   text-align: center;
 }
 
@@ -3722,7 +4146,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   padding: 8px 16px;
   border: 1.5px solid var(--voxver-border-color);
   border-radius: 7px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   font-size: 12px;
   color: var(--voxver-text-secondary);
   text-decoration: none;
@@ -3778,15 +4202,15 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 /* ---- 内存进度条 ---- */
 .memory-bar {
   height: 8px;
-  background: var(--voxver-bg-primary);
-  border-radius: 4px;
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
+  border-radius: var(--voxver-radius-xs);
   margin-top: 8px;
   overflow: hidden;
 }
 
 .bar-fill {
   height: 100%;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
   background: linear-gradient(90deg, var(--voxver-primary), #42a5f5);
   transition: width 0.3s ease;
   display: flex;
@@ -3833,7 +4257,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   padding: 8px 14px;
   border-radius: var(--voxver-radius-md);
   border: 1.5px solid var(--voxver-border-color);
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   color: var(--voxver-text-secondary);
   font-size: 13px;
   cursor: pointer;
@@ -3881,7 +4305,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 /* ---- 功能隐藏表格 ---- */
 .sec-desc {
   font-size: 12px;
-  color: var(--voxver-text-muted, #888);
+  color: var(--voxver-text-muted);
   margin: 0 0 12px;
   line-height: 1.6;
 }
@@ -3895,7 +4319,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   .search-box-icon {
     position: absolute;
     left: 12px;
-    color: var(--voxver-text-muted, #888);
+    color: var(--voxver-text-muted);
     pointer-events: none;
   }
 
@@ -3903,7 +4327,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
     width: 100%;
     padding: 9px 12px 9px 36px;
     border: 1px solid color-mix(in oklab, var(--voxver-text-primary) 12%, transparent);
-    border-radius: 8px;
+    border-radius: var(--voxver-radius-md);
     background: color-mix(in oklab, var(--voxver-text-primary) 4%, transparent);
     color: var(--voxver-text-primary);
     font-size: 13px;
@@ -3911,12 +4335,12 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
     transition: border-color 0.15s, box-shadow 0.15s;
 
     &::placeholder {
-      color: var(--voxver-text-muted, #888);
+      color: var(--voxver-text-muted);
     }
 
     &:focus {
-      border-color: var(--voxver-accent);
-      box-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-accent) 20%, transparent);
+      border-color: var(--voxver-primary);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 20%, transparent);
     }
   }
 }
@@ -3959,9 +4383,9 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  background: color-mix(in oklab, var(--voxver-accent) 12%, transparent);
-  color: var(--voxver-accent);
+  border-radius: var(--voxver-radius-md);
+  background: color-mix(in oklab, var(--voxver-primary) 12%, transparent);
+  color: var(--voxver-primary);
 }
 
 .quick-grid-label {
@@ -3975,14 +4399,14 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   display: block;
   font-size: 11.5px;
   font-weight: 400;
-  color: var(--voxver-text-muted, #888);
+  color: var(--voxver-text-muted);
   line-height: 1.4;
   margin-top: 2px;
 }
 
 .quick-grid-arrow {
   flex-shrink: 0;
-  color: var(--voxver-text-muted, #888);
+  color: var(--voxver-text-muted);
   opacity: 0.5;
   transition: opacity 0.12s;
 }
@@ -3999,7 +4423,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 
   .row {
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: var(--voxver-radius-md);
     transition: background 0.12s;
 
     &:hover {
@@ -4046,11 +4470,11 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   transition: background 0.12s;
 
   &:hover:not(.fh-pad):not(.disabled) {
-    background: var(--voxver-bg-primary);
+    background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   }
 
   &.hidden .feat-name {
-    color: var(--voxver-text-muted, #aaa);
+    color: var(--voxver-text-muted);
     text-decoration: line-through;
     opacity: 0.6;
   }
@@ -4059,7 +4483,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
     cursor: not-allowed;
     opacity: 0.55;
     .feat-name {
-      color: var(--voxver-text-muted, #aaa);
+      color: var(--voxver-text-muted);
     }
   }
 
@@ -4093,7 +4517,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   background: rgba(245, 158, 11, 0.1);
   border: 1px solid rgba(245, 158, 11, 0.35);
   color: #b45309;
-  border-radius: 6px;
+  border-radius: var(--voxver-radius-sm);
   padding: 8px 12px;
   font-size: 12px;
   display: flex;
@@ -4117,12 +4541,12 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: var(--voxver-radius-sm);
   cursor: pointer;
   transition: background 0.12s;
 
   &:hover {
-    background: var(--voxver-bg-primary);
+    background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   }
 
   input[type='checkbox'] {
@@ -4156,8 +4580,8 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   gap: 6px;
   padding: 8px 18px;
   border: 1.5px solid var(--voxver-border-color);
-  border-radius: 7px;
-  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-md);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   font-size: 12.5px;
   font-weight: 500;
   color: var(--voxver-text-secondary);
@@ -4173,12 +4597,23 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
     color: var(--voxver-primary);
   }
 
+  &.primary {
+    background: var(--voxver-gradient-primary);
+    border-color: transparent;
+    color: #fff;
+    &:hover {
+      background: var(--voxver-primary-600);
+      border-color: transparent;
+      color: #fff;
+    }
+  }
+
   &.outline:hover {
-    background: rgba(21, 101, 192, 0.04);
+    background: color-mix(in oklab, var(--voxver-primary) 4%, transparent);
   }
 
   &.danger {
-    border-color: rgba(229, 57, 53, 0.4);
+    border-color: color-mix(in oklab, var(--voxver-error) 40%, transparent);
     color: var(--voxver-error);
     &:hover {
       background: var(--voxver-error);
@@ -4191,14 +4626,14 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 .action-btn.small {
   padding: 4px 10px;
   font-size: 11.5px;
-  border-radius: 5px;
+  border-radius: var(--voxver-radius-xs);
 }
 
 /* ---- 关于卡片 ---- */
 .about-card {
   text-align: center;
   padding: 28px 24px;
-  background: var(--voxver-bg-primary);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   border-radius: 10px;
   border: 1px solid var(--voxver-border-color-light);
 
@@ -4278,8 +4713,8 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   justify-content: center;
   font-size: 14px;
   font-weight: 700;
-  background: color-mix(in oklab, var(--voxver-accent) 14%, transparent);
-  color: var(--voxver-accent);
+  background: color-mix(in oklab, var(--voxver-primary) 14%, transparent);
+  color: var(--voxver-primary);
   flex-shrink: 0;
 }
 
@@ -4322,7 +4757,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   cursor: pointer;
 
   &:hover {
-    background: color-mix(in oklab, var(--voxver-accent) 8%, transparent);
+    background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
   }
 
   svg {
@@ -4349,7 +4784,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 .copyright-card {
   text-align: center;
   padding: 32px 24px;
-  background: var(--voxver-bg-primary);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   border-radius: 10px;
   border: 1px solid var(--voxver-border-color-light);
 
@@ -4361,8 +4796,8 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: color-mix(in oklab, var(--voxver-accent) 10%, transparent);
-    color: var(--voxver-accent);
+    background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
+    color: var(--voxver-primary);
     opacity: 0.7;
   }
 
@@ -4386,7 +4821,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   display: flex;
   gap: 16px;
   padding: 20px;
-  background: var(--voxver-bg-primary);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   border-radius: 10px;
   border: 1px solid var(--voxver-border-color-light);
 
@@ -4398,8 +4833,8 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
     align-items: center;
     justify-content: center;
     border-radius: 10px;
-    background: color-mix(in oklab, var(--voxver-accent) 14%, transparent);
-    color: var(--voxver-accent);
+    background: color-mix(in oklab, var(--voxver-primary) 14%, transparent);
+    color: var(--voxver-primary);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.5px;
@@ -4437,7 +4872,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   align-items: center;
   justify-content: space-between;
   padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: var(--voxver-radius-md);
   transition: background 0.1s;
 
   &:hover {
@@ -4461,14 +4896,14 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
     color: var(--voxver-text-muted);
     background: color-mix(in oklab, var(--voxver-text-primary) 6%, transparent);
     padding: 1px 8px;
-    border-radius: 4px;
+    border-radius: var(--voxver-radius-xs);
   }
 
   .oss-license {
     font-size: 11.5px;
     color: var(--voxver-text-muted);
     padding: 2px 10px;
-    border-radius: 4px;
+    border-radius: var(--voxver-radius-xs);
     border: 1px solid color-mix(in oklab, var(--voxver-text-primary) 8%, transparent);
   }
 }
@@ -4503,8 +4938,8 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: color-mix(in oklab, var(--voxver-accent) 10%, transparent);
-  color: var(--voxver-accent);
+  background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
+  color: var(--voxver-primary);
   margin-bottom: 20px;
   opacity: 0.6;
 }
@@ -4561,8 +4996,8 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   display: block;
 }
 .debug-card {
-  background: color-mix(in oklab, var(--voxver-text, #fff) 4%, transparent);
-  border-radius: 8px;
+  background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  border-radius: var(--voxver-radius-md);
   padding: 12px 16px;
 }
 .debug-mode-row {
@@ -4571,9 +5006,93 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 12px;
-  background: color-mix(in oklab, var(--voxver-text, #fff) 4%, transparent);
-  border-radius: 8px;
+  background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  border-radius: var(--voxver-radius-md);
   padding: 12px 16px;
+}
+
+/* ---- 开发者选项：快捷目录卡片 ---- */
+.dev-dir-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.dev-dir-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--voxver-border-color);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: left;
+  font-family: inherit;
+
+  &:hover {
+    border-color: var(--voxver-primary-400);
+    background: color-mix(in oklab, var(--voxver-bg-elevated) 85%, transparent);
+    transform: translateY(-1px);
+  }
+}
+.dev-dir-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--voxver-radius-md);
+  background: color-mix(in oklab, var(--voxver-primary-500) 15%, transparent);
+  color: var(--voxver-primary-500);
+  flex-shrink: 0;
+}
+.dev-dir-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.dev-dir-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--voxver-text-primary);
+}
+.dev-dir-desc {
+  font-size: 11px;
+  color: var(--voxver-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- 开发者选项：环境信息 ---- */
+.env-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+.env-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  border-radius: var(--voxver-radius-md);
+  background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+}
+.env-info-label {
+  font-size: 11px;
+  color: var(--voxver-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.env-info-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--voxver-text-primary);
+  font-family: var(--voxver-font-mono);
 }
 .debug-mode-info {
   flex: 1;
@@ -4582,11 +5101,11 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 .debug-mode-label {
   font-size: 13px;
   font-weight: 600;
-  color: var(--voxver-text, #e0e0e0);
+  color: var(--voxver-text);
 }
 .debug-mode-desc {
   font-size: 11px;
-  color: var(--voxver-text-muted, #888);
+  color: var(--voxver-text-muted);
   margin: 2px 0 0;
   line-height: 1.4;
 }
@@ -4606,7 +5125,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 .toggle-slider {
   position: absolute;
   inset: 0;
-  background: var(--voxver-border-color, #555);
+  background: var(--voxver-border-color);
   border-radius: 11px;
   transition: background 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -4622,7 +5141,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .toggle-switch input:checked + .toggle-slider {
-  background: var(--voxver-accent, #42b883);
+  background: var(--voxver-primary);
 }
 .toggle-switch input:checked + .toggle-slider::before {
   transform: translateX(18px);
@@ -4636,14 +5155,170 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 
 /* ---- 内存分配选择组（Koring 风格） ---- */
 .memory-alloc-card {
-  background: color-mix(in oklab, var(--voxver-text, #fff) 4%, transparent);
-  border-radius: 8px;
+  background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  border-radius: var(--voxver-radius-md);
   padding: 12px 16px;
 }
 .java-alloc-card {
-  background: color-mix(in oklab, var(--voxver-text, #fff) 4%, transparent);
-  border-radius: 8px;
+  background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  border-radius: var(--voxver-radius-md);
   padding: 16px;
+}
+
+/* ---- 主题预览缩略图（Koring 风格） ---- */
+.theme-preview-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.theme-preview-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px;
+  border-radius: var(--voxver-radius-md);
+  border: 2px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.theme-preview-card:hover {
+  border-color: color-mix(in oklab, var(--voxver-text) 15%, transparent);
+}
+.theme-preview-card.active {
+  border-color: var(--voxver-primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 20%, transparent);
+}
+.theme-preview-window {
+  width: 140px;
+  height: 96px;
+  border-radius: var(--voxver-radius-xs);
+  overflow: hidden;
+  display: flex;
+}
+.theme-preview-window .tpw-half {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.tpw-light {
+  background: #ffffff;
+}
+.tpw-dark {
+  background: #1c1c1e;
+}
+.tpw-titlebar {
+  height: 8px;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.tpw-light .tpw-titlebar { background: #e5e5e7; }
+.tpw-dark .tpw-titlebar { background: #2c2c2e; }
+.tpw-titlebar span {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.tpw-light .tpw-titlebar span:nth-child(1) { background: #ff6058; }
+.tpw-light .tpw-titlebar span:nth-child(2) { background: #ffbd2e; }
+.tpw-light .tpw-titlebar span:nth-child(3) { background: #28ca42; }
+.tpw-dark .tpw-titlebar span:nth-child(1) { background: #ff5f57; }
+.tpw-dark .tpw-titlebar span:nth-child(2) { background: #febc2e; }
+.tpw-dark .tpw-titlebar span:nth-child(3) { background: #28c840; }
+.tpw-content {
+  flex: 1;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.tpw-bar {
+  height: 4px;
+  border-radius: 2px;
+}
+.tpw-light .tpw-bar { background: #e5e5e7; }
+.tpw-dark .tpw-bar { background: #3a3a3c; }
+.tpw-dark[data-theme='koring'] { background: #0d0d0d; }
+.tpw-dark[data-theme='koring'] .tpw-titlebar { background: #1a1a1a; }
+.tpw-dark[data-theme='koring'] .tpw-bar { background: rgba(255, 255, 255, 0.1); }
+.tpw-dark[data-theme='koring'] .tpw-bar.w-full { background: #2563eb; }
+.tpw-bar.w-full { width: 100%; }
+.tpw-bar.w-3-4 { width: 75%; }
+.tpw-bar.w-1-2 { width: 50%; }
+.theme-preview-label {
+  font-size: 11px;
+  color: var(--voxver-text-muted);
+  margin-top: 6px;
+  text-align: center;
+}
+.theme-preview-card.active .theme-preview-label {
+  color: var(--voxver-primary);
+  font-weight: 500;
+}
+
+/* ---- 背景卡片列表（Koring 风格） ---- */
+.bg-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bg-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: color-mix(in oklab, var(--voxver-text) 3%, transparent);
+  border-radius: var(--voxver-radius-sm);
+}
+.bg-card-main {
+  flex: 1;
+  min-width: 0;
+}
+.bg-card-main .row-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--voxver-text);
+}
+.bg-card-main .row-desc {
+  font-size: 12px;
+  color: var(--voxver-text-muted);
+  margin-top: 2px;
+}
+.bg-card-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.bg-preview-wrap {
+  border-radius: var(--voxver-radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--voxver-border);
+  margin-bottom: 2px;
+}
+.bg-preview-img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+/* ---- 破坏性按钮 ---- */
+.btn-destructive {
+  background: color-mix(in oklab, #ef4444 15%, transparent);
+  color: #ef4444;
+  border: 1px solid color-mix(in oklab, #ef4444 30%, transparent);
+}
+.btn-destructive:hover {
+  background: color-mix(in oklab, #ef4444 25%, transparent);
 }
 
 /* ---- FAQ ---- */
@@ -4653,20 +5328,20 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   gap: 6px;
 }
 .faq-item {
-  background: color-mix(in oklab, var(--voxver-text, #fff) 3%, transparent);
-  border-radius: 6px;
+  background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  border-radius: var(--voxver-radius-md);
   padding: 10px 14px;
 }
 .faq-question {
   font-size: 13px;
   font-weight: 600;
-  color: var(--voxver-text, #e0e0e0);
+  color: var(--voxver-text);
   margin-bottom: 4px;
 }
 .faq-answer {
   font-size: 12px;
   line-height: 1.5;
-  color: var(--voxver-text-muted, #888);
+  color: var(--voxver-text-muted);
 }
 
 /* ---- 反馈卡片 ---- */
@@ -4676,8 +5351,8 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   gap: 12px;
 }
 .feedback-card {
-  background: color-mix(in oklab, var(--voxver-text, #fff) 3%, transparent);
-  border-radius: 8px;
+  background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  border-radius: var(--voxver-radius-md);
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -4689,12 +5364,12 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 .feedback-card-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--voxver-text, #e0e0e0);
+  color: var(--voxver-text);
 }
 .feedback-card-desc {
   font-size: 12px;
   line-height: 1.5;
-  color: var(--voxver-text-muted, #888);
+  color: var(--voxver-text-muted);
   margin: 0;
 }
 .feedback-card .action-btn {
@@ -4712,26 +5387,26 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   gap: 5px;
   font-size: 13px;
   cursor: pointer;
-  color: var(--voxver-text-secondary, #aaa);
+  color: var(--voxver-text-secondary);
 }
 .radio-item-k input {
-  accent-color: var(--voxver-accent, #6c5ce7);
+  accent-color: var(--voxver-primary);
 }
 .radio-item-k.active {
-   color: var(--voxver-accent, #6c5ce7);
-   font-weight: 600;
- }
+  color: var(--voxver-primary);
+  font-weight: 600;
+}
 .mem-custom-row {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid color-mix(in oklab, var(--voxver-text, #fff) 10%, transparent);
+  border-top: 1px solid color-mix(in oklab, var(--voxver-text) 10%, transparent);
 }
 .mem-custom-label {
   font-size: 13px;
-  color: var(--voxver-text-secondary, #aaa);
+  color: var(--voxver-text-secondary);
 }
 .mem-slider-wrap {
   display: flex;
@@ -4741,13 +5416,13 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 .mem-slider {
   flex: 1;
   height: 4px;
-  accent-color: var(--voxver-accent, #6c5ce7);
+  accent-color: var(--voxver-primary);
   cursor: pointer;
 }
 .mem-slider-val {
   font-size: 13px;
   font-weight: 600;
-  color: var(--voxver-text, #fff);
+  color: var(--voxver-text);
   min-width: 52px;
   text-align: right;
   white-space: nowrap;
@@ -4756,7 +5431,72 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   display: flex;
   justify-content: space-between;
   font-size: 11px;
-  color: var(--voxver-text-muted, #666);
+  color: var(--voxver-text-muted);
+}
+
+/* ---- 语言卡片 ---- */
+.lang-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  min-width: 200px;
+  border-radius: 10px;
+  border: 2px solid var(--voxver-border-color);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
+  cursor: pointer;
+  transition: all 0.18s ease;
+
+  &:hover {
+    border-color: var(--voxver-primary-400);
+    background: color-mix(in oklab, var(--voxver-bg-elevated) 85%, transparent);
+  }
+
+  &.active {
+    border-color: var(--voxver-primary-500);
+    background: color-mix(in oklab, var(--voxver-primary-500) 12%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary-500) 20%, transparent);
+  }
+}
+.lang-flag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--voxver-radius-md);
+  background: var(--voxver-gradient-primary);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.lang-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+.lang-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--voxver-text-primary);
+}
+.lang-desc {
+  font-size: 12px;
+  color: var(--voxver-text-secondary);
+}
+.lang-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--voxver-primary-500);
+  color: #fff;
+  flex-shrink: 0;
 }
 
 .skin-radio-item {
@@ -4834,8 +5574,8 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   padding: 6px 20px;
   font-size: 13px;
   border: 1px solid var(--voxver-border-color);
-  border-radius: 6px;
-  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-sm);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   color: var(--voxver-text-primary);
   cursor: pointer;
   transition:
@@ -4861,7 +5601,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 .progress-box {
   margin-top: 12px;
   padding: 12px;
-  background: var(--voxver-bg-primary);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   border-radius: 7px;
   border: 1px solid var(--voxver-border-color-light);
 }
@@ -4875,16 +5615,16 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 .progress-bar-wrap {
   width: 100%;
   height: 8px;
-  background: var(--voxver-bg-elevated);
-  border-radius: 4px;
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
+  border-radius: var(--voxver-radius-xs);
   overflow: hidden;
 }
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--voxver-primary, #6366f1), var(--voxver-primary));
+  background: linear-gradient(90deg, var(--voxver-primary), var(--voxver-primary));
   transition: width 0.2s ease;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
 }
 
 .progress-sub {
@@ -4926,7 +5666,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
-  background: var(--voxver-bg-primary);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   border-radius: 7px;
   margin-bottom: 6px;
   border: 1px solid var(--voxver-border-color-light);
@@ -4956,8 +5696,8 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  background: var(--voxver-bg-primary);
-  border-radius: 8px;
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
+  border-radius: var(--voxver-radius-md);
   border: 1px solid var(--voxver-border-color-light);
 
   &.checking {

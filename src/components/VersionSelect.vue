@@ -514,7 +514,7 @@ async function removeVersion(id: string) {
   max-width: 92vw;
   height: 520px;
   max-height: 85vh;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border-radius: var(--voxver-radius-xl);
   border: 1px solid var(--voxver-border-color);
   overflow: hidden;
@@ -522,13 +522,13 @@ async function removeVersion(id: string) {
   flex-direction: column;
   box-shadow:
     var(--voxver-shadow-xl),
-    0 0 0 1px rgba(99, 102, 234, 0.1);
+    0 0 0 1px color-mix(in oklab, var(--voxver-primary) 10%, transparent);
 }
 
 /* ---- 标题栏 ---- */
 .vs-header {
   height: 42px;
-  background: var(--voxver-bg-secondary);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
   border-bottom: 1px solid var(--voxver-border-color);
   display: flex;
   align-items: center;
@@ -601,7 +601,7 @@ async function removeVersion(id: string) {
 .vs-sidebar {
   width: 220px;
   min-width: 180px;
-  background: var(--voxver-bg-secondary);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
   border-right: 1px solid var(--voxver-border-color);
   padding: 16px 14px;
   flex-shrink: 0;
@@ -663,7 +663,7 @@ async function removeVersion(id: string) {
 /* 当前文件夹 */
 .current-folder {
   padding: 10px 12px;
-  background: rgba(99, 102, 234, 0.08);
+  background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
   border-radius: var(--voxver-radius-md);
   border-left: 3px solid var(--voxver-primary);
 
@@ -727,7 +727,7 @@ async function removeVersion(id: string) {
   position: relative;
 
   &:hover {
-    background: rgba(99, 102, 234, 0.08);
+    background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
   }
 
   .fi-top {
@@ -806,7 +806,7 @@ async function removeVersion(id: string) {
   text-align: left;
 
   &:hover {
-    background: rgba(99, 102, 234, 0.08);
+    background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
     color: var(--voxver-primary-muted);
     .action-icon.add {
       color: var(--voxver-success);
@@ -832,7 +832,7 @@ async function removeVersion(id: string) {
 .vs-main {
   flex: 1;
   overflow-y: auto;
-  background: var(--voxver-bg-primary);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
@@ -852,7 +852,7 @@ async function removeVersion(id: string) {
 
 /* 内容区块 */
 .content-section {
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border-radius: var(--voxver-radius-lg);
   border: 1px solid var(--voxver-border-color);
   overflow: hidden;

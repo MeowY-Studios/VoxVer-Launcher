@@ -124,7 +124,7 @@
         class="loader-version-modal"
         @click.self="showLoaderVersions = false"
       >
-        <div class="modal-content">
+        <div class="modal-content vox-card">
           <div class="modal-header">
             <h3>{{ currentLoaderName }} 版本选择</h3>
             <button class="modal-close" @click="showLoaderVersions = false">
@@ -247,7 +247,7 @@
     <!-- 加载失败 -->
     <div v-else class="vd-error">
       <p>无法加载版本信息</p>
-      <button @click="loadVersionInfo">重试</button>
+      <button class="vox-btn vox-btn--primary" @click="loadVersionInfo">重试</button>
     </div>
   </div>
 </template>
@@ -439,14 +439,14 @@ onMounted(() => {
 .back-btn {
   background: var(--voxver-bg-hover);
   border: 1px solid var(--voxver-border-color-light);
-  border-radius: 8px;
+  border-radius: var(--voxver-radius-md);
   width: 36px;
   height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #c4c4c4;
+  color: var(--voxver-text-secondary);
   transition: all 0.2s;
 }
 .back-btn:hover {
@@ -457,7 +457,7 @@ onMounted(() => {
 .vd-title {
   font-size: 16px;
   font-weight: 600;
-  color: #e0e0e0;
+  color: var(--voxver-text-primary);
 }
 
 .vd-loading {
@@ -467,14 +467,14 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: #888;
+  color: var(--voxver-text-muted);
 }
 
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid rgba(99, 102, 241, 0.2);
-  border-top-color: #6366f1;
+  border: 3px solid color-mix(in oklab, var(--voxver-primary) 20%, transparent);
+  border-top-color: var(--voxver-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -489,15 +489,15 @@ onMounted(() => {
   align-items: center;
   gap: 16px;
   padding: 24px 20px;
-  background: rgba(99, 102, 241, 0.08);
+  background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
   border-bottom: 1px solid var(--voxver-border-color);
 }
 
 .vd-icon {
   width: 72px;
   height: 72px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: var(--voxver-radius-lg);
+  background: var(--voxver-gradient-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -507,7 +507,7 @@ onMounted(() => {
 .vd-name {
   font-size: 22px;
   font-weight: 700;
-  color: #fff;
+  color: var(--voxver-text-primary);
   margin-bottom: 8px;
 }
 
@@ -521,31 +521,31 @@ onMounted(() => {
 .vd-type-badge {
   font-size: 11px;
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
   font-weight: 600;
 }
 .vd-type-badge.release {
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
+  background: color-mix(in oklab, var(--voxver-success) 20%, transparent);
+  color: var(--voxver-success);
 }
 .vd-type-badge.snapshot {
-  background: rgba(234, 179, 8, 0.2);
-  color: #eab308;
+  background: color-mix(in oklab, var(--voxver-warning) 20%, transparent);
+  color: var(--voxver-warning);
 }
 .vd-type-badge.old_alpha,
 .vd-type-badge.old_beta {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+  background: color-mix(in oklab, var(--voxver-error) 20%, transparent);
+  color: var(--voxver-error);
 }
 
 .vd-date {
   font-size: 12px;
-  color: #888;
+  color: var(--voxver-text-muted);
 }
 
 .vd-desc {
   font-size: 13px;
-  color: #666;
+  color: var(--voxver-text-muted);
 }
 
 .vd-section {
@@ -555,13 +555,13 @@ onMounted(() => {
 .section-title {
   font-size: 14px;
   font-weight: 600;
-  color: #e0e0e0;
+  color: var(--voxver-text-primary);
   margin-bottom: 6px;
 }
 
 .section-hint {
   font-size: 12px;
-  color: #666;
+  color: var(--voxver-text-muted);
   margin-bottom: 16px;
 }
 
@@ -575,7 +575,7 @@ onMounted(() => {
   position: relative;
   background: var(--voxver-bg-hover);
   border: 1.5px solid var(--voxver-border-color);
-  border-radius: 12px;
+  border-radius: var(--voxver-radius-lg);
   padding: 14px;
   cursor: pointer;
   transition: all 0.2s;
@@ -585,12 +585,12 @@ onMounted(() => {
   gap: 4px;
 }
 .loader-card:hover:not(.disabled) {
-  border-color: rgba(99, 102, 241, 0.4);
-  background: rgba(99, 102, 241, 0.06);
+  border-color: color-mix(in oklab, var(--voxver-primary) 40%, transparent);
+  background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
 }
 .loader-card.selected {
-  border-color: #6366f1;
-  background: rgba(99, 102, 241, 0.12);
+  border-color: var(--voxver-primary);
+  background: color-mix(in oklab, var(--voxver-primary) 12%, transparent);
 }
 .loader-card.disabled {
   opacity: 0.5;
@@ -600,17 +600,17 @@ onMounted(() => {
 .loader-icon {
   font-size: 18px;
   font-weight: 800;
-  color: #6366f1;
+  color: var(--voxver-primary);
   margin-bottom: 2px;
 }
 .loader-name {
   font-size: 14px;
   font-weight: 600;
-  color: #e0e0e0;
+  color: var(--voxver-text-primary);
 }
 .loader-desc {
   font-size: 11px;
-  color: #777;
+  color: var(--voxver-text-muted);
 }
 
 .loader-check {
@@ -620,7 +620,7 @@ onMounted(() => {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #6366f1;
+  background: var(--voxver-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -633,9 +633,9 @@ onMounted(() => {
   right: 8px;
   font-size: 10px;
   padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+  border-radius: var(--voxver-radius-xs);
+  background: color-mix(in oklab, var(--voxver-error) 20%, transparent);
+  color: var(--voxver-error);
 }
 
 /* 加载器版本选择弹窗 */
@@ -655,8 +655,6 @@ onMounted(() => {
 .modal-content {
   width: 90%;
   max-width: 480px;
-  background: #1a1a2e;
-  border-radius: 16px;
   overflow: hidden;
 }
 
@@ -670,17 +668,17 @@ onMounted(() => {
 .modal-header h3 {
   font-size: 16px;
   font-weight: 600;
-  color: #e0e0e0;
+  color: var(--voxver-text-primary);
 }
 .modal-close {
   background: none;
   border: none;
-  color: #888;
+  color: var(--voxver-text-muted);
   cursor: pointer;
   padding: 4px;
 }
 .modal-close:hover {
-  color: #fff;
+  color: var(--voxver-text-primary);
 }
 
 .modal-body {
@@ -695,7 +693,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   padding: 40px;
-  color: #888;
+  color: var(--voxver-text-muted);
 }
 
 .versions-list {
@@ -707,7 +705,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: var(--voxver-radius-md);
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -715,7 +713,7 @@ onMounted(() => {
   background: var(--voxver-bg-hover);
 }
 .version-item.selected {
-  background: rgba(99, 102, 241, 0.15);
+  background: color-mix(in oklab, var(--voxver-primary) 15%, transparent);
 }
 
 .version-info {
@@ -726,32 +724,32 @@ onMounted(() => {
 .version-name {
   font-size: 14px;
   font-weight: 500;
-  color: #e0e0e0;
+  color: var(--voxver-text-primary);
 }
 .version-date {
   font-size: 12px;
-  color: #666;
+  color: var(--voxver-text-muted);
 }
 
 .version-badge {
   font-size: 10px;
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
   font-weight: 600;
 }
 .version-badge.recommended {
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
+  background: color-mix(in oklab, var(--voxver-success) 20%, transparent);
+  color: var(--voxver-success);
 }
 .version-badge.latest {
-  background: rgba(99, 102, 241, 0.2);
-  color: #6366f1;
+  background: color-mix(in oklab, var(--voxver-primary) 20%, transparent);
+  color: var(--voxver-primary);
 }
 
 .no-versions {
   padding: 40px 20px;
   text-align: center;
-  color: #888;
+  color: var(--voxver-text-muted);
 }
 
 .modal-footer {
@@ -763,38 +761,9 @@ onMounted(() => {
 
 .btn-cancel {
   flex: 1;
-  padding: 12px;
-  border: 1px solid var(--voxver-border-color);
-  border-radius: 8px;
-  background: transparent;
-  color: #888;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
 }
-.btn-cancel:hover {
-  background: var(--voxver-bg-hover);
-  color: #fff;
-}
-
 .btn-confirm {
   flex: 2;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-.btn-confirm:hover:not(:disabled) {
-  opacity: 0.9;
-}
-.btn-confirm:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .vd-footer {
@@ -815,20 +784,20 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: #777;
+  color: var(--voxver-text-muted);
 }
 
 .btn-browse {
   background: var(--voxver-bg-hover);
   border: 1px solid var(--voxver-border-color-light);
-  border-radius: 6px;
+  border-radius: var(--voxver-radius-sm);
   width: 28px;
   height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #888;
+  color: var(--voxver-text-muted);
   transition: all 0.2s;
 }
 .btn-browse:hover {
@@ -838,11 +807,11 @@ onMounted(() => {
 
 .selected-info {
   font-size: 12px;
-  color: #6366f1;
+  color: var(--voxver-primary);
   margin-bottom: 12px;
   padding: 8px 12px;
-  background: rgba(99, 102, 241, 0.1);
-  border-radius: 8px;
+  background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
+  border-radius: var(--voxver-radius-md);
 }
 
 .btn-download {
@@ -850,16 +819,16 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: var(--voxver-gradient-primary);
   color: #fff;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--voxver-radius-lg);
   padding: 14px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+  box-shadow: var(--voxver-shadow-glow-primary);
 }
 .btn-download:hover:not(:disabled) {
   opacity: 0.9;
@@ -880,14 +849,6 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: #888;
-}
-.vd-error button {
-  background: rgba(99, 102, 241, 0.2);
-  border: 1px solid rgba(99, 102, 241, 0.4);
-  color: #6366f1;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
+  color: var(--voxver-text-muted);
 }
 </style>

@@ -160,7 +160,7 @@ const btnClass = computed(() => ({
   &:hover:not(:disabled):not(.launching):not(.running) {
     filter: brightness(1.06);
     transform: translateY(-1px);
-    box-shadow: 0 6px 26px rgba(99, 102, 234, 0.45);
+    box-shadow: 0 6px 26px color-mix(in oklab, var(--voxver-primary) 45%, transparent);
   }
   &:active:not(:disabled) {
     transform: scale(0.98);
@@ -168,7 +168,7 @@ const btnClass = computed(() => ({
 
   /* 启动中 */
   &.launching {
-    background: linear-gradient(135deg, #6366f1, #a78bfa);
+    background: linear-gradient(135deg, var(--voxver-primary), #0ea5e9);
     cursor: not-allowed;
 
     .spin {

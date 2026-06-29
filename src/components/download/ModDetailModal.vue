@@ -736,8 +736,8 @@ function formatDate(dateStr: string): string {
   width: 640px;
   max-width: 95vw;
   max-height: 85vh;
-  background: var(--voxver-bg-elevated, #1e1e2e);
-  border: 1px solid var(--voxver-border-color, #313244);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 14px;
   display: flex;
   flex-direction: column;
@@ -751,7 +751,7 @@ function formatDate(dateStr: string): string {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--voxver-border-color, #313244);
+  border-bottom: 1px solid var(--voxver-border-color);
   flex-shrink: 0;
   gap: 12px;
 }
@@ -761,9 +761,9 @@ function formatDate(dateStr: string): string {
   height: 28px;
   border: none;
   background: transparent;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: var(--voxver-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -771,7 +771,7 @@ function formatDate(dateStr: string): string {
 
   &:hover {
     background: var(--voxver-bg-hover, rgba(255, 255, 255, 0.06));
-    color: var(--voxver-text-primary, #cdd6f4);
+    color: var(--voxver-text-primary);
   }
 }
 
@@ -779,7 +779,7 @@ function formatDate(dateStr: string): string {
   flex: 1;
   font-size: 14px;
   font-weight: 600;
-  color: var(--voxver-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary);
   text-align: center;
 }
 
@@ -788,9 +788,9 @@ function formatDate(dateStr: string): string {
   height: 28px;
   border: none;
   background: transparent;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: var(--voxver-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -798,7 +798,7 @@ function formatDate(dateStr: string): string {
 
   &:hover {
     background: var(--voxver-bg-hover, rgba(255, 255, 255, 0.06));
-    color: var(--voxver-text-primary, #cdd6f4);
+    color: var(--voxver-text-primary);
   }
 }
 
@@ -813,24 +813,24 @@ function formatDate(dateStr: string): string {
   justify-content: center;
   gap: 10px;
   padding: 40px 20px;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
   font-size: 13px;
 }
 
 .modal-error {
   .btn-retry {
     padding: 6px 20px;
-    border: 1px solid var(--voxver-border-color, #45475a);
-    border-radius: 6px;
+    border: 1px solid var(--voxver-border-color);
+    border-radius: var(--voxver-radius-sm);
     background: transparent;
-    color: var(--voxver-text-secondary, #a6adc8);
+    color: var(--voxver-text-secondary);
     cursor: pointer;
     font-size: 13px;
     margin-top: 8px;
     transition: all 0.12s;
     &:hover {
-      border-color: var(--voxver-primary-400, #748ffc);
-      color: var(--voxver-primary-400, #748ffc);
+      border-color: var(--voxver-primary-400);
+      color: var(--voxver-primary-400);
     }
   }
 }
@@ -855,8 +855,8 @@ function formatDate(dateStr: string): string {
 
 /* ====== 基本信息卡片 ====== */
 .info-card {
-  background: var(--voxver-surface, #1e1e2e);
-  border: 1px solid var(--voxver-border-color, #313244);
+  background: var(--voxver-surface);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 10px;
   padding: 16px;
   margin-bottom: 16px;
@@ -871,9 +871,9 @@ function formatDate(dateStr: string): string {
 .mod-icon-wrap {
   width: 64px;
   height: 64px;
-  border-radius: 8px;
+  border-radius: var(--voxver-radius-md);
   overflow: hidden;
-  background: var(--voxver-bg-secondary, #181825);
+  background: var(--voxver-bg-secondary);
   flex-shrink: 0;
 
   img {
@@ -902,14 +902,14 @@ function formatDate(dateStr: string): string {
 .mod-name {
   font-size: 16px;
   font-weight: 700;
-  color: var(--voxver-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary);
   margin: 0 0 4px;
   word-break: break-word;
 }
 
 .mod-desc {
   font-size: 12px;
-  color: var(--voxver-text-secondary, #a6adc8);
+  color: var(--voxver-text-secondary);
   margin: 0 0 8px;
   white-space: nowrap;
   overflow: hidden;
@@ -922,7 +922,7 @@ function formatDate(dateStr: string): string {
   gap: 12px;
   flex-wrap: wrap;
   font-size: 11px;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
 
   .meta-item {
     display: flex;
@@ -930,11 +930,11 @@ function formatDate(dateStr: string): string {
     gap: 2px;
 
     svg {
-      color: var(--voxver-success, #a6e3a1);
+      color: var(--voxver-success);
     }
 
     &.time {
-      color: var(--voxver-text-muted, #6c7086);
+      color: var(--voxver-text-muted);
     }
 
     &.source {
@@ -952,44 +952,44 @@ function formatDate(dateStr: string): string {
   display: flex;
   gap: 10px;
   padding-top: 12px;
-  border-top: 1px solid var(--voxver-border-color, #313244);
+  border-top: 1px solid var(--voxver-border-color);
 }
 
 .btn-action {
   flex: 1;
   height: 30px;
   padding: 0 12px;
-  background: var(--voxver-bg-secondary, #181825);
-  border: 1px solid var(--voxver-border-color, #313244);
-  border-radius: 6px;
-  color: var(--voxver-text-secondary, #a6adc8);
+  background: var(--voxver-bg-secondary);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
+  color: var(--voxver-text-secondary);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.12s;
 
   &:hover {
-    border-color: var(--voxver-primary-400, #748ffc);
-    color: var(--voxver-primary-400, #748ffc);
+    border-color: var(--voxver-primary-400);
+    color: var(--voxver-primary-400);
   }
 
   &.primary {
-    background: var(--voxver-primary, #6366f1);
-    border-color: var(--voxver-primary, #6366f1);
+    background: var(--voxver-primary);
+    border-color: var(--voxver-primary);
     color: #fff;
 
     &:hover {
-      background: var(--voxver-blue-hover, #4f46e5);
-      border-color: var(--voxver-blue-hover, #4f46e5);
+      background: var(--voxver-primary-hover);
+      border-color: var(--voxver-primary-hover);
     }
   }
 }
 
 /* ====== 安装目标区 ====== */
 .target-section {
-  background: var(--voxver-bg-secondary, #181825);
-  border: 1px solid var(--voxver-border-color, #313244);
-  border-radius: 8px;
+  background: var(--voxver-bg-secondary);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
   padding: 12px 14px;
   margin-bottom: 20px;
 }
@@ -997,7 +997,7 @@ function formatDate(dateStr: string): string {
 .target-label {
   font-size: 11px;
   font-weight: 600;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 6px;
@@ -1014,30 +1014,30 @@ function formatDate(dateStr: string): string {
   flex: 1;
   min-width: 200px;
   padding: 7px 10px;
-  border: 1px solid var(--voxver-border-color, #45475a);
-  border-radius: 6px;
-  background: var(--voxver-bg-elevated, #1e1e2e);
-  color: var(--voxver-text-primary, #cdd6f4);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
+  background: var(--voxver-bg-elevated);
+  color: var(--voxver-text-primary);
   font-size: 13px;
   outline: none;
   cursor: pointer;
   transition: border-color 0.12s;
 
   &:focus {
-    border-color: var(--voxver-primary-400, #748ffc);
+    border-color: var(--voxver-primary-400);
   }
 }
 
 .target-path {
   font-size: 11px;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
   font-family: var(--voxver-font-mono, monospace);
   word-break: break-all;
 }
 
 .target-hint {
   font-size: 12px;
-  color: var(--voxver-text-error, #f38ba8);
+  color: var(--voxver-text-error);
   margin: 4px 0 0;
 }
 
@@ -1056,12 +1056,12 @@ function formatDate(dateStr: string): string {
 .files-title {
   font-size: 13px;
   font-weight: 700;
-  color: var(--voxver-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary);
 }
 
 .files-count {
   font-size: 11px;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
 }
 
 /* MC版本标签栏 */
@@ -1071,29 +1071,29 @@ function formatDate(dateStr: string): string {
   gap: 6px;
   margin-bottom: 16px;
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--voxver-border-color, #313244);
+  border-bottom: 1px solid var(--voxver-border-color);
 }
 
 .version-tab {
   padding: 4px 10px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--voxver-text-secondary, #a6adc8);
-  background: var(--voxver-bg-secondary, #181825);
-  border: 1px solid var(--voxver-border-color, #313244);
+  color: var(--voxver-text-secondary);
+  background: var(--voxver-bg-secondary);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.12s;
 
   &:hover {
-    border-color: var(--voxver-primary-400, #748ffc);
-    color: var(--voxver-primary-400, #748ffc);
+    border-color: var(--voxver-primary-400);
+    color: var(--voxver-primary-400);
   }
 
   &.active {
-    background: var(--voxver-primary-light, rgba(99, 102, 241, 0.12));
-    border-color: var(--voxver-primary-400, #748ffc);
-    color: var(--voxver-primary-300, #89b4fa);
+    background: var(--voxver-primary-light, color-mix(in oklab, var(--voxver-primary) 12%, transparent));
+    border-color: var(--voxver-primary-400);
+    color: var(--voxver-primary-300);
   }
 }
 
@@ -1105,9 +1105,9 @@ function formatDate(dateStr: string): string {
 }
 
 .version-group {
-  background: var(--voxver-surface, #1e1e2e);
-  border: 1px solid var(--voxver-border-color, #313244);
-  border-radius: 8px;
+  background: var(--voxver-surface);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
   overflow: hidden;
 }
 
@@ -1127,24 +1127,24 @@ function formatDate(dateStr: string): string {
   }
 
   &.expanded {
-    background: rgba(99, 102, 241, 0.05);
+    background: color-mix(in oklab, var(--voxver-primary) 5%, transparent);
   }
 }
 
 .group-version {
   font-size: 13px;
   font-weight: 600;
-  color: var(--voxver-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary);
 }
 
 .group-count {
   font-size: 11px;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
   margin-right: 8px;
 }
 
 .group-arrow {
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
   transition: transform 0.2s;
 }
 
@@ -1153,7 +1153,7 @@ function formatDate(dateStr: string): string {
 }
 
 .group-files {
-  border-top: 1px solid var(--voxver-border-color, #313244);
+  border-top: 1px solid var(--voxver-border-color);
 }
 
 .file-row {
@@ -1161,7 +1161,7 @@ function formatDate(dateStr: string): string {
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  border-bottom: 1px solid var(--voxver-border-color, #313244);
+  border-bottom: 1px solid var(--voxver-border-color);
   transition: background 0.12s;
 
   &:hover {
@@ -1181,7 +1181,7 @@ function formatDate(dateStr: string): string {
 .file-info .file-name {
   font-size: 12px;
   font-weight: 500;
-  color: var(--voxver-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1193,13 +1193,13 @@ function formatDate(dateStr: string): string {
   gap: 8px;
   margin-top: 3px;
   font-size: 11px;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
 
   span {
     &:not(:last-child)::after {
       content: '|';
       margin-left: 8px;
-      color: var(--voxver-text-muted, #6c7086);
+      color: var(--voxver-text-muted);
     }
   }
 }
@@ -1214,10 +1214,10 @@ function formatDate(dateStr: string): string {
   padding: 1px 6px;
   font-size: 10px;
   font-weight: 500;
-  background: var(--voxver-bg-secondary, #181825);
-  color: var(--voxver-text-secondary, #a6adc8);
+  background: var(--voxver-bg-secondary);
+  color: var(--voxver-text-secondary);
   border-radius: 3px;
-  border: 1px solid var(--voxver-border-color, #313244);
+  border: 1px solid var(--voxver-border-color);
 }
 
 .files-loading {
@@ -1237,13 +1237,13 @@ function formatDate(dateStr: string): string {
   align-items: flex-start;
   gap: 12px;
   padding: 12px 14px;
-  background: var(--voxver-bg-secondary, #181825);
-  border: 1px solid var(--voxver-border-color, #313244);
-  border-radius: 8px;
+  background: var(--voxver-bg-secondary);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
   transition: all 0.12s;
 
   &:hover {
-    border-color: var(--voxver-primary-300, #89b4fa);
+    border-color: var(--voxver-primary-300);
   }
 
   &.incompatible {
@@ -1286,7 +1286,7 @@ function formatDate(dateStr: string): string {
 .file-name {
   font-size: 13px;
   font-weight: 600;
-  color: var(--voxver-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary);
   word-break: break-all;
 }
 
@@ -1298,7 +1298,7 @@ function formatDate(dateStr: string): string {
 
   &.release {
     background: rgba(166, 227, 161, 0.1);
-    color: var(--voxver-success, #a6e3a1);
+    color: var(--voxver-success);
   }
   &.beta {
     background: rgba(249, 200, 70, 0.1);
@@ -1306,7 +1306,7 @@ function formatDate(dateStr: string): string {
   }
   &.alpha {
     background: rgba(243, 139, 168, 0.1);
-    color: var(--voxver-text-error, #f38ba8);
+    color: var(--voxver-text-error);
   }
 }
 
@@ -1316,7 +1316,7 @@ function formatDate(dateStr: string): string {
   padding: 1px 6px;
   border-radius: 3px;
   background: rgba(166, 227, 161, 0.15);
-  color: var(--voxver-success, #a6e3a1);
+  color: var(--voxver-success);
   border: 1px solid rgba(166, 227, 161, 0.2);
 }
 
@@ -1325,7 +1325,7 @@ function formatDate(dateStr: string): string {
   align-items: center;
   gap: 10px;
   font-size: 11px;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
 }
 
 /* ====== 兼容性标签 ====== */
@@ -1345,22 +1345,22 @@ function formatDate(dateStr: string): string {
 .compat-label {
   font-size: 10px;
   font-weight: 600;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
   min-width: 36px;
 }
 
 .compat-tag {
   font-size: 10px;
   padding: 1px 6px;
-  background: var(--voxver-bg-elevated, #1e1e2e);
-  color: var(--voxver-text-secondary, #a6adc8);
+  background: var(--voxver-bg-elevated);
+  color: var(--voxver-text-secondary);
   border-radius: 3px;
-  border: 1px solid var(--voxver-border-color, #45475a);
+  border: 1px solid var(--voxver-border-color);
   transition: all 0.1s;
 
   &.current {
     background: rgba(166, 227, 161, 0.1);
-    color: var(--voxver-success, #a6e3a1);
+    color: var(--voxver-success);
     border-color: rgba(166, 227, 161, 0.3);
     font-weight: 600;
   }
@@ -1368,7 +1368,7 @@ function formatDate(dateStr: string): string {
 
 .compat-more {
   font-size: 10px;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
 }
 
 .incompat-tip {
@@ -1376,7 +1376,7 @@ function formatDate(dateStr: string): string {
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: var(--voxver-text-error, #f38ba8);
+  color: var(--voxver-text-error);
   margin-top: 2px;
 
   svg {
@@ -1393,9 +1393,9 @@ function formatDate(dateStr: string): string {
 .btn-download {
   height: 32px;
   padding: 0 16px;
-  background: var(--voxver-gradient-primary, linear-gradient(135deg, #6366f1, #8b5cf6));
+  background: var(--voxver-gradient-primary, linear-gradient(135deg, var(--voxver-primary), #0ea5e9));
   border: none;
-  border-radius: 6px;
+  border-radius: var(--voxver-radius-sm);
   color: #fff;
   font-size: 12.5px;
   font-weight: 600;
@@ -1422,8 +1422,8 @@ function formatDate(dateStr: string): string {
 .spin {
   width: 28px;
   height: 28px;
-  border: 2px solid var(--voxver-border-color, #45475a);
-  border-top-color: var(--voxver-primary-400, #748ffc);
+  border: 2px solid var(--voxver-border-color);
+  border-top-color: var(--voxver-primary-400);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -1454,8 +1454,8 @@ function formatDate(dateStr: string): string {
 .confirm-panel {
   width: 400px;
   max-width: 90vw;
-  background: var(--voxver-bg-elevated, #1e1e2e);
-  border: 1px solid var(--voxver-border-color, #313244);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
@@ -1466,10 +1466,10 @@ function formatDate(dateStr: string): string {
   align-items: center;
   gap: 10px;
   padding: 14px 18px;
-  border-bottom: 1px solid var(--voxver-border-color, #313244);
+  border-bottom: 1px solid var(--voxver-border-color);
   font-size: 14px;
   font-weight: 700;
-  color: var(--voxver-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary);
 }
 
 .confirm-body {
@@ -1480,24 +1480,24 @@ function formatDate(dateStr: string): string {
   margin: 0 0 10px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--voxver-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary);
   word-break: break-all;
 }
 
 .confirm-target {
   margin: 0 0 4px;
   font-size: 13px;
-  color: var(--voxver-text-secondary, #a6adc8);
+  color: var(--voxver-text-secondary);
 
   strong {
-    color: var(--voxver-primary-400, #89b4fa);
+    color: var(--voxver-primary-400);
   }
 }
 
 .confirm-path {
   margin: 0;
   font-size: 11px;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
   font-family: var(--voxver-font-mono, monospace);
   word-break: break-all;
 }
@@ -1507,30 +1507,30 @@ function formatDate(dateStr: string): string {
   justify-content: flex-end;
   gap: 10px;
   padding: 12px 18px;
-  border-top: 1px solid var(--voxver-border-color, #313244);
+  border-top: 1px solid var(--voxver-border-color);
 }
 
 .btn-cancel {
   padding: 7px 20px;
-  border: 1px solid var(--voxver-border-color, #45475a);
-  border-radius: 6px;
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
   background: transparent;
-  color: var(--voxver-text-secondary, #a6adc8);
+  color: var(--voxver-text-secondary);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.12s;
 
   &:hover {
-    border-color: var(--voxver-text-muted, #6c7086);
-    color: var(--voxver-text-primary, #cdd6f4);
+    border-color: var(--voxver-text-muted);
+    color: var(--voxver-text-primary);
   }
 }
 
 .btn-confirm {
   padding: 7px 20px;
   border: none;
-  border-radius: 6px;
-  background: var(--voxver-gradient-primary, linear-gradient(135deg, #6366f1, #8b5cf6));
+  border-radius: var(--voxver-radius-sm);
+  background: var(--voxver-gradient-primary, linear-gradient(135deg, var(--voxver-primary), #0ea5e9));
   color: #fff;
   font-size: 13px;
   font-weight: 600;

@@ -306,7 +306,7 @@ onUnmounted(() => {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid var(--voxver-border-color);
   color: var(--voxver-text-secondary);
   display: flex;
@@ -331,7 +331,7 @@ onUnmounted(() => {
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
-  border-radius: 8px;
+  border-radius: var(--voxver-radius-md);
   background: #ef4444;
   color: #fff;
   font-size: 10px;
@@ -349,7 +349,7 @@ onUnmounted(() => {
   right: 20px;
   width: 340px;
   max-height: 420px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-lg);
   z-index: 9999;

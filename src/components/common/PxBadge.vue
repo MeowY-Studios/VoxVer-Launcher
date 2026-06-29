@@ -103,23 +103,23 @@ const badgeClasses = computed(() => [
 
 /* Variants */
 .px-badge--primary {
-  background: var(--voxver-primary-100, rgba(99, 102, 234, 0.12));
-  color: var(--voxver-primary-700, #4338ca);
+  background: var(--voxver-primary-100, color-mix(in oklab, var(--voxver-primary) 12%, transparent));
+  color: var(--voxver-primary-700);
 }
 .px-badge--success {
-  background: var(--voxver-success-bg, #dcfce7);
+  background: var(--voxver-success-bg);
   color: #166534;
 }
 .px-badge--warning {
-  background: var(--voxver-warning-bg, #fef3c7);
+  background: var(--voxver-warning-bg);
   color: #92400e;
 }
 .px-badge--error {
-  background: var(--voxver-error-bg, #fee2e2);
+  background: var(--voxver-error-bg);
   color: #991b1b;
 }
 .px-badge--info {
-  background: var(--voxver-info-bg, #e0f2fe);
+  background: var(--voxver-info-bg);
   color: #075985;
 }
 .px-badge--gradient {
@@ -130,8 +130,8 @@ const badgeClasses = computed(() => [
 /* Outline variant */
 .px-badge--outline.px-badge--primary {
   background: transparent;
-  color: var(--voxver-primary-600, #4f46e5);
-  border: 1px solid var(--voxver-primary-300, #a5b4fc);
+  color: var(--voxver-primary-600);
+  border: 1px solid var(--voxver-primary-300);
 }
 .px-badge--outline.px-badge--success {
   background: transparent;

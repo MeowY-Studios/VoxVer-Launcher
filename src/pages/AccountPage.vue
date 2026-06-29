@@ -1,11 +1,24 @@
 <template>
   <div class="account-page">
     <div class="page-header">
-      <h2>{{ $t('auth.accountManager') }}</h2>
+      <h2 class="vox-sec-title">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        {{ $t('auth.accountManager') }}
+      </h2>
     </div>
 
     <!-- 微软正版账户 -->
-    <section class="account-section">
+    <section class="account-section vox-card">
       <div class="section-header">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="#00a4ef" style="flex-shrink: 0">
           <rect width="24" height="24" rx="4" />
@@ -37,13 +50,15 @@
             <p v-if="skinError" class="skin-error-text">{{ $t('auth.skin') }}: {{ skinError }}</p>
           </div>
         </div>
-        <button class="btn-outline btn-sm btn-danger" @click="logoutMicrosoft">{{ $t('auth.logout') }}</button>
+        <button class="vox-btn vox-btn--destructive" @click="logoutMicrosoft">
+          {{ $t('auth.logout') }}
+        </button>
       </div>
 
       <!-- 未登录状态 -->
       <div class="section-body empty-body" v-else>
         <p>{{ $t('auth.loginTip') }}</p>
-        <button class="btn-primary" @click="startMicrosoftLogin" :disabled="loginState !== 'idle'">
+        <button class="vox-btn vox-btn--primary" @click="startMicrosoftLogin" :disabled="loginState !== 'idle'">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="#00a4ef">
             <rect width="24" height="24" rx="4" />
             <text x="5" y="17.5" font-size="14" font-weight="bold" fill="#fff">M</text>
@@ -54,7 +69,7 @@
     </section>
 
     <!-- 离线账户 -->
-    <section class="account-section offline">
+    <section class="account-section offline vox-card">
       <div class="section-header">
         <svg
           width="18"
@@ -79,7 +94,7 @@
           <label>{{ $t('auth.playerName') }}</label>
           <input
             type="text"
-            class="input-field"
+            class="vox-input"
             v-model="offlineName"
             :placeholder="$t('auth.playerNamePlaceholder')"
             maxlength="16"
@@ -91,17 +106,17 @@
           <div class="input-row">
             <input
               type="text"
-              class="input-field"
+              class="vox-input"
               v-model="offlineUuid"
               :placeholder="$t('auth.uuidPlaceholder')"
             />
-            <button class="btn-sm btn-ghost" @click="offlineUuid = generateUUID()">{{ $t('common.generate') }}</button>
+            <button class="vox-btn" @click="offlineUuid = generateUUID()">{{ $t('common.generate') }}</button>
           </div>
         </div>
 
         <div class="form-actions">
           <span v-if="offlineError" class="form-error">{{ offlineError }}</span>
-          <button class="btn-primary" @click="saveOffline" :disabled="savingOffline">
+          <button class="vox-btn vox-btn--primary" @click="saveOffline" :disabled="savingOffline">
             {{ savingOffline ? $t('common.saving') : $t('auth.saveOfflineAccount') }}
           </button>
         </div>
@@ -128,7 +143,7 @@
     <!-- 外链入口 -->
     <div class="external-links">
       <a
-        class="ext-link-btn"
+        class="vox-btn ext-link-btn"
         href="https://www.xbox.com/zh-cn/games/store/minecraft-java-bedrock-edition-for-pc/9nxp44l49shj"
         target="_blank"
         rel="noopener"
@@ -148,7 +163,7 @@
         {{ $t('auth.buyOfficial') }}
       </a>
       <a
-        class="ext-link-btn"
+        class="vox-btn ext-link-btn"
         href="https://www.minecraft.net/zh-hans"
         target="_blank"
         rel="noopener"
@@ -174,7 +189,7 @@
     <!-- ===== Microsoft OAuth Device Flow 弹窗 ===== -->
     <Teleport to="body">
       <div class="modal-overlay" v-if="loginState !== 'idle'" @click.self="cancelLogin">
-        <div class="modal-card">
+        <div class="modal-card vox-card">
           <!-- 标题栏 -->
           <div class="modal-header">
             <span class="modal-title">{{ $t('auth.signInWithMicrosoft') }}</span>
@@ -189,7 +204,7 @@
                 <p class="device-flow-hint">{{ $t('auth.deviceFlowHint') }}</p>
                 <div class="device-code-box">
                   <span class="device-code">{{ deviceCodeInfo.userCode }}</span>
-                  <button class="btn-ghost btn-sm" @click="copyCode">
+                  <button class="vox-btn" @click="copyCode">
                     {{ codeCopied ? $t('common.copied') : $t('auth.copyAndOpenBrowser') }}
                   </button>
                 </div>
@@ -217,7 +232,7 @@
                   height="32"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#34a853"
+                  stroke="var(--voxver-success)"
                   stroke-width="2.5"
                 >
                   <circle cx="12" cy="12" r="10" />
@@ -235,7 +250,7 @@
                   height="32"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ea4335"
+                  stroke="var(--voxver-error)"
                   stroke-width="2.5"
                 >
                   <circle cx="12" cy="12" r="10" />
@@ -244,7 +259,7 @@
                 </svg>
                 <p>{{ loginError }}</p>
                 <button
-                  class="btn-primary btn-sm"
+                  class="vox-btn vox-btn--primary"
                   style="margin-top: 12px"
                   @click="startMicrosoftLogin"
                 >
@@ -256,13 +271,13 @@
 
           <!-- 底部按钮 -->
           <div class="modal-footer">
-            <button v-if="loginState === 'done'" class="btn-primary" @click="closeModal">
+            <button v-if="loginState === 'done'" class="vox-btn vox-btn--primary" @click="closeModal">
               {{ $t('common.finish') }}
             </button>
-            <button v-else-if="loginState === 'error'" class="btn-outline" @click="closeModal">
+            <button v-else-if="loginState === 'error'" class="vox-btn" @click="closeModal">
               {{ $t('common.close') }}
             </button>
-            <button v-else class="btn-outline" @click="cancelLogin">{{ $t('common.cancel') }}</button>
+            <button v-else class="vox-btn" @click="cancelLogin">{{ $t('common.cancel') }}</button>
           </div>
         </div>
       </div>
@@ -509,18 +524,10 @@ function generateUUID(): string {
 
 .page-header {
   margin-bottom: 20px;
-  h2 {
-    margin: 0;
-    font-size: 17px;
-    font-weight: 700;
-  }
 }
 
-/* ====== 账户区块 ====== */
+/* ====== 账户区块（视觉样式由 .vox-card 提供） ====== */
 .account-section {
-  background: var(--voxver-bg-elevated);
-  border: 1px solid var(--voxver-border-color);
-  border-radius: 10px;
   margin-bottom: 16px;
   overflow: hidden;
 
@@ -540,21 +547,22 @@ function generateUUID(): string {
     flex: 1;
     font-size: 13px;
     font-weight: 700;
+    color: var(--voxver-text-primary);
   }
 }
 
 .status-badge {
   padding: 2px 10px;
-  border-radius: 10px;
+  border-radius: var(--voxver-radius-full);
   font-size: 11px;
   font-weight: 600;
 
   &.success {
-    background: #e6f4ea;
-    color: #137333;
+    background: color-mix(in oklab, var(--voxver-success) 15%, transparent);
+    color: var(--voxver-success);
   }
   &.default {
-    background: var(--voxver-bg-primary);
+    background: color-mix(in oklab, var(--voxver-text-muted) 15%, transparent);
     color: var(--voxver-text-muted);
   }
 }
@@ -584,7 +592,7 @@ function generateUUID(): string {
 .profile-avatar {
   width: 48px;
   height: 48px;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-sm);
   object-fit: cover;
   flex-shrink: 0;
 
@@ -614,18 +622,18 @@ function generateUUID(): string {
 .skin-error-text {
   margin: 2px 0 0 !important;
   font-size: 10px !important;
-  color: #ef4444 !important;
+  color: var(--voxver-error) !important;
 }
 
 img.profile-avatar {
   width: 48px;
   height: 48px;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-sm);
   object-fit: cover;
   flex-shrink: 0;
   border: 2px solid var(--voxver-border-color);
-  image-rendering: pixelated; /* 像素风皮肤不要模糊 */
-  background: #8b5e3c; /* 默认 Steve 棕色底 */
+  image-rendering: pixelated;
+  background: #8b5e3c;
 }
 
 .profile-info {
@@ -633,6 +641,7 @@ img.profile-avatar {
     margin: 0;
     font-size: 14px;
     font-weight: 600;
+    color: var(--voxver-text-primary);
   }
   .profile-uuid {
     margin: 2px 0 0;
@@ -655,31 +664,11 @@ img.profile-avatar {
   }
 }
 
-.input-field {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-sm);
-  font-size: 13px;
-  color: var(--voxver-text-primary);
-  outline: none;
-  transition: border-color 0.15s;
-  box-sizing: border-box;
-  background: var(--voxver-bg-primary);
-
-  &:focus {
-    border-color: var(--voxver-primary-400);
-  }
-  &::placeholder {
-    color: var(--voxver-text-muted);
-  }
-}
-
 .input-row {
   display: flex;
   gap: 6px;
 
-  .input-field {
+  .vox-input {
     flex: 1;
   }
 }
@@ -697,89 +686,22 @@ img.profile-avatar {
   color: var(--voxver-error);
 }
 
-/* ====== 按钮 ====== */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 20px;
-  background: var(--voxver-primary);
-  color: #fff;
-  border: none;
-  border-radius: var(--voxver-radius-sm);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover:not(:disabled) {
-    background: var(--voxver-primary-hover);
-  }
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  &.btn-sm {
-    padding: 6px 14px;
-    font-size: 12px;
-  }
-}
-
-.btn-outline {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 16px;
-  border: 1px solid var(--voxver-border-color);
-  background: transparent;
-  border-radius: var(--voxver-radius-sm);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover {
-    border-color: currentColor;
-  }
-  &.btn-danger {
-    color: var(--voxver-error);
-    &:hover {
-      background: var(--voxver-error-bg);
-    }
-  }
-}
-
-.btn-sm {
-  font-size: 12px;
-}
-.btn-ghost {
-  background: var(--voxver-bg-primary);
-  border: 1px solid var(--voxver-border-color);
-  color: var(--voxver-text-secondary);
-  border-radius: var(--voxver-radius-xs);
-  font-size: 12px;
-  cursor: pointer;
-  padding: 6px 12px;
-
-  &:hover {
-    border-color: var(--voxver-primary-400);
-    color: var(--voxver-primary-600);
-  }
-}
-
 /* ====== 提示框 ====== */
 .hint-box {
   display: flex;
   align-items: flex-start;
   gap: 8px;
   padding: 12px 14px;
-  background: #fef7e0;
-  border-left: 3px solid #f9ab00;
-  border-radius: 0 6px 6px 0;
+  background: color-mix(in oklab, var(--voxver-warning) 12%, transparent);
+  border-left: 3px solid var(--voxver-warning);
+  border-radius: 0 var(--voxver-radius-md) var(--voxver-radius-md) 0;
   font-size: 12px;
-  color: #776000;
+  color: var(--voxver-text-secondary);
 
   svg {
     flex-shrink: 0;
     margin-top: 1px;
+    color: var(--voxver-warning);
   }
 }
 
@@ -796,9 +718,6 @@ img.profile-avatar {
 }
 
 .modal-card {
-  background: var(--voxver-bg-elevated, #fff);
-  border: 1px solid var(--voxver-border-color, #e0e0e0);
-  border-radius: 14px;
   width: 420px;
   max-width: calc(100vw - 32px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
@@ -810,11 +729,12 @@ img.profile-avatar {
   align-items: center;
   justify-content: space-between;
   padding: 14px 18px;
-  border-bottom: 1px solid var(--voxver-border-color, #e0e0e0);
+  border-bottom: 1px solid var(--voxver-border-color);
 
   .modal-title {
     font-size: 14px;
     font-weight: 700;
+    color: var(--voxver-text-primary);
   }
   .modal-close {
     background: none;
@@ -823,11 +743,11 @@ img.profile-avatar {
     cursor: pointer;
     color: var(--voxver-text-muted);
     padding: 2px 6px;
-    border-radius: 4px;
+    border-radius: var(--voxver-radius-xs);
     line-height: 1;
 
     &:hover {
-      background: var(--voxver-bg-primary);
+      background: color-mix(in oklab, var(--voxver-text) 8%, transparent);
     }
   }
 }
@@ -839,7 +759,7 @@ img.profile-avatar {
 
 .modal-footer {
   padding: 12px 18px;
-  border-top: 1px solid var(--voxver-border-color, #e0e0e0);
+  border-top: 1px solid var(--voxver-border-color);
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -853,19 +773,6 @@ img.profile-avatar {
     font-size: 13px;
     color: var(--voxver-text-secondary);
     margin: 0 0 10px;
-  }
-
-  .device-flow-link {
-    display: inline-block;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--voxver-primary, #0078d4);
-    text-decoration: none;
-    margin-bottom: 14px;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 
   .device-code-box {
@@ -882,9 +789,9 @@ img.profile-avatar {
     letter-spacing: 4px;
     color: var(--voxver-text-primary);
     font-family: 'Courier New', monospace;
-    background: var(--voxver-bg-primary);
+    background: color-mix(in oklab, var(--voxver-text) 6%, transparent);
     border: 1px solid var(--voxver-border-color);
-    border-radius: 8px;
+    border-radius: var(--voxver-radius-md);
     padding: 6px 18px;
   }
 
@@ -935,10 +842,10 @@ img.profile-avatar {
   }
 
   &.success p {
-    color: #137333;
+    color: var(--voxver-success);
   }
   &.error-box p {
-    color: var(--voxver-error, #ea4335);
+    color: var(--voxver-error);
     font-size: 13px;
     font-weight: 400;
   }
@@ -953,19 +860,7 @@ img.profile-avatar {
 
 .ext-link-btn {
   flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 9px 14px;
-  background: var(--voxver-bg-elevated);
-  border: 1px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-sm);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--voxver-text-secondary);
   text-decoration: none;
-  transition: all 0.15s;
 
   svg {
     flex-shrink: 0;
@@ -973,9 +868,6 @@ img.profile-avatar {
   }
 
   &:hover {
-    border-color: var(--voxver-primary-400);
-    color: var(--voxver-primary);
-    background: var(--voxver-primary-bg);
     svg {
       opacity: 1;
     }
@@ -987,8 +879,8 @@ img.profile-avatar {
   display: inline-block;
   width: 16px;
   height: 16px;
-  border: 2px solid var(--voxver-border-color, #e0e0e0);
-  border-top-color: var(--voxver-primary, #0078d4);
+  border: 2px solid var(--voxver-border-color);
+  border-top-color: var(--voxver-primary);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;

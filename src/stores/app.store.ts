@@ -5,7 +5,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-export type ThemeMode = 'dark' | 'light'
+export type ThemeMode = 'dark' | 'light' | 'auto' | 'koring'
 export type Language = 'zh-CN' | 'en-US'
 
 export const useAppStore = defineStore('app', () => {
@@ -23,15 +23,28 @@ export const useAppStore = defineStore('app', () => {
   const bgOverlayColor = ref('#1a1b2e')
   const bgDimAmount = ref(0)
   const themeBgBlur = ref(0)
+  const bgParallax = ref(false)
 
   // ====== 计算属性 ======
-  const isDark = computed(() => theme.value === 'dark')
+  const isDark = computed(() => {
+    const t = resolveTheme()
+    return t === 'dark' || t === 'koring'
+  })
 
   // ====== 操作 ======
 
+  /** 解析 auto 主题为实际深浅色；koring 独立返回 */
+  function resolveTheme(): 'dark' | 'light' | 'koring' {
+    if (theme.value === 'auto') {
+      return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+    return theme.value
+  }
+
   /** 切换主题 */
   function toggleTheme() {
-    theme.value = theme.value === 'dark' ? 'light' : 'dark'
+    const resolved = resolveTheme()
+    theme.value = resolved === 'dark' ? 'light' : 'dark'
     applyTheme()
   }
 
@@ -71,10 +84,34 @@ export const useAppStore = defineStore('app', () => {
     localStorage.setItem('voxver_themeBgBlur', String(v))
   }
 
+  function setBgParallax(v: boolean) {
+    bgParallax.value = v
+    localStorage.setItem('voxver_bgParallax', String(v))
+  }
+
+  /** 重置所有背景设置为初始状态 */
+  function resetBackgroundSettings() {
+    bgImageMode.value = 'none'
+    bgImagePath.value = ''
+    bgColorOverlay.value = false
+    bgOverlayColor.value = '#1a1b2e'
+    bgDimAmount.value = 0
+    themeBgBlur.value = 0
+    bgParallax.value = false
+    localStorage.removeItem('voxver_bgImageMode')
+    localStorage.removeItem('voxver_bgImagePath')
+    localStorage.removeItem('voxver_bgColorOverlay')
+    localStorage.removeItem('voxver_bgOverlayColor')
+    localStorage.removeItem('voxver_bgDimAmount')
+    localStorage.removeItem('voxver_themeBgBlur')
+    localStorage.removeItem('voxver_bgParallax')
+  }
+
   /** 应用主题到 DOM */
   function applyTheme() {
-    document.documentElement.setAttribute('data-theme', theme.value)
-    // 持久化
+    const resolved = resolveTheme()
+    document.documentElement.setAttribute('data-theme', resolved)
+    // 持久化（保存用户选择，包括 auto）
     localStorage.setItem('voxver_theme', theme.value)
   }
 
@@ -101,6 +138,17 @@ export const useAppStore = defineStore('app', () => {
     if (savedDim !== null) bgDimAmount.value = Number(savedDim)
     const savedBlur = localStorage.getItem('voxver_themeBgBlur')
     if (savedBlur !== null) themeBgBlur.value = Number(savedBlur)
+    const savedParallax = localStorage.getItem('voxver_bgParallax')
+    if (savedParallax !== null) bgParallax.value = savedParallax === 'true'
+
+    // 监听系统主题变化（auto 模式下自动跟随）
+    if (window.matchMedia) {
+      const mql = window.matchMedia('(prefers-color-scheme: dark)')
+      const handler = () => {
+        if (theme.value === 'auto') applyTheme()
+      }
+      mql.addEventListener?.('change', handler)
+    }
   }
 
   function toggleSidebar() {
@@ -119,7 +167,9 @@ export const useAppStore = defineStore('app', () => {
     bgOverlayColor,
     bgDimAmount,
     themeBgBlur,
+    bgParallax,
     isDark,
+    resolveTheme,
     toggleTheme,
     setTheme,
     setBgImageMode,
@@ -128,6 +178,8 @@ export const useAppStore = defineStore('app', () => {
     setBgOverlayColor,
     setBgDimAmount,
     setThemeBgBlur,
+    setBgParallax,
+    resetBackgroundSettings,
     init,
     toggleSidebar
   }

@@ -10,9 +10,11 @@
   --voxver-border-2: var(--voxver-border-strong);
   --voxver-primary-bg: var(--voxver-primary-light);
   --voxver-primary-color: var(--voxver-primary);
-  --voxver-blue-hover: var(--voxver-primary-hover);
+  --voxver-primary-hover: var(--voxver-primary-hover);
   --voxver-green: var(--voxver-success);
   --voxver-danger: var(--voxver-error);
+  --voxver-accent: var(--voxver-primary);
+  --voxver-accent-hover: var(--voxver-primary-hover);
 }
 
 /* ---- 滚动条（全局统一）---- */
@@ -200,22 +202,22 @@ html {
 }
 
 .px-btn--primary {
-  background: var(--voxver-gradient-primary, linear-gradient(135deg, #6366f1, #8b5cf6));
+  background: var(--voxver-gradient-primary, linear-gradient(135deg, var(--voxver-primary), #0ea5e9));
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 4px 12px color-mix(in oklab, var(--voxver-primary) 35%, transparent);
 }
 
 .px-btn--primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #818cf8, #a78bfa);
-  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.45);
+  background: linear-gradient(135deg, var(--voxver-primary-400), #0ea5e9);
+  box-shadow: 0 6px 16px color-mix(in oklab, var(--voxver-primary) 45%, transparent);
 }
 
 .px-btn--secondary {
-  background: var(--voxver-bg-tertiary, #272935);
-  color: var(--voxver-text-primary, #e2e8f0);
-  border: 1px solid var(--voxver-border-color, #374151);
+  background: var(--voxver-bg-tertiary);
+  color: var(--voxver-text-primary);
+  border: 1px solid var(--voxver-border-color);
 }
 
 .px-btn--secondary:hover:not(:disabled) {
-  background: var(--voxver-border-color, #374151);
+  background: var(--voxver-border-color);
 }

@@ -158,7 +158,7 @@ function formatSpeed(bytesPerSec: number): string {
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
 
@@ -271,7 +271,7 @@ function formatSpeed(bytesPerSec: number): string {
   gap: 8px;
   margin-top: 12px;
   padding: 10px 14px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
 
@@ -285,14 +285,14 @@ function formatSpeed(bytesPerSec: number): string {
     flex: 1;
     height: 8px;
     background: var(--voxver-bg-hover);
-    border-radius: 4px;
+    border-radius: var(--voxver-radius-xs);
     overflow: hidden;
   }
 
   .overall-fill {
     height: 100%;
     background: var(--voxver-gradient-success);
-    border-radius: 4px;
+    border-radius: var(--voxver-radius-xs);
     transition: width 0.25s;
   }
 

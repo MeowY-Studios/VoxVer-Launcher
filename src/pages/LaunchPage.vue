@@ -100,7 +100,7 @@
     </div>
 
     <!-- 账户管理入口 -->
-    <button class="btn-account-manage" @click="goAccountSettings">
+    <button class="btn-account-manage vox-btn" @click="goAccountSettings">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
         <circle cx="12" cy="7" r="4" />
@@ -146,7 +146,7 @@
           height="20"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#ef4444"
+          stroke="var(--voxver-error)"
           stroke-width="2"
         >
           <path
@@ -504,7 +504,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
   font-size: 12px;
@@ -552,7 +552,7 @@ onUnmounted(() => {
     &:hover {
       color: var(--voxver-primary);
       border-color: var(--voxver-primary);
-      background: rgba(99, 102, 241, 0.1);
+      background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
     }
   }
 }
@@ -592,7 +592,7 @@ onUnmounted(() => {
   &:not(.launching):not(.running):hover {
     transform: translateY(-2px) scale(1.02);
     filter: brightness(1.06);
-    box-shadow: 0 8px 32px rgba(99, 102, 234, 0.5);
+    box-shadow: 0 8px 32px color-mix(in oklab, var(--voxver-primary) 50%, transparent);
   }
 
   &.launching .btn-icon {
@@ -673,21 +673,10 @@ onUnmounted(() => {
 
 /* ====== 账户管理入口 ====== */
 .btn-account-manage {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border: 1px solid color-mix(in oklab, var(--voxver-text-primary) 10%, transparent);
-  border-radius: var(--voxver-radius-md);
-  background: transparent;
-  color: var(--voxver-text-secondary);
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.15s;
   &:hover {
-    background: color-mix(in oklab, var(--voxver-accent) 10%, transparent);
-    border-color: color-mix(in oklab, var(--voxver-accent) 30%, transparent);
-    color: var(--voxver-accent);
+    background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
+    border-color: color-mix(in oklab, var(--voxver-primary) 30%, transparent);
+    color: var(--voxver-primary);
   }
 }
 
@@ -695,7 +684,7 @@ onUnmounted(() => {
 .console-section {
   width: 100%;
   max-width: 900px;
-  background: var(--voxver-bg-primary);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-lg);
   overflow: hidden;
@@ -711,7 +700,7 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 10px 16px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border-bottom: 1px solid var(--voxver-border-color);
 
   h3 {
@@ -741,9 +730,9 @@ onUnmounted(() => {
     }
 
     &.danger:hover {
-      color: #ef4444;
-      border-color: #ef4444;
-      background: rgba(239, 68, 68, 0.08);
+      color: var(--voxver-error);
+      border-color: var(--voxver-error);
+      background: color-mix(in oklab, var(--voxver-error) 8%, transparent);
     }
   }
 }
@@ -796,9 +785,9 @@ onUnmounted(() => {
 .crash-panel {
   width: 100%;
   max-width: 900px;
-  background: var(--voxver-bg-elevated);
-  border: 1px solid #fca5a5;
-  border-left: 4px solid #ef4444;
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
+  border: 1px solid color-mix(in oklab, var(--voxver-error) 50%, transparent);
+  border-left: 4px solid var(--voxver-error);
   border-radius: var(--voxver-radius-lg);
   overflow: hidden;
 }
@@ -808,7 +797,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   padding: 12px 18px;
-  background: rgba(239, 68, 68, 0.06);
+  background: color-mix(in oklab, var(--voxver-error) 6%, transparent);
 
   h3 {
     font-size: 15px;
@@ -854,7 +843,7 @@ onUnmounted(() => {
     pre {
       margin-top: 8px;
       padding: 10px 12px;
-      background: var(--voxver-bg-primary);
+      background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
       border-radius: var(--voxver-radius-md);
       font-size: 11px;
       line-height: 1.5;

@@ -286,8 +286,8 @@ onUnmounted(() => {
     min-width: 16px;
     height: 16px;
     padding: 0 4px;
-    border-radius: 8px;
-    background: var(--voxver-error, #ef4444);
+    border-radius: var(--voxver-radius-md);
+    background: var(--voxver-error);
     color: #fff;
     font-size: 10px;
     font-weight: 700;
@@ -305,8 +305,8 @@ onUnmounted(() => {
   z-index: 10002;
   width: 340px;
   max-height: 420px;
-  background: var(--voxver-bg-elevated, #fff);
-  border: 1px solid var(--voxver-border-color, #e2e8f0);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-lg, 12px);
   box-shadow: var(--voxver-shadow-lg, 0 8px 30px rgba(0, 0, 0, 0.18));
   display: flex;
@@ -319,13 +319,13 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 10px 14px;
-  border-bottom: 1px solid var(--voxver-border-color, #e2e8f0);
+  border-bottom: 1px solid var(--voxver-border-color);
   flex-shrink: 0;
 }
 .pxn-title {
   font-size: 13px;
   font-weight: 700;
-  color: var(--voxver-text-primary, #1e293b);
+  color: var(--voxver-text-primary);
 }
 .pxn-header-actions {
   display: flex;
@@ -337,17 +337,17 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--voxver-border-color, #e2e8f0);
+  border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-sm, 6px);
   background: transparent;
-  color: var(--voxver-text-muted, #94a3b8);
+  color: var(--voxver-text-muted);
   cursor: pointer;
   transition: all 0.12s;
 
   &:hover {
-    border-color: var(--voxver-primary-400, #818cf8);
-    color: var(--voxver-primary-600, #4f46e5);
-    background: var(--voxver-primary-light, rgba(99, 102, 234, 0.08));
+    border-color: var(--voxver-primary-400);
+    color: var(--voxver-primary-600);
+    background: var(--voxver-primary-light, color-mix(in oklab, var(--voxver-primary) 8%, transparent));
   }
 }
 
@@ -369,7 +369,7 @@ onUnmounted(() => {
   padding: 32px 16px;
   text-align: center;
   font-size: 13px;
-  color: var(--voxver-text-muted, #94a3b8);
+  color: var(--voxver-text-muted);
 }
 
 .pxn-item {
@@ -382,11 +382,11 @@ onUnmounted(() => {
   position: relative;
 
   &:hover {
-    background: var(--voxver-primary-light, rgba(99, 102, 234, 0.06));
+    background: var(--voxver-primary-light, color-mix(in oklab, var(--voxver-primary) 6%, transparent));
   }
 
   &.unread {
-    background: rgba(99, 102, 234, 0.04);
+    background: color-mix(in oklab, var(--voxver-primary) 4%, transparent);
     .pxn-item-title {
       font-weight: 700;
     }
@@ -394,16 +394,16 @@ onUnmounted(() => {
 
   /* type colors */
   &.type-success .pxn-item-icon {
-    color: var(--voxver-success, #22c55e);
+    color: var(--voxver-success);
   }
   &.type-error .pxn-item-icon {
-    color: var(--voxver-error, #ef4444);
+    color: var(--voxver-error);
   }
   &.type-warning .pxn-item-icon {
-    color: var(--voxver-warning, #f59e0b);
+    color: var(--voxver-warning);
   }
   &.type-info .pxn-item-icon {
-    color: var(--voxver-primary, #6366f1);
+    color: var(--voxver-primary);
   }
 }
 
@@ -414,8 +414,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  background: var(--voxver-bg-secondary, #f1f5f9);
+  border-radius: var(--voxver-radius-sm);
+  background: var(--voxver-bg-secondary);
   margin-top: 1px;
 }
 
@@ -426,12 +426,12 @@ onUnmounted(() => {
 .pxn-item-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--voxver-text-primary, #1e293b);
+  color: var(--voxver-text-primary);
   margin-bottom: 2px;
 }
 .pxn-item-body {
   font-size: 12px;
-  color: var(--voxver-text-secondary, #475569);
+  color: var(--voxver-text-secondary);
   line-height: 1.4;
   /* 最多两行 */
   display: -webkit-box;
@@ -442,7 +442,7 @@ onUnmounted(() => {
 }
 .pxn-item-time {
   font-size: 11px;
-  color: var(--voxver-text-muted, #94a3b8);
+  color: var(--voxver-text-muted);
   margin-top: 3px;
 }
 
@@ -453,14 +453,14 @@ onUnmounted(() => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--voxver-primary, #6366f1);
+  background: var(--voxver-primary);
   border: none;
   cursor: pointer;
   flex-shrink: 0;
   padding: 0;
 
   &:hover {
-    background: var(--voxver-primary-600, #4f46e5);
+    background: var(--voxver-primary-600);
     transform: scale(1.2);
   }
 }

@@ -56,7 +56,7 @@
       <!-- 版本分类折叠面板（Accordion） -->
       <div class="ver-accordion">
         <!-- 正式版 -->
-        <div class="acc-group">
+        <div class="acc-group vox-card">
           <button
             class="acc-header"
             :class="{ open: accOpen.release }"
@@ -166,7 +166,7 @@
         </div>
 
         <!-- 预览版 -->
-        <div class="acc-group">
+        <div class="acc-group vox-card">
           <button
             class="acc-header"
             :class="{ open: accOpen.snapshot }"
@@ -274,7 +274,7 @@
         </div>
 
         <!-- 远古版 -->
-        <div class="acc-group">
+        <div class="acc-group vox-card">
           <button
             class="acc-header"
             :class="{ open: accOpen.old }"
@@ -381,7 +381,7 @@
         </div>
 
         <!-- 愚人节版 -->
-        <div class="acc-group">
+        <div class="acc-group vox-card">
           <button
             class="acc-header"
             :class="{ open: accOpen.april }"
@@ -498,21 +498,21 @@
     <!-- ====== 社区资源视图（Mod/整合包/数据包/资源包/光影包） ====== -->
     <template v-else>
       <!-- 筛选表单 -->
-      <section class="filter-section">
+      <section class="filter-section vox-card">
         <h3 class="fs-title">搜索{{ categoryLabel }}</h3>
         <div class="filter-grid">
           <div class="f-row">
             <label>{{ $t('download.name') }}</label>
             <input
               type="text"
-              class="f-input"
+              class="f-input vox-input"
               v-model="searchName"
               :placeholder="$t('download.enterKeyword')"
             />
           </div>
           <div class="f-row">
             <label>{{ $t('download.source') }}</label>
-            <select class="f-select" v-model="searchSource">
+            <select class="f-select vox-input" v-model="searchSource">
               <option value="all">{{ $t('download.all') }}</option>
               <option value="modrinth">Modrinth</option>
               <option value="curseforge">CurseForge</option>
@@ -520,7 +520,7 @@
           </div>
           <div class="f-row">
             <label>{{ $t('download.version') }}</label>
-            <select class="f-select" v-model="searchVersion">
+            <select class="f-select vox-input" v-model="searchVersion">
               <option value="">全部</option>
               <option v-for="v in mcVersionOptions" :key="v" :value="v">{{ v }}</option>
             </select>
@@ -528,7 +528,7 @@
           <!-- 选了版本后出现加载器选项（仅 Mod） -->
           <div class="f-row" v-if="activeCategory === 'mod' && searchVersion">
             <label>{{ $t('download.loader') }}</label>
-            <select class="f-select" v-model="searchLoader">
+            <select class="f-select vox-input" v-model="searchLoader">
               <option value="">{{ $t('download.anyLoader') }}</option>
               <option value="fabric">Fabric</option>
               <option value="forge">Forge</option>
@@ -549,7 +549,7 @@
             "
           >
             <label>{{ $t('download.type') }}</label>
-            <select class="f-select" v-model="searchType">
+            <select class="f-select vox-input" v-model="searchType">
               <option value="">全部</option>
               <option v-for="t in availableTypes" :key="t" :value="t">{{ t }}</option>
             </select>
@@ -564,7 +564,7 @@
       </section>
 
       <!-- 加载状态 -->
-      <section v-if="isLoading" class="loading-section">
+      <section v-if="isLoading" class="loading-section vox-card">
         <div class="load-icon">
           <svg
             width="48"
@@ -1393,7 +1393,7 @@ watch(
   .dl-header-icon {
     width: 44px;
     height: 44px;
-    border-radius: 10px;
+    border-radius: var(--voxver-radius-lg);
     background: linear-gradient(135deg, var(--voxver-primary), #42a5f5);
     display: flex;
     align-items: center;
@@ -1426,7 +1426,7 @@ watch(
 .ver-tab {
   padding: 7px 16px;
   border: 1.5px solid var(--voxver-border-color);
-  border-radius: 7px;
+  border-radius: var(--voxver-radius-md);
   background: var(--voxver-surface);
   font-size: 13px;
   font-weight: 500;
@@ -1461,7 +1461,7 @@ watch(
   padding: 7px 12px;
   background: var(--voxver-surface);
   border: 1px solid var(--voxver-border-color);
-  border-radius: 7px;
+  border-radius: var(--voxver-radius-md);
   margin-bottom: 14px;
   flex-shrink: 0;
 
@@ -1488,13 +1488,13 @@ watch(
     background: transparent;
     color: var(--voxver-text-muted);
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: var(--voxver-radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.12s;
     &:hover {
-      background: var(--voxver-bg-primary);
+      background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
       color: var(--voxver-primary);
     }
   }
@@ -1508,11 +1508,7 @@ watch(
 }
 
 .acc-group {
-  background: var(--voxver-bg-elevated);
-  border-radius: var(--voxver-radius-lg);
-  border: 1.5px solid var(--voxver-border-color);
   overflow: hidden;
-  box-shadow: var(--voxver-shadow-sm);
 
   &:hover {
     border-color: var(--voxver-primary-200);
@@ -1563,7 +1559,7 @@ watch(
   flex-direction: column;
   gap: 4px;
   padding: 8px 10px 10px;
-  background: var(--voxver-bg-secondary);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
 }
 
 .acc-empty {
@@ -1579,7 +1575,7 @@ watch(
   gap: 14px;
   padding: 12px 14px;
   background: var(--voxver-surface);
-  border-radius: 8px;
+  border-radius: var(--voxver-radius-md);
   border: 1px solid transparent;
   transition: all 0.14s;
 
@@ -1587,14 +1583,14 @@ watch(
     border-color: var(--voxver-border-color);
     border-left-color: var(--voxver-primary);
     border-left-width: 3px;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--voxver-shadow-sm);
   }
 }
 
 .ver-icon {
   width: 40px;
   height: 40px;
-  border-radius: 8px;
+  border-radius: var(--voxver-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1622,23 +1618,23 @@ watch(
     font-size: 10px;
     font-weight: 600;
     padding: 1px 7px;
-    border-radius: 3px;
+    border-radius: var(--voxver-radius-xs);
 
     &.release {
-      background: #e8f5e9;
-      color: #2e7d32;
+      background: color-mix(in oklab, var(--voxver-success) 15%, transparent);
+      color: var(--voxver-success);
     }
     &.snapshot {
-      background: #fff3e0;
-      color: #e65100;
+      background: color-mix(in oklab, var(--voxver-warning) 15%, transparent);
+      color: var(--voxver-warning);
     }
     &.old {
-      background: #eceff1;
-      color: #546e7a;
+      background: color-mix(in oklab, var(--voxver-text-muted) 15%, transparent);
+      color: var(--voxver-text-muted);
     }
     &.april {
-      background: #fce4ec;
-      color: #c62828;
+      background: color-mix(in oklab, var(--voxver-error) 15%, transparent);
+      color: var(--voxver-error);
     }
   }
 
@@ -1671,8 +1667,8 @@ watch(
   height: 30px;
   padding: 0 12px;
   border: 1.5px solid var(--voxver-border-color);
-  border-radius: 6px;
-  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-sm);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   font-size: 12px;
   color: var(--voxver-text-secondary);
   cursor: pointer;
@@ -1690,19 +1686,19 @@ watch(
     border-color: var(--voxver-primary);
     color: #fff;
     &:hover {
-      background: var(--voxver-blue-hover);
+      background: var(--voxver-primary-hover);
     }
   }
   &.is-dl {
-    background: var(--voxver-blue-hover);
+    background: var(--voxver-primary-hover);
     border-color: var(--voxver-primary);
     color: #fff;
     cursor: wait;
     opacity: 0.85;
   }
   &.is-done {
-    background: #2e7d32;
-    border-color: #2e7d32;
+    background: var(--voxver-success);
+    border-color: var(--voxver-success);
     color: #fff;
     cursor: default;
     opacity: 0.8;
@@ -1742,7 +1738,7 @@ watch(
 .btn-loadmore {
   padding: 8px 24px;
   border: 1.5px solid var(--voxver-border-color);
-  border-radius: 7px;
+  border-radius: var(--voxver-radius-md);
   background: var(--voxver-surface);
   font-size: 13px;
   color: var(--voxver-text-secondary);
@@ -1756,10 +1752,7 @@ watch(
 
 /* ====== 社区资源 ====== */
 .filter-section {
-  background: var(--voxver-surface);
-  border-radius: 10px;
   padding: 18px 20px;
-  border: 1px solid var(--voxver-border-color-light);
   margin-bottom: 16px;
 }
 
@@ -1793,18 +1786,6 @@ watch(
   .f-input,
   .f-select {
     flex: 1;
-    padding: 8px 10px;
-    border: 1.5px solid var(--voxver-border-color);
-    border-radius: 7px;
-    font-size: 13px;
-    color: var(--voxver-text-primary);
-    background: var(--voxver-bg-elevated);
-    outline: none;
-    transition: all 0.14s;
-    &:focus {
-      border-color: var(--voxver-primary);
-      box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.08);
-    }
   }
 }
 
@@ -1815,9 +1796,9 @@ watch(
 
 .btn-search {
   padding: 8px 28px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1.5px solid var(--voxver-primary);
-  border-radius: 7px;
+  border-radius: var(--voxver-radius-md);
   font-size: 13px;
   font-weight: 600;
   color: var(--voxver-primary);
@@ -1825,36 +1806,36 @@ watch(
   cursor: pointer;
   transition: all 0.14s;
   &:hover {
-    background: rgba(21, 101, 192, 0.06);
+    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
   }
 }
 .btn-reset {
   padding: 8px 20px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1.5px solid var(--voxver-border-color);
-  border-radius: 7px;
+  border-radius: var(--voxver-radius-md);
   font-size: 13px;
   color: var(--voxver-text-secondary);
 
   cursor: pointer;
   transition: all 0.14s;
   &:hover {
-    border-color: #999;
+    border-color: var(--voxver-text-muted);
     color: var(--voxver-text-primary);
   }
 }
 .btn-secondary {
   padding: 8px 20px;
-  background: var(--voxver-bg-elevated);
-  border: 1.5px solid #43a047;
-  border-radius: 7px;
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
+  border: 1.5px solid var(--voxver-success);
+  border-radius: var(--voxver-radius-md);
   font-size: 13px;
-  color: #43a047;
+  color: var(--voxver-success);
   cursor: pointer;
   transition: all 0.14s;
   margin-left: auto;
   &:hover {
-    background: #e8f5e9;
+    background: color-mix(in oklab, var(--voxver-success) 15%, transparent);
   }
 }
 
@@ -1862,9 +1843,6 @@ watch(
 .loading-section {
   text-align: center;
   padding: 56px 20px;
-  background: var(--voxver-surface);
-  border-radius: 10px;
-  border: 1px solid var(--voxver-border-color-light);
   .load-icon {
     margin-bottom: 12px;
     animation: bounce 1.4s infinite ease-in-out;
@@ -1898,7 +1876,7 @@ watch(
   gap: 12px;
   padding: 12px;
   background: var(--voxver-surface);
-  border-radius: 8px;
+  border-radius: var(--voxver-radius-md);
   border: 1px solid var(--voxver-border-color-light);
   border-left: 3px solid transparent;
   transition: all 0.15s ease;
@@ -1906,26 +1884,26 @@ watch(
   position: relative;
 
   &:hover {
-    border-color: var(--voxver-primary-300, rgba(99, 102, 241, 0.5));
-    border-left-color: var(--voxver-primary, #6366f1);
-    background: rgba(99, 102, 241, 0.04);
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+    border-color: var(--voxver-primary-300);
+    border-left-color: var(--voxver-primary);
+    background: color-mix(in oklab, var(--voxver-primary) 4%, transparent);
+    box-shadow: var(--voxver-shadow-md);
     transform: translateX(2px);
   }
 
   .res-thumb {
     width: 48px;
     height: 48px;
-    border-radius: 6px;
+    border-radius: var(--voxver-radius-sm);
     object-fit: cover;
     flex-shrink: 0;
-    background: var(--voxver-bg-primary);
+    background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   }
 
   .res-thumb-placeholder {
     width: 48px;
     height: 48px;
-    border-radius: 6px;
+    border-radius: var(--voxver-radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1964,8 +1942,8 @@ watch(
       font-size: 10px;
       font-weight: 500;
       padding: 1px 5px;
-      border-radius: 3px;
-      background: var(--voxver-bg-primary);
+      border-radius: var(--voxver-radius-xs);
+      background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
       color: var(--voxver-text-secondary);
       flex-shrink: 0;
     }
@@ -2053,17 +2031,17 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--voxver-border-color, #313244);
-  border-radius: 7px;
-  background: var(--voxver-bg-elevated, #1e1e2e);
-  color: var(--voxver-text-secondary, #a6adc8);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
+  background: var(--voxver-bg-elevated);
+  color: var(--voxver-text-secondary);
   cursor: pointer;
   transition: all 0.13s;
   flex-shrink: 0;
 
   &:hover:not(:disabled) {
-    border-color: var(--voxver-primary, #6366f1);
-    color: var(--voxver-primary, #6366f1);
+    border-color: var(--voxver-primary);
+    color: var(--voxver-primary);
   }
 
   &:disabled {
@@ -2079,8 +2057,8 @@ watch(
   align-items: center;
   justify-content: center;
   padding: 0 10px;
-  border-radius: 7px;
-  background: var(--voxver-primary, #6366f1);
+  border-radius: var(--voxver-radius-md);
+  background: var(--voxver-primary);
   color: #fff;
   font-size: 13px;
   font-weight: 600;
@@ -2100,17 +2078,17 @@ watch(
   gap: 7px;
   height: 36px;
   padding: 0 28px;
-  border: 1px solid var(--voxver-primary, #6366f1);
-  border-radius: 8px;
+  border: 1px solid var(--voxver-primary);
+  border-radius: var(--voxver-radius-md);
   background: transparent;
-  color: var(--voxver-primary, #6366f1);
+  color: var(--voxver-primary);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.13s;
 
   &:hover:not(:disabled) {
-    background: rgba(99, 102, 241, 0.08);
+    background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
   }
 
   &:disabled {
@@ -2141,7 +2119,7 @@ watch(
     border-color: var(--voxver-primary);
     color: var(--voxver-primary);
     transform: translateY(-2px);
-    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.2);
+    box-shadow: 0 4px 14px color-mix(in oklab, var(--voxver-primary) 20%, transparent);
   }
 
   svg {

@@ -79,13 +79,13 @@
     <!-- 错误状态 -->
     <div v-if="error" class="detail-error">
       <p>{{ error }}</p>
-      <button @click="fetchDetail">{{ $t('common.retry') }}</button>
+      <button class="vox-btn vox-btn--primary" @click="fetchDetail">{{ $t('common.retry') }}</button>
     </div>
 
     <!-- 实例详情内容 -->
     <div v-if="instance" class="detail-content">
       <!-- 基本信息卡片 -->
-      <section class="info-section">
+      <section class="info-section vox-card">
         <h3 class="section-title">{{ $t('instance.basicInfo') }}</h3>
         <div class="info-grid">
           <div class="info-item">
@@ -118,7 +118,7 @@
       </section>
 
       <!-- Java / 内存设置 -->
-      <section class="info-section">
+      <section class="info-section vox-card">
         <h3 class="section-title">{{ $t('settings.gameJava') }} & {{ $t('settings.memory') }}</h3>
         <div class="info-grid">
           <div class="info-item full-width">
@@ -127,7 +127,7 @@
               type="text"
               v-model="editForm.javaPath"
               :placeholder="$t('settings.autoSelect')"
-              class="edit-input"
+              class="edit-input vox-input"
             />
           </div>
           <div class="info-item">
@@ -137,7 +137,7 @@
               v-model.number="editForm.minMemory"
               min="256"
               step="256"
-              class="edit-input number-input"
+              class="edit-input number-input vox-input"
             />
           </div>
           <div class="info-item">
@@ -166,7 +166,7 @@
       </section>
 
       <!-- Mod 列表 -->
-      <section class="info-section">
+      <section class="info-section vox-card">
         <div class="section-header">
           <h3 class="section-title">
             {{ $t('instance.installedMods') }}
@@ -415,8 +415,8 @@
         <div class="editor-toolbar">
           <span class="editor-hint">{{ $t('instance.configEditorHint') }}</span>
           <div class="toolbar-actions">
-            <button v-if="configDirty" class="reset-btn" @click="resetConfig">{{ $t('instance.resetConfigBtn') }}</button>
-            <button class="save-config-btn" @click="saveConfig" :disabled="savingConfig">
+            <button v-if="configDirty" class="reset-btn vox-btn" @click="resetConfig">{{ $t('instance.resetConfigBtn') }}</button>
+            <button class="save-config-btn vox-btn vox-btn--primary" @click="saveConfig" :disabled="savingConfig">
               {{ savingConfig ? $t('instance.savingConfig') : $t('common.save') }}
             </button>
           </div>
@@ -799,9 +799,9 @@ watch(instanceId, () => {
         border-color: var(--voxver-primary-300);
       }
       &.active {
-        color: #f59e0b;
-        border-color: #f59e0b;
-        background: rgba(245, 158, 11, 0.08);
+        color: var(--voxver-warning);
+        border-color: var(--voxver-warning);
+        background: color-mix(in oklab, var(--voxver-warning) 8%, transparent);
       }
     }
   }
@@ -816,15 +816,6 @@ watch(instanceId, () => {
   gap: 12px;
   padding: 80px 0;
   color: var(--voxver-text-muted);
-
-  button {
-    padding: 8px 20px;
-    background: var(--voxver-gradient-primary);
-    color: #fff;
-    border: none;
-    border-radius: var(--voxver-radius-md);
-    cursor: pointer;
-  }
 }
 
 .spinner {
@@ -842,9 +833,6 @@ watch(instanceId, () => {
 }
 
 .info-section {
-  background: var(--voxver-bg-elevated);
-  border: 1px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-lg);
   padding: 20px 24px;
   margin-bottom: 16px;
 
@@ -921,20 +909,6 @@ watch(instanceId, () => {
     }
 
     .edit-input {
-      padding: 8px 12px;
-      background: var(--voxver-bg-input);
-      border: 1px solid var(--voxver-border-color);
-      border-radius: var(--voxver-radius-md);
-      color: var(--voxver-text-primary);
-      font-size: 14px;
-      outline: none;
-      transition: all var(--voxver-transition-fast);
-
-      &:focus {
-        border-color: var(--voxver-border-color-focus);
-        box-shadow: var(--voxver-input-focus-shadow);
-      }
-
       &.number-input {
         width: 120px;
       }
@@ -944,24 +918,6 @@ watch(instanceId, () => {
 
 .save-btn {
   margin-top: 14px;
-  padding: 8px 24px;
-  background: var(--voxver-gradient-primary);
-  color: #fff;
-  border: none;
-  border-radius: var(--voxver-radius-md);
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--voxver-transition-fast);
-
-  &:hover:not(:disabled) {
-    filter: brightness(1.06);
-    box-shadow: var(--voxver-shadow-glow-primary);
-  }
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
 }
 
 .empty-state {
@@ -1080,7 +1036,7 @@ watch(instanceId, () => {
 
   &:hover {
     border-color: var(--voxver-border-color-focus);
-    background: var(--voxver-bg-elevated);
+    background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   }
 
   &.mod-disabled {
@@ -1146,13 +1102,13 @@ watch(instanceId, () => {
   }
 
   &.status-incompatible {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
+    background: color-mix(in oklab, var(--voxver-error) 10%, transparent);
+    color: var(--voxver-error);
   }
 
   &.status-error {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
+    background: color-mix(in oklab, var(--voxver-error) 10%, transparent);
+    color: var(--voxver-error);
   }
 }
 
@@ -1269,38 +1225,9 @@ watch(instanceId, () => {
 }
 
 .reset-btn {
-  padding: 6px 16px;
-  background: transparent;
-  border: 1px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-md);
-  color: var(--voxver-text-secondary);
-  font-size: 13px;
-  cursor: pointer;
-  transition: all var(--voxver-transition-fast);
-
   &:hover {
     color: var(--voxver-text-primary);
     border-color: var(--voxver-text-muted);
-  }
-}
-
-.save-config-btn {
-  padding: 6px 20px;
-  background: var(--voxver-gradient-primary);
-  color: #fff;
-  border: none;
-  border-radius: var(--voxver-radius-md);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--voxver-transition-fast);
-
-  &:hover:not(:disabled) {
-    filter: brightness(1.06);
-  }
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
   }
 }
 
@@ -1325,12 +1252,12 @@ watch(instanceId, () => {
 }
 
 .editor-error {
-  color: #ef4444;
+  color: var(--voxver-error);
   font-size: 12px;
   padding: 8px 12px;
-  background: rgba(239, 68, 68, 0.1);
+  background: color-mix(in oklab, var(--voxver-error) 10%, transparent);
   border-radius: var(--voxver-radius-md);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  border: 1px solid color-mix(in oklab, var(--voxver-error) 20%, transparent);
 }
 
 .empty-state.small {

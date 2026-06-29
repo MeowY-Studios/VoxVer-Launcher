@@ -83,6 +83,25 @@ interface ElectronAPI {
   }
   app: {
     getVersion: () => Promise<string>
+    getPaths: () => Promise<{
+      userData: string
+      logs: string
+      temp: string
+      cache: string
+      downloads: string
+      home: string
+    }>
+    getRuntimeInfo: () => Promise<{
+      appVersion: string
+      electron: string
+      chrome: string
+      node: string
+      v8: string
+      platform: string
+      arch: string
+    }>
+    clearCache: () => Promise<string[]>
+    resetSettings: () => Promise<boolean>
   }
   config: {
     get: (key: string) => Promise<unknown>
@@ -172,6 +191,7 @@ interface ElectronAPI {
   dialog: {
     selectFolder: (options?: { title?: string }) => Promise<string | null>
     selectFile: (options?: { title?: string; filters?: Array<{ name: string; extensions: string[] }> }) => Promise<string | null>
+    readAsDataURL: (filePath: string) => Promise<string | null>
   }
   shell: {
     openPath: (absPath: string) => Promise<void>

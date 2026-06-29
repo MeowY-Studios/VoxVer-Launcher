@@ -52,7 +52,7 @@
             </svg>
           </button>
         </div>
-        <button class="btn-primary" @click="showNewInstance = true">
+        <button class="vox-btn vox-btn--primary" @click="showNewInstance = true">
           <svg
             width="14"
             height="14"
@@ -65,7 +65,7 @@
           </svg>
           {{ $t('instance.newInstance') }}
         </button>
-        <button class="btn-secondary" @click="showImport = true" :title="$t('instance.import')">
+        <button class="vox-btn" @click="showImport = true" :title="$t('instance.import')">
           <svg
             width="14"
             height="14"
@@ -81,7 +81,7 @@
           {{ $t('instance.import') }}
         </button>
         <button
-          class="btn-secondary"
+          class="vox-btn"
           @click="showExport = true"
           :disabled="!selectedId"
           :title="$t('instance.exportSelected')"
@@ -124,7 +124,7 @@
       <div
         v-for="inst in filteredInstances"
         :key="inst.id"
-        class="instance-card"
+        class="instance-card vox-card"
         @click="selectInstance(inst)"
         :class="{ selected: selectedId === inst.id }"
       >
@@ -230,7 +230,7 @@
       <div
         v-for="inst in filteredInstances"
         :key="inst.id"
-        class="list-item"
+        class="list-item vox-list-card"
         @click="selectInstance(inst)"
         :class="{ selected: selectedId === inst.id }"
       >
@@ -288,17 +288,17 @@
 
     <!-- 新建实例弹窗 -->
     <div class="modal-overlay" v-if="showNewInstance" @click.self="showNewInstance = false">
-      <div class="modal-content">
+      <div class="modal-content vox-card">
         <h3>{{ $t('instance.newGameInstance') }}</h3>
         <form @submit.prevent="handleCreateInstance">
           <div class="form-group">
             <label>{{ $t('instance.instanceNameLabel') }}</label>
-            <input v-model="newInst.name" :placeholder="$t('instance.instanceNamePlaceholder')" required />
+            <input class="vox-input" v-model="newInst.name" :placeholder="$t('instance.instanceNamePlaceholder')" required />
           </div>
           <div class="form-row">
             <div class="form-group">
               <label>{{ $t('instance.gameVersionLabel') }}</label>
-              <select v-model="newInst.mc_version">
+              <select class="vox-input" v-model="newInst.mc_version">
                 <option value="1.20.4">1.20.4</option>
                 <option value="1.20.1">1.20.1</option>
                 <option value="1.21.3">1.21.3</option>
@@ -308,7 +308,7 @@
             </div>
             <div class="form-group">
               <label>{{ $t('instance.loaderLabel') }}</label>
-              <select v-model="newInst.loader_type">
+              <select class="vox-input" v-model="newInst.loader_type">
                 <option value="vanilla">{{ $t('instance.vanillaOption') }}</option>
                 <option value="fabric">Fabric</option>
                 <option value="forge">Forge</option>
@@ -317,8 +317,8 @@
             </div>
           </div>
           <div class="modal-actions">
-            <button type="button" class="btn-cancel" @click="showNewInstance = false">{{ $t('common.cancel') }}</button>
-            <button type="submit" class="btn-primary">{{ $t('instance.createInstanceBtn') }}</button>
+            <button type="button" class="vox-btn" @click="showNewInstance = false">{{ $t('common.cancel') }}</button>
+            <button type="submit" class="vox-btn vox-btn--primary">{{ $t('instance.createInstanceBtn') }}</button>
           </div>
         </form>
       </div>
@@ -326,7 +326,7 @@
 
     <!-- 导入实例弹窗 -->
     <div class="modal-overlay" v-if="showImport" @click.self="closeImport">
-      <div class="modal-content">
+      <div class="modal-content vox-card">
         <h3>{{ $t('instance.importExistingInstance') }}</h3>
 
         <!-- 步骤1: 选择目录 -->
@@ -337,8 +337,8 @@
           <div class="form-group">
             <label>{{ $t('instance.directoryPath') }}</label>
             <div class="dir-picker">
-              <input v-model="importDir" :placeholder="$t('instance.directoryPlaceholder')" readonly />
-              <button class="btn-secondary" @click="selectImportDir">{{ $t('common.pleaseSelect') }}</button>
+              <input class="vox-input" v-model="importDir" :placeholder="$t('instance.directoryPlaceholder')" readonly />
+              <button class="vox-btn" @click="selectImportDir">{{ $t('common.pleaseSelect') }}</button>
             </div>
           </div>
         </div>
@@ -375,8 +375,8 @@
             </div>
           </div>
           <div class="modal-actions">
-            <button class="btn-cancel" @click="closeImport">{{ $t('common.cancel') }}</button>
-            <button class="btn-primary" @click="doImport">{{ $t('common.confirm') }}{{ $t('instance.import') }}</button>
+            <button class="vox-btn" @click="closeImport">{{ $t('common.cancel') }}</button>
+            <button class="vox-btn vox-btn--primary" @click="doImport">{{ $t('common.confirm') }}{{ $t('instance.import') }}</button>
           </div>
         </div>
 
@@ -404,7 +404,7 @@
             <p>{{ $t('instance.importSuccess') }}</p>
           </div>
           <div class="modal-actions">
-            <button class="btn-primary" @click="closeImport">{{ $t('common.finish') }}</button>
+            <button class="vox-btn vox-btn--primary" @click="closeImport">{{ $t('common.finish') }}</button>
           </div>
         </div>
 
@@ -414,8 +414,8 @@
             <p>{{ importError }}</p>
           </div>
           <div class="modal-actions">
-            <button class="btn-cancel" @click="closeImport">{{ $t('common.close') }}</button>
-            <button class="btn-secondary" @click="importStep = 'select'">{{ $t('instance.reselectBtn') }}</button>
+            <button class="vox-btn" @click="closeImport">{{ $t('common.close') }}</button>
+            <button class="vox-btn" @click="importStep = 'select'">{{ $t('instance.reselectBtn') }}</button>
           </div>
         </div>
       </div>
@@ -423,7 +423,7 @@
 
     <!-- 导出实例弹窗 -->
     <div class="modal-overlay" v-if="showExport" @click.self="showExport = false">
-      <div class="modal-content">
+      <div class="modal-content vox-card">
         <h3>{{ $t('instance.export') }}{{ $t('instance.instance') }}</h3>
         <p class="export-desc">{{ $t('instance.export') }}为 .mcla 可分享包</p>
         <div class="export-options">
@@ -441,8 +441,8 @@
           </label>
         </div>
         <div class="modal-actions">
-          <button class="btn-cancel" @click="showExport = false">{{ $t('common.cancel') }}</button>
-          <button class="btn-primary" @click="doExport" :disabled="exportLoading">
+          <button class="vox-btn" @click="showExport = false">{{ $t('common.cancel') }}</button>
+          <button class="vox-btn vox-btn--primary" @click="doExport" :disabled="exportLoading">
             {{ exportLoading ? $t('instance.export') + '...' : $t('instance.export') }}
           </button>
         </div>
@@ -772,7 +772,7 @@ onMounted(() => {
 /* 视图切换 */
 .view-toggle {
   display: flex;
-  background: var(--voxver-bg-primary);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   border-radius: var(--voxver-radius-sm);
   border: 1px solid var(--voxver-border-color);
 
@@ -786,57 +786,17 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 5px;
+    border-radius: var(--voxver-radius-sm);
     transition: all 0.12s;
 
     &:hover {
       color: var(--voxver-text-secondary);
     }
     &.active {
-      background: var(--voxver-bg-elevated);
+      background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
       color: var(--voxver-primary-600);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--voxver-shadow-sm);
     }
-  }
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 7px 16px;
-  background: var(--voxver-primary);
-  color: #fff;
-  border: none;
-  border-radius: var(--voxver-radius-sm);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover {
-    background: var(--voxver-primary-hover);
-    transform: translateY(-1px);
-    box-shadow: var(--voxver-shadow-md);
-  }
-  &:active {
-    transform: scale(0.97);
-  }
-}
-
-.btn-cancel {
-  padding: 7px 20px;
-  background: transparent;
-  color: var(--voxver-text-secondary);
-  border: 1.5px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-sm);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover {
-    background: var(--voxver-bg-tertiary);
   }
 }
 
@@ -846,7 +806,7 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 7px 12px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-sm);
   margin-bottom: 16px;
@@ -892,16 +852,12 @@ onMounted(() => {
 }
 
 .instance-card {
-  background: var(--voxver-bg-elevated);
-  border: 1.5px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-lg);
   overflow: hidden;
   cursor: pointer;
   transition: all var(--voxver-transition-normal);
   display: flex;
   flex-direction: column;
-  box-shadow: var(--voxver-shadow-sm);
-  height: 160px; /* 调整高度更紧凑 */
+  height: 160px;
 
   &:hover {
     transform: translateY(-3px);
@@ -911,7 +867,7 @@ onMounted(() => {
 
   &.selected {
     border-color: var(--voxver-primary-500);
-    box-shadow: 0 0 0 3px rgba(99, 102, 234, 0.15);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 15%, transparent);
   }
 }
 
@@ -940,7 +896,7 @@ onMounted(() => {
   color: #fff;
   background: rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(4px);
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
   letter-spacing: 0.3px;
 }
 
@@ -955,7 +911,7 @@ onMounted(() => {
   color: var(--voxver-text-primary);
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(4px);
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
 }
 
 /* 信息区 */
@@ -1044,19 +1000,10 @@ onMounted(() => {
 }
 
 .list-item {
-  display: flex;
-  align-items: center;
   gap: 12px;
-  padding: 10px 14px;
-  background: var(--voxver-bg-elevated);
-  border: 1px solid transparent;
-  border-radius: var(--voxver-radius-md);
-  cursor: pointer;
-  transition: all 0.15s ease;
 
   &:hover {
-    border-color: var(--voxver-border-color);
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--voxver-shadow-sm);
   }
 
   &.selected {
@@ -1169,13 +1116,11 @@ onMounted(() => {
 }
 
 .modal-content {
-  background: var(--voxver-bg-elevated);
-  border-radius: var(--voxver-radius-xl);
   padding: 28px 24px;
   width: 420px;
   max-width: 90vw;
   box-shadow: var(--voxver-shadow-xl);
-  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-xl);
 
   h3 {
     margin: 0 0 20px;
@@ -1205,52 +1150,6 @@ onMounted(() => {
     color: var(--voxver-text-secondary);
     margin-bottom: 5px;
   }
-
-  input,
-  select {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1.5px solid var(--voxver-border-color);
-    border-radius: var(--voxver-radius-sm);
-    font-size: 13px;
-    color: var(--voxver-text-primary);
-    background: var(--voxver-bg-primary);
-    outline: none;
-    transition: all 0.15s;
-
-    &:focus {
-      border-color: var(--voxver-primary-400);
-      box-shadow: 0 0 0 3px rgba(99, 102, 234, 0.1);
-    }
-    &::placeholder {
-      color: var(--voxver-text-muted);
-    }
-  }
-}
-
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 7px 14px;
-  background: transparent;
-  color: var(--voxver-text-secondary);
-  border: 1px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-sm);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover:not(:disabled) {
-    border-color: var(--voxver-primary-300);
-    color: var(--voxver-primary);
-    background: var(--voxver-primary-light);
-  }
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
 }
 
 .modal-actions {
@@ -1274,20 +1173,6 @@ onMounted(() => {
 
   input {
     flex: 1;
-    padding: 8px 12px;
-    border: 1.5px solid var(--voxver-border-color);
-    border-radius: var(--voxver-radius-sm);
-    font-size: 13px;
-    color: var(--voxver-text-primary);
-    background: var(--voxver-bg-primary);
-    outline: none;
-
-    &:focus {
-      border-color: var(--voxver-primary-400);
-    }
-    &::placeholder {
-      color: var(--voxver-text-muted);
-    }
   }
 }
 

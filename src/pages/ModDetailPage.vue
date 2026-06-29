@@ -22,7 +22,7 @@
         <line x1="12" y1="16" x2="12.01" y2="16" />
       </svg>
       <p>加载失败</p>
-      <button class="btn-retry" @click="loadAll">重试</button>
+      <button class="btn-retry vox-btn" @click="loadAll">重试</button>
     </div>
 
     <!-- 内容 -->
@@ -214,7 +214,7 @@
 
         <!-- 分组版本列表 -->
         <div v-else class="versions-list">
-          <div v-for="(group, mcVersion) in groupedFiles" :key="mcVersion" class="version-group">
+          <div v-for="(group, mcVersion) in groupedFiles" :key="mcVersion" class="version-group vox-card">
             <button
               class="group-header"
               :class="{ expanded: expandedVersions.includes(String(mcVersion)) }"
@@ -320,8 +320,8 @@
             </p>
           </div>
           <div class="confirm-actions">
-            <button class="btn-cancel" @click="cancelInstallConfirm">取消</button>
-            <button class="btn-confirm" @click="confirmDownload">
+            <button class="btn-cancel vox-btn" @click="cancelInstallConfirm">取消</button>
+            <button class="btn-confirm vox-btn vox-btn--primary" @click="confirmDownload">
               {{ currentInstance ? '确认安装' : '确认下载' }}
             </button>
           </div>
@@ -655,7 +655,7 @@ onMounted(() => {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  background: var(--voxver-bg-primary, #0f0f17);
+  background: var(--voxver-bg-primary);
 }
 
 /* ====== 加载 / 错误 ====== */
@@ -667,22 +667,14 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
   font-size: 13px;
 }
 
 .btn-retry {
-  padding: 6px 20px;
-  border: 1px solid var(--voxver-border-color, #45475a);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--voxver-text-secondary, #a6adc8);
-  cursor: pointer;
-  font-size: 13px;
-  transition: all 0.12s;
   &:hover {
-    border-color: var(--voxver-primary, #6366f1);
-    color: var(--voxver-primary, #6366f1);
+    border-color: var(--voxver-primary);
+    color: var(--voxver-primary);
   }
 }
 
@@ -700,7 +692,7 @@ onMounted(() => {
   flex-shrink: 0;
   overflow-y: auto;
   padding: 20px 16px;
-  border-right: 1px solid var(--voxver-border-color, #313244);
+  border-right: 1px solid var(--voxver-border-color);
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -723,10 +715,10 @@ onMounted(() => {
 .mod-icon {
   width: 64px;
   height: 64px;
-  border-radius: 10px;
+  border-radius: var(--voxver-radius-lg);
   overflow: hidden;
   flex-shrink: 0;
-  background: var(--voxver-bg-secondary, #181825);
+  background: var(--voxver-bg-secondary);
 
   img {
     width: 100%;
@@ -755,7 +747,7 @@ onMounted(() => {
   margin: 0 0 6px;
   font-size: 15px;
   font-weight: 700;
-  color: var(--voxver-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary);
   word-break: break-word;
   line-height: 1.3;
 }
@@ -765,7 +757,7 @@ onMounted(() => {
   padding: 2px 8px;
   font-size: 10px;
   font-weight: 700;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
 
   &.modrinth {
     background: rgba(27, 217, 106, 0.12);
@@ -782,7 +774,7 @@ onMounted(() => {
 .mod-desc {
   margin: 0;
   font-size: 12px;
-  color: var(--voxver-text-secondary, #a6adc8);
+  color: var(--voxver-text-secondary);
   line-height: 1.6;
   display: -webkit-box;
   -webkit-line-clamp: 4;
@@ -802,10 +794,10 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: var(--voxver-text-secondary, #a6adc8);
+  color: var(--voxver-text-secondary);
 
   svg {
-    color: var(--voxver-text-muted, #6c7086);
+    color: var(--voxver-text-muted);
     flex-shrink: 0;
   }
 }
@@ -820,10 +812,10 @@ onMounted(() => {
   padding: 2px 7px;
   font-size: 10px;
   font-weight: 500;
-  background: var(--voxver-bg-secondary, #181825);
-  color: var(--voxver-text-secondary, #a6adc8);
-  border-radius: 4px;
-  border: 1px solid var(--voxver-border-color, #313244);
+  background: var(--voxver-bg-secondary);
+  color: var(--voxver-text-secondary);
+  border-radius: var(--voxver-radius-xs);
+  border: 1px solid var(--voxver-border-color);
 }
 
 .loader-row {
@@ -835,7 +827,7 @@ onMounted(() => {
 
 .loader-label {
   font-size: 11px;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
   flex-shrink: 0;
 }
 
@@ -843,10 +835,10 @@ onMounted(() => {
   padding: 2px 7px;
   font-size: 10px;
   font-weight: 600;
-  background: rgba(99, 102, 241, 0.1);
-  color: var(--voxver-primary, #6366f1);
-  border-radius: 4px;
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
+  color: var(--voxver-primary);
+  border-radius: var(--voxver-radius-xs);
+  border: 1px solid color-mix(in oklab, var(--voxver-primary) 20%, transparent);
 }
 
 .target-instance {
@@ -854,24 +846,24 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   padding: 7px 10px;
-  border-radius: 6px;
+  border-radius: var(--voxver-radius-sm);
   font-size: 12px;
-  color: var(--voxver-text-secondary, #a6adc8);
-  background: rgba(99, 102, 241, 0.06);
-  border: 1px solid rgba(99, 102, 241, 0.15);
+  color: var(--voxver-text-secondary);
+  background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
+  border: 1px solid color-mix(in oklab, var(--voxver-primary) 15%, transparent);
 
   svg {
-    color: var(--voxver-primary, #6366f1);
+    color: var(--voxver-primary);
     flex-shrink: 0;
   }
 
   &.no-target {
-    background: rgba(255, 193, 7, 0.06);
-    border-color: rgba(255, 193, 7, 0.2);
-    color: #ffc107;
+    background: color-mix(in oklab, var(--voxver-warning) 6%, transparent);
+    border-color: color-mix(in oklab, var(--voxver-warning) 20%, transparent);
+    color: var(--voxver-warning);
 
     svg {
-      color: #ffc107;
+      color: var(--voxver-warning);
     }
   }
 }
@@ -882,34 +874,14 @@ onMounted(() => {
   gap: 7px;
   margin-top: auto;
   padding-top: 8px;
-  border-top: 1px solid var(--voxver-border-color, #313244);
+  border-top: 1px solid var(--voxver-border-color);
 }
 
 .btn-ext {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
   width: 100%;
   height: 32px;
-  border: 1px solid var(--voxver-border-color, #313244);
-  border-radius: 7px;
-  background: var(--voxver-bg-secondary, #181825);
-  color: var(--voxver-text-secondary, #a6adc8);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.13s;
-
-  &:hover {
-    border-color: var(--voxver-primary, #6366f1);
-    color: var(--voxver-primary, #6366f1);
-  }
 
   &.primary {
-    background: var(--voxver-primary, #6366f1);
-    border-color: var(--voxver-primary, #6366f1);
-    color: #fff;
     &:hover {
       filter: brightness(1.1);
     }
@@ -939,28 +911,28 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 6px;
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--voxver-border-color, #313244);
+  border-bottom: 1px solid var(--voxver-border-color);
 }
 
 .vf-tab {
   padding: 4px 10px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--voxver-text-secondary, #a6adc8);
-  background: var(--voxver-bg-secondary, #181825);
-  border: 1px solid var(--voxver-border-color, #313244);
-  border-radius: 5px;
+  color: var(--voxver-text-secondary);
+  background: var(--voxver-bg-secondary);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-xs);
   cursor: pointer;
   transition: all 0.12s;
 
   &:hover {
-    border-color: var(--voxver-primary, #6366f1);
-    color: var(--voxver-primary, #6366f1);
+    border-color: var(--voxver-primary);
+    color: var(--voxver-primary);
   }
   &.active {
-    background: rgba(99, 102, 241, 0.1);
-    border-color: var(--voxver-primary, #6366f1);
-    color: var(--voxver-primary, #6366f1);
+    background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
+    border-color: var(--voxver-primary);
+    color: var(--voxver-primary);
   }
 }
 
@@ -971,7 +943,7 @@ onMounted(() => {
   gap: 10px;
   padding: 20px;
   font-size: 13px;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
 }
 
 /* 分组列表 */
@@ -982,14 +954,11 @@ onMounted(() => {
 }
 
 .version-group {
-  background: var(--voxver-bg-elevated, #1e1e2e);
-  border: 1px solid var(--voxver-border-color, #313244);
-  border-radius: 9px;
   overflow: hidden;
   transition: border-color 0.13s;
 
   &:hover {
-    border-color: rgba(99, 102, 241, 0.3);
+    border-color: color-mix(in oklab, var(--voxver-primary) 30%, transparent);
   }
 }
 
@@ -1007,26 +976,26 @@ onMounted(() => {
     background: var(--voxver-bg-hover);
   }
   &.expanded {
-    background: rgba(99, 102, 241, 0.05);
+    background: color-mix(in oklab, var(--voxver-primary) 5%, transparent);
   }
 }
 
 .group-version {
   font-size: 13px;
   font-weight: 600;
-  color: var(--voxver-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary);
   flex: 1;
   text-align: left;
 }
 
 .group-count {
   font-size: 11px;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
   margin-right: 10px;
 }
 
 .group-arrow {
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
   transition: transform 0.2s;
   flex-shrink: 0;
 
@@ -1040,7 +1009,7 @@ onMounted(() => {
 }
 
 .group-files {
-  border-top: 1px solid var(--voxver-border-color, #313244);
+  border-top: 1px solid var(--voxver-border-color);
 }
 
 .file-row {
@@ -1048,7 +1017,7 @@ onMounted(() => {
   align-items: center;
   gap: 12px;
   padding: 10px 16px;
-  border-bottom: 1px solid var(--voxver-border-color, #313244);
+  border-bottom: 1px solid var(--voxver-border-color);
   transition: background 0.12s;
 
   &:last-child {
@@ -1068,7 +1037,7 @@ onMounted(() => {
   display: block;
   font-size: 12.5px;
   font-weight: 500;
-  color: var(--voxver-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1080,7 +1049,7 @@ onMounted(() => {
   gap: 8px;
   margin-top: 3px;
   font-size: 11px;
-  color: var(--voxver-text-muted, #6c7086);
+  color: var(--voxver-text-muted);
 
   span:not(:last-child)::after {
     content: '·';
@@ -1098,31 +1067,18 @@ onMounted(() => {
   padding: 1px 6px;
   font-size: 10px;
   font-weight: 500;
-  background: var(--voxver-bg-secondary, #181825);
-  color: var(--voxver-text-secondary, #a6adc8);
+  background: var(--voxver-bg-secondary);
+  color: var(--voxver-text-secondary);
   border-radius: 3px;
-  border: 1px solid var(--voxver-border-color, #313244);
+  border: 1px solid var(--voxver-border-color);
 }
 
 .btn-download {
   height: 30px;
   padding: 0 14px;
-  background: var(--voxver-gradient-primary, linear-gradient(135deg, #6366f1, #8b5cf6));
-  border: none;
-  border-radius: 6px;
-  color: #fff;
   font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: all 0.13s;
   flex-shrink: 0;
 
-  &:hover:not(:disabled) {
-    filter: brightness(1.1);
-  }
   &:disabled {
     opacity: 0.4;
     cursor: not-allowed;
@@ -1133,8 +1089,8 @@ onMounted(() => {
 .spin-lg {
   width: 32px;
   height: 32px;
-  border: 2.5px solid var(--voxver-border-color, #45475a);
-  border-top-color: var(--voxver-primary, #6366f1);
+  border: 2.5px solid var(--voxver-border-color);
+  border-top-color: var(--voxver-primary);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -1165,9 +1121,6 @@ onMounted(() => {
 .confirm-panel {
   width: 380px;
   max-width: 90vw;
-  background: var(--voxver-bg-elevated, #1e1e2e);
-  border: 1px solid var(--voxver-border-color, #313244);
-  border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
 }
@@ -1177,10 +1130,10 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   padding: 14px 18px;
-  border-bottom: 1px solid var(--voxver-border-color, #313244);
+  border-bottom: 1px solid var(--voxver-border-color);
   font-size: 14px;
   font-weight: 700;
-  color: var(--voxver-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary);
 }
 
 .confirm-body {
@@ -1191,17 +1144,17 @@ onMounted(() => {
   margin: 0 0 8px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--voxver-text-primary, #cdd6f4);
+  color: var(--voxver-text-primary);
   word-break: break-all;
 }
 
 .confirm-target {
   margin: 0;
   font-size: 13px;
-  color: var(--voxver-text-secondary, #a6adc8);
+  color: var(--voxver-text-secondary);
 
   strong {
-    color: var(--voxver-primary, #6366f1);
+    color: var(--voxver-primary);
   }
 }
 
@@ -1210,38 +1163,13 @@ onMounted(() => {
   justify-content: flex-end;
   gap: 10px;
   padding: 12px 18px;
-  border-top: 1px solid var(--voxver-border-color, #313244);
+  border-top: 1px solid var(--voxver-border-color);
 }
 
 .btn-cancel {
-  padding: 7px 18px;
-  border: 1px solid var(--voxver-border-color, #45475a);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--voxver-text-secondary, #a6adc8);
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.12s;
-
   &:hover {
-    border-color: var(--voxver-text-muted, #6c7086);
-    color: var(--voxver-text-primary, #cdd6f4);
-  }
-}
-
-.btn-confirm {
-  padding: 7px 18px;
-  border: none;
-  border-radius: 6px;
-  background: var(--voxver-gradient-primary, linear-gradient(135deg, #6366f1, #8b5cf6));
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.13s;
-
-  &:hover {
-    filter: brightness(1.1);
+    border-color: var(--voxver-text-muted);
+    color: var(--voxver-text-primary);
   }
 }
 </style>

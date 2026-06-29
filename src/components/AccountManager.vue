@@ -555,7 +555,7 @@ function generateUUID(): string {
   bottom: 0;
   width: 420px;
   max-width: 100%;
-  background: var(--voxver-bg-elevated, #1a1a2e);
+  background: var(--voxver-bg-elevated);
   border-left: 1px solid var(--voxver-border-color, rgba(255, 255, 255, 0.08));
   display: flex;
   flex-direction: column;
@@ -580,12 +580,12 @@ function generateUUID(): string {
   color: var(--voxver-text-secondary);
   cursor: pointer;
   padding: 4px;
-  border-radius: 6px;
+  border-radius: var(--voxver-radius-sm);
   display: flex;
   align-items: center;
   transition: all 0.15s;
   &:hover {
-    background: var(--voxver-bg-hover);
+    background: rgba(255, 255, 255, 0.15);
     color: #fff;
   }
 }
@@ -607,7 +607,7 @@ function generateUUID(): string {
   width: 28px;
   height: 28px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--voxver-radius-sm);
   background: var(--voxver-bg-hover);
   color: var(--voxver-text-secondary);
   cursor: pointer;
@@ -616,7 +616,7 @@ function generateUUID(): string {
   justify-content: center;
   transition: all 0.15s;
   &:hover {
-    background: var(--voxver-bg-hover);
+    background: rgba(255, 255, 255, 0.15);
     color: #fff;
   }
   &.acc-close:hover {
@@ -697,7 +697,7 @@ function generateUUID(): string {
   padding: 10px;
   background: var(--voxver-bg-hover);
   border: 1px solid var(--voxver-border-color);
-  border-radius: 8px;
+  border-radius: var(--voxver-radius-md);
   &.acc-profile-active {
     border-color: #22c55e;
   }
@@ -774,7 +774,7 @@ function generateUUID(): string {
   box-sizing: border-box;
   transition: border-color 0.15s;
   &:focus {
-    border-color: var(--voxver-primary-400, #818cf8);
+    border-color: var(--voxver-primary-400);
   }
   &::placeholder {
     color: var(--voxver-text-muted);
@@ -799,7 +799,7 @@ function generateUUID(): string {
 
 .acc-error {
   font-size: 11px;
-  color: var(--voxver-error, #f87171);
+  color: var(--voxver-error);
 }
 
 /* ===== 按钮 ===== */
@@ -821,7 +821,7 @@ function generateUUID(): string {
     color: var(--voxver-primary-400);
   }
   &.acc-btn-danger {
-    color: var(--voxver-error, #f87171);
+    color: var(--voxver-error);
     &:hover {
       background: rgba(248, 113, 113, 0.1);
       border-color: #f87171;
@@ -834,7 +834,7 @@ function generateUUID(): string {
   align-items: center;
   gap: 5px;
   padding: 8px 18px;
-  background: var(--voxver-primary, #6366f1);
+  background: var(--voxver-primary);
   color: #fff;
   border: none;
   border-radius: 7px;
@@ -843,7 +843,7 @@ function generateUUID(): string {
   cursor: pointer;
   transition: all 0.15s;
   &:hover:not(:disabled) {
-    background: var(--voxver-primary-hover, #4f46e5);
+    background: var(--voxver-primary-hover);
   }
   &:disabled {
     opacity: 0.6;
@@ -934,7 +934,7 @@ function generateUUID(): string {
 }
 
 .modal-card {
-  background: var(--voxver-bg-elevated, #1a1a2e);
+  background: var(--voxver-bg-elevated);
   border: 1px solid var(--voxver-border-color, rgba(255, 255, 255, 0.08));
   border-radius: 14px;
   width: 420px;
@@ -960,7 +960,7 @@ function generateUUID(): string {
     cursor: pointer;
     color: var(--voxver-text-muted);
     padding: 2px 6px;
-    border-radius: 4px;
+    border-radius: var(--voxver-radius-xs);
     &:hover {
       background: var(--voxver-bg-hover);
     }
@@ -993,7 +993,7 @@ function generateUUID(): string {
   display: inline-block;
   font-size: 14px;
   font-weight: 700;
-  color: var(--voxver-primary, #6366f1);
+  color: var(--voxver-primary);
   text-decoration: none;
   margin-bottom: 14px;
   &:hover {
@@ -1014,7 +1014,7 @@ function generateUUID(): string {
   color: var(--voxver-text-primary);
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--voxver-border-color);
-  border-radius: 8px;
+  border-radius: var(--voxver-radius-md);
   padding: 6px 18px;
   font-family: 'Courier New', monospace;
 }
@@ -1063,7 +1063,7 @@ function generateUUID(): string {
     color: #34a853;
   }
   &.error-box p {
-    color: var(--voxver-error, #ea4335);
+    color: var(--voxver-error);
     font-size: 13px;
     font-weight: 400;
   }
@@ -1075,7 +1075,7 @@ function generateUUID(): string {
   width: 16px;
   height: 16px;
   border: 2px solid var(--voxver-border-color, rgba(255, 255, 255, 0.1));
-  border-top-color: var(--voxver-primary, #6366f1);
+  border-top-color: var(--voxver-primary);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;

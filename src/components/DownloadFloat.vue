@@ -234,7 +234,7 @@ async function cancelDownload(id: string) {
   top: 54px;
   right: 12px;
   width: 300px;
-  background: rgba(18, 18, 24, 0.97);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 97%, transparent);
   border: 1px solid var(--voxver-border-color-light);
   border-radius: 14px;
   overflow: hidden;
@@ -257,7 +257,7 @@ async function cancelDownload(id: string) {
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: #6366f1;
+  color: var(--voxver-primary);
 }
 
 .fp-actions {
@@ -268,10 +268,10 @@ async function cancelDownload(id: string) {
 .fp-btn {
   width: 24px;
   height: 24px;
-  border-radius: 6px;
+  border-radius: var(--voxver-radius-sm);
   border: none;
   background: var(--voxver-bg-hover);
-  color: #888;
+  color: var(--voxver-text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -280,7 +280,7 @@ async function cancelDownload(id: string) {
 }
 .fp-btn:hover {
   background: var(--voxver-bg-hover);
-  color: #ccc;
+  color: var(--voxver-text-primary);
 }
 .fp-close:hover {
   background: rgba(239, 68, 68, 0.2);
@@ -299,7 +299,7 @@ async function cancelDownload(id: string) {
 .fp-task {
   padding: 10px;
   background: var(--voxver-bg-hover);
-  border-radius: 8px;
+  border-radius: var(--voxver-radius-md);
 }
 
 .fp-task-done {
@@ -338,7 +338,7 @@ async function cancelDownload(id: string) {
 }
 .fp-bar {
   height: 100%;
-  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  background: linear-gradient(90deg, var(--voxver-primary), #0ea5e9);
   border-radius: 2px;
   transition: width 0.4s ease;
 }
@@ -359,7 +359,7 @@ async function cancelDownload(id: string) {
 .fp-pct {
   font-size: 11px;
   font-weight: 600;
-  color: #aaa;
+  color: var(--voxver-text-secondary);
 }
 .fp-speed {
   font-size: 10px;
@@ -372,7 +372,7 @@ async function cancelDownload(id: string) {
   border: none;
   color: #666;
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -384,17 +384,17 @@ async function cancelDownload(id: string) {
   display: block;
   width: 100%;
   padding: 10px;
-  background: rgba(99, 102, 241, 0.08);
+  background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
   border: none;
   border-top: 1px solid var(--voxver-border-color);
-  color: #6366f1;
+  color: var(--voxver-primary);
   font-size: 12px;
   cursor: pointer;
   text-align: center;
   transition: background 0.2s;
 }
 .fp-view-all:hover {
-  background: rgba(99, 102, 241, 0.14);
+  background: color-mix(in oklab, var(--voxver-primary) 14%, transparent);
 }
 
 /* ====== 增强样式 ====== */
@@ -405,11 +405,11 @@ async function cancelDownload(id: string) {
   min-width: 16px;
   height: 16px;
   padding: 0 5px;
-  background: #6366f1;
+  background: var(--voxver-primary);
   color: #fff;
   font-size: 10px;
   font-weight: 700;
-  border-radius: 8px;
+  border-radius: var(--voxver-radius-md);
   margin-left: 4px;
 }
 
@@ -449,7 +449,7 @@ async function cancelDownload(id: string) {
 .fp-cancel-btn {
   width: 18px;
   height: 18px;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
   border: none;
   background: var(--voxver-bg-hover);
   color: #666;
@@ -480,7 +480,7 @@ async function cancelDownload(id: string) {
   white-space: nowrap;
   font-size: 12px;
   font-weight: 600;
-  color: #aaa;
+  color: var(--voxver-text-secondary);
 }
 
 .fp-task-done .fp-task-phase {

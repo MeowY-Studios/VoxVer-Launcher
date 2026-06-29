@@ -781,7 +781,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--voxver-bg-secondary);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
   padding: 0 12px;
@@ -816,7 +816,7 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.12s;
   border: 1px solid var(--voxver-border-color);
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   color: var(--voxver-text-primary);
   &:hover {
     background: var(--voxver-bg-hover);
@@ -825,7 +825,7 @@ onMounted(() => {
     border-color: var(--voxver-primary);
     color: var(--voxver-primary);
     &:hover {
-      background: rgba(99, 102, 234, 0.08);
+      background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
     }
   }
 }
@@ -882,7 +882,7 @@ onMounted(() => {
   gap: 10px;
   padding: 8px 12px;
   border-radius: var(--voxver-radius-md);
-  background: var(--voxver-bg-secondary);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
   border: 1px solid transparent;
   transition: all 0.12s;
   cursor: pointer;
@@ -897,7 +897,7 @@ onMounted(() => {
   }
   &.selected {
     border-color: var(--voxver-primary);
-    background: rgba(99, 102, 234, 0.06);
+    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
     border-left: 3px solid var(--voxver-primary);
     padding-left: 9px;
   }
@@ -915,7 +915,7 @@ onMounted(() => {
   border-radius: var(--voxver-radius-sm);
   object-fit: cover;
   flex-shrink: 0;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
 }
 .mod-icon-default {
   width: 36px;
@@ -955,8 +955,8 @@ onMounted(() => {
 .mod-disabled-badge {
   font-size: 10px;
   padding: 1px 6px;
-  border-radius: 4px;
-  background: var(--voxver-warning, #f59e0b);
+  border-radius: var(--voxver-radius-xs);
+  background: var(--voxver-warning);
   color: #fff;
   flex-shrink: 0;
 }
@@ -984,7 +984,7 @@ onMounted(() => {
   padding: 4px 10px;
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-sm);
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   color: var(--voxver-text-primary);
   font-size: 12px;
   cursor: pointer;
@@ -994,8 +994,8 @@ onMounted(() => {
     background: var(--voxver-bg-hover);
   }
   &.danger {
-    color: var(--voxver-error, #ef4444);
-    border-color: var(--voxver-error, #ef4444);
+    color: var(--voxver-error);
+    border-color: var(--voxver-error);
   }
   &.danger:hover {
     background: rgba(239, 68, 68, 0.1);
@@ -1009,7 +1009,7 @@ onMounted(() => {
   justify-content: space-between;
   gap: 10px;
   padding: 8px 12px;
-  background: var(--voxver-bg-secondary);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
   flex-shrink: 0;
@@ -1027,7 +1027,7 @@ onMounted(() => {
   padding: 5px 12px;
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-sm);
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   color: var(--voxver-text-primary);
   font-size: 12px;
   cursor: pointer;
@@ -1041,7 +1041,7 @@ onMounted(() => {
     cursor: not-allowed;
   }
   &.danger {
-    color: var(--voxver-error, #ef4444);
+    color: var(--voxver-error);
   }
   &.danger:hover:not(:disabled) {
     background: rgba(239, 68, 68, 0.1);
@@ -1062,7 +1062,7 @@ onMounted(() => {
   width: 480px;
   max-width: 90vw;
   max-height: 80vh;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border-radius: var(--voxver-radius-xl);
   border: 1px solid var(--voxver-border-color);
   overflow: hidden;
@@ -1072,7 +1072,7 @@ onMounted(() => {
 }
 .mod-detail-header {
   height: 42px;
-  background: var(--voxver-bg-secondary);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
   border-bottom: 1px solid var(--voxver-border-color);
   display: flex;
   align-items: center;
@@ -1114,7 +1114,7 @@ onMounted(() => {
   height: 64px;
   border-radius: var(--voxver-radius-md);
   object-fit: cover;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
 }
 .mod-detail-icon-default {
   width: 64px;
@@ -1209,7 +1209,7 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   padding: 1px 6px;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
   font-size: 10px;
   font-weight: 600;
   background: rgba(245, 158, 11, 0.15);
@@ -1223,7 +1223,7 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   padding: 1px 6px;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
   font-size: 10px;
   font-weight: 600;
   background: rgba(239, 68, 68, 0.15);
@@ -1244,13 +1244,13 @@ onMounted(() => {
   left: 0;
   right: 0;
   height: 3px;
-  background: rgba(99, 102, 241, 0.15);
+  background: color-mix(in oklab, var(--voxver-primary) 15%, transparent);
   border-radius: 2px 2px 0 0;
   overflow: hidden;
 
   .mod-update-progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--voxver-primary), #818cf8);
+    background: linear-gradient(90deg, var(--voxver-primary), var(--voxver-primary-400));
     transition: width 0.2s ease;
   }
 }

@@ -1,4 +1,20 @@
 <template>
+  <!-- 色觉辅助 SVG 滤镜 -->
+  <svg style="display:none" aria-hidden="true">
+    <filter id="cvd-protanopia">
+      <feColorMatrix type="matrix" values="0.567 0.433 0 0 0  0.558 0.442 0 0 0  0 0.242 0.758 0 0  0 0 0 1 0" />
+    </filter>
+    <filter id="cvd-deuteranopia">
+      <feColorMatrix type="matrix" values="0.625 0.375 0 0 0  0.7 0.3 0 0 0  0 0.3 0.7 0 0  0 0 0 1 0" />
+    </filter>
+    <filter id="cvd-tritanopia">
+      <feColorMatrix type="matrix" values="0.95 0.05 0 0 0  0 0.433 0.567 0 0  0 0.475 0.525 0 0  0 0 0 1 0" />
+    </filter>
+    <filter id="cvd-monochromat">
+      <feColorMatrix type="matrix" values="0.299 0.587 0.114 0 0  0.299 0.587 0.114 0 0  0.299 0.587 0.114 0 0  0 0 0 1 0" />
+    </filter>
+  </svg>
+
   <div class="voxver-app">
     <!-- 深蓝标题栏 + 内嵌标签页 -->
     <header class="titlebar">
@@ -36,6 +52,9 @@
 
     <!-- 主体区域 -->
     <div class="app-body">
+      <!-- 背景图层（覆盖侧边栏 + 主内容区） -->
+      <div class="app-body-bg" :style="bgStyle"></div>
+      <div v-if="bgOverlayVisible" class="app-body-overlay" :style="overlayStyle"></div>
       <!-- 左侧边栏（根据当前页面动态渲染不同内容） -->
       <aside class="sidebar">
         <!-- ========== 首页侧栏：账户 + 启动（PCL2 风格）========== -->
@@ -288,8 +307,9 @@
                 v-for="item in group.items"
                 :key="item.id"
                 class="nav-item"
-                :class="{ active: settingsActive === (item.category || item.id) }"
-                @click="handleSettingsCategory(item.category || item.id)"
+                :class="{ active: settingsActive === (item.category || item.id), disabled: item.disabled }"
+                :disabled="item.disabled"
+                @click="!item.disabled && handleSettingsCategory(item.category || item.id)"
               >
                 <span v-html="item.icon"></span>
                 {{ $t(item.labelKey) }}
@@ -363,8 +383,6 @@
 
       <!-- 主内容区 -->
       <main class="main-content">
-        <div class="main-content-bg" :style="bgStyle"></div>
-        <div v-if="bgOverlayVisible" class="main-content-overlay" :style="overlayStyle"></div>
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
             <component :is="Component" />
@@ -434,12 +452,31 @@ const currentInstanceId = computed(
   () => instancesStore.instances.find((i) => i.path === versionGameDir.value)?.id ?? ''
 )
 
-// 背景设置
+// 背景设置 — 通过 IPC 读取本地图片为 data URL，绕过 dev 模式 file:// CORS
+const bgImageDataUrl = ref('')
+watch(
+  () => [appStore.bgImagePath, appStore.bgImageMode],
+  async () => {
+    if (appStore.bgImageMode !== 'custom' || !appStore.bgImagePath) {
+      bgImageDataUrl.value = ''
+      return
+    }
+    const p = appStore.bgImagePath
+    if (/^https?:\/\//.test(p)) {
+      bgImageDataUrl.value = p
+      return
+    }
+    const url = await window.electronAPI?.dialog?.readAsDataURL?.(p)
+    console.log('[bgImage] path=', p, 'dataUrlLen=', url?.length ?? 0)
+    bgImageDataUrl.value = url || ''
+  },
+  { immediate: true }
+)
 const bgStyle = computed(() => {
-  if (appStore.bgImageMode !== 'custom' || !appStore.bgImagePath) return {}
+  if (appStore.bgImageMode !== 'custom' || !bgImageDataUrl.value) return {}
   const blur = appStore.themeBgBlur > 0 ? `blur(${appStore.themeBgBlur}px)` : ''
   return {
-    backgroundImage: `url("${appStore.bgImagePath}")`,
+    backgroundImage: `url("${bgImageDataUrl.value}")`,
     filter: blur
   }
 })
@@ -937,7 +974,18 @@ const communityCategories = [
 ]
 
 // 设置分类（Koring 分组结构）
-const settingsGroups = [
+interface SettingsNavItem {
+  id: string
+  labelKey: string
+  category?: string
+  icon: string
+  disabled?: boolean
+}
+interface SettingsNavGroup {
+  name: string
+  items: SettingsNavItem[]
+}
+const settingsGroups: SettingsNavGroup[] = [
   {
     name: 'settings.group.general',
     items: [
@@ -1066,6 +1114,7 @@ const settingsGroups = [
         id: 'developer',
         labelKey: 'settings.sidebar.developer',
         category: 'developer',
+        disabled: true,
         icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>'
       }
     ]
@@ -1207,7 +1256,7 @@ function handleSettingsCategory(itemId: string) {
     font-weight: 650;
     box-shadow:
       0 2px 10px rgba(0, 0, 0, 0.15),
-      0 0 18px rgba(99, 102, 234, 0.25);
+      0 0 18px color-mix(in oklab, var(--voxver-primary) 25%, transparent);
     text-shadow: none;
   }
 
@@ -1254,25 +1303,68 @@ function handleSettingsCategory(itemId: string) {
   display: flex;
   flex: 1;
   overflow: hidden;
+  position: relative;
+  background: var(--voxver-bg-secondary);
+}
+
+/* 背景图层（覆盖整个 app-body：侧边栏 + 主内容区） */
+.app-body-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app-body-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* ====== 左侧边栏 ====== */
 .sidebar {
   width: 220px;
   min-width: 200px;
-  background: var(--voxver-bg-elevated);
+  background:
+    radial-gradient(ellipse at top, color-mix(in oklab, var(--voxver-primary) 6%, transparent) 0%, transparent 60%),
+    linear-gradient(180deg, color-mix(in oklab, var(--voxver-bg-elevated) 88%, transparent) 0%, color-mix(in oklab, var(--voxver-bg-secondary) 92%, transparent) 100%);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
   border-right: 1px solid var(--voxver-border-color);
   flex-shrink: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 2;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--voxver-primary) 30%, transparent), transparent);
+    pointer-events: none;
+  }
 
   &::-webkit-scrollbar {
     width: 4px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.09);
-    border-radius: 2px;
+    background: var(--voxver-scrollbar-thumb);
+    border-radius: var(--voxver-radius-xs);
   }
 }
 
@@ -1374,7 +1466,7 @@ function handleSettingsCategory(itemId: string) {
 .avatar-default-icon {
   width: 72px;
   height: 72px;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
   background: transparent;
   border: none;
   display: flex;
@@ -1392,14 +1484,14 @@ function handleSettingsCategory(itemId: string) {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 4px;
+    border-radius: var(--voxver-radius-xs);
     image-rendering: pixelated;
   }
 
   .avatar-letter {
     width: 100%;
     height: 100%;
-    border-radius: 4px;
+    border-radius: var(--voxver-radius-xs);
     background: linear-gradient(135deg, #00a4ef, #0078d4);
     color: #fff;
     font-size: 28px;
@@ -1423,7 +1515,7 @@ function handleSettingsCategory(itemId: string) {
     border-radius: var(--voxver-radius-md);
     font-size: 12.5px;
     color: var(--voxver-text-secondary);
-    background: var(--voxver-bg-elevated)
+    background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent)
       url("data:image/svg+xml,%3Csvg width='8' height='5' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23555880' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")
       no-repeat right 8px center;
     outline: none;
@@ -1448,11 +1540,11 @@ function handleSettingsCategory(itemId: string) {
     cursor: pointer;
     white-space: nowrap;
     transition: all var(--voxver-transition-fast);
-    box-shadow: 0 2px 8px rgba(99, 102, 234, 0.25);
+    box-shadow: 0 2px 8px color-mix(in oklab, var(--voxver-primary) 25%, transparent);
 
     &:hover {
       filter: brightness(1.08);
-      box-shadow: 0 4px 14px rgba(99, 102, 234, 0.35);
+      box-shadow: 0 4px 14px color-mix(in oklab, var(--voxver-primary) 35%, transparent);
       transform: translateY(-1px);
     }
     &:active {
@@ -1607,7 +1699,7 @@ function handleSettingsCategory(itemId: string) {
 
   &:hover:not(:disabled) {
     filter: brightness(1.06);
-    box-shadow: 0 6px 26px rgba(99, 102, 234, 0.45);
+    box-shadow: 0 6px 26px color-mix(in oklab, var(--voxver-primary) 45%, transparent);
     transform: translateY(-1px);
 
     .launch-label {
@@ -1617,7 +1709,7 @@ function handleSettingsCategory(itemId: string) {
 
   &:active:not(:disabled) {
     transform: scale(0.98);
-    box-shadow: 0 2px 10px rgba(99, 102, 234, 0.3);
+    box-shadow: 0 2px 10px color-mix(in oklab, var(--voxver-primary) 30%, transparent);
   }
   &:disabled {
     opacity: 0.5;
@@ -1726,6 +1818,12 @@ function handleSettingsCategory(itemId: string) {
     letter-spacing: 0.5px;
   }
 
+  .nav-item.disabled,
+  .nav-item:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
   .nav-group-header {
     padding: 10px 18px 4px;
     font-size: 10.5px;
@@ -1772,9 +1870,11 @@ function handleSettingsCategory(itemId: string) {
     }
 
     &.active {
-      color: var(--voxver-primary-700);
+      color: var(--voxver-primary);
       font-weight: 650;
-      background: linear-gradient(to right, var(--voxver-primary-50), transparent);
+      background:
+        linear-gradient(to right, color-mix(in oklab, var(--voxver-primary) 14%, transparent), transparent 70%),
+        radial-gradient(ellipse at left center, color-mix(in oklab, var(--voxver-primary) 8%, transparent), transparent 50%);
 
       &::before {
         content: '';
@@ -1784,25 +1884,28 @@ function handleSettingsCategory(itemId: string) {
         bottom: 4px;
         width: 3px;
         background: var(--voxver-gradient-primary);
-        border-radius: 0 2px 2px 0;
-        box-shadow: 0 0 6px rgba(99, 102, 234, 0.35);
+        border-radius: 0 var(--voxver-radius-xs) var(--voxver-radius-xs) 0;
+        box-shadow: 0 0 8px color-mix(in oklab, var(--voxver-primary) 50%, transparent);
       }
 
       > span {
-        color: var(--voxver-primary-600);
+        color: var(--voxver-primary);
       }
     }
   }
 }
 
-/* ====== 背景层 ====== */
+/* ====== 主内容区 ====== */
 .main-content {
   position: relative;
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  background: var(--voxver-bg-secondary);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 75%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   height: 100%;
+  z-index: 2;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -1817,34 +1920,6 @@ function handleSettingsCategory(itemId: string) {
   &::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 0, 0, 0.22);
   }
-}
-
-.main-content-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.main-content-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.main-content > :not(.main-content-bg):not(.main-content-overlay) {
-  position: relative;
-  z-index: 2;
 }
 
 .fade-enter-active,

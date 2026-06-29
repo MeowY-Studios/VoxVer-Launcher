@@ -237,10 +237,10 @@ defineExpose({
 
 .px-launch-progress-panel {
   width: 420px;
-  background: var(--voxver-bg-secondary, #1a1a2e);
-  border: 2px solid var(--voxver-primary, #6366f1);
-  border-radius: 4px;
-  box-shadow: 0 0 30px rgba(99, 102, 241, 0.25);
+  background: var(--voxver-bg-secondary);
+  border: 2px solid var(--voxver-primary);
+  border-radius: var(--voxver-radius-xs);
+  box-shadow: 0 0 30px color-mix(in oklab, var(--voxver-primary) 25%, transparent);
   overflow: hidden;
   font-family: 'Courier New', monospace;
 }
@@ -250,14 +250,14 @@ defineExpose({
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  background: var(--voxver-bg-tertiary, #16213e);
-  border-bottom: 1px solid var(--voxver-border-color, #2a2a4a);
-  color: var(--voxver-text-primary, #e0e0ff);
+  background: var(--voxver-bg-tertiary);
+  border-bottom: 1px solid var(--voxver-border-color);
+  color: var(--voxver-text-primary);
   font-size: 14px;
 }
 
 .panel-icon {
-  color: var(--voxver-primary, #6366f1);
+  color: var(--voxver-primary);
   animation: pulse 1.2s infinite;
 }
 
@@ -274,13 +274,13 @@ defineExpose({
 .panel-version {
   margin-left: auto;
   font-size: 12px;
-  color: var(--voxver-text-muted, #8888aa);
+  color: var(--voxver-text-muted);
 }
 
 .panel-close {
   background: none;
-  border: 1px solid var(--voxver-border-color, #2a2a4a);
-  color: var(--voxver-text-muted, #8888aa);
+  border: 1px solid var(--voxver-border-color);
+  color: var(--voxver-text-muted);
   font-size: 14px;
   cursor: pointer;
   width: 24px;
@@ -291,8 +291,8 @@ defineExpose({
   border-radius: 2px;
 }
 .panel-close:hover {
-  border-color: var(--voxver-danger, #ef4444);
-  color: var(--voxver-danger, #ef4444);
+  border-color: var(--voxver-danger);
+  color: var(--voxver-danger);
 }
 
 .phase-list {
@@ -309,34 +309,34 @@ defineExpose({
   padding: 8px 12px;
   border-radius: 3px;
   font-size: 13px;
-  color: var(--voxver-text-muted, #8888aa);
-  background: var(--voxver-bg-primary, #0f0f23);
+  color: var(--voxver-text-muted);
+  background: var(--voxver-bg-primary);
   border: 1px solid transparent;
   transition: all 0.2s;
 }
 
 .phase-item.active {
-  border-color: var(--voxver-primary, #6366f1);
-  color: var(--voxver-text-primary, #e0e0ff);
-  background: rgba(99, 102, 241, 0.08);
+  border-color: var(--voxver-primary);
+  color: var(--voxver-text-primary);
+  background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
 }
 
 .phase-item.active .phase-icon {
   animation: spin 1s linear infinite;
-  color: var(--voxver-primary, #6366f1);
+  color: var(--voxver-primary);
 }
 
 .phase-item.done {
-  color: var(--voxver-success, #22c55e);
+  color: var(--voxver-success);
 }
 
 .phase-item.done .phase-icon {
-  color: var(--voxver-success, #22c55e);
+  color: var(--voxver-success);
 }
 
 .phase-item.error {
-  border-color: var(--voxver-danger, #ef4444);
-  color: var(--voxver-danger, #ef4444);
+  border-color: var(--voxver-danger);
+  color: var(--voxver-danger);
   background: rgba(239, 68, 68, 0.08);
 }
 
@@ -357,7 +357,7 @@ defineExpose({
 .phase-detail {
   margin-left: auto;
   font-size: 11px;
-  color: var(--voxver-text-muted, #8888aa);
+  color: var(--voxver-text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -374,13 +374,13 @@ defineExpose({
 }
 
 .log-area {
-  border-top: 1px solid var(--voxver-border-color, #2a2a4a);
+  border-top: 1px solid var(--voxver-border-color);
 }
 
 .log-header {
   padding: 6px 16px;
   font-size: 11px;
-  color: var(--voxver-primary, #6366f1);
+  color: var(--voxver-primary);
   cursor: pointer;
   text-align: right;
 }
@@ -393,7 +393,7 @@ defineExpose({
   overflow-y: auto;
   padding: 8px 12px;
   font-size: 10px;
-  color: var(--voxver-text-muted, #8888aa);
+  color: var(--voxver-text-muted);
   background: #0a0a18;
   margin: 0;
   white-space: pre-wrap;
@@ -402,7 +402,7 @@ defineExpose({
 
 .panel-footer {
   padding: 10px 16px;
-  border-top: 1px solid var(--voxver-border-color, #2a2a4a);
+  border-top: 1px solid var(--voxver-border-color);
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -412,15 +412,15 @@ defineExpose({
   padding: 6px 14px;
   font-size: 12px;
   font-family: inherit;
-  border: 1px solid var(--voxver-primary, #6366f1);
+  border: 1px solid var(--voxver-primary);
   background: transparent;
-  color: var(--voxver-primary, #6366f1);
+  color: var(--voxver-primary);
   cursor: pointer;
   border-radius: 2px;
   transition: all 0.15s;
 }
 .px-btn:hover {
-  background: var(--voxver-primary, #6366f1);
+  background: var(--voxver-primary);
   color: #fff;
 }
 .px-btn-sm {
@@ -428,11 +428,11 @@ defineExpose({
   font-size: 11px;
 }
 .px-btn-danger {
-  border-color: var(--voxver-danger, #ef4444);
-  color: var(--voxver-danger, #ef4444);
+  border-color: var(--voxver-danger);
+  color: var(--voxver-danger);
 }
 .px-btn-danger:hover {
-  background: var(--voxver-danger, #ef4444);
+  background: var(--voxver-danger);
   color: #fff;
 }
 

@@ -16,7 +16,7 @@
       </button>
       <h1 class="dm-title">下载管理</h1>
       <div class="header-actions">
-        <button v-if="completedCount > 0" class="btn-clear" @click="clearCompleted">
+        <button v-if="completedCount > 0" class="btn-clear vox-btn vox-btn--destructive" @click="clearCompleted">
           <svg
             width="16"
             height="16"
@@ -263,7 +263,7 @@
         </div>
         <h3>暂无下载任务</h3>
         <p>去下载页面选择游戏版本开始下载</p>
-        <button class="btn-go-download" @click="goToDownloads">
+        <button class="btn-go-download vox-btn vox-btn--primary" @click="goToDownloads">
           <svg
             width="16"
             height="16"
@@ -458,7 +458,6 @@ function deleteSelected() {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
 }
 
 /* 顶部导航 */
@@ -468,7 +467,7 @@ function deleteSelected() {
   justify-content: space-between;
   gap: 12px;
   padding: 16px 20px;
-  background: rgba(0, 0, 0, 0.3);
+  background: color-mix(in oklab, var(--voxver-text) 5%, transparent);
   border-bottom: 1px solid var(--voxver-border-color);
   flex-shrink: 0;
 }
@@ -476,14 +475,14 @@ function deleteSelected() {
 .back-btn {
   background: var(--voxver-bg-hover);
   border: 1px solid var(--voxver-border-color-light);
-  border-radius: 10px;
+  border-radius: var(--voxver-radius-md);
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #9ca3af;
+  color: var(--voxver-text-muted);
   transition: all 0.25s ease;
 }
 .back-btn:hover {
@@ -495,30 +494,12 @@ function deleteSelected() {
 .dm-title {
   font-size: 18px;
   font-weight: 600;
-  color: #f1f1f1;
+  color: var(--voxver-text-primary);
 }
 
 .header-actions {
   display: flex;
   gap: 10px;
-}
-
-.btn-clear {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #ef4444;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-clear:hover {
-  background: rgba(239, 68, 68, 0.25);
-  transform: translateY(-1px);
 }
 
 /* 工具栏 */
@@ -538,11 +519,11 @@ function deleteSelected() {
   gap: 10px;
   background: var(--voxver-bg-hover);
   border: 1px solid var(--voxver-border-color);
-  border-radius: 10px;
+  border-radius: var(--voxver-radius-md);
   padding: 8px 14px;
   flex: 1;
   max-width: 300px;
-  color: #6b7280;
+  color: var(--voxver-text-muted);
 }
 
 .search-input {
@@ -550,11 +531,11 @@ function deleteSelected() {
   background: transparent;
   border: none;
   outline: none;
-  color: #e5e7eb;
+  color: var(--voxver-text-primary);
   font-size: 14px;
 }
 .search-input::placeholder {
-  color: #6b7280;
+  color: var(--voxver-text-muted);
 }
 
 .filter-tabs {
@@ -568,20 +549,20 @@ function deleteSelected() {
   gap: 6px;
   background: transparent;
   border: none;
-  color: #6b7280;
+  color: var(--voxver-text-muted);
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: var(--voxver-radius-md);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
 }
 .tab-btn:hover {
   background: var(--voxver-bg-hover);
-  color: #9ca3af;
+  color: var(--voxver-text-secondary);
 }
 .tab-btn.active {
-  background: rgba(99, 102, 241, 0.15);
-  color: #818cf8;
+  background: color-mix(in oklab, var(--voxver-primary) 15%, transparent);
+  color: var(--voxver-primary);
 }
 
 .tab-count {
@@ -593,7 +574,7 @@ function deleteSelected() {
   text-align: center;
 }
 .tab-btn.active .tab-count {
-  background: rgba(99, 102, 241, 0.3);
+  background: color-mix(in oklab, var(--voxver-primary) 30%, transparent);
 }
 
 /* 统计卡片 */
@@ -606,9 +587,6 @@ function deleteSelected() {
 
 .stat-item {
   flex: 1;
-  background: var(--voxver-bg-hover);
-  border: 1px solid var(--voxver-border-color);
-  border-radius: 10px;
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -616,29 +594,25 @@ function deleteSelected() {
   gap: 4px;
   transition: all 0.2s;
 }
-.stat-item:hover {
-  background: var(--voxver-bg-hover);
-  border-color: var(--voxver-border-color-light);
-}
 
 .stat-value {
   font-size: 22px;
   font-weight: 700;
-  color: #f1f1f1;
+  color: var(--voxver-text-primary);
 }
 .stat-label {
   font-size: 11px;
-  color: #6b7280;
+  color: var(--voxver-text-muted);
 }
 
 .stat-item.downloading .stat-value {
-  color: #f59e0b;
+  color: var(--voxver-warning);
 }
 .stat-item.completed .stat-value {
-  color: #22c55e;
+  color: var(--voxver-success);
 }
 .stat-item.failed .stat-value {
-  color: #ef4444;
+  color: var(--voxver-error);
 }
 
 /* 内容区域 */
@@ -658,19 +632,14 @@ function deleteSelected() {
   display: flex;
   align-items: center;
   gap: 14px;
-  background: var(--voxver-bg-hover);
-  border: 1px solid var(--voxver-border-color);
-  border-radius: 14px;
   padding: 16px;
   transition: all 0.25s ease;
   position: relative;
   overflow: hidden;
 }
 .task-item:hover {
-  background: var(--voxver-bg-hover);
-  border-color: var(--voxver-border-color-light);
   transform: translateY(-1px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--voxver-shadow-md);
 }
 .task-item::before {
   content: '';
@@ -679,16 +648,16 @@ function deleteSelected() {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: linear-gradient(180deg, #6366f1, #8b5cf6);
+  background: var(--voxver-gradient-primary);
 }
 .task-item.completed::before {
-  background: linear-gradient(180deg, #22c55e, #16a34a);
+  background: linear-gradient(180deg, var(--voxver-success), color-mix(in oklab, var(--voxver-success) 70%, #000));
 }
 .task-item.failed::before {
-  background: linear-gradient(180deg, #ef4444, #dc2626);
+  background: linear-gradient(180deg, var(--voxver-error), color-mix(in oklab, var(--voxver-error) 70%, #000));
 }
 .task-item.downloading::before {
-  background: linear-gradient(180deg, #f59e0b, #d97706);
+  background: linear-gradient(180deg, var(--voxver-warning), color-mix(in oklab, var(--voxver-warning) 70%, #000));
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -714,13 +683,13 @@ function deleteSelected() {
   width: 20px;
   height: 20px;
   border: 2px solid var(--voxver-border-color-light);
-  border-radius: 6px;
+  border-radius: var(--voxver-radius-sm);
   display: block;
   transition: all 0.2s;
 }
 .task-checkbox input:checked + .checkmark {
-  background: #6366f1;
-  border-color: #6366f1;
+  background: var(--voxver-primary);
+  border-color: var(--voxver-primary);
 }
 .task-checkbox input:checked + .checkmark::after {
   content: '';
@@ -741,23 +710,23 @@ function deleteSelected() {
 .icon-circle {
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: var(--voxver-radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s;
 }
 .icon-circle.success {
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  background: color-mix(in oklab, var(--voxver-success) 15%, transparent);
+  color: var(--voxver-success);
 }
 .icon-circle.error {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  background: color-mix(in oklab, var(--voxver-error) 15%, transparent);
+  color: var(--voxver-error);
 }
 .icon-circle.downloading {
-  background: rgba(99, 102, 241, 0.15);
-  color: #6366f1;
+  background: color-mix(in oklab, var(--voxver-primary) 15%, transparent);
+  color: var(--voxver-primary);
 }
 .download-icon {
   animation: bounce 1.5s ease-in-out infinite;
@@ -788,7 +757,7 @@ function deleteSelected() {
 .task-name {
   font-size: 15px;
   font-weight: 600;
-  color: #f1f1f1;
+  color: var(--voxver-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -796,7 +765,7 @@ function deleteSelected() {
 
 .task-size {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--voxver-text-muted);
   flex-shrink: 0;
 }
 
@@ -810,25 +779,25 @@ function deleteSelected() {
 .task-phase-tag {
   font-size: 11px;
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
   font-weight: 500;
 }
 .task-phase-tag.downloading {
-  background: rgba(245, 158, 11, 0.2);
-  color: #f59e0b;
+  background: color-mix(in oklab, var(--voxver-warning) 20%, transparent);
+  color: var(--voxver-warning);
 }
 .task-phase-tag.completed {
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
+  background: color-mix(in oklab, var(--voxver-success) 20%, transparent);
+  color: var(--voxver-success);
 }
 .task-phase-tag.failed {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+  background: color-mix(in oklab, var(--voxver-error) 20%, transparent);
+  color: var(--voxver-error);
 }
 
 .task-time {
   font-size: 11px;
-  color: #6b7280;
+  color: var(--voxver-text-muted);
 }
 
 .task-bar-wrap {
@@ -841,7 +810,7 @@ function deleteSelected() {
 .task-bar {
   position: relative;
   height: 100%;
-  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  background: var(--voxver-gradient-primary);
   border-radius: 3px;
   transition: width 0.3s ease;
 }
@@ -862,10 +831,10 @@ function deleteSelected() {
   }
 }
 .task-item.completed .task-bar {
-  background: linear-gradient(90deg, #22c55e, #16a34a);
+  background: linear-gradient(90deg, var(--voxver-success), color-mix(in oklab, var(--voxver-success) 70%, #000));
 }
 .task-item.failed .task-bar {
-  background: linear-gradient(90deg, #ef4444, #dc2626);
+  background: linear-gradient(90deg, var(--voxver-error), color-mix(in oklab, var(--voxver-error) 70%, #000));
 }
 
 .task-progress-text {
@@ -893,11 +862,11 @@ function deleteSelected() {
   display: block;
   font-size: 14px;
   font-weight: 600;
-  color: #818cf8;
+  color: var(--voxver-primary);
 }
 .speed-status {
   font-size: 11px;
-  color: #6b7280;
+  color: var(--voxver-text-muted);
 }
 
 .action-buttons {
@@ -908,7 +877,7 @@ function deleteSelected() {
 .btn-action {
   width: 34px;
   height: 34px;
-  border-radius: 8px;
+  border-radius: var(--voxver-radius-md);
   border: none;
   cursor: pointer;
   display: flex;
@@ -917,16 +886,16 @@ function deleteSelected() {
   transition: all 0.2s;
 }
 .btn-action.retry {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
+  background: color-mix(in oklab, var(--voxver-warning) 15%, transparent);
+  color: var(--voxver-warning);
 }
 .btn-action.view {
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  background: color-mix(in oklab, var(--voxver-success) 15%, transparent);
+  color: var(--voxver-success);
 }
 .btn-action.delete {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  background: color-mix(in oklab, var(--voxver-error) 15%, transparent);
+  color: var(--voxver-error);
 }
 .btn-action:hover {
   transform: translateY(-2px);
@@ -951,33 +920,18 @@ function deleteSelected() {
 .dm-empty h3 {
   font-size: 18px;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--voxver-text-secondary);
   margin: 0;
 }
 
 .dm-empty p {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--voxver-text-muted);
   margin: 0;
 }
 
 .btn-go-download {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: #818cf8;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
   margin-top: 10px;
-}
-.btn-go-download:hover {
-  background: rgba(99, 102, 241, 0.25);
-  transform: translateY(-2px);
 }
 
 /* 选择栏 */
@@ -986,40 +940,19 @@ function deleteSelected() {
   align-items: center;
   justify-content: space-between;
   padding: 14px 20px;
-  background: rgba(99, 102, 241, 0.1);
-  border-top: 1px solid rgba(99, 102, 241, 0.2);
+  background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
+  border-top: 1px solid color-mix(in oklab, var(--voxver-primary) 20%, transparent);
   flex-shrink: 0;
 }
 
 .selection-info {
   font-size: 14px;
-  color: #e5e7eb;
+  color: var(--voxver-text-primary);
 }
 
 .selection-actions {
   display: flex;
   gap: 10px;
-}
-
-.btn-selection {
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: none;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: var(--voxver-bg-hover);
-  color: #e5e7eb;
-}
-.btn-selection:hover {
-  background: var(--voxver-bg-hover);
-}
-.btn-selection.danger {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-}
-.btn-selection.danger:hover {
-  background: rgba(239, 68, 68, 0.3);
 }
 
 /* 底部 */
@@ -1035,24 +968,11 @@ function deleteSelected() {
 
 .dm-footer p {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--voxver-text-muted);
   margin: 0;
 }
 
 .btn-back-bg {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  color: #818cf8;
   padding: 12px 32px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.btn-back-bg:hover {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3));
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
 }
 </style>

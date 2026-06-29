@@ -127,14 +127,14 @@ defineEmits<{
 // 根据实例名生成封面渐变色（确定性）
 function coverGradient(name: string): string {
   const colors = [
-    ['#6366f1', '#8b5cf6'],
+    ['#14b8a6', '#0ea5e9'],
     ['#ec4899', '#f472b6'],
     ['#10b981', '#34d399'],
     ['#f59e0b', '#fbbf24'],
     ['#3b82f6', '#60a5fa'],
     ['#ef4444', '#f87171'],
     ['#14b8a6', '#2dd4bf'],
-    ['#8b5cf6', '#a78bfa']
+    ['#0ea5e9', '#0ea5e9']
   ]
   let hash = 0
   for (let i = 0; i < name.length; i++) hash = (hash << 5) - hash + name.charCodeAt(i)
@@ -159,7 +159,7 @@ const relativeTime = computed(() => {
 <style scoped lang="scss">
 .instance-card {
   position: relative;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-lg);
   overflow: hidden;
@@ -288,7 +288,7 @@ const relativeTime = computed(() => {
     background: transparent;
     color: var(--voxver-text-secondary);
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: var(--voxver-radius-xs);
     transition: all 0.1s;
 
     &:hover {

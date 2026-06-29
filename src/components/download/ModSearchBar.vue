@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="mod-search-bar">
     <!-- 搜索输入 -->
     <div class="search-input-wrap">
@@ -133,7 +133,7 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-lg);
 

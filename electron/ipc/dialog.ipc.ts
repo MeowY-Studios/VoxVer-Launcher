@@ -3,10 +3,21 @@
  */
 import { app, ipcMain, BrowserWindow, dialog, shell } from 'electron'
 import { existsSync } from 'fs'
-import { join, dirname } from 'path'
+import { promises as fsp } from 'fs'
+import { join, dirname, extname } from 'path'
 import * as configService from '../services/config'
 import { logger } from '../utils/logger'
 const log = logger.child('Dialog-IPC')
+
+const MIME_MAP: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  bmp: 'image/bmp',
+  svg: 'image/svg+xml'
+}
 
 // 配置键名
 const CUSTOM_MC_PATH_KEY = 'custom_minecraft_path'
@@ -157,6 +168,20 @@ export function registerDialogHandlers(mainWindow: BrowserWindow): void {
       return { ok: true }
     } catch (e: any) {
       return { ok: false, error: e.message }
+    }
+  })
+
+  // 读取本地图片文件为 data URL（绕过 dev 模式 file:// 的 CORS 限制）
+  ipcMain.handle('file:read-as-data-url', async (_event, filePath: string) => {
+    try {
+      if (!filePath || !existsSync(filePath)) return null
+      const data = await fsp.readFile(filePath)
+      const ext = extname(filePath).toLowerCase().slice(1)
+      const mime = MIME_MAP[ext] || 'image/png'
+      return `data:${mime};base64,${data.toString('base64')}`
+    } catch (e: any) {
+      log.error('[file:read-as-data-url] 读取失败:', e.message)
+      return null
     }
   })
 }

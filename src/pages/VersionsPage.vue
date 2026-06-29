@@ -5,18 +5,18 @@
     </div>
 
     <!-- 版本列表 -->
-    <section class="versions-section">
+    <section class="versions-section vox-card">
       <div class="section-header">
         <h3>{{ $t('game.minecraftVersion') }}</h3>
         <div class="section-actions">
           <!-- 搜索框 -->
           <input
-            class="search-input"
+            class="search-input vox-input"
             v-model="searchKeyword"
             :placeholder="$t('version.searchPlaceholder')"
             :disabled="loading"
           />
-          <button class="btn-primary" @click="refreshVersions" :disabled="loading">
+          <button class="vox-btn vox-btn--primary" @click="refreshVersions" :disabled="loading">
             <svg
               width="14"
               height="14"
@@ -79,7 +79,7 @@
       <!-- 错误状态 -->
       <div class="error-state" v-else-if="error">
         <p class="error-text">{{ error }}</p>
-        <button class="btn-primary" @click="refreshVersions">{{ $t('common.retry') }}</button>
+        <button class="vox-btn vox-btn--primary" @click="refreshVersions">{{ $t('common.retry') }}</button>
       </div>
 
       <!-- 版本列表（虚拟滚动） -->
@@ -105,7 +105,7 @@
                 <div class="version-date">{{ formatDate(version.releaseTime) }}</div>
               </div>
               <div class="version-actions">
-                <button class="btn-sm btn-ghost" @click.stop="selectVersion(version.id)">
+                <button class="btn-sm vox-btn" @click.stop="selectVersion(version.id)">
                   {{ selectedVersion === version.id ? $t('version.selected') : $t('version.select') }}
                 </button>
               </div>
@@ -127,7 +127,7 @@
     </section>
 
     <!-- ModLoader 安装 -->
-    <section class="modloader-section">
+    <section class="modloader-section vox-card">
       <div class="section-header">
         <h3>{{ $t('modloader.install') }}</h3>
       </div>
@@ -135,7 +135,7 @@
       <div class="modloader-form">
         <div class="form-group">
           <label>{{ $t('modloader.selectMinecraftVersion') }}</label>
-          <select class="input-field" v-model="selectedVersion">
+          <select class="input-field vox-input" v-model="selectedVersion">
             <option value="">{{ $t('common.pleaseSelect') }}</option>
             <option v-for="version in versions" :key="version.id" :value="version.id">
               {{ version.id }} ({{ getVersionTypeLabel(version.type) }})
@@ -171,7 +171,7 @@
 
         <div class="form-actions">
           <button
-            class="btn-primary"
+            class="vox-btn vox-btn--primary"
             @click="installModLoader"
             :disabled="!selectedVersion || !selectedLoader || modLoaderLoading"
           >
@@ -337,9 +337,6 @@ onMounted(() => {
 
 .versions-section,
 .modloader-section {
-  background: var(--voxver-bg-elevated);
-  border: 1px solid var(--voxver-border-color);
-  border-radius: 10px;
   margin-bottom: 16px;
   overflow: hidden;
 }
@@ -365,22 +362,7 @@ onMounted(() => {
 }
 
 .search-input {
-  padding: 6px 10px;
-  border: 1px solid var(--voxver-border-color);
-  border-radius: 6px;
-  background: var(--voxver-bg-primary);
-  color: var(--voxver-text-primary);
-  font-size: 12px;
   width: 180px;
-
-  &:focus {
-    outline: none;
-    border-color: var(--voxver-primary);
-  }
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
 }
 
 /* ===== 分类 Tabs ===== */
@@ -389,21 +371,21 @@ onMounted(() => {
   gap: 4px;
   padding: 8px 16px;
   border-bottom: 1px solid var(--voxver-border-color);
-  background: var(--voxver-bg-primary);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
 }
 
 .filter-tab {
   padding: 6px 12px;
   font-size: 12px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--voxver-radius-sm);
   background: transparent;
   color: var(--voxver-text-secondary);
   cursor: pointer;
   transition: all 0.15s;
 
   &:hover {
-    background: var(--voxver-bg-secondary);
+    background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
   }
   &.active {
     background: var(--voxver-primary);
@@ -422,9 +404,9 @@ onMounted(() => {
   align-items: center;
   gap: 16px;
   padding: 12px;
-  border-radius: 6px;
+  border-radius: var(--voxver-radius-sm);
   margin-bottom: 8px;
-  background: var(--voxver-bg-primary);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
 
   > div {
     background: linear-gradient(
@@ -435,7 +417,7 @@ onMounted(() => {
     );
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
-    border-radius: 4px;
+    border-radius: var(--voxver-radius-xs);
     height: 14px;
   }
 
@@ -479,7 +461,7 @@ onMounted(() => {
 }
 
 .error-text {
-  color: var(--voxver-danger, #dc2626);
+  color: var(--voxver-error);
   font-size: 13px;
   margin: 0 0 16px;
 }
@@ -500,9 +482,9 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 12px;
-  border-radius: 6px;
+  border-radius: var(--voxver-radius-sm);
   margin-bottom: 8px;
-  background: var(--voxver-bg-primary);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   transition: all 0.15s;
   cursor: pointer;
   border: 1px solid transparent;
@@ -510,7 +492,7 @@ onMounted(() => {
   box-sizing: border-box;
 
   &:hover {
-    background: var(--voxver-bg-secondary);
+    background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
     border-color: var(--voxver-border-color);
   }
 
@@ -533,22 +515,22 @@ onMounted(() => {
 
 .version-type {
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
   font-size: 11px;
   font-weight: 600;
 
   &.release {
-    background: #e6f4ea;
-    color: #137333;
+    background: color-mix(in oklab, var(--voxver-success) 15%, transparent);
+    color: var(--voxver-success);
   }
   &.snapshot {
-    background: #e7f1ff;
-    color: #1e40af;
+    background: color-mix(in oklab, var(--voxver-primary) 15%, transparent);
+    color: var(--voxver-primary-600);
   }
   &.old_alpha,
   &.old_beta {
-    background: #fef3c7;
-    color: #92400e;
+    background: color-mix(in oklab, var(--voxver-warning) 15%, transparent);
+    color: var(--voxver-warning);
   }
 }
 
@@ -579,21 +561,6 @@ onMounted(() => {
   }
 }
 
-.input-field {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--voxver-border-color);
-  border-radius: 6px;
-  background: var(--voxver-bg-primary);
-  color: var(--voxver-text-primary);
-  font-size: 13px;
-
-  &:focus {
-    outline: none;
-    border-color: var(--voxver-primary);
-  }
-}
-
 .loader-options {
   display: flex;
   flex-wrap: wrap;
@@ -618,48 +585,10 @@ onMounted(() => {
   color: var(--voxver-text-muted);
 }
 
-/* ===== 按钮 ===== */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 20px;
-  background: var(--voxver-primary);
-  color: #fff;
-  border: none;
-  border-radius: var(--voxver-radius-sm);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover:not(:disabled) {
-    background: var(--voxver-primary-hover);
-  }
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
+/* ===== 按钮尺寸修饰符（vox-btn 的尺寸变体） ===== */
 .btn-sm {
   padding: 4px 12px;
   font-size: 12px;
-}
-
-.btn-ghost {
-  background: transparent;
-  border: 1px solid var(--voxver-border-color);
-  color: var(--voxver-text-secondary);
-  border-radius: var(--voxver-radius-xs);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover:not(:disabled) {
-    border-color: var(--voxver-primary-400);
-    color: var(--voxver-primary-600);
-  }
 }
 
 /* ===== 空状态 ===== */

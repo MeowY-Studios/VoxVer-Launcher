@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Teleport :to="teleportTo">
     <Transition :name="transitionName">
       <div
@@ -140,7 +140,7 @@ watch(
 
 /* ===== Dialog ===== */
 .px-modal {
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-lg);
   width: 100%;

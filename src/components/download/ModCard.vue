@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="mod-card" @click="$emit('click', mod)">
     <!-- 封面图 -->
     <div class="mod-cover">
@@ -100,7 +100,7 @@ function formatNum(n: number): string {
   display: flex;
   gap: 14px;
   padding: 14px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-lg);
   cursor: pointer;

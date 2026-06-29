@@ -60,7 +60,7 @@
   --voxver-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.18);
 
   /* ===== 渐变发光阴影（从 Gradient 版引入）===== */
-  --voxver-shadow-glow-primary: 0 4px 20px rgba(99, 102, 234, 0.35);
+  --voxver-shadow-glow-primary: 0 4px 20px color-mix(in oklab, var(--voxver-primary) 35%, transparent);
   --voxver-shadow-glow-secondary: 0 4px 20px rgba(240, 147, 251, 0.35);
   --voxver-shadow-glow-success: 0 4px 20px rgba(34, 197, 94, 0.35);
   --voxver-shadow-glow-warning: 0 4px 20px rgba(245, 158, 11, 0.35);
@@ -80,14 +80,15 @@
   --voxver-space-16: 64px;
 
   /* ===== 字号 ===== */
-  --voxver-text-xs: 12px;
-  --voxver-text-sm: 13px;
-  --voxver-text-base: 14px;
-  --voxver-text-lg: 16px;
-  --voxver-text-xl: 18px;
-  --voxver-text-2xl: 22px;
-  --voxver-text-3xl: 28px;
-  --voxver-text-4xl: 36px;
+  --voxver-font-scale: 1;
+  --voxver-text-xs: calc(12px * var(--voxver-font-scale));
+  --voxver-text-sm: calc(13px * var(--voxver-font-scale));
+  --voxver-text-base: calc(14px * var(--voxver-font-scale));
+  --voxver-text-lg: calc(16px * var(--voxver-font-scale));
+  --voxver-text-xl: calc(18px * var(--voxver-font-scale));
+  --voxver-text-2xl: calc(22px * var(--voxver-font-scale));
+  --voxver-text-3xl: calc(28px * var(--voxver-font-scale));
+  --voxver-text-4xl: calc(36px * var(--voxver-font-scale));
 
   /* ===== 字重 ===== */
   --voxver-font-normal: 400;
@@ -102,173 +103,122 @@
   --voxver-sidebar-width: 56px;
 
   /* ================================
-     颜色系统 - 暗色主题（默认）
+     颜色系统 - 深青墨色（默认暗色）
      ================================ */
 
-  /* 背景色 */
-  --voxver-bg-primary: #1a1b2e;
-  --voxver-bg-secondary: #16172a;
-  --voxver-bg-tertiary: #0f1020;
-  --voxver-bg-elevated: #1e2035;
-  --voxver-bg-hover: #252640;
-  --voxver-bg-active: #2a2b50;
+  /* 背景色（深蓝黑）*/
+  --voxver-bg-primary: #0a0e14;
+  --voxver-bg-secondary: #0d1117;
+  --voxver-bg-tertiary: #161b22;
+  --voxver-bg-elevated: #11161d;
+  --voxver-bg-hover: #1c2128;
+  --voxver-bg-active: #21262d;
+  --voxver-bg-input: #0d1117;
 
-  /* 文字色 */
-  --voxver-text-primary: #e8eaf6;
-  --voxver-text-secondary: #9fa3c7;
-  --voxver-text-tertiary: #6b6f9a;
-  --voxver-text-muted: #4a4e72;
-  --voxver-text-inverse: #0f172a;
+  /* 文字色（冷白）*/
+  --voxver-text-primary: #e6edf3;
+  --voxver-text-secondary: #8b949e;
+  --voxver-text-tertiary: #6e7681;
+  --voxver-text-muted: #484f58;
+  --voxver-text-inverse: #0a0e14;
 
   /* 边框色 */
-  --voxver-border-color: #2d2f4e;
-  --voxver-border-strong: #3d3f66;
+  --voxver-border-color: #21262d;
+  --voxver-border-color-light: #161b22;
+  --voxver-border-strong: #30363d;
 
   /*
-   * ===== 主色系统（色阶 + 渐变）=====
-   * 改 --voxver-primary 即可全局换肤
-   * 下面的色阶和渐变会自动跟随
+   * ===== 主色系统（青绿 teal）=====
+   * 摒弃 AI 默认靛蓝，采用专业工具风格青绿
    */
-  --voxver-primary: #6366f1;              /* 主色 - 靛蓝 */
-  --voxver-primary-light: #e0e7ff;        /* 主色浅色背景 */
-  --voxver-primary-hover: #4f46e5;         /* 主色悬停 */
-  --voxver-primary-active: #4338ca;        /* 主色激活 */
-  --voxver-primary-muted: #a5b4fc;         /* 主色弱化 */
+  --voxver-primary: #14b8a6;
+  --voxver-primary-light: color-mix(in oklab, var(--voxver-primary) 12%, transparent);
+  --voxver-primary-hover: #2dd4bf;
+  --voxver-primary-active: #5eead4;
+  --voxver-primary-muted: #0d9488;
 
-  /* 主色色阶（用于 Badge、Table hover 等） */
-  --voxver-primary-50: #eef2ff;
-  --voxver-primary-100: #e0e7ff;
-  --voxver-primary-200: #c7d2fe;
-  --voxver-primary-300: #a5b4fc;
-  --voxver-primary-400: #818cf8;
-  --voxver-primary-500: #6366f1;
-  --voxver-primary-600: #4f46e5;
-  --voxver-primary-700: #4338ca;
-  --voxver-primary-800: #3730a3;
-  --voxver-primary-900: #312e81;
+  /* 主色色阶 */
+  --voxver-primary-50: #042f2e;
+  --voxver-primary-100: #063e3c;
+  --voxver-primary-200: #0a504d;
+  --voxver-primary-300: #0f6b66;
+  --voxver-primary-400: #2dd4bf;
+  --voxver-primary-500: #14b8a6;
+  --voxver-primary-600: #0d9488;
+  --voxver-primary-700: #0f766e;
+  --voxver-primary-800: #115e59;
+  --voxver-primary-900: #134e4a;
 
-  /* ★ 核心渐变色（改主色后这些也要手动同步，或用 JS 自动计算）★ */
-  --voxver-gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  --voxver-gradient-secondary: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
-  --voxver-gradient-success: linear-gradient(135deg, #22c55e 0%, #10b981 100%);
-  --voxver-gradient-warning: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-  --voxver-gradient-error: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  --voxver-gradient-info: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  /* 渐变色（青绿→天蓝）*/
+  --voxver-gradient-primary: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
+  --voxver-gradient-secondary: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  --voxver-gradient-success: linear-gradient(135deg, #3fb950 0%, #2dd4bf 100%);
+  --voxver-gradient-warning: linear-gradient(135deg, #d29922 0%, #f59e0b 100%);
+  --voxver-gradient-error: linear-gradient(135deg, #f85149 0%, #ef4444 100%);
+  --voxver-gradient-info: linear-gradient(135deg, #58a6ff 0%, #38bdf8 100%);
 
   /* 功能色 */
-  --voxver-success: #22c55e;
-  --voxver-success-bg: #dcfce7;
+  --voxver-success: #3fb950;
+  --voxver-success-light: rgba(63, 185, 80, 0.15);
+  --voxver-success-bg: rgba(63, 185, 80, 0.15);
 
-  --voxver-warning: #f59e0b;
-  --voxver-warning-bg: #fef3c7;
+  --voxver-warning: #d29922;
+  --voxver-warning-light: rgba(210, 153, 34, 0.15);
+  --voxver-warning-bg: rgba(210, 153, 34, 0.15);
 
-  --voxver-error: #ef4444;
-  --voxver-error-bg: #fee2e2;
+  --voxver-error: #f85149;
+  --voxver-error-light: rgba(248, 81, 73, 0.15);
+  --voxver-error-bg: rgba(248, 81, 73, 0.15);
 
-  --voxver-info: #0ea5e9;
-  --voxver-info-bg: #e0f2fe;
+  --voxver-info: #58a6ff;
+  --voxver-info-light: rgba(88, 166, 255, 0.15);
+  --voxver-info-bg: rgba(88, 166, 255, 0.15);
 
   /* ===== 组件特定颜色 ===== */
-  /* 按钮 */
-  --voxver-btn-primary-bg: var(--voxver-gradient-primary);    /* 渐变！不是纯色 */
+  --voxver-btn-primary-bg: var(--voxver-gradient-primary);
   --voxver-btn-primary-color: #ffffff;
   --voxver-btn-primary-hover: brightness(1.05);
 
   --voxver-btn-ghost-bg: transparent;
   --voxver-btn-ghost-hover-bg: var(--voxver-primary-light);
 
-  /* 输入框 */
-  --voxver-input-bg: var(--voxver-bg-primary);
+  --voxver-input-bg: var(--voxver-bg-input);
   --voxver-input-border: var(--voxver-border-color);
-  --voxver-input-focus-border: var(--voxver-primary-400);
-  --voxver-input-focus-shadow: 0 0 0 3px rgba(99, 102, 234, 0.15);
+  --voxver-input-focus-border: var(--voxver-primary);
+  --voxver-input-focus-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 25%, transparent);
 
-  /* 卡片 */
   --voxver-card-bg: var(--voxver-bg-elevated);
   --voxver-card-border: var(--voxver-border-color);
 
-  /* 标签页 */
-  --voxver-tab-active-color: var(--voxver-primary-500);
-  --voxver-tab-active-border: var(--voxver-gradient-primary);     /* 渐变下划线 */
+  --voxver-tab-active-color: var(--voxver-primary);
+  --voxver-tab-active-border: var(--voxver-gradient-primary);
 
-  /* 进度条 */
-  --voxver-progress-bg: var(--voxver-gradient-primary);          /* 渐变填充 */
+  --voxver-progress-bg: var(--voxver-gradient-primary);
 
-  /* 侧边导航 */
-  --voxver-nav-active-color: var(--voxver-primary-500);
-  --voxver-nav-active-indicator: var(--voxver-primary-500);
+  --voxver-nav-active-color: var(--voxver-primary);
+  --voxver-nav-active-indicator: var(--voxver-primary);
 
-  /* 标题栏 */
   --voxver-titlebar-bg: var(--voxver-bg-secondary);
   --voxver-titlebar-border: var(--voxver-border-color);
 
-  /* ===== 简写别名（兼容 SettingsPage / DownloadsPage）===== */
+  /* ===== 滚动条 ===== */
+  --voxver-scrollbar-track: transparent;
+  --voxver-scrollbar-thumb: rgba(139, 148, 158, 0.2);
+  --voxver-scrollbar-thumb-hover: rgba(139, 148, 158, 0.35);
+
+  /* ===== 简写别名（兼容旧代码）===== */
   --voxver-text: var(--voxver-text-primary);
   --voxver-bg: var(--voxver-bg-primary);
   --voxver-border: var(--voxver-border-color);
-  --voxver-border-light: var(--voxver-border-color);
-  --voxver-blue: #6366f1;          /* 匹配主色 */
-  --pcl-blue: #6366f1;
+  --voxver-border-light: var(--voxver-border-color-light);
+  --voxver-blue: var(--voxver-primary);
+  --pcl-blue: var(--voxver-primary);
+  --voxver-accent: var(--voxver-primary);
+  --voxver-green: var(--voxver-success);
+  --voxver-danger: var(--voxver-error);
 }
 
-/* ===== 暗色主题 ===== */
-[data-theme="dark"] {
-  --voxver-bg-primary: #0c1222;
-  --voxver-bg-secondary: #131c31;
-  --voxver-bg-tertiary: #1a2744;
-  --voxver-bg-elevated: #162033;
-  --voxver-bg-hover: #1a2744;
-  --voxver-bg-active: #1e2d52;
-
-  --voxver-text-primary: #e2e8f0;
-  --voxver-text-secondary: #94a3b8;
-  --voxver-text-tertiary: #64748b;
-  --voxver-text-muted: #475569;
-  --voxver-text-inverse: #0c1222;
-
-  --voxver-border-color: #1e2d52;
-  --voxver-border-strong: #2d3f66;
-
-  --voxver-primary-50: #151f38;
-  --voxver-primary-100: #1a2744;
-  --voxver-primary-200: #223355;
-  --voxver-primary-300: #2d3f66;
-  --voxver-primary-400: #3b51a0;
-  --voxver-primary-500: #818cf8;
-  --voxver-primary-600: #a5b4fc;
-  --voxver-primary-700: #c7d2fe;
-  --voxver-primary-800: #ddd6fe;
-  --voxver-primary-900: #ede9fe;
-
-  --voxver-primary: #818cf8;
-  --voxver-primary-light: rgba(99, 102, 234, 0.15);
-  --voxver-primary-hover: #a5b4fc;
-  --voxver-primary-active: #c7d2fe;
-  --voxver-primary-muted: #6366f1;
-
-  --voxver-gradient-primary: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
-  --voxver-gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --voxver-gradient-success: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
-  --voxver-gradient-warning: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  --voxver-gradient-error: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
-  --voxver-gradient-info: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%());
-
-  --voxver-input-focus-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
-
-  --voxver-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.25);
-  --voxver-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
-  --voxver-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45);
-
-  --voxver-shadow-glow-primary: 0 4px 20px rgba(99, 102, 234, 0.45);
-  --voxver-shadow-glow-secondary: 0 4px 20px rgba(240, 147, 251, 0.45);
-  --voxver-shadow-glow-success: 0 4px 20px rgba(74, 222, 128, 0.45);
-  --voxver-shadow-glow-warning: 0 4px 20px rgba(251, 191, 36, 0.45);
-  --voxver-shadow-glow-error: 0 4px 20px rgba(248, 113, 113, 0.45);
-  --voxver-shadow-glow-info: 0 4px 20px rgba(56, 189, 248, 0.45);
-
-  --voxver-titlebar-bg: var(--voxver-bg-secondary);
-  --voxver-titlebar-border: var(--voxver-border-color);
-}
+/* 暗色/亮色主题变量由 themes/dark.scss 和 themes/light.scss 提供，此处不再重复定义 */
 
 /* ==========================================================================
    2. 基础重置 & 工具类
@@ -395,7 +345,7 @@ svg[class*="mcla-icon"] {
 }
 .mcla-btn-primary:hover {
   filter: brightness(1.08);
-  box-shadow: 0 6px 25px rgba(99, 102, 234, 0.45);
+  box-shadow: 0 6px 25px color-mix(in oklab, var(--voxver-primary) 45%, transparent);
 }
 
 /* Secondary — 渐变次要按钮（粉红系） */
@@ -1004,7 +954,7 @@ svg[class*="mcla-icon"] {
   min-height: 360px; position: relative; overflow: hidden;
   &-bg {
     position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 30% 50%, rgba(99, 102, 234, 0.08) 0%, transparent 70%);
+    background: radial-gradient(ellipse at 30% 50%, color-mix(in oklab, var(--voxver-primary) 8%, transparent) 0%, transparent 70%);
     z-index: 0;
   }
   &-content {
@@ -1031,7 +981,7 @@ svg[class*="mcla-icon"] {
     transition: all var(--voxver-transition-normal);
     &:hover {
       filter: brightness(1.08);
-      box-shadow: 0 8px 30px rgba(99, 102, 234, 0.5);
+      box-shadow: 0 8px 30px color-mix(in oklab, var(--voxver-primary) 50%, transparent);
       transform: translateY(-2px);
     }
   }
@@ -1102,4 +1052,48 @@ svg[class*="mcla-icon"] {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+body[data-reduce-motion] *,
+body[data-reduce-motion] *::before,
+body[data-reduce-motion] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* ==========================================================================
+   26. 辅助功能
+   ========================================================================== */
+
+/* 屏幕阅读器 — 增强焦点可见性 */
+body[data-screen-reader] :focus-visible {
+  outline: 3px solid var(--voxver-accent) !important;
+  outline-offset: 3px !important;
+}
+
+/* 键盘导航 — 全局焦点指示器 */
+body[data-keyboard-nav] :focus-visible {
+  outline: 3px solid var(--voxver-accent) !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 0 6px color-mix(in oklab, var(--voxver-accent) 30%, transparent) !important;
+  border-radius: 2px;
+}
+
+/* 高对比度 — 强制黑白主题 */
+body[data-high-contrast] {
+  --voxver-bg-primary: #000 !important;
+  --voxver-bg-secondary: #111 !important;
+  --voxver-bg-tertiary: #222 !important;
+  --voxver-text: #fff !important;
+  --voxver-text-secondary: #ddd !important;
+  --voxver-text-muted: #bbb !important;
+  --voxver-border-color: #555 !important;
+  --voxver-accent: #ffff00 !important;
+  --voxver-accent-hover: #ffdd00 !important;
+}
+
+body[data-high-contrast] * {
+  text-shadow: none !important;
+  box-shadow: 0 0 0 1px #555 !important;
 }

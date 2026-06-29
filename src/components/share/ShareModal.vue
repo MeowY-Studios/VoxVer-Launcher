@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <PxModal
     :model-value="modelValue"
     :title="$t('component.shareInstance')"
@@ -416,7 +416,7 @@ onUnmounted(() => {
 .share-code-digit {
   width: 36px;
   height: 44px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-sm);
   display: flex;
@@ -435,7 +435,7 @@ onUnmounted(() => {
   gap: 6px;
   width: 100%;
   padding: 8px 12px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-sm);
   color: var(--voxver-text-secondary);

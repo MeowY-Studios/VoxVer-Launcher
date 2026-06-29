@@ -90,7 +90,7 @@ function formatSize(b: number): string {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
   transition: all 0.12s;
@@ -99,7 +99,7 @@ function formatSize(b: number): string {
     opacity: 0.75;
   }
   &.downloading {
-    border-color: rgba(99, 102, 234, 0.25);
+    border-color: color-mix(in oklab, var(--voxver-primary) 25%, transparent);
     .item-icon svg {
       stroke: var(--voxver-primary-500);
       color: var(--voxver-primary-500);
@@ -205,7 +205,7 @@ function formatSize(b: number): string {
   border: none;
   color: var(--voxver-text-muted);
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
   transition: all 0.1s;
 
   &:hover {

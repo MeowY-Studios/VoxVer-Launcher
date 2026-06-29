@@ -1,99 +1,106 @@
 /**
- * VoxVer 亮色主题
+ * VoxVer 亮色主题 - 深青墨色（亮色版）
  *
- * 使用方式：通过 [data-theme="light"] 选择器激活
- * 保持像素/游戏风格，但用浅色背景呈现
+ * 配套 dark.scss 的青绿主色，亮色下采用更深的 teal 保证对比度，
+ * 背景使用偏冷的灰白，保持专业工具风格。
  */
 
 [data-theme='light'] {
-  /* ====== 主色调（亮色下稍深一点保证对比度） ====== */
-  --voxver-primary: #4f46e5;
-  --voxver-primary-light: rgba(79, 70, 229, 0.1);
-  --voxver-primary-hover: #4338ca;
-  --voxver-primary-active: #3730a3;
-  --voxver-primary-muted: #a5b4fc;
-  --voxver-primary-50: #eef2ff;
-  --voxver-primary-100: #e0e7ff;
-  --voxver-primary-200: #c7d2fe;
-  --voxver-primary-300: #a5b4fc;
-  --voxver-primary-400: #818cf8;
-  --voxver-primary-500: #6366f1;
-  --voxver-primary-600: #4f46e5;
-  --voxver-primary-700: #4338ca;
-  --voxver-primary-800: #3730a3;
-  --voxver-primary-900: #312e81;
+  /* ====== 主色调（亮色下用更深的 teal）====== */
+  --voxver-primary: #0d9488;
+  --voxver-primary-light: rgba(13, 148, 136, 0.1);
+  --voxver-primary-hover: #0f766e;
+  --voxver-primary-active: #115e59;
+  --voxver-primary-muted: #5eead4;
 
-  /* ====== 渐变色（亮色版更柔和） ====== */
-  --voxver-gradient-primary: linear-gradient(135deg, #818cf8 0%, #a5b4fc 100%);
-  --voxver-gradient-secondary: linear-gradient(135deg, #f472b6 0%, #fb7185 100%);
-  --voxver-gradient-success: linear-gradient(135deg, #4ade80 0%, #34d399 100%);
-  --voxver-gradient-warning: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
-  --voxver-gradient-error: linear-gradient(135deg, #f87171 0%, #fb7185 100%);
-  --voxver-gradient-info: linear-gradient(135deg, #38bdf8 0%, #60a5fa 100%);
+  /* 主色色阶 */
+  --voxver-primary-50: #f0fdfa;
+  --voxver-primary-100: #ccfbf1;
+  --voxver-primary-200: #99f6e4;
+  --voxver-primary-300: #5eead4;
+  --voxver-primary-400: #2dd4bf;
+  --voxver-primary-500: #14b8a6;
+  --voxver-primary-600: #0d9488;
+  --voxver-primary-700: #0f766e;
+  --voxver-primary-800: #115e59;
+  --voxver-primary-900: #134e4a;
 
-  /* ====== 背景色 ====== */
-  --voxver-bg-primary: #F8F9FC;
-  --voxver-bg-secondary: #FFFFFF;
-  --voxver-bg-tertiary: #F1F2F7;
-  --voxver-bg-elevated: #FFFFFF;
-  --voxver-bg-hover: #EEF0F7;
-  --voxver-bg-active: #E2E5F0;
-  --voxver-bg-input: #F5F6FA;
-  --voxver-bg-overlay: rgba(0, 0, 0, 0.35);
+  /* ====== 渐变色 ====== */
+  --voxver-gradient-primary: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
+  --voxver-gradient-secondary: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  --voxver-gradient-success: linear-gradient(135deg, #22c55e 0%, #14b8a6 100%);
+  --voxver-gradient-warning: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  --voxver-gradient-error: linear-gradient(135deg, #ef4444 0%, #f85149 100%);
+  --voxver-gradient-info: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+
+  /* ====== 背景色（冷灰白）====== */
+  --voxver-bg-primary: #f6f8fa;
+  --voxver-bg-secondary: #ffffff;
+  --voxver-bg-tertiary: #eaeef2;
+  --voxver-bg-elevated: #ffffff;
+  --voxver-bg-hover: #eaeef2;
+  --voxver-bg-active: #d8dee4;
+  --voxver-bg-input: #f6f8fa;
+  --voxver-bg-overlay: rgba(1, 4, 9, 0.4);
 
   /* ====== 文字颜色 ====== */
-  --voxver-text-primary: #1E1B4B;
-  --voxver-text-secondary: #4B5563;
-  --voxver-text-tertiary: #6B7280;
-  --voxver-text-muted: #9CA3AF;
-  --voxver-text-inverse: #FFFFFF;
-  --voxver-text-link: #4f46e5;
-  --voxver-text-error: #DC2626;
-  --voxver-text-success: #16A34A;
-  --voxver-text-warning: #D97706;
+  --voxver-text-primary: #1f2328;
+  --voxver-text-secondary: #57606a;
+  --voxver-text-tertiary: #6e7681;
+  --voxver-text-muted: #848d97;
+  --voxver-text-inverse: #ffffff;
+  --voxver-text-link: #0d9488;
+  --voxver-text-error: #cf222e;
+  --voxver-text-success: #1a7f37;
+  --voxver-text-warning: #9a6700;
 
   /* ====== 边框颜色 ====== */
-  --voxver-border-color: #E5E7EB;
-  --voxver-border-color-light: #F3F4F6;
-  --voxver-border-strong: #D1D5DB;
-  --voxver-border-color-focus: #6366f1;
-  --voxver-border-color-error: #ef4444;
+  --voxver-border-color: #d0d7de;
+  --voxver-border-color-light: #eaeef2;
+  --voxver-border-strong: #afb8c1;
+  --voxver-border-color-focus: #0d9488;
+  --voxver-border-color-error: #cf222e;
 
   /* ====== 状态色 ====== */
-  --voxver-error: #ef4444;
-  --voxver-error-light: rgba(239, 68, 68, 0.08);
-  --voxver-success: #22c55e;
-  --voxver-success-light: rgba(34, 197, 94, 0.08);
-  --voxver-warning: #f59e0b;
-  --voxver-warning-light: rgba(245, 158, 11, 0.08);
-  --voxver-info: #3b82f6;
-  --voxver-info-light: rgba(59, 130, 246, 0.08);
+  --voxver-success: #1a7f37;
+  --voxver-success-light: rgba(26, 127, 55, 0.1);
+  --voxver-error: #cf222e;
+  --voxver-error-light: rgba(207, 34, 46, 0.1);
+  --voxver-warning: #9a6700;
+  --voxver-warning-light: rgba(154, 103, 0, 0.1);
+  --voxver-info: #0969da;
+  --voxver-info-light: rgba(9, 105, 218, 0.1);
 
-  /* ====== 阴影（亮色下更轻） ====== */
-  --voxver-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --voxver-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
-  --voxver-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
-  --voxver-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
+  /* ====== 阴影 ====== */
+  --voxver-shadow-sm: 0 1px 2px rgba(1, 4, 9, 0.06);
+  --voxver-shadow-md: 0 4px 12px rgba(1, 4, 9, 0.08);
+  --voxver-shadow-lg: 0 8px 24px rgba(1, 4, 9, 0.1);
+  --voxver-shadow-xl: 0 16px 48px rgba(1, 4, 9, 0.12);
 
-  /* ====== 发光阴影（亮色下减弱） ====== */
-  --voxver-shadow-glow-primary: 0 4px 16px rgba(99, 102, 234, 0.2);
-  --voxver-shadow-glow-secondary: 0 4px 16px rgba(240, 147, 251, 0.2);
-  --voxver-shadow-glow-success: 0 4px 16px rgba(34, 197, 94, 0.2);
-  --voxver-shadow-glow-warning: 0 4px 16px rgba(245, 158, 11, 0.2);
-  --voxver-shadow-glow-error: 0 4px 16px rgba(239, 68, 68, 0.2);
-  --voxver-shadow-glow-info: 0 4px 16px rgba(14, 165, 233, 0.2);
+  /* ====== 发光阴影 ====== */
+  --voxver-shadow-glow-primary: 0 4px 16px rgba(13, 148, 136, 0.2);
+  --voxver-shadow-glow-secondary: 0 4px 16px rgba(245, 158, 11, 0.18);
+  --voxver-shadow-glow-success: 0 4px 16px rgba(26, 127, 55, 0.18);
+  --voxver-shadow-glow-warning: 0 4px 16px rgba(154, 103, 0, 0.18);
+  --voxver-shadow-glow-error: 0 4px 16px rgba(207, 34, 46, 0.18);
+  --voxver-shadow-glow-info: 0 4px 16px rgba(9, 105, 218, 0.18);
 
   /* ====== 输入框焦点阴影 ====== */
-  --voxver-input-focus-shadow: 0 0 0 3px rgba(99, 102, 234, 0.15);
+  --voxver-input-focus-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 18%, transparent);
 
-  /* ====== 滚动条（亮色风格） ====== */
+  /* ====== 滚动条 ====== */
   --voxver-scrollbar-track: transparent;
-  --voxver-scrollbar-thumb: rgba(0, 0, 0, 0.14);
-  --voxver-scrollbar-thumb-hover: rgba(0, 0, 0, 0.25);
+  --voxver-scrollbar-thumb: rgba(1, 4, 9, 0.14);
+  --voxver-scrollbar-thumb-hover: rgba(1, 4, 9, 0.25);
+
+  /* ====== 功能色背景 ====== */
+  --voxver-success-bg: #dafbe1;
+  --voxver-warning-bg: #fff8c5;
+  --voxver-error-bg: #ffebe9;
+  --voxver-info-bg: #ddf4ff;
 }
 
 /* ====== 亮色特有组件覆盖 ====== */
-
 [data-theme='light'] .mcla-card,
 [data-theme='light'] .card {
   background: var(--voxver-bg-secondary);
@@ -132,9 +139,9 @@
   }
 }
 
-/* 标题栏在亮色下调整 - 更柔和的渐变 */
+/* 标题栏在亮色下用青绿渐变 */
 [data-theme='light'] .titlebar {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+  background: linear-gradient(135deg, #0d9488 0%, #0ea5e9 100%) !important;
 }
 
 /* 浅色模式下的按钮特殊处理 */
@@ -185,36 +192,28 @@
   }
 }
 
-/* ====== 亮色模式 - 功能色背景（图标、Badge 等） ====== */
-[data-theme='light'] {
-  --voxver-success-bg: #dcfce7;
-  --voxver-warning-bg: #fef3c7;
-  --voxver-error-bg: #fee2e2;
-  --voxver-info-bg: #e0f2fe;
-}
-
-/* 亮色模式下 Badge 使用深色文字（暗色 Badge 在 light.scss 无覆盖时保持可见） */
-[data-theme='light'] .mcla-badge-success { color: #166534; }
-[data-theme='light'] .mcla-badge-warning { color: #92400e; }
-[data-theme='light'] .mcla-badge-error { color: #991b1b; }
-[data-theme='light'] .mcla-badge-info { color: #075985; }
+/* 亮色模式下 Badge */
+[data-theme='light'] .mcla-badge-success { color: #1a7f37; }
+[data-theme='light'] .mcla-badge-warning { color: #9a6700; }
+[data-theme='light'] .mcla-badge-error { color: #cf222e; }
+[data-theme='light'] .mcla-badge-info { color: #0969da; }
 
 /* 亮色模式下 Alert */
 [data-theme='light'] .mcla-alert-info {
   background: var(--voxver-info-bg);
-  color: #075985;
+  color: #0969da;
 }
 [data-theme='light'] .mcla-alert-success {
   background: var(--voxver-success-bg);
-  color: #166534;
+  color: #1a7f37;
 }
 [data-theme='light'] .mcla-alert-warning {
   background: var(--voxver-warning-bg);
-  color: #92400e;
+  color: #9a6700;
 }
 [data-theme='light'] .mcla-alert-error {
   background: var(--voxver-error-bg);
-  color: #991b1b;
+  color: #cf222e;
 }
 
 /* 亮色模式下对话框/模态框 */

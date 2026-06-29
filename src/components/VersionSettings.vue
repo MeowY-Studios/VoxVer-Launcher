@@ -1049,7 +1049,7 @@ const navItems = [
   max-width: 90vw;
   height: 560px;
   max-height: 85vh;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border-radius: var(--voxver-radius-xl);
   border: 1px solid var(--voxver-border-color);
   overflow: hidden;
@@ -1061,7 +1061,7 @@ const navItems = [
 /* ---- 标题栏 ---- */
 .vs-header {
   height: 42px;
-  background: var(--voxver-bg-secondary);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
   border-bottom: 1px solid var(--voxver-border-color);
   display: flex;
   align-items: center;
@@ -1136,7 +1136,7 @@ const navItems = [
 /* ---- 左侧导航 ---- */
 .vs-nav {
   width: 160px;
-  background: var(--voxver-bg-secondary);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
   border-right: 1px solid var(--voxver-border-color);
   padding: 10px 0;
   flex-shrink: 0;
@@ -1168,7 +1168,7 @@ const navItems = [
 
   &:hover {
     color: var(--voxver-primary-muted);
-    background: rgba(99, 102, 234, 0.08);
+    background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
     > span {
       color: var(--voxver-primary-muted);
     }
@@ -1177,7 +1177,7 @@ const navItems = [
   &.active {
     color: var(--voxver-primary-muted);
     font-weight: 600;
-    background: rgba(99, 102, 234, 0.06);
+    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
 
     &::before {
       content: '';
@@ -1201,7 +1201,7 @@ const navItems = [
   flex: 1;
   overflow-y: auto;
   padding: 20px 24px;
-  background: var(--voxver-bg-primary);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -1221,7 +1221,7 @@ const navItems = [
   align-items: center;
   gap: 14px;
   padding: 16px 18px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border-radius: var(--voxver-radius-lg);
   border: 1px solid var(--voxver-border-color);
   margin-bottom: 14px;
@@ -1230,7 +1230,7 @@ const navItems = [
     width: 44px;
     height: 44px;
     border-radius: var(--voxver-radius-md);
-    background: rgba(99, 102, 234, 0.1);
+    background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1254,7 +1254,7 @@ const navItems = [
 
 /* ---- 区块 ---- */
 .vs-section {
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border-radius: var(--voxver-radius-lg);
   border: 1px solid var(--voxver-border-color);
   padding: 16px 18px;
@@ -1303,13 +1303,13 @@ const navItems = [
   border-radius: var(--voxver-radius-md);
   font-size: 13px;
   color: var(--voxver-text-primary);
-  background: var(--voxver-bg-primary);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   outline: none;
   transition: border-color 0.14s;
 
   &:focus {
     border-color: var(--voxver-primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 234, 0.15);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 15%, transparent);
   }
   &.short {
     flex: 0 0 80px;
@@ -1328,7 +1328,7 @@ const navItems = [
   font-size: 12px;
   font-family: inherit;
   color: var(--voxver-text-primary);
-  background: var(--voxver-bg-primary);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   outline: none;
   resize: vertical;
   min-height: 60px;
@@ -1336,7 +1336,7 @@ const navItems = [
 
   &:focus {
     border-color: var(--voxver-primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 234, 0.15);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 15%, transparent);
   }
 }
 
@@ -1362,7 +1362,7 @@ const navItems = [
   padding: 8px 16px;
   border: 1.5px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   font-size: 12px;
   color: var(--voxver-text-secondary);
   cursor: pointer;
@@ -1416,7 +1416,7 @@ const navItems = [
 
 /* 独立按钮组 */
 .vs-content > .form-btns {
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border-radius: var(--voxver-radius-lg);
   border: 1px solid var(--voxver-border-color);
   padding: 14px 18px;
@@ -1426,7 +1426,7 @@ const navItems = [
   padding: 8px 18px;
   border: 1.5px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   font-size: 12px;
   color: var(--voxver-text-secondary);
   cursor: pointer;
@@ -1450,7 +1450,7 @@ const navItems = [
     &:hover {
       border-color: var(--voxver-primary);
       color: var(--voxver-primary);
-      background: rgba(99, 102, 234, 0.06);
+      background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
     }
   }
 
@@ -1497,7 +1497,7 @@ const navItems = [
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border-radius: var(--voxver-radius-md);
   border: 1px solid transparent;
   transition: all 0.12s;
@@ -1521,7 +1521,7 @@ const navItems = [
     padding: 4px 12px;
     border: 1px solid var(--voxver-border-color);
     border-radius: var(--voxver-radius-sm);
-    background: var(--voxver-bg-elevated);
+    background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
     font-size: 11px;
     color: var(--voxver-text-secondary);
     cursor: pointer;
@@ -1614,7 +1614,7 @@ const navItems = [
   width: 100%;
   max-height: 200px;
   overflow-y: auto;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
   padding: 8px 12px;
@@ -1663,16 +1663,16 @@ const navItems = [
 .dl-progress-bar {
   width: 100%;
   height: 8px;
-  background: var(--voxver-bg-elevated);
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid var(--voxver-border-color);
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
   overflow: hidden;
 }
 
 .dl-progress-fill {
   height: 100%;
   background: var(--voxver-primary);
-  border-radius: 4px;
+  border-radius: var(--voxver-radius-xs);
   transition: width 0.3s ease;
 }
 
@@ -1709,7 +1709,7 @@ const navItems = [
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: rgba(99, 102, 234, 0.08);
+  background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
   border-radius: var(--voxver-radius-md);
   font-size: 12px;
   color: var(--voxver-primary-muted);
@@ -1889,7 +1889,7 @@ const navItems = [
   align-items: center;
   gap: 8px;
   padding: 9px 14px;
-  background: var(--voxver-bg-primary);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   border: 1.5px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
   margin-bottom: 10px;
@@ -1924,7 +1924,7 @@ const navItems = [
   border-color: var(--voxver-primary);
   color: var(--voxver-primary);
   &:hover {
-    background: rgba(99, 102, 234, 0.06);
+    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
   }
 }
 
@@ -1952,7 +1952,7 @@ const navItems = [
   }
 
   &:hover:not(.active) {
-    background: rgba(99, 102, 234, 0.08);
+    background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
     color: var(--voxver-primary-muted);
   }
 
@@ -2069,7 +2069,7 @@ const navItems = [
   padding: 0 5px;
   font-size: 10px;
   color: var(--voxver-primary-muted);
-  background: rgba(99, 102, 234, 0.08);
+  background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
   border-radius: 3px;
   margin-right: 4px;
   vertical-align: middle;
@@ -2214,7 +2214,7 @@ const navItems = [
 .export-tip-box {
   margin-top: 10px;
   padding: 10px 12px;
-  background: rgba(99, 102, 234, 0.06);
+  background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
   border-radius: var(--voxver-radius-md);
   font-size: 11px;
   color: var(--voxver-primary-muted);
@@ -2245,7 +2245,7 @@ const navItems = [
 
   &:hover {
     filter: brightness(1.1);
-    box-shadow: 0 4px 24px rgba(99, 102, 234, 0.5);
+    box-shadow: 0 4px 24px color-mix(in oklab, var(--voxver-primary) 50%, transparent);
     transform: translateY(-1px);
   }
 }
