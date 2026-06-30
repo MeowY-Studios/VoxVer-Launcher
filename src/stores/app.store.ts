@@ -5,7 +5,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-export type ThemeMode = 'dark' | 'light' | 'auto' | 'koring'
+export type ThemeMode = 'dark' | 'light' | 'auto'
 export type Language = 'zh-CN' | 'en-US'
 
 export const useAppStore = defineStore('app', () => {
@@ -28,13 +28,13 @@ export const useAppStore = defineStore('app', () => {
   // ====== 计算属性 ======
   const isDark = computed(() => {
     const t = resolveTheme()
-    return t === 'dark' || t === 'koring'
+    return t === 'dark'
   })
 
   // ====== 操作 ======
 
-  /** 解析 auto 主题为实际深浅色；koring 独立返回 */
-  function resolveTheme(): 'dark' | 'light' | 'koring' {
+  /** 解析 auto 主题为实际深浅色 */
+  function resolveTheme(): 'dark' | 'light' {
     if (theme.value === 'auto') {
       return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
     }
@@ -118,7 +118,12 @@ export const useAppStore = defineStore('app', () => {
   /** 初始化（从 localStorage 恢复） */
   function init() {
     isElectron.value = !!window.electronAPI
-    const saved = localStorage.getItem('voxver_theme') as ThemeMode | null
+    let saved = localStorage.getItem('voxver_theme') as ThemeMode | 'koring' | null
+    // 迁移已废弃的 koring 主题为 dark
+    if (saved === 'koring') {
+      saved = 'dark'
+      localStorage.setItem('voxver_theme', 'dark')
+    }
     if (saved) {
       theme.value = saved
       applyTheme()

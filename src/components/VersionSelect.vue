@@ -6,14 +6,7 @@
           <!-- 标题栏 -->
           <header class="vs-header">
             <button class="vs-back" @click="close">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <path d="M15 18l-6-6 6-6" />
               </svg>
             </button>
@@ -44,17 +37,8 @@
                 <div class="current-folder">
                   <div class="cf-label">{{ $t('component.currentFolder') }}</div>
                   <div class="cf-top">
-                    <svg
-                      width="13"
-                      height="13"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    >
-                      <path
-                        d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"
-                      />
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
                     </svg>
                     <span class="cf-name">{{ currentFolderName }}</span>
                   </div>
@@ -62,31 +46,17 @@
                 </div>
 
                 <!-- 已添加的其他文件夹列表 -->
-                <div
-                  v-for="folder in folders.filter((f) => !f.isActive)"
-                  :key="folder.path"
-                  class="folder-item"
-                  @click="switchFolder(folder.path)"
-                >
+                <div v-for="folder in folders.filter((f) => !f.isActive)" :key="folder.path" class="folder-item"
+                  @click="switchFolder(folder.path)">
                   <div class="fi-top">
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    >
-                      <path
-                        d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"
-                      />
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
                     </svg>
                     <span class="fi-name">{{ folder.name }}</span>
                   </div>
                   <div class="fi-path">{{ folder.path }}</div>
-                  <span class="folder-remove" @click.stop="removeFolder(folder.path)" :title="$t('component.remove')"
-                    >✕</span
-                  >
+                  <span class="folder-remove" @click.stop="removeFolder(folder.path)"
+                    :title="$t('component.remove')">✕</span>
                 </div>
 
                 <!-- 分隔线 -->
@@ -96,11 +66,11 @@
                 <h4 class="sidebar-subtitle">{{ $t('component.addOrImport') }}</h4>
                 <div class="action-list">
                   <button class="action-item" @click="addFolder">
-                    <span class="action-icon add">⊕</span>
+                    <span class="action-icon add">＋</span>
                     <span>{{ $t('component.addExistingFolder') }}</span>
                   </button>
                   <button class="action-item" @click="importModpack">
-                    <span class="action-icon import">⟳</span>
+                    <span class="action-icon import">⬇</span>
                     <span>{{ $t('component.importModpack') }}</span>
                   </button>
                 </div>
@@ -109,39 +79,22 @@
               <!-- 无文件夹时：显示提示 -->
               <template v-else>
                 <div class="no-folder-hint">
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                  >
-                    <path
-                      d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"
-                    />
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
                     <line x1="12" y1="11" x2="12" y2="17" />
                     <line x1="9" y1="14" x2="15" y2="14" />
                   </svg>
                   <p>{{ $t('component.noMinecraftFolder') }}</p>
                   <div class="no-folder-actions">
                     <button class="action-item" @click="addFolder">
-                      <span class="action-icon add">⊕</span>
+                      <span class="action-icon add">＋</span>
                       <span>{{ $t('component.selectExistingFolder') }}</span>
                     </button>
                     <button class="action-item" @click="createMinecraftFolderHere">
                       <span class="action-icon create">
-                        <svg
-                          width="13"
-                          height="13"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-                          <path
-                            d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"
-                          />
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
                         </svg>
                       </span>
                       <span>{{ $t('component.createMinecraft') }}</span>
@@ -156,42 +109,24 @@
               <!-- 已安装版本区 -->
               <section class="content-section collapsible" :class="{ collapsed: !showInstalled }">
                 <header class="sec-header clickable" @click="showInstalled = !showInstalled">
-                  <span class="sec-header-title">{{ $t('component.installedVersions') }} ({{ installedVersions.length }})</span>
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    :style="{ transform: showInstalled ? 'rotate(180deg)' : '' }"
-                    style="transition: transform 0.2s"
-                  >
+                  <span class="sec-header-title">{{ $t('component.installedVersions') }} ({{ installedVersions.length
+                    }})</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    :style="{ transform: showInstalled ? 'rotate(180deg)' : '' }" style="transition: transform 0.2s">
                     <path d="M6 9l6 6 6-6" />
                   </svg>
                 </header>
                 <div v-show="showInstalled" class="sec-body">
                   <div v-if="!installedVersions.length" class="empty-hint">
-                    <svg
-                      width="32"
-                      height="32"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="var(--pcl-text-muted)"
-                      stroke-width="1.5"
-                    >
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--pcl-text-muted)"
+                      stroke-width="1.5">
                       <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <p>{{ $t('component.noInstalledVersions') }}</p>
                   </div>
                   <div v-for="ver in installedVersions" :key="ver.id" class="installed-ver-item">
                     <div class="iv-check">
-                      <input
-                        type="radio"
-                        name="activeVersion"
-                        :checked="ver.isActive"
-                        @change="selectActive(ver)"
-                      />
+                      <input type="radio" name="activeVersion" :checked="ver.isActive" @change="selectActive(ver)" />
                     </div>
                     <div class="iv-info">
                       <p class="iv-name">{{ ver.name }}</p>
@@ -258,7 +193,7 @@ async function loadMinecraftPath() {
     return
   }
 
-  // 1. 加载已保存的文件夹列表
+  // 1. 加载已保存的文件夹列表  
   const savedPaths: string[] = api.folders ? await api.folders.list() : []
 
   // 2. 检查每个保存的路径是否存在
@@ -275,11 +210,11 @@ async function loadMinecraftPath() {
   if (lastFolder && validPaths.includes(lastFolder)) {
     effectivePath = lastFolder
   } else if (validPaths.length > 0) {
-    // 上次选中的无效了，使用第一个有效路径
+    // 上次选中的无效了，使用第一个有效路径    
     effectivePath = validPaths[0]
   }
 
-  // 4. 构建文件夹列表（只包含有效的路径）
+  // 4. 构建文件夹列表（只包含有效的路径）  
   folders.value = validPaths.map((path) => ({
     path,
     name: path.split(/[\\/]/).pop() || path,
@@ -292,7 +227,7 @@ async function loadMinecraftPath() {
     currentFolderName.value = effectivePath.split(/[\\/]/).pop() || '.minecraft'
     await loadVersionsFromFolder(effectivePath)
   } else {
-    // 没有有效的 .minecraft 文件夹
+    // 没有有效的 .minecraft 文件夹     
     currentFolderPath.value = t('component.notFoundFolder')
     currentFolderName.value = ''
     installedVersions.value = []
@@ -322,7 +257,7 @@ async function addFolder() {
       return
     }
 
-    // 持久化到数据库
+    // 持久化到数据库    
     if (api.folders) {
       await api.folders.add(selectedPath)
     }
@@ -336,14 +271,14 @@ async function addFolder() {
 
     // 自动切换到新添加的文件夹
     await switchFolder(selectedPath)
-  } catch (err) {}
+  } catch (err) { }
 }
 
 async function importModpack() {
   if (!api?.dialog) return
   try {
     const filePath = await api.dialog.selectFile({
-      title: '选择整合包文件',
+      title: t('component.selectModpack文件'),
       filters: [{ name: '整合包文件', extensions: ['mrpack', 'zip'] }]
     })
     if (!filePath) return
@@ -351,7 +286,7 @@ async function importModpack() {
     setTimeout(() => {
       api.instance?.scanMinecraft?.(filePath)
     }, 200)
-  } catch (err) {}
+  } catch (err) { }
 }
 
 async function switchFolder(path: string) {
@@ -381,7 +316,7 @@ async function createMinecraftFolder() {
 
     const minecraftPath = parentPath.replace(/[\\/]+$/, '') + '/.minecraft'
 
-    // 调用主进程创建目录
+    // 调用主进程创建目录    
     if (api.path) {
       await api.path.createDir(minecraftPath)
     }
@@ -398,7 +333,7 @@ async function createMinecraftFolder() {
     })
 
     await switchFolder(minecraftPath)
-  } catch (err) {}
+  } catch (err) { }
 }
 
 // 在 VoxVer 安装目录下新建 .minecraft（无文件夹状态使用）
@@ -409,7 +344,9 @@ async function createMinecraftFolderHere() {
     const minecraftPath = appPath.replace(/[\\/]+$/, '') + '/.minecraft'
 
     // 调用主进程创建目录
-    await api.path.createDir(minecraftPath)
+    if (api.path) {
+      await api.path.createDir(minecraftPath)
+    }
 
     // 添加到列表并切换
     await api.folders.add(minecraftPath)
@@ -421,7 +358,7 @@ async function createMinecraftFolderHere() {
     })
 
     await switchFolder(minecraftPath)
-  } catch (err) {}
+  } catch (err) { }
 }
 
 // 已安装版本列表
@@ -460,7 +397,7 @@ async function loadVersionsFromFolder(gameDir: string) {
       installedVersions.value = data.map((v) => {
         // 精确匹配：id 完全相等
         const exactMatch = v.id === lastId
-        // 模糊匹配：保存的显示名包含在版本 name 里（处理带 loader 的完整名称）
+        // 模糊匹配：保存的显示名包含在版本 name 里（处理 loader 的完整名称）
         const fuzzyMatch = savedName && v.name && v.name.includes(savedName)
         return {
           id: v.id,
@@ -474,7 +411,7 @@ async function loadVersionsFromFolder(gameDir: string) {
       })
     } else {
     }
-  } catch (err) {}
+  } catch (err) { }
 }
 
 function selectActive(ver: InstalledVer) {
@@ -484,14 +421,13 @@ function selectActive(ver: InstalledVer) {
 
 async function removeVersion(id: string) {
   installedVersions.value = installedVersions.value.filter((v) => v.id !== id)
-  // 从文件系统删除版本
-  if (api?.versions) {
-    const mcPath = await api.path?.getMinecraft()
-    if (mcPath) {
-      await api.versions.delete(id, mcPath)
-    }
+  // 从文件系统删除版本  if (api?.versions) {
+  const mcPath = await api.path?.getMinecraft()
+  if (mcPath) {
+    await api.versions.delete(id, mcPath)
   }
 }
+
 </script>
 
 <style scoped lang="scss">
@@ -500,7 +436,7 @@ async function removeVersion(id: string) {
   /* 遮罩层 */
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(0 0 0 / 0.6);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -551,6 +487,7 @@ async function removeVersion(id: string) {
   border-radius: var(--voxver-radius-sm);
   transition: all 0.12s;
   -webkit-app-region: no-drag;
+
   &:hover {
     background: var(--voxver-bg-hover);
     color: var(--voxver-text-primary);
@@ -579,12 +516,14 @@ async function removeVersion(id: string) {
     justify-content: center;
     color: var(--voxver-text-tertiary);
     transition: background 0.12s;
+
     &:hover {
       background: var(--voxver-bg-hover);
       color: var(--voxver-text-primary);
     }
+
     &.vs-close:hover {
-      background: rgba(239, 68, 68, 0.15);
+      background: rgb(239 68 68 / 0.15);
       color: var(--voxver-error);
     }
   }
@@ -612,6 +551,7 @@ async function removeVersion(id: string) {
   &::-webkit-scrollbar {
     width: 4px;
   }
+
   &::-webkit-scrollbar-thumb {
     background: var(--voxver-border-color);
     border-radius: 2px;
@@ -767,7 +707,7 @@ async function removeVersion(id: string) {
 
     &:hover {
       color: var(--voxver-error);
-      background: rgba(239, 68, 68, 0.08);
+      background: rgb(239 68 68 / 0.08);
     }
   }
 
@@ -780,7 +720,7 @@ async function removeVersion(id: string) {
 .sidebar-subtitle {
   margin: 0 0 8px;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--voxver-text-muted);
 }
 
@@ -808,9 +748,11 @@ async function removeVersion(id: string) {
   &:hover {
     background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
     color: var(--voxver-primary-muted);
+
     .action-icon.add {
       color: var(--voxver-success);
     }
+
     .action-icon.import {
       color: var(--voxver-primary-muted);
     }
@@ -819,16 +761,18 @@ async function removeVersion(id: string) {
   .action-icon {
     font-size: 14px;
     flex-shrink: 0;
+
     &.add {
       color: var(--voxver-success);
     }
+
     &.import {
       color: var(--voxver-text-muted);
     }
   }
 }
 
-/* ====== 右侧内容区 ====== */
+/* ====== 右侧内容 ===== */
 .vs-main {
   flex: 1;
   overflow-y: auto;
@@ -841,9 +785,11 @@ async function removeVersion(id: string) {
   &::-webkit-scrollbar {
     width: 6px;
   }
+
   &::-webkit-scrollbar-track {
     background: transparent;
   }
+
   &::-webkit-scrollbar-thumb {
     background: var(--voxver-border-color);
     border-radius: 3px;
@@ -867,6 +813,7 @@ async function removeVersion(id: string) {
 
     &.clickable {
       cursor: pointer;
+
       &:hover {
         background: var(--voxver-bg-hover);
       }
@@ -899,6 +846,7 @@ async function removeVersion(id: string) {
     opacity: 0;
     transform: translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -963,7 +911,7 @@ async function removeVersion(id: string) {
     flex-shrink: 0;
 
     &:hover {
-      background: rgba(239, 68, 68, 0.1);
+      background: rgb(239 68 68 / 0.1);
     }
   }
 
@@ -992,9 +940,11 @@ async function removeVersion(id: string) {
 .modal-fade-enter-active {
   transition: opacity 0.18s ease;
 }
+
 .modal-fade-leave-active {
   transition: opacity 0.12s ease;
 }
+
 .modal-fade-enter-from,
 .modal-fade-leave-to {
   opacity: 0;
@@ -1005,6 +955,7 @@ async function removeVersion(id: string) {
     transform 0.2s ease,
     opacity 0.18s ease;
 }
+
 .modal-fade-enter-from .vs-window {
   transform: scale(0.96) translateY(10px);
   opacity: 0;

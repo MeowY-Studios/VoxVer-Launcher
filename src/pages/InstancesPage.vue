@@ -505,16 +505,16 @@ const newInst = ref({
   loader_type: 'vanilla'
 })
 
-// 封面渐变色池（基于 ID 哈希分配，保持稳定）
+// 封面色池 — Apple 主色 + 状态色（基于 ID 哈希分配，保持稳定）
 const gradients = [
-  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-  'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-  'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-  'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-  'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
-  'linear-gradient(135deg, #fccb90 0%, #d57eeb 100%)',
-  'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)'
+  'var(--voxver-primary)',
+  'var(--voxver-success)',
+  'var(--voxver-warning)',
+  'var(--voxver-error)',
+  '#0071e3',
+  '#30b350',
+  '#e08600',
+  '#e0352b'
 ]
 
 function getCoverGradient(inst: Instance): string {
@@ -774,7 +774,7 @@ onMounted(() => {
   display: flex;
   background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   border-radius: var(--voxver-radius-sm);
-  border: 1px solid var(--voxver-border-color);
+  border: none;
 
   .toggle-btn {
     width: 32px;
@@ -793,9 +793,8 @@ onMounted(() => {
       color: var(--voxver-text-secondary);
     }
     &.active {
-      background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
+      background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
       color: var(--voxver-primary-600);
-      box-shadow: var(--voxver-shadow-sm);
     }
   }
 }
@@ -807,7 +806,7 @@ onMounted(() => {
   gap: 8px;
   padding: 7px 12px;
   background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
-  border: 1px solid var(--voxver-border-color);
+  border: 1px solid var(--voxver-border-color-light);
   border-radius: var(--voxver-radius-sm);
   margin-bottom: 16px;
   flex-shrink: 0;
@@ -846,7 +845,7 @@ onMounted(() => {
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgb(0 0 0 / 0.1);
     border-radius: 3px;
   }
 }
@@ -860,14 +859,11 @@ onMounted(() => {
   height: 160px;
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--voxver-shadow-glow-primary);
-    border-color: var(--voxver-primary-400);
+    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
   }
 
   &.selected {
-    border-color: var(--voxver-primary-500);
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 15%, transparent);
+    border: 1px solid var(--voxver-primary);
   }
 }
 
@@ -881,7 +877,7 @@ onMounted(() => {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.3));
+  background: rgb(0 0 0 / 0.12);
   }
 }
 
@@ -893,8 +889,8 @@ onMounted(() => {
   padding: 1px 6px;
   font-size: 9px;
   font-weight: 600;
-  color: #fff;
-  background: rgba(0, 0, 0, 0.35);
+  color: var(--voxver-text-inverse);
+  background: rgb(0 0 0 / 0.35);
   backdrop-filter: blur(4px);
   border-radius: var(--voxver-radius-xs);
   letter-spacing: 0.3px;
@@ -908,8 +904,8 @@ onMounted(() => {
   padding: 1px 6px;
   font-size: 10px;
   font-weight: 600;
-  color: var(--voxver-text-primary);
-  background: rgba(0, 0, 0, 0.4);
+  color: var(--voxver-text-inverse);
+  background: rgb(0 0 0 / 0.4);
   backdrop-filter: blur(4px);
   border-radius: var(--voxver-radius-xs);
 }
@@ -1003,12 +999,11 @@ onMounted(() => {
   gap: 12px;
 
   &:hover {
-    box-shadow: var(--voxver-shadow-sm);
+    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
   }
 
   &.selected {
-    border-color: var(--voxver-primary-500);
-    background: var(--voxver-primary-50);
+    border: 1px solid var(--voxver-primary);
   }
 }
 
@@ -1024,8 +1019,7 @@ onMounted(() => {
   .list-icon-ver {
     font-size: 10px;
     font-weight: 700;
-    color: #fff;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    color: var(--voxver-text-inverse);
   }
 }
 
@@ -1107,7 +1101,7 @@ onMounted(() => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--voxver-bg-overlay);
   display: flex;
   align-items: center;
   justify-content: center;

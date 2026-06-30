@@ -183,8 +183,8 @@ interface ElectronAPI {
     terminate: () => Promise<void>
     isRunning: () => Promise<boolean>
     onProgress: (callback: (progress: unknown) => void) => () => void
-    onLog: (callback: (log: string) => void) => () => void
-    onExit: (callback: (code: number) => void) => () => void
+    onLog: (callback: (log: { text: string; level: string }) => void) => () => void
+    onExit: (callback: (code: { code: number; signal: string | null; instanceId?: string }) => void) => () => void
     checkMissingFiles: (versionId: string) => Promise<unknown[]>
     confirmDownloadAndLaunch: (versionId: string, accountId?: string) => Promise<void>
   }

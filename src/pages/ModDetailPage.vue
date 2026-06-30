@@ -760,14 +760,14 @@ onMounted(() => {
   border-radius: var(--voxver-radius-xs);
 
   &.modrinth {
-    background: rgba(27, 217, 106, 0.12);
+    background: rgb(27 217 106 / 0.12);
     color: #1bd96a;
-    border: 1px solid rgba(27, 217, 106, 0.25);
+    border: 1px solid rgb(27 217 106 / 0.25);
   }
   &.curseforge {
-    background: rgba(241, 100, 54, 0.12);
+    background: rgb(241 100 54 / 0.12);
     color: #f16436;
-    border: 1px solid rgba(241, 100, 54, 0.25);
+    border: 1px solid rgb(241 100 54 / 0.25);
   }
 }
 
@@ -811,7 +811,7 @@ onMounted(() => {
 .tag {
   padding: 2px 7px;
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 400;
   background: var(--voxver-bg-secondary);
   color: var(--voxver-text-secondary);
   border-radius: var(--voxver-radius-xs);
@@ -917,7 +917,7 @@ onMounted(() => {
 .vf-tab {
   padding: 4px 10px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--voxver-text-secondary);
   background: var(--voxver-bg-secondary);
   border: 1px solid var(--voxver-border-color);
@@ -1036,7 +1036,7 @@ onMounted(() => {
 .file-name {
   display: block;
   font-size: 12.5px;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--voxver-text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -1066,7 +1066,7 @@ onMounted(() => {
 .loader-tag {
   padding: 1px 6px;
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 400;
   background: var(--voxver-bg-secondary);
   color: var(--voxver-text-secondary);
   border-radius: 3px;
@@ -1110,7 +1110,7 @@ onMounted(() => {
 .confirm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgb(0 0 0 / 0.65);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -1122,7 +1122,7 @@ onMounted(() => {
   width: 380px;
   max-width: 90vw;
   overflow: hidden;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.5);
 }
 
 .confirm-header {

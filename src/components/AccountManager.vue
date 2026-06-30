@@ -585,7 +585,7 @@ function generateUUID(): string {
   align-items: center;
   transition: all 0.15s;
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--voxver-bg-hover);
     color: #fff;
   }
 }
@@ -616,7 +616,7 @@ function generateUUID(): string {
   justify-content: center;
   transition: all 0.15s;
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--voxver-bg-hover);
     color: #fff;
   }
   &.acc-close:hover {

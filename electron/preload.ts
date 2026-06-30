@@ -360,8 +360,8 @@ const api = {
       ipcRenderer.on('game:log', listener)
       return () => ipcRenderer.removeListener('game:log', listener)
     },
-    onExit: (callback: (code: number) => void) => {
-      const listener = (_event: IpcRendererEvent, code: number) => callback(code)
+    onExit: (callback: (data: { code: number; signal: string | null; instanceId?: string }) => void) => {
+      const listener = (_event: IpcRendererEvent, data: { code: number; signal: string | null; instanceId?: string }) => callback(data)
       ipcRenderer.on('game:exit', listener)
       return () => ipcRenderer.removeListener('game:exit', listener)
     },

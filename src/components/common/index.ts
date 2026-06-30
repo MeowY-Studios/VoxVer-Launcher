@@ -1,6 +1,6 @@
 /**
  * VoxVer Common Components - Px Series
- * 设计系统封装，基于 pixel-ui.css 的 --mcla-* 变量
+ * 设计系统封装，基于 pixel-ui.css 的 --voxver-* 变量
  */
 export { default as PxModal } from './PxModal.vue'
 export { default as PxProgress } from './PxProgress.vue'

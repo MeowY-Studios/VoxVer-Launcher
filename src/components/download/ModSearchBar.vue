@@ -1,6 +1,6 @@
-﻿<template>
+<template>
   <div class="mod-search-bar">
-    <!-- 搜索输入 -->
+    <!-- 搜索输入框 -->
     <div class="search-input-wrap">
       <svg
         width="16"
@@ -20,7 +20,7 @@
         :placeholder="placeholder"
         @keydown.enter="handleSearch"
       />
-      <button v-if="query" class="clear-btn" @click="clearQuery">×</button>
+      <button v-if="query" class="clear-btn" @click="clearQuery">清除</button>
     </div>
 
     <!-- 平台切换 -->
@@ -36,7 +36,7 @@
       </button>
     </div>
 
-    <!-- 分类标签（可选） -->
+    <!-- 分类选项 -->
     <div v-if="showCategories && categories?.length" class="category-tabs">
       <button
         v-for="cat in categories"
@@ -85,7 +85,7 @@ const props = withDefaults(
     source: 'modrinth',
     activeCategory: '',
     showCategories: false,
-    placeholder: '搜索 Mod、资源包、整合包...'
+    placeholder: '搜索 Mod...'
   }
 )
 
@@ -123,7 +123,8 @@ function clearQuery() {
 }
 
 onMounted(() => {
-  // 自动聚焦
+  // 自动聚焦搜索输入框
+  searchInput.value?.focus()
 })
 </script>
 
@@ -210,8 +211,8 @@ onMounted(() => {
 
     &.active {
       background: #fff;
-      color: var(--voxver-primary-700);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      color: var(--voxver-primary);
+      border: 1px solid var(--voxver-border-color);
     }
     &:hover:not(.active) {
       color: var(--voxver-text-secondary);

@@ -200,7 +200,7 @@ const mcPath = ref('')
 const mcPathExists = ref(true)
 const isCustomPath = ref(false)
 let logListener: ((...args: any[]) => void) | null = null
-let exitListener: ((code: number) => void) | null = null
+let exitListener: ((data: { code: number; signal: string | null; instanceId?: string }) => void) | null = null
 let progressListener: ((...args: any[]) => void) | null = null
 
 // 崩溃报告（简化版）
@@ -439,13 +439,13 @@ onMounted(async () => {
 
   // 注册退出监听
   if (window.electronAPI?.game.onExit) {
-    exitListener = (code: number) => {
+    exitListener = (data) => {
       isRunning.value = false
       isLaunching.value = false
-      addLog(`[VoxVer] 游戏进程退出，退出码: ${code}`)
-      if (code !== 0) {
+      addLog(`[VoxVer] 游戏进程退出，退出码: ${data.code}`)
+      if (data.code !== 0) {
         hasError.value = true
-        statusMessage.value = `游戏异常退出 (exit code ${code})`
+        statusMessage.value = `游戏异常退出 (exit code ${data.code})`
       } else {
         statusMessage.value = '游戏正常退出'
       }
@@ -562,37 +562,27 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  width: 220px;
-  height: 80px;
+  gap: 10px;
+  min-width: 200px;
+  height: 48px;
+  padding: 0 28px;
   border: none;
-  border-radius: var(--voxver-radius-xl);
-  background: var(--voxver-gradient-primary);
+  border-radius: var(--apple-radius-pill);
+  background: var(--voxver-primary);
   color: #fff;
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: var(--voxver-shadow-glow-primary);
+  transition: background var(--voxver-transition-fast), transform var(--voxver-transition-fast);
 
-  /* 光泽效果 */
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 50%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15), transparent);
-    border-radius: var(--voxver-radius-xl) var(--voxver-radius-xl) 0 0;
-    pointer-events: none;
+  &:not(:disabled):hover {
+    opacity: 0.92;
   }
 
-  /* 呼吸动画 - 就绪态 */
-  &:not(.launching):not(.running):hover {
-    transform: translateY(-2px) scale(1.02);
-    filter: brightness(1.06);
-    box-shadow: 0 8px 32px color-mix(in oklab, var(--voxver-primary) 50%, transparent);
+  &:not(:disabled):active {
+    transform: scale(0.95);
   }
 
   &.launching .btn-icon {
@@ -600,20 +590,15 @@ onUnmounted(() => {
   }
 
   &.running {
-    background: linear-gradient(135deg, #059669, #10b981, #34d399);
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35);
+    background: var(--voxver-success);
 
     .btn-icon {
       animation: pulse-green 2s ease-in-out infinite;
     }
-
-    &:hover {
-      filter: brightness(1.08);
-    }
   }
 
   &:disabled {
-    opacity: 0.7;
+    opacity: 0.5;
     cursor: not-allowed;
     animation: none !important;
   }
@@ -630,8 +615,7 @@ onUnmounted(() => {
   }
 
   .btn-text {
-    letter-spacing: 0.8px;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    line-height: 1.47;
   }
 }
 
@@ -654,10 +638,10 @@ onUnmounted(() => {
 @keyframes pulse-green {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.35);
+    box-shadow: 0 0 0 0 rgb(52 199 89 / 0.35);
   }
   50% {
-    box-shadow: 0 0 0 12px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 12px rgb(52 199 89 / 0);
   }
 }
 
@@ -685,7 +669,7 @@ onUnmounted(() => {
   width: 100%;
   max-width: 900px;
   background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
-  border: 1px solid var(--voxver-border-color);
+  border: 1px solid var(--voxver-border-color-light);
   border-radius: var(--voxver-radius-lg);
   overflow: hidden;
   flex: 1;
@@ -705,7 +689,7 @@ onUnmounted(() => {
 
   h3 {
     font-size: 13.5px;
-    font-weight: 650;
+    font-weight: 600;
     color: var(--voxver-text-secondary);
   }
 
@@ -718,7 +702,7 @@ onUnmounted(() => {
     padding: 4px 12px;
     font-size: 12px;
     background: transparent;
-    border: 1px solid var(--voxver-border-color);
+    border: 1px solid var(--voxver-border-color-light);
     border-radius: var(--voxver-radius-sm);
     color: var(--voxver-text-muted);
     cursor: pointer;
@@ -763,13 +747,13 @@ onUnmounted(() => {
   word-break: break-all;
 
   &.error {
-    color: #fca5a5;
+    color: var(--voxver-error);
   }
   &.warn {
-    color: #fcd34d;
+    color: var(--voxver-warning);
   }
   &.system {
-    color: #93c5fd;
+    color: var(--voxver-info);
     opacity: 0.85;
   }
 }
@@ -787,7 +771,7 @@ onUnmounted(() => {
   max-width: 900px;
   background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border: 1px solid color-mix(in oklab, var(--voxver-error) 50%, transparent);
-  border-left: 4px solid var(--voxver-error);
+  border-left: 3px solid var(--voxver-error);
   border-radius: var(--voxver-radius-lg);
   overflow: hidden;
 }
@@ -800,8 +784,8 @@ onUnmounted(() => {
   background: color-mix(in oklab, var(--voxver-error) 6%, transparent);
 
   h3 {
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 17px;
+    font-weight: 600;
     color: var(--voxver-text-error);
   }
 }

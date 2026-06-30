@@ -238,7 +238,7 @@ async function cancelDownload(id: string) {
   border: 1px solid var(--voxver-border-color-light);
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 0.5);
   z-index: 9999;
   backdrop-filter: blur(12px);
 }
@@ -283,7 +283,7 @@ async function cancelDownload(id: string) {
   color: var(--voxver-text-primary);
 }
 .fp-close:hover {
-  background: rgba(239, 68, 68, 0.2);
+  background: rgb(239 68 68 / 0.2);
   color: #ef4444;
 }
 
@@ -338,7 +338,7 @@ async function cancelDownload(id: string) {
 }
 .fp-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--voxver-primary), #0ea5e9);
+  background: var(--voxver-primary);
   border-radius: 2px;
   transition: width 0.4s ease;
 }
@@ -462,7 +462,7 @@ async function cancelDownload(id: string) {
 }
 
 .fp-cancel-btn:hover {
-  background: rgba(239, 68, 68, 0.2);
+  background: rgb(239 68 68 / 0.2);
   color: #ef4444;
 }
 

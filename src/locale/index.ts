@@ -6,24 +6,26 @@ export { default as enUS } from './en-US'
 
 export type LocaleKey = 'zh-CN' | 'en-US'
 
+type LocaleValue = string | { [key: string]: LocaleValue } | LocaleValue[]
+
 export interface LocaleMessages {
-  common: Record<string, string>
-  home: Record<string, string>
-  tabs: Record<string, string>
-  auth: Record<string, string>
-  game: Record<string, string>
-  mod: Record<string, string>
-  instance: Record<string, string>
-  download: Record<string, string>
-  settings: Record<string, string>
-  backup: Record<string, string>
-  update: Record<string, string>
-  component: Record<string, string>
+  common: Record<string, LocaleValue>
+  home: Record<string, LocaleValue>
+  tabs: Record<string, LocaleValue>
+  auth: Record<string, LocaleValue>
+  game: Record<string, LocaleValue>
+  mod: Record<string, LocaleValue>
+  instance: Record<string, LocaleValue>
+  download: Record<string, LocaleValue>
+  settings: Record<string, LocaleValue>
+  backup: Record<string, LocaleValue>
+  update: Record<string, LocaleValue>
+  component: Record<string, LocaleValue>
 }
 
 export const locales: Record<LocaleKey, LocaleMessages> = {
-  'zh-CN': zhCN as LocaleMessages,
-  'en-US': enUS as LocaleMessages
+  'zh-CN': zhCN,
+  'en-US': enUS
 }
 
 export const localeNames: Record<LocaleKey, string> = {

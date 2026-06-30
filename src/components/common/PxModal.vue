@@ -127,7 +127,7 @@ watch(
 .px-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--voxver-bg-overlay);
   display: flex;
   align-items: center;
   justify-content: center;

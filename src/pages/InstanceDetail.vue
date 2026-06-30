@@ -838,7 +838,7 @@ watch(instanceId, () => {
 
   .section-title {
     font-size: 15px;
-    font-weight: 650;
+    font-weight: 600;
     color: var(--voxver-text-primary);
     margin-bottom: 16px;
     display: flex;
@@ -878,7 +878,7 @@ watch(instanceId, () => {
     .value {
       font-size: 14px;
       color: var(--voxver-text-primary);
-      font-weight: 500;
+      font-weight: 400;
     }
 
     .version-badge {

@@ -1,13 +1,13 @@
 <!--
-  ⚠️ 此文件未被引用 (2026-05-19)
-  这是一个备用的下载浮动组件设计（折叠按钮+展开面板）
+  ⚠️ 此文件未被引用（2026-05-19）
+  这是一个备用的下载浮动组件设计（折叠按展开面板）
   当前项目使用的是 src/components/DownloadFloat.vue
   保留在此仅供参考，可能在未来版本中使用
 -->
 <template>
   <Teleport to="body">
     <transition name="dm-fade">
-      <!-- 折叠状态：小按钮 -->
+      <!-- 折叠状态：小按 -->
       <div v-if="!expanded" class="dm-collapsed" @click="expanded = true" title="下载管理">
         <svg
           width="18"
@@ -28,7 +28,7 @@
       <div v-else class="dm-panel">
         <div class="dm-header">
           <span class="dm-title">下载管理</span>
-          <span class="dm-count" v-if="items.length">{{ items.length }} 项</span>
+          <span class="dm-count" v-if="items.length">{{ items.length }} 个下载</span>
           <button class="dm-close-btn" @click="expanded = false" title="收起">
             <svg
               width="14"
@@ -142,14 +142,14 @@ interface DownloadItem {
   error?: string
 }
 
-// ── 状态 ────────────────────────────────────────────────────────────────────
+// ── 状态 ─────────────────────────────────────────────────────────────────────
 const expanded = ref(false)
 const items = ref<DownloadItem[]>([])
 
 // 进行中的下载数量
 const activeCount = computed(() => items.value.filter((i) => i.status === 'downloading').length)
 
-// ── 格式化 ──────────────────────────────────────────────────────────────────
+// ── 格式化大小 ───────────────────────────────────────────────────────────────────
 function formatSize(bytes: number): string {
   if (bytes < 1024) return bytes + ' B'
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
@@ -161,7 +161,7 @@ function formatSpeed(bps: number): string {
   return formatSize(bps) + '/s'
 }
 
-// ── 查找或创建 item ─────────────────────────────────────────────────────────
+// ── 查找或创建下载项 ─────────────────────────────────────────────────────────────────  
 function findOrCreate(id: string, name: string): DownloadItem {
   let item = items.value.find((i) => i.id === id)
   if (!item) {
@@ -416,7 +416,7 @@ onUnmounted(() => {
   }
 }
 
-/* ── 单个下载项 ──────────────────────────────────────────────────────── */
+/* ── 单个下载项 ───────────────────────────────────────────────────────── */
 .dm-item {
   display: flex;
   align-items: flex-start;
@@ -526,7 +526,7 @@ onUnmounted(() => {
 
   &:hover {
     color: #ef4444;
-    background: rgba(239, 68, 68, 0.1);
+    background: rgb(239 68 68 / 0.1);
   }
 }
 

@@ -108,23 +108,23 @@ const badgeClasses = computed(() => [
 }
 .px-badge--success {
   background: var(--voxver-success-bg);
-  color: #166534;
+  color: var(--voxver-success);
 }
 .px-badge--warning {
   background: var(--voxver-warning-bg);
-  color: #92400e;
+  color: var(--voxver-warning);
 }
 .px-badge--error {
   background: var(--voxver-error-bg);
-  color: #991b1b;
+  color: var(--voxver-error);
 }
 .px-badge--info {
   background: var(--voxver-info-bg);
-  color: #075985;
+  color: var(--voxver-info);
 }
 .px-badge--gradient {
-  background: var(--voxver-gradient-primary);
-  color: #fff;
+  background: var(--voxver-primary);
+  color: var(--voxver-text-inverse);
 }
 
 /* Outline variant */
@@ -135,22 +135,22 @@ const badgeClasses = computed(() => [
 }
 .px-badge--outline.px-badge--success {
   background: transparent;
-  color: #16a34a;
-  border: 1px solid #86efac;
+  color: var(--voxver-success);
+  border: 1px solid var(--voxver-success-bg);
 }
 .px-badge--outline.px-badge--warning {
   background: transparent;
-  color: #d97706;
-  border: 1px solid #fcd34d;
+  color: var(--voxver-warning);
+  border: 1px solid var(--voxver-warning-bg);
 }
 .px-badge--outline.px-badge--error {
   background: transparent;
-  color: #dc2626;
-  border: 1px solid #fca5a5;
+  color: var(--voxver-error);
+  border: 1px solid var(--voxver-error-bg);
 }
 .px-badge--outline.px-badge--info {
   background: transparent;
-  color: #0284c7;
-  border: 1px solid #7dd3fc;
+  color: var(--voxver-info);
+  border: 1px solid var(--voxver-info-bg);
 }
 </style>

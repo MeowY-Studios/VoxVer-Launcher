@@ -600,8 +600,8 @@ function generateUUID(): string {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #00a4ef, #0078d4);
-    color: #fff;
+    background: var(--voxver-primary);
+    color: var(--voxver-text-inverse);
     font-size: 20px;
     font-weight: 700;
   }
@@ -615,7 +615,7 @@ function generateUUID(): string {
 }
 
 .skin-error {
-  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  background: var(--voxver-error) !important;
   cursor: help;
 }
 
@@ -709,7 +709,7 @@ img.profile-avatar {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgb(0 0 0 / 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -720,7 +720,7 @@ img.profile-avatar {
 .modal-card {
   width: 420px;
   max-width: calc(100vw - 32px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--voxver-border-color);
   overflow: hidden;
 }
 

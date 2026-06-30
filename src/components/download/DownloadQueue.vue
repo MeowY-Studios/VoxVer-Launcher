@@ -8,14 +8,7 @@
 
     <!-- 空状态 -->
     <div v-if="tasks.length === 0" class="queue-empty">
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="var(--voxver-text-muted)"
-        stroke-width="1.5"
-      >
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-text-muted)" stroke-width="1.5">
         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
       </svg>
       <p>暂无下载任务</p>
@@ -23,23 +16,16 @@
 
     <!-- 任务列表 -->
     <div v-else class="task-list">
-      <div
-        v-for="task in tasks"
-        :key="task.id"
-        class="task-item"
-        :class="{ active: task.status === 'downloading', error: task.status === 'failed' }"
-      >
+      <div v-for="task in tasks" :key="task.id" class="task-item"
+        :class="{ active: task.status === 'downloading', error: task.status === 'failed' }">
         <!-- 文件名 -->
         <span class="task-name">{{ task.fileName }}</span>
 
-        <!-- 进度条 -->
+        <!-- 进度 -->
         <div class="progress-wrap">
           <div class="progress-bar">
-            <div
-              class="progress-fill"
-              :class="{ animating: task.status === 'downloading' }"
-              :style="{ width: `${task.progress}%` }"
-            ></div>
+            <div class="progress-fill" :class="{ animating: task.status === 'downloading' }"
+              :style="{ width: `${task.progress}%` }"></div>
           </div>
           <span class="progress-text">{{ task.progress }}%</span>
         </div>
@@ -51,12 +37,7 @@
         <span v-else class="task-status" :class="task.status">{{ statusLabel(task.status) }}</span>
 
         <!-- 操作 -->
-        <button
-          v-if="canCancel(task)"
-          class="cancel-btn"
-          @click="$emit('cancel', task.id)"
-          title="取消"
-        >
+        <button v-if="canCancel(task)" class="cancel-btn" @click="$emit('cancel', task.id)" title="取消">
           ×
         </button>
       </div>
@@ -95,7 +76,7 @@ const total = defineModel<number>('total', { default: 0 })
 
 function statusLabel(status: DownloadStatus): string {
   const map: Record<DownloadStatus, string> = {
-    pending: '等待中',
+    pending: '等待',
     downloading: '下载中',
     paused: '已暂停',
     completed: '已完成',
@@ -130,6 +111,7 @@ function formatSpeed(bytesPerSec: number): string {
     font-weight: 650;
     color: var(--voxver-text-primary);
   }
+
   .queue-count {
     font-size: 12px;
     color: var(--voxver-text-muted);
@@ -165,8 +147,9 @@ function formatSpeed(bytesPerSec: number): string {
   &.active {
     border-color: var(--voxver-primary-300);
   }
+
   &.error {
-    border-color: rgba(239, 68, 68, 0.35);
+    border-color: rgb(239 68 68 / 0.35);
   }
 }
 
@@ -210,6 +193,7 @@ function formatSpeed(bytesPerSec: number): string {
     0% {
       background-position: 200% 0;
     }
+
     100% {
       background-position: -200% 0;
     }
@@ -233,15 +217,19 @@ function formatSpeed(bytesPerSec: number): string {
   &.pending {
     color: var(--voxver-text-muted);
   }
+
   &.downloading {
     color: var(--voxver-primary-500);
   }
+
   &.paused {
     color: #f59e0b;
   }
+
   &.completed {
     color: var(--voxver-success);
   }
+
   &.failed {
     color: #ef4444;
   }
@@ -260,7 +248,7 @@ function formatSpeed(bytesPerSec: number): string {
 
   &:hover {
     color: #ef4444;
-    background: rgba(239, 68, 68, 0.08);
+    background: rgb(239 68 68 / 0.08);
   }
 }
 
@@ -303,6 +291,7 @@ function formatSpeed(bytesPerSec: number): string {
     min-width: 36px;
     text-align: right;
   }
+
   .overall-speed {
     font-size: 11.5px;
     color: var(--voxver-text-muted);

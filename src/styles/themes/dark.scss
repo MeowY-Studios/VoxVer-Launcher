@@ -1,134 +1,67 @@
 /**
- * VoxVer 暗色主题 - 深青墨色
+ * VoxVer 暗色主题 — Apple Design System
  *
- * 设计理念：摒弃 AI 默认的紫蓝渐变，采用深蓝黑底 + 青绿主色，
- * 参考 GitHub Dark / Linear 的专业工具风格。
+ * :root 已默认暗色（Apple tile 阶梯 #272729/#2a2a2c/#252527）。
+ * 此处覆盖暗色面特定值：主色用 Sky Link Blue (#2997ff) 提升对比度，
+ * hover/active 用白色半透明提亮（而非更暗的 tile），边框用白色半透明增强可见度。
+ * 无渐变、无发光阴影（别名层接管）。
  */
 
 [data-theme='dark'] {
-  /* ====== 主色调（青绿 teal）====== */
-  --voxver-primary: #14b8a6;
-  --voxver-primary-light: color-mix(in oklab, var(--voxver-primary) 12%, transparent);
-  --voxver-primary-hover: #2dd4bf;
-  --voxver-primary-active: #5eead4;
-  --voxver-primary-muted: #0d9488;
+  /* ====== 主色（暗色面用 Sky Link Blue 更易读）====== */
+  --voxver-primary: var(--apple-primary-on-dark); /* #2997ff */
+  --voxver-primary-hover: #3aa8ff;
+  --voxver-primary-active: var(--apple-primary-on-dark);
+  --voxver-primary-light: rgb(41 151 255 / 0.15);
+  --voxver-primary-muted: var(--apple-primary-on-dark);
 
-  /* 主色色阶 */
-  --voxver-primary-50: #042f2e;
-  --voxver-primary-100: #063e3c;
-  --voxver-primary-200: #0a504d;
-  --voxver-primary-300: #0f6b66;
-  --voxver-primary-400: #2dd4bf;
-  --voxver-primary-500: #14b8a6;
-  --voxver-primary-600: #0d9488;
-  --voxver-primary-700: #0f766e;
-  --voxver-primary-800: #115e59;
-  --voxver-primary-900: #134e4a;
+  /* ====== 主色色阶（统一映射到暗色主色）====== */
+  --voxver-primary-50: var(--apple-primary-on-dark);
+  --voxver-primary-100: var(--apple-primary-on-dark);
+  --voxver-primary-200: var(--apple-primary-on-dark);
+  --voxver-primary-300: var(--apple-primary-on-dark);
+  --voxver-primary-400: var(--apple-primary-on-dark);
+  --voxver-primary-500: var(--apple-primary-on-dark);
+  --voxver-primary-600: var(--apple-primary-on-dark);
+  --voxver-primary-700: #3aa8ff;
+  --voxver-primary-800: #3aa8ff;
+  --voxver-primary-900: #3aa8ff;
 
-  /* ====== 渐变色 ====== */
-  --voxver-gradient-primary: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
-  --voxver-gradient-secondary: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-  --voxver-gradient-success: linear-gradient(135deg, #3fb950 0%, #2dd4bf 100%);
-  --voxver-gradient-warning: linear-gradient(135deg, #d29922 0%, #f59e0b 100%);
-  --voxver-gradient-error: linear-gradient(135deg, #f85149 0%, #ef4444 100%);
-  --voxver-gradient-info: linear-gradient(135deg, #58a6ff 0%, #38bdf8 100%);
+  /* ====== 背景 hover/active（白色半透明提亮）====== */
+  --voxver-bg-hover: rgb(255 255 255 / 0.06);
+  --voxver-bg-active: rgb(255 255 255 / 0.1);
 
-  /* ====== 背景色（深蓝黑）====== */
-  --voxver-bg-primary: #0a0e14;
-  --voxver-bg-secondary: #0d1117;
-  --voxver-bg-tertiary: #161b22;
-  --voxver-bg-elevated: #11161d;
-  --voxver-bg-hover: #1c2128;
-  --voxver-bg-active: #21262d;
-  --voxver-bg-input: #0d1117;
-  --voxver-bg-overlay: rgba(1, 4, 9, 0.75);
+  /* ====== 文字（Apple Dark 文字阶梯）====== */
+  --voxver-text-primary: var(--apple-body-on-dark);    /* #ffffff 一级文字 */
+  --voxver-text-secondary: #c7c7cc;                     /* 二级文字 */
+  --voxver-text-tertiary: #a0a0a5;                      /* 三级文字 */
+  --voxver-text-muted: #a0a0a5;
+  --voxver-text: var(--voxver-text-primary);
 
-  /* ====== 文字颜色（冷白）====== */
-  --voxver-text-primary: #e6edf3;
-  --voxver-text-secondary: #8b949e;
-  --voxver-text-tertiary: #6e7681;
-  --voxver-text-muted: #484f58;
-  --voxver-text-inverse: #0a0e14;
-  --voxver-text-link: #2dd4bf;
-  --voxver-text-error: #ff7b72;
-  --voxver-text-success: #7ee787;
-  --voxver-text-warning: #e3b341;
+  /* ====== 边框（白色半透明，增强可见度）====== */
+  --voxver-border-color: rgb(255 255 255 / 0.15);
+  --voxver-border-color-light: rgb(255 255 255 / 0.12);
+  --voxver-border-strong: rgb(255 255 255 / 0.2);
 
-  /* ====== 边框颜色 ====== */
-  --voxver-border-color: #21262d;
-  --voxver-border-color-light: #161b22;
-  --voxver-border-strong: #30363d;
-  --voxver-border-color-focus: #14b8a6;
-  --voxver-border-color-error: #f85149;
+  /* ====== 组件特定 ====== */
+  --voxver-input-focus-border: var(--apple-primary-on-dark);
+  --voxver-input-focus-shadow: 0 0 0 3px rgb(41 151 255 / 0.25);
+  --voxver-btn-primary-bg: var(--apple-primary-on-dark);
+  --voxver-btn-primary-hover: #3aa8ff;
+  --voxver-tab-active-color: var(--apple-primary-on-dark);
+  --voxver-tab-active-border: var(--apple-primary-on-dark);
+  --voxver-nav-active-color: var(--apple-primary-on-dark);
+  --voxver-nav-active-indicator: var(--apple-primary-on-dark);
+  --voxver-progress-bg: var(--apple-primary-on-dark);
 
-  /* ====== 状态色 ====== */
-  --voxver-success: #3fb950;
-  --voxver-success-light: rgba(63, 185, 80, 0.15);
-  --voxver-error: #f85149;
-  --voxver-error-light: rgba(248, 81, 73, 0.15);
-  --voxver-warning: #d29922;
-  --voxver-warning-light: rgba(210, 153, 34, 0.15);
-  --voxver-info: #58a6ff;
-  --voxver-info-light: rgba(88, 166, 255, 0.15);
-
-  /* ====== 阴影 ====== */
-  --voxver-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
-  --voxver-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --voxver-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
-  --voxver-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
-
-  /* ====== 发光阴影（青绿调）====== */
-  --voxver-shadow-glow-primary: 0 4px 20px rgba(20, 184, 166, 0.35);
-  --voxver-shadow-glow-secondary: 0 4px 20px rgba(245, 158, 11, 0.3);
-  --voxver-shadow-glow-success: 0 4px 20px rgba(63, 185, 80, 0.3);
-  --voxver-shadow-glow-warning: 0 4px 20px rgba(210, 153, 34, 0.3);
-  --voxver-shadow-glow-error: 0 4px 20px rgba(248, 81, 73, 0.3);
-  --voxver-shadow-glow-info: 0 4px 20px rgba(88, 166, 255, 0.3);
-
-  /* ====== 输入框焦点阴影 ====== */
-  --voxver-input-focus-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 25%, transparent);
+  /* ====== 暗色面链接色 ====== */
+  --voxver-link-on-dark: var(--apple-primary-on-dark); /* #2997ff */
 
   /* ====== 滚动条 ====== */
   --voxver-scrollbar-track: transparent;
-  --voxver-scrollbar-thumb: rgba(139, 148, 158, 0.2);
-  --voxver-scrollbar-thumb-hover: rgba(139, 148, 158, 0.35);
+  --voxver-scrollbar-thumb: rgb(255 255 255 / 0.14);
+  --voxver-scrollbar-thumb-hover: rgb(255 255 255 / 0.25);
 
-  /* ====== 功能色背景 ====== */
-  --voxver-success-bg: rgba(63, 185, 80, 0.15);
-  --voxver-warning-bg: rgba(210, 153, 34, 0.15);
-  --voxver-error-bg: rgba(248, 81, 73, 0.15);
-  --voxver-info-bg: rgba(88, 166, 255, 0.15);
-}
-
-/* ====== 暗色特有组件覆盖 ====== */
-[data-theme='dark'] .mcla-card,
-[data-theme='dark'] .card {
-  background: var(--voxver-bg-elevated);
-  border-color: var(--voxver-border-color);
-  color: var(--voxver-text-primary);
-}
-
-[data-theme='dark'] .mcla-input,
-[data-theme='dark'] input:not([type]),
-[data-theme='dark'] input[type='text'],
-[data-theme='dark'] input[type='password'],
-[data-theme='dark'] textarea {
-  background: var(--voxver-bg-input);
-  color: var(--voxver-text-primary);
-  border-color: var(--voxver-border-color);
-}
-
-[data-theme='dark'] ::placeholder {
-  color: var(--voxver-text-muted);
-}
-
-/* 暗色模式下 Badge 使用亮色文字 */
-[data-theme='dark'] .mcla-badge-success { color: #7ee787; }
-[data-theme='dark'] .mcla-badge-warning { color: #e3b341; }
-[data-theme='dark'] .mcla-badge-error { color: #ff7b72; }
-[data-theme='dark'] .mcla-badge-info { color: #79c0ff; }
-
-/* 暗色模式下列表/导航的 scrollbar */
-[data-theme='dark'] .sidebar::-webkit-scrollbar-thumb {
-  background: rgba(139, 148, 158, 0.2);
+  /* ====== 覆盖层 ====== */
+  --voxver-bg-overlay: rgb(0 0 0 / 0.75);
 }

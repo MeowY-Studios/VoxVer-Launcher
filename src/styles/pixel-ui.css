@@ -1,6 +1,5 @@
 /* ==========================================================================
-   0. @font-face - 自定义字体
-   ========================================================================== */
+   0. @font-face - 自定义字�?   ========================================================================== */
 
 @font-face {
   font-family: 'Press Start 2P';
@@ -12,37 +11,82 @@
 
 /* ==========================================================================
 
-  VoxVer Design System - 像素×渐变混搭版
-  基于 Pixel-UI Custom + Gradient 合并改造
-  前缀: --voxver- / .mcla-
+  VoxVer Design System - 像素×渐变混搭�?  基于 Pixel-UI Custom + Gradient 合并改�?  前缀: --voxver- / .voxver-
 
-  设计理念：
-  - 结构来自 Custom 版（变量驱动，用户可完全定制颜色）
-  - 渐变效果来自 Gradient 版（按钮/进度条/标签页用渐变）
-  - 圆角适中（不硬像素也不过度圆润）
+  设计理念�?  - 结构来自 Custom 版（变量驱动，用户可完全定制颜色�?  - 渐变效果来自 Gradient 版（按钮/进度�?标签页用渐变�?  - 圆角适中（不硬像素也不过度圆润）
   - 发光阴影增强视觉层次
 
-  用户可通过修改 :root 变量或设置页的定制面板换肤
-
+  用户可通过修改 :root 变量或设置页的定制面板换�?
   ========================================================================== */
 
 /* ==========================================================================
-   1. CSS 变量 - 设计令牌（完整可定制）
-   ========================================================================== */
+   1. CSS 变量 - Apple Design System 设计令牌
+   基于 Apple DESIGN.md 规范：单一 Action Blue 强调色、SF Pro 字体栈�?   药丸按钮 + 18px 卡片圆角、唯一产品阴影�?7px 正文/1.47 行高�?   300/400/600/700 字重阶梯�?00 缺失）、表面色交替替代阴影层级�?   ========================================================================== */
 
 :root {
-  /* ===== 字体 ===== */
-  --voxver-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --voxver-font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
-  --voxver-font-pixel: 'Press Start 2P', 'VT323', monospace;  /* 像素字体用于标题/logo */
+  /* ==========================================================================
+     第一层：Apple 原始 Token（不可变�?     ========================================================================== */
 
-  /* ===== 圆角（适中：比像素柔和，比普通UI有棱角）===== */
-  --voxver-radius-xs: 4px;
-  --voxver-radius-sm: 6px;
-  --voxver-radius-md: 8px;
-  --voxver-radius-lg: 12px;
-  --voxver-radius-xl: 16px;
-  --voxver-radius-full: 9999px;
+  /* ===== Apple 颜色 ===== */
+  --apple-primary: #0066cc;              /* Action Blue - 唯一交互�?*/
+  --apple-primary-focus: #0071e3;        /* 键盘焦点�?*/
+  --apple-primary-on-dark: #2997ff;      /* 暗色面链�?*/
+  --apple-ink: #1d1d1f;                  /* near-black，所有标�?正文 */
+  --apple-body: #1d1d1f;
+  --apple-body-on-dark: #ffffff;
+  --apple-body-muted: #cccccc;           /* 暗面次级文字 */
+  --apple-ink-muted-80: #333333;
+  --apple-ink-muted-48: #7a7a7a;
+  --apple-canvas: #ffffff;               /* 纯白画布 */
+  --apple-parchment: #f5f5f7;            /* Apple 标志�?off-white */
+  --apple-surface-pearl: #fafafc;        /* 珍珠，次级按�?*/
+  --apple-tile-1: #272729;               /* �?tile �?*/
+  --apple-tile-2: #2a2a2c;               /* �?tile 微亮 */
+  --apple-tile-3: #252527;               /* �?tile 微暗 */
+  --apple-surface-black: #000000;        /* 仅全局导航/视频背景 */
+  --apple-chip-translucent: #d2d2d7;     /* 圆形控制 chip */
+  --apple-hairline: #e0e0e0;             /* 1px 边框 */
+  --apple-divider-soft: #f0f0f0;         /* 软分隔线 */
+
+  /* ===== Apple 阴影（唯一一个，仅产品图�?==== */
+  --apple-product-shadow: rgb(0 0 0 / 0.22) 3px 5px 30px 0;
+
+  /* ===== Apple 圆角 ===== */
+  --apple-radius-xs: 5px;
+  --apple-radius-sm: 8px;
+  --apple-radius-md: 11px;
+  --apple-radius-lg: 18px;
+  --apple-radius-pill: 9999px;
+
+  /* ===== Apple 间距 ===== */
+  --apple-space-xxs: 4px;
+  --apple-space-xs: 8px;
+  --apple-space-sm: 12px;
+  --apple-space-md: 17px;
+  --apple-space-lg: 24px;
+  --apple-space-xl: 32px;
+  --apple-space-xxl: 48px;
+  --apple-space-section: 80px;
+
+  /* ===== Apple 字体 ===== */
+  --apple-font-sans: -apple-system, BlinkMacSystemFont, system-ui, 'Inter', sans-serif;
+  --apple-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* ==========================================================================
+     第二层：VoxVer 兼容别名（保留旧名，值映射到 Apple token�?     2496 �?var(--voxver-*) 引用零改�?     ========================================================================== */
+
+  /* ===== 字体 ===== */
+  --voxver-font-sans: var(--apple-font-sans);
+  --voxver-font-mono: var(--apple-font-mono);
+  --voxver-font-pixel: 'Press Start 2P', 'VT323', monospace;
+
+  /* ===== 圆角（Apple 圆角阶梯�?==== */
+  --voxver-radius-xs: var(--apple-radius-xs);      /* 5px (�?4px) */
+  --voxver-radius-sm: var(--apple-radius-sm);      /* 8px (�?6px) */
+  --voxver-radius-md: var(--apple-radius-md);      /* 11px (�?8px) */
+  --voxver-radius-lg: var(--apple-radius-lg);      /* 18px (�?12px) */
+  --voxver-radius-xl: var(--apple-radius-lg);      /* 18px (�?16px，Apple �?xl) */
+  --voxver-radius-full: var(--apple-radius-pill);  /* 9999px */
 
   /* ===== 边框宽度 ===== */
   --voxver-border-width: 1px;
@@ -53,158 +97,157 @@
   --voxver-transition-normal: 250ms ease;
   --voxver-transition-slow: 400ms ease;
 
-  /* ===== 阴影 ===== */
-  --voxver-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
-  --voxver-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --voxver-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.14);
-  --voxver-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.18);
+  /* ===== 阴影（Apple �?chrome 阴影，仅产品图）===== */
+  --voxver-shadow-sm: none;
+  --voxver-shadow-md: none;
+  --voxver-shadow-lg: none;
+  --voxver-shadow-xl: none;
+  --voxver-product-shadow: var(--apple-product-shadow);
 
-  /* ===== 渐变发光阴影（从 Gradient 版引入）===== */
-  --voxver-shadow-glow-primary: 0 4px 20px color-mix(in oklab, var(--voxver-primary) 35%, transparent);
-  --voxver-shadow-glow-secondary: 0 4px 20px rgba(240, 147, 251, 0.35);
-  --voxver-shadow-glow-success: 0 4px 20px rgba(34, 197, 94, 0.35);
-  --voxver-shadow-glow-warning: 0 4px 20px rgba(245, 158, 11, 0.35);
-  --voxver-shadow-glow-error: 0 4px 20px rgba(239, 68, 68, 0.35);
-  --voxver-shadow-glow-info: 0 4px 20px rgba(14, 165, 233, 0.35);
+  /* ===== 渐变发光阴影（Apple �?glow，映射为 none�?==== */
+  --voxver-shadow-glow-primary: none;
+  --voxver-shadow-glow-secondary: none;
+  --voxver-shadow-glow-success: none;
+  --voxver-shadow-glow-warning: none;
+  --voxver-shadow-glow-error: none;
+  --voxver-shadow-glow-info: none;
 
-  /* ===== 间距系统 (8px grid) ===== */
-  --voxver-space-1: 4px;
-  --voxver-space-2: 8px;
-  --voxver-space-3: 12px;
-  --voxver-space-4: 16px;
-  --voxver-space-5: 20px;
-  --voxver-space-6: 24px;
-  --voxver-space-8: 32px;
-  --voxver-space-10: 40px;
-  --voxver-space-12: 48px;
-  --voxver-space-16: 64px;
+  /* ===== 间距系统（Apple 间距�?==== */
+  --voxver-space-1: var(--apple-space-xxs);       /* 4px */
+  --voxver-space-2: var(--apple-space-xs);        /* 8px */
+  --voxver-space-3: var(--apple-space-sm);        /* 12px */
+  --voxver-space-4: var(--apple-space-md);        /* 17px (�?16px) */
+  --voxver-space-5: var(--apple-space-lg);        /* 24px (�?20px) */
+  --voxver-space-6: var(--apple-space-lg);        /* 24px */
+  --voxver-space-8: var(--apple-space-xl);        /* 32px */
+  --voxver-space-10: var(--apple-space-xxl);      /* 48px (�?40px) */
+  --voxver-space-12: var(--apple-space-xxl);      /* 48px */
+  --voxver-space-16: var(--apple-space-section);  /* 80px (�?64px) */
 
-  /* ===== 字号 ===== */
+  /* ===== 字号（Apple 字体层级�?==== */
   --voxver-font-scale: 1;
-  --voxver-text-xs: calc(12px * var(--voxver-font-scale));
-  --voxver-text-sm: calc(13px * var(--voxver-font-scale));
-  --voxver-text-base: calc(14px * var(--voxver-font-scale));
-  --voxver-text-lg: calc(16px * var(--voxver-font-scale));
-  --voxver-text-xl: calc(18px * var(--voxver-font-scale));
-  --voxver-text-2xl: calc(22px * var(--voxver-font-scale));
-  --voxver-text-3xl: calc(28px * var(--voxver-font-scale));
-  --voxver-text-4xl: calc(36px * var(--voxver-font-scale));
+  --voxver-text-xs: calc(12px * var(--voxver-font-scale));    /* fine-print / nav-link */
+  --voxver-text-sm: calc(14px * var(--voxver-font-scale));    /* caption / button-utility */
+  --voxver-text-base: calc(17px * var(--voxver-font-scale));  /* body (Apple 正文，原 14px) */
+  --voxver-text-lg: calc(17px * var(--voxver-font-scale));    /* body (�?base) */
+  --voxver-text-xl: calc(21px * var(--voxver-font-scale));    /* tagline */
+  --voxver-text-2xl: calc(24px * var(--voxver-font-scale));   /* lead-airy */
+  --voxver-text-3xl: calc(28px * var(--voxver-font-scale));   /* lead */
+  --voxver-text-4xl: calc(40px * var(--voxver-font-scale));   /* display-lg */
 
-  /* ===== 字重 ===== */
+  /* ===== 字重（Apple 阶梯 300/400/600/700�?00 刻意缺失�?==== */
+  --voxver-font-light: 300;
   --voxver-font-normal: 400;
-  --voxver-font-medium: 500;
+  --voxver-font-medium: 400;    /* Apple �?500，映射为 400 */
   --voxver-font-semibold: 600;
   --voxver-font-bold: 700;
 
-  /* ===== 标题栏高度（Electron 自定义标题栏）===== */
-  --voxver-titlebar-height: 32px;
+  /* ===== 标题栏高度（Apple global-nav 44px�?==== */
+  --voxver-titlebar-height: 44px;
 
-  /* ===== 侧边栏宽度 ===== */
-  --voxver-sidebar-width: 56px;
+  /* ===== 侧边栏宽�?===== */
+  --voxver-sidebar-width: 220px;
 
   /* ================================
-     颜色系统 - 深青墨色（默认暗色）
+     颜色系统 - Apple 暗色（默�?:root�?     暗色主导，符合启动器使用场景
      ================================ */
 
-  /* 背景色（深蓝黑）*/
-  --voxver-bg-primary: #0a0e14;
-  --voxver-bg-secondary: #0d1117;
-  --voxver-bg-tertiary: #161b22;
-  --voxver-bg-elevated: #11161d;
-  --voxver-bg-hover: #1c2128;
-  --voxver-bg-active: #21262d;
-  --voxver-bg-input: #0d1117;
+  /* 背景色（Apple surface-tile 阶梯�?/
+  --voxver-bg-primary: var(--apple-tile-1);     /* #272729 */
+  --voxver-bg-secondary: var(--apple-tile-2);   /* #2a2a2c */
+  --voxver-bg-tertiary: var(--apple-tile-3);    /* #252527 */
+  --voxver-bg-elevated: var(--apple-tile-2);    /* #2a2a2c */
+  --voxver-bg-hover: var(--apple-tile-3);       /* #252527 */
+  --voxver-bg-active: var(--apple-tile-3);      /* #252527 */
+  --voxver-bg-input: var(--apple-tile-3);       /* #252527 */
 
-  /* 文字色（冷白）*/
-  --voxver-text-primary: #e6edf3;
-  --voxver-text-secondary: #8b949e;
-  --voxver-text-tertiary: #6e7681;
-  --voxver-text-muted: #484f58;
-  --voxver-text-inverse: #0a0e14;
+  /* 文字色（Apple body-on-dark 阶梯�?/
+  --voxver-text-primary: var(--apple-body-on-dark);   /* #ffffff */
+  --voxver-text-secondary: var(--apple-body-muted);    /* #cccccc */
+  --voxver-text-tertiary: #98989d;
+  --voxver-text-muted: #98989d;
+  --voxver-text-inverse: var(--apple-ink);            /* #1d1d1f */
 
-  /* 边框色 */
-  --voxver-border-color: #21262d;
-  --voxver-border-color-light: #161b22;
-  --voxver-border-strong: #30363d;
+  /* 边框色（Apple 软分隔线�?/
+  --voxver-border-color: #3a3a3c;
+  --voxver-border-color-light: #2a2a2c;
+  --voxver-border-strong: #3a3a3c;
 
-  /*
-   * ===== 主色系统（青绿 teal）=====
-   * 摒弃 AI 默认靛蓝，采用专业工具风格青绿
-   */
-  --voxver-primary: #14b8a6;
-  --voxver-primary-light: color-mix(in oklab, var(--voxver-primary) 12%, transparent);
-  --voxver-primary-hover: #2dd4bf;
-  --voxver-primary-active: #5eead4;
-  --voxver-primary-muted: #0d9488;
+  /* ===== 主色系统（Apple Action Blue，单一强调色）===== */
+  --voxver-primary: var(--apple-primary);              /* #0066cc */
+  --voxver-primary-light: rgb(0 102 204 / 0.12);
+  --voxver-primary-hover: var(--apple-primary-focus);  /* #0071e3 */
+  --voxver-primary-active: var(--apple-primary);       /* #0066cc */
+  --voxver-primary-muted: var(--apple-primary);        /* #0066cc */
 
-  /* 主色色阶 */
-  --voxver-primary-50: #042f2e;
-  --voxver-primary-100: #063e3c;
-  --voxver-primary-200: #0a504d;
-  --voxver-primary-300: #0f6b66;
-  --voxver-primary-400: #2dd4bf;
-  --voxver-primary-500: #14b8a6;
-  --voxver-primary-600: #0d9488;
-  --voxver-primary-700: #0f766e;
-  --voxver-primary-800: #115e59;
-  --voxver-primary-900: #134e4a;
+  /* 主色色阶（Apple 无色阶，统一映射�?primary/primary-focus�?/
+  --voxver-primary-50: var(--apple-primary);
+  --voxver-primary-100: var(--apple-primary);
+  --voxver-primary-200: var(--apple-primary);
+  --voxver-primary-300: var(--apple-primary);
+  --voxver-primary-400: var(--apple-primary);
+  --voxver-primary-500: var(--apple-primary);
+  --voxver-primary-600: var(--apple-primary);
+  --voxver-primary-700: var(--apple-primary-focus);
+  --voxver-primary-800: var(--apple-primary-focus);
+  --voxver-primary-900: var(--apple-primary-focus);
 
-  /* 渐变色（青绿→天蓝）*/
-  --voxver-gradient-primary: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
-  --voxver-gradient-secondary: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-  --voxver-gradient-success: linear-gradient(135deg, #3fb950 0%, #2dd4bf 100%);
-  --voxver-gradient-warning: linear-gradient(135deg, #d29922 0%, #f59e0b 100%);
-  --voxver-gradient-error: linear-gradient(135deg, #f85149 0%, #ef4444 100%);
-  --voxver-gradient-info: linear-gradient(135deg, #58a6ff 0%, #38bdf8 100%);
+  /* 渐变色（Apple 无装饰渐变，映射为纯色）*/
+  --voxver-gradient-primary: var(--apple-primary);
+  --voxver-gradient-secondary: var(--apple-primary);
+  --voxver-gradient-success: var(--voxver-success);
+  --voxver-gradient-warning: var(--voxver-warning);
+  --voxver-gradient-error: var(--voxver-error);
+  --voxver-gradient-info: var(--voxver-info);
 
-  /* 功能色 */
-  --voxver-success: #3fb950;
-  --voxver-success-light: rgba(63, 185, 80, 0.15);
-  --voxver-success-bg: rgba(63, 185, 80, 0.15);
+  /* 功能色（保留，仅用于状态指�?badge/日志，不用于按钮�?/
+  --voxver-success: #34c759;        /* Apple 系统�?*/
+  --voxver-success-light: rgb(52 199 89 / 0.15);
+  --voxver-success-bg: rgb(52 199 89 / 0.15);
 
-  --voxver-warning: #d29922;
-  --voxver-warning-light: rgba(210, 153, 34, 0.15);
-  --voxver-warning-bg: rgba(210, 153, 34, 0.15);
+  --voxver-warning: #ff9500;        /* Apple 系统�?*/
+  --voxver-warning-light: rgb(255 149 0 / 0.15);
+  --voxver-warning-bg: rgb(255 149 0 / 0.15);
 
-  --voxver-error: #f85149;
-  --voxver-error-light: rgba(248, 81, 73, 0.15);
-  --voxver-error-bg: rgba(248, 81, 73, 0.15);
+  --voxver-error: #ff3b30;          /* Apple 系统�?*/
+  --voxver-error-light: rgb(255 59 48 / 0.15);
+  --voxver-error-bg: rgb(255 59 48 / 0.15);
 
-  --voxver-info: #58a6ff;
-  --voxver-info-light: rgba(88, 166, 255, 0.15);
-  --voxver-info-bg: rgba(88, 166, 255, 0.15);
+  --voxver-info: var(--apple-primary);  /* Apple �?info，用 primary */
+  --voxver-info-light: rgb(0 102 204 / 0.15);
+  --voxver-info-bg: rgb(0 102 204 / 0.15);
 
   /* ===== 组件特定颜色 ===== */
-  --voxver-btn-primary-bg: var(--voxver-gradient-primary);
+  --voxver-btn-primary-bg: var(--apple-primary);
   --voxver-btn-primary-color: #ffffff;
-  --voxver-btn-primary-hover: brightness(1.05);
+  --voxver-btn-primary-hover: var(--apple-primary-focus);
 
   --voxver-btn-ghost-bg: transparent;
-  --voxver-btn-ghost-hover-bg: var(--voxver-primary-light);
+  --voxver-btn-ghost-hover-bg: rgb(255 255 255 / 0.06);
 
   --voxver-input-bg: var(--voxver-bg-input);
   --voxver-input-border: var(--voxver-border-color);
-  --voxver-input-focus-border: var(--voxver-primary);
-  --voxver-input-focus-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 25%, transparent);
+  --voxver-input-focus-border: var(--apple-primary);
+  --voxver-input-focus-shadow: 0 0 0 3px rgb(0 102 204 / 0.25);
 
-  --voxver-card-bg: var(--voxver-bg-elevated);
+  --voxver-card-bg: var(--voxver-bg-secondary);
   --voxver-card-border: var(--voxver-border-color);
 
-  --voxver-tab-active-color: var(--voxver-primary);
-  --voxver-tab-active-border: var(--voxver-gradient-primary);
+  --voxver-tab-active-color: var(--apple-primary);
+  --voxver-tab-active-border: var(--apple-primary);
 
-  --voxver-progress-bg: var(--voxver-gradient-primary);
+  --voxver-progress-bg: var(--apple-primary);
 
-  --voxver-nav-active-color: var(--voxver-primary);
-  --voxver-nav-active-indicator: var(--voxver-primary);
+  --voxver-nav-active-color: var(--apple-primary);
+  --voxver-nav-active-indicator: var(--apple-primary);
 
-  --voxver-titlebar-bg: var(--voxver-bg-secondary);
-  --voxver-titlebar-border: var(--voxver-border-color);
+  --voxver-titlebar-bg: var(--apple-surface-black);
+  --voxver-titlebar-border: transparent;
 
-  /* ===== 滚动条 ===== */
+  /* ===== 滚动�?===== */
   --voxver-scrollbar-track: transparent;
-  --voxver-scrollbar-thumb: rgba(139, 148, 158, 0.2);
-  --voxver-scrollbar-thumb-hover: rgba(139, 148, 158, 0.35);
+  --voxver-scrollbar-thumb: rgb(255 255 255 / 0.14);
+  --voxver-scrollbar-thumb-hover: rgb(255 255 255 / 0.25);
 
   /* ===== 简写别名（兼容旧代码）===== */
   --voxver-text: var(--voxver-text-primary);
@@ -218,11 +261,10 @@
   --voxver-danger: var(--voxver-error);
 }
 
-/* 暗色/亮色主题变量由 themes/dark.scss 和 themes/light.scss 提供，此处不再重复定义 */
+/* 暗色/亮色主题变量�?themes/dark.scss �?themes/light.scss 提供，此处不再重复定�?*/
 
 /* ==========================================================================
-   2. 基础重置 & 工具类
-   ========================================================================== */
+   2. 基础重置 & 工具�?   ========================================================================== */
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -239,27 +281,28 @@ html {
 body {
   font-family: var(--voxver-font-sans);
   font-size: var(--voxver-text-base);
-  line-height: 1.6;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
   color: var(--voxver-text-primary);
   background-color: var(--voxver-bg-primary);
 }
 
 /* ---- Icon ---- */
-.mcla-icon,
-svg[class*="mcla-icon"] {
+.voxver-icon,
+svg[class*="voxver-icon"] {
   position: relative;
   z-index: 9999 !important;
   display: inline-block;
   vertical-align: middle;
   color: currentColor;
 }
-.mcla-icon { width: 20px; height: 20px; }
-.mcla-icon-sm { width: 16px; height: 16px; }
-.mcla-icon-md { width: 20px; height: 20px; }
-.mcla-icon-lg { width: 28px; height: 28px; }
-.mcla-icon-xl { width: 36px; height: 36px; }
+.voxver-icon { width: 20px; height: 20px; }
+.voxver-icon-sm { width: 16px; height: 16px; }
+.voxver-icon-md { width: 20px; height: 20px; }
+.voxver-icon-lg { width: 28px; height: 28px; }
+.voxver-icon-xl { width: 36px; height: 36px; }
 
-/* ---- 间距工具类 ---- */
+/* ---- 间距工具�?---- */
 .m-m-0 { margin: 0 !important; }
 .m-m-1 { margin: var(--voxver-space-1) !important; }
 .m-m-2 { margin: var(--voxver-space-2) !important; }
@@ -272,7 +315,7 @@ svg[class*="mcla-icon"] {
 .m-p-3 { padding: var(--voxver-space-3) !important; }
 .m-p-4 { padding: var(--voxver-space-4) !important; }
 
-/* ---- Flex/Grid/文字工具类 ---- */
+/* ---- Flex/Grid/文字工具�?---- */
 .m-flex { display: flex; }
 .m-flex-col { flex-direction: column; }
 .m-flex-wrap { flex-wrap: wrap; }
@@ -306,10 +349,10 @@ svg[class*="mcla-icon"] {
 .m-invisible { visibility: hidden; }
 
 /* ==========================================================================
-   3. 按钮 (Button) — 渐变风格
+   3. 按钮 (Button) �?渐变风格
    ========================================================================== */
 
-.mcla-btn {
+.voxver-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -330,76 +373,76 @@ svg[class*="mcla-icon"] {
   overflow: hidden;
 }
 
-.mcla-btn:hover {
+.voxver-btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--voxver-shadow-lg);
 }
-.mcla-btn:active { transform: translateY(-1px); box-shadow: var(--voxver-shadow-md); }
-.mcla-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.voxver-btn:active { transform: translateY(-1px); box-shadow: var(--voxver-shadow-md); }
+.voxver-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
-/* Primary — 渐变主按钮 */
-.mcla-btn-primary {
+/* Primary �?渐变主按�?*/
+.voxver-btn-primary {
   background: var(--voxver-btn-primary-bg);
   color: var(--voxver-btn-primary-color);
   box-shadow: var(--voxver-shadow-glow-primary);
 }
-.mcla-btn-primary:hover {
+.voxver-btn-primary:hover {
   filter: brightness(1.08);
   box-shadow: 0 6px 25px color-mix(in oklab, var(--voxver-primary) 45%, transparent);
 }
 
-/* Secondary — 渐变次要按钮（粉红系） */
-.mcla-btn-secondary {
+/* Secondary �?渐变次要按钮（粉红系�?*/
+.voxver-btn-secondary {
   background: var(--voxver-gradient-secondary);
   color: #fff;
   box-shadow: var(--voxver-shadow-glow-secondary);
 }
 
-/* 功能色按钮 — 全部渐变 */
-.mcla-btn-success { background: var(--voxver-gradient-success); color: #fff; box-shadow: var(--voxver-shadow-glow-success); }
-.mcla-btn-warning { background: var(--voxver-gradient-warning); color: #fff; box-shadow: var(--voxver-shadow-glow-warning); }
-.mcla-btn-danger { background: var(--voxver-gradient-error); color: #fff; box-shadow: var(--voxver-shadow-glow-error); }
-.mcla-btn-info { background: var(--voxver-gradient-info); color: #fff; box-shadow: var(--voxver-shadow-glow-info); }
+/* 功能色按�?�?全部渐变 */
+.voxver-btn-success { background: var(--voxver-gradient-success); color: #fff; box-shadow: var(--voxver-shadow-glow-success); }
+.voxver-btn-warning { background: var(--voxver-gradient-warning); color: #fff; box-shadow: var(--voxver-shadow-glow-warning); }
+.voxver-btn-danger { background: var(--voxver-gradient-error); color: #fff; box-shadow: var(--voxver-shadow-glow-error); }
+.voxver-btn-info { background: var(--voxver-gradient-info); color: #fff; box-shadow: var(--voxver-shadow-glow-info); }
 
 /* Ghost 幽灵按钮 */
-.mcla-btn-ghost {
+.voxver-btn-ghost {
   background: var(--voxver-btn-ghost-bg);
   color: var(--voxver-primary);
   border: 1px solid transparent;
 }
-.mcla-btn-ghost:hover { background: var(--voxver-btn-ghost-hover-bg); }
+.voxver-btn-ghost:hover { background: var(--voxver-btn-ghost-hover-bg); }
 
 /* Outline 线框按钮 */
-.mcla-btn-outline {
+.voxver-btn-outline {
   background: transparent;
   color: var(--voxver-primary-500);
   border: 1px solid var(--voxver-primary-300);
 }
-.mcla-btn-outline:hover { background: var(--voxver-primary-50); }
+.voxver-btn-outline:hover { background: var(--voxver-primary-50); }
 
 /* 尺寸 */
-.mcla-btn-sm { padding: var(--voxver-space-1) var(--voxver-space-3); font-size: var(--voxver-text-xs); border-radius: var(--voxver-radius-sm); }
-.mcla-btn-lg { padding: var(--voxver-space-3) var(--voxver-space-6); font-size: var(--voxver-text-base); border-radius: var(--voxver-radius-lg); }
+.voxver-btn-sm { padding: var(--voxver-space-1) var(--voxver-space-3); font-size: var(--voxver-text-xs); border-radius: var(--voxver-radius-sm); }
+.voxver-btn-lg { padding: var(--voxver-space-3) var(--voxver-space-6); font-size: var(--voxver-text-base); border-radius: var(--voxver-radius-lg); }
 
 /* 图标按钮 */
-.mcla-btn-icon { padding: var(--voxver-space-2); aspect-ratio: 1; border-radius: var(--voxver-radius-md); }
-.mcla-btn-circle { border-radius: var(--voxver-radius-full); }
+.voxver-btn-icon { padding: var(--voxver-space-2); aspect-ratio: 1; border-radius: var(--voxver-radius-md); }
+.voxver-btn-circle { border-radius: var(--voxver-radius-full); }
 
-/* 按钮组 */
-.mcla-btn-group { display: inline-flex; border-radius: var(--voxver-radius-md); overflow: hidden; }
-.mcla-btn-group .mcla-btn { border-radius: 0; margin-right: -1px; }
-.mcla-btn-group .mcla-btn:first-child { border-radius: var(--voxver-radius-md) 0 0 var(--voxver-radius-md); }
-.mcla-btn-group .mcla-btn:last-child { border-radius: 0 var(--voxver-radius-md) var(--voxver-radius-md) 0; }
+/* 按钮�?*/
+.voxver-btn-group { display: inline-flex; border-radius: var(--voxver-radius-md); overflow: hidden; }
+.voxver-btn-group .voxver-btn { border-radius: 0; margin-right: -1px; }
+.voxver-btn-group .voxver-btn:first-child { border-radius: var(--voxver-radius-md) 0 0 var(--voxver-radius-md); }
+.voxver-btn-group .voxver-btn:last-child { border-radius: 0 var(--voxver-radius-md) var(--voxver-radius-md) 0; }
 
 /* ==========================================================================
-   4. 输入框 (Input)
+   4. 输入�?(Input)
    ========================================================================== */
 
-.mcla-input-wrapper { position: relative; display: flex; align-items: center; }
-.mcla-input-prefix,
-.mcla-input-suffix { display: flex; align-items: center; color: var(--voxver-text-tertiary); padding: 0 var(--voxver-space-2); }
+.voxver-input-wrapper { position: relative; display: flex; align-items: center; }
+.voxver-input-prefix,
+.voxver-input-suffix { display: flex; align-items: center; color: var(--voxver-text-tertiary); padding: 0 var(--voxver-space-2); }
 
-.mcla-input {
+.voxver-input {
   width: 100%;
   padding: var(--voxver-space-2) var(--voxver-space-3);
   font-family: var(--voxver-font-sans);
@@ -412,15 +455,15 @@ svg[class*="mcla-icon"] {
   outline: none;
   transition: all var(--voxver-transition-fast);
 }
-.mcla-input::placeholder { color: var(--voxver-text-tertiary); }
-.mcla-input:focus { border-color: var(--voxver-input-focus-border); box-shadow: var(--voxver-input-focus-shadow); }
-.mcla-input:disabled { background: var(--voxver-bg-tertiary); cursor: not-allowed; color: var(--voxver-text-tertiary); }
-.mcla-input-error { border-color: var(--voxver-error); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1); }
-.mcla-input-success { border-color: var(--voxver-success); box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1); }
+.voxver-input::placeholder { color: var(--voxver-text-tertiary); }
+.voxver-input:focus { border-color: var(--voxver-input-focus-border); box-shadow: var(--voxver-input-focus-shadow); }
+.voxver-input:disabled { background: var(--voxver-bg-tertiary); cursor: not-allowed; color: var(--voxver-text-tertiary); }
+.voxver-input-error { border-color: var(--voxver-error); box-shadow: 0 0 0 3px rgb(255 59 48 / 0.25); }
+.voxver-input-success { border-color: var(--voxver-success); box-shadow: 0 0 0 3px rgb(52 199 89 / 0.25); }
 
-.mcla-textarea { min-height: 80px; resize: vertical; }
+.voxver-textarea { min-height: 80px; resize: vertical; }
 
-.mcla-select {
+.voxver-select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%2394a3b8'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -429,61 +472,59 @@ svg[class*="mcla-icon"] {
 }
 
 /* ==========================================================================
-   5. 复选框 & 单选框 & 开关
-   ========================================================================== */
+   5. 复选框 & 单选框 & 开�?   ========================================================================== */
 
-.mcla-checkbox { display: inline-flex; align-items: center; gap: var(--voxver-space-2); cursor: pointer; user-select: none; }
-.mcla-checkbox input { position: absolute; opacity: 0; width: 0; height: 0; }
-.mcla-checkbox-box {
+.voxver-checkbox { display: inline-flex; align-items: center; gap: var(--voxver-space-2); cursor: pointer; user-select: none; }
+.voxver-checkbox input { position: absolute; opacity: 0; width: 0; height: 0; }
+.voxver-checkbox-box {
   width: 18px; height: 18px; border: 2px solid var(--voxver-border-strong);
   border-radius: var(--voxver-radius-xs);
   display: flex; align-items: center; justify-content: center;
   transition: all var(--voxver-transition-fast); flex-shrink: 0;
   background: var(--voxver-bg-primary);
 }
-.mcla-checkbox input:checked + .mcla-checkbox-box {
-  background: var(--voxver-gradient-primary);   /* 渐变！*/
+.voxver-checkbox input:checked + .voxver-checkbox-box {
+  background: var(--voxver-primary);
   border-color: transparent;
 }
-.mcla-checkbox input:checked + .mcla-checkbox-box svg { display: block; }
-.mcla-checkbox-box svg { display: none; color: #fff; width: 12px; height: 12px; }
-.mcla-checkbox input:focus-visible + .mcla-checkbox-box { box-shadow: var(--voxver-input-focus-shadow); }
+.voxver-checkbox input:checked + .voxver-checkbox-box svg { display: block; }
+.voxver-checkbox-box svg { display: none; color: var(--voxver-text-inverse); width: 12px; height: 12px; }
+.voxver-checkbox input:focus-visible + .voxver-checkbox-box { box-shadow: var(--voxver-input-focus-shadow); }
 
-.mcla-radio { display: inline-flex; align-items: center; gap: var(--voxver-space-2); cursor: pointer; user-select: none; }
-.mcla-radio input { position: absolute; opacity: 0; width: 0; height: 0; }
-.mcla-radio-dot {
+.voxver-radio { display: inline-flex; align-items: center; gap: var(--voxver-space-2); cursor: pointer; user-select: none; }
+.voxver-radio input { position: absolute; opacity: 0; width: 0; height: 0; }
+.voxver-radio-dot {
   width: 18px; height: 18px; border: 2px solid var(--voxver-border-strong);
   border-radius: var(--voxver-radius-full); display: flex; align-items: center;
   justify-content: center; transition: all var(--voxver-transition-fast); flex-shrink: 0;
   background: var(--voxver-bg-primary);
 }
-.mcla-radio input:checked + .mcla-radio-dot { border-color: var(--voxver-primary-500); }
-.mcla-radio input:checked + .mcla-radio-dot::after {
+.voxver-radio input:checked + .voxver-radio-dot { border-color: var(--voxver-primary-500); }
+.voxver-radio input:checked + .voxver-radio-dot::after {
   content: ''; width: 10px; height: 10px; border-radius: var(--voxver-radius-full);
-  background: var(--voxver-gradient-primary);   /* 渐变！*/
+  background: var(--voxver-primary);
 }
-.mcla-radio input:focus-visible + .mcla-radio-dot { box-shadow: var(--voxver-input-focus-shadow); }
+.voxver-radio input:focus-visible + .voxver-radio-dot { box-shadow: var(--voxver-input-focus-shadow); }
 
-.mcla-switch { display: inline-flex; align-items: center; gap: var(--voxver-space-2); cursor: pointer; user-select: none; }
-.mcla-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
-.mcla-switch-track {
+.voxver-switch { display: inline-flex; align-items: center; gap: var(--voxver-space-2); cursor: pointer; user-select: none; }
+.voxver-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.voxver-switch-track {
   width: 44px; height: 24px; background: var(--voxver-border-strong);
   border-radius: var(--voxver-radius-full); position: relative; transition: all var(--voxver-transition-fast);
 }
-.mcla-switch-track::after {
+.voxver-switch-track::after {
   content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
   background: #fff; border-radius: var(--voxver-radius-full); transition: all var(--voxver-transition-fast);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  box-shadow: 0 1px 3px rgb(255 255 255 / 0.25);
 }
-.mcla-switch input:checked + .mcla-switch-track { background: var(--voxver-gradient-primary); }  /* 渐变！*/
-.mcla-switch input:checked + .mcla-switch-track::after { left: 22px; }
-.mcla-switch input:focus-visible + .mcla-switch-track { box-shadow: var(--voxver-input-focus-shadow); }
+.voxver-switch input:checked + .voxver-switch-track { background: var(--voxver-gradient-primary); }  /* 渐变�?/
+.voxver-switch input:checked + .voxver-switch-track::after { left: 22px; }
+.voxver-switch input:focus-visible + .voxver-switch-track { box-shadow: var(--voxver-input-focus-shadow); }
 
 /* ==========================================================================
-   6. 卡片 (Card) — 含渐变边框变体
-   ========================================================================== */
+   6. 卡片 (Card) �?含渐变边框变�?   ========================================================================== */
 
-.mcla-card {
+.voxver-card {
   background: var(--voxver-card-bg);
   border: 1px solid var(--voxver-card-border);
   border-radius: var(--voxver-radius-lg);
@@ -491,40 +532,35 @@ svg[class*="mcla-icon"] {
   box-shadow: var(--voxver-shadow-sm);
   transition: all var(--voxver-transition-normal);
 }
-.mcla-card:hover { transform: translateY(-2px); box-shadow: var(--voxver-shadow-lg); border-color: var(--voxver-primary-300); }
-.mcla-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--voxver-space-3); }
-.mcla-card-title { font-size: var(--voxver-text-lg); font-weight: var(--voxver-font-semibold); color: var(--voxver-text-primary); }
-.mcla-card-body { color: var(--voxver-text-secondary); }
-.mcla-card-footer { margin-top: var(--voxver-space-4); padding-top: var(--voxver-space-3); border-top: 1px solid var(--voxver-border-color); }
+.voxver-card:hover { transform: translateY(-2px); box-shadow: var(--voxver-shadow-lg); border-color: var(--voxver-primary-300); }
+.voxver-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--voxver-space-3); }
+.voxver-card-title { font-size: var(--voxver-text-lg); font-weight: var(--voxver-font-semibold); color: var(--voxver-text-primary); }
+.voxver-card-body { color: var(--voxver-text-secondary); }
+.voxver-card-footer { margin-top: var(--voxver-space-4); padding-top: var(--voxver-space-3); border-top: 1px solid var(--voxver-border-color); }
 
-/* 渐变边框卡片（Gradient 版特色） */
-.mcla-card-gradient {
-  border: 2px solid transparent;
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
-  background-image:
-    linear-gradient(var(--voxver-bg-elevated), var(--voxver-bg-elevated)),
-    var(--voxver-gradient-primary);
+/* 渐变边框卡片（Apple 规范：简化为纯色边框�?*/
+.voxver-card-gradient {
+  border: 1px solid var(--voxver-primary);
 }
 
 /* ==========================================================================
    7. 徽章 (Badge)
    ========================================================================== */
 
-.mcla-badge {
+.voxver-badge {
   display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px;
   font-size: var(--voxver-text-xs); font-weight: var(--voxver-font-medium);
   border-radius: var(--voxver-radius-full); white-space: nowrap;
 }
-.mcla-badge-primary { background: var(--voxver-primary-100); color: var(--voxver-primary-700); }
-.mcla-badge-success { background: var(--voxver-success-bg); color: #166534; }
-.mcla-badge-warning { background: var(--voxver-warning-bg); color: #92400e; }
-.mcla-badge-error { background: var(--voxver-error-bg); color: #991b1b; }
-.mcla-badge-info { background: var(--voxver-info-bg); color: #075985; }
-.mcla-badge-dot { width: 8px; height: 8px; border-radius: var(--voxver-radius-full); display: inline-block; background: var(--voxver-primary); }
+.voxver-badge-primary { background: var(--voxver-primary-100); color: var(--voxver-primary-700); }
+.voxver-badge-success { background: var(--voxver-success-bg); color: var(--voxver-success); }
+.voxver-badge-warning { background: var(--voxver-warning-bg); color: var(--voxver-warning); }
+.voxver-badge-error { background: var(--voxver-error-bg); color: var(--voxver-error); }
+.voxver-badge-info { background: var(--voxver-info-bg); color: var(--voxver-info); }
+.voxver-badge-dot { width: 8px; height: 8px; border-radius: var(--voxver-radius-full); display: inline-block; background: var(--voxver-primary); }
 
 /* 渐变徽章 */
-.mcla-badge-gradient {
+.voxver-badge-gradient {
   background: var(--voxver-gradient-primary);
   color: #fff;
 }
@@ -533,92 +569,90 @@ svg[class*="mcla-icon"] {
    8. 头像 (Avatar)
    ========================================================================== */
 
-.mcla-avatar {
+.voxver-avatar {
   display: inline-flex; align-items: center; justify-content: center;
   overflow: hidden; border-radius: var(--voxver-radius-full);
-  background: var(--voxver-gradient-primary);   /* 渐变！*/
-  color: #fff; font-weight: var(--voxver-font-semibold); flex-shrink: 0;
+  background: var(--voxver-primary);
+  color: var(--voxver-text-inverse); font-weight: var(--voxver-font-semibold); flex-shrink: 0;
 }
-.mcla-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.mcla-avatar-sm { width: 32px; height: 32px; font-size: var(--voxver-text-xs); }
-.mcla-avatar-md { width: 40px; height: 40px; font-size: var(--voxver-text-sm); }
-.mcla-avatar-lg { width: 56px; height: 56px; font-size: var(--voxver-text-lg); }
-.mcla-avatar-xl { width: 72px; height: 72px; font-size: var(--voxver-text-xl); }
-.mcla-avatar-square { border-radius: var(--voxver-radius-md); }
-.mcla-avatar-group { display: flex; }
-.mcla-avatar-group .mcla-avatar:not(:first-child) { margin-left: -10px; border: 2px solid var(--voxver-bg-primary); }
+.voxver-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.voxver-avatar-sm { width: 32px; height: 32px; font-size: var(--voxver-text-xs); }
+.voxver-avatar-md { width: 40px; height: 40px; font-size: var(--voxver-text-sm); }
+.voxver-avatar-lg { width: 56px; height: 56px; font-size: var(--voxver-text-lg); }
+.voxver-avatar-xl { width: 72px; height: 72px; font-size: var(--voxver-text-xl); }
+.voxver-avatar-square { border-radius: var(--voxver-radius-md); }
+.voxver-avatar-group { display: flex; }
+.voxver-avatar-group .voxver-avatar:not(:first-child) { margin-left: -10px; border: 2px solid var(--voxver-bg-primary); }
 
 /* ==========================================================================
-   9. 提示/警告框 (Alert)
+   9. 提示/警告�?(Alert)
    ========================================================================== */
 
-.mcla-alert { display: flex; gap: var(--voxver-space-3); padding: var(--voxver-space-3) var(--voxver-space-4); border-radius: var(--voxver-radius-md); border-left: 4px solid; font-size: var(--voxver-text-sm); }
-.mcla-alert-info { background: var(--voxver-info-bg); border-color: var(--voxver-info); color: var(--voxver-text-primary); }
-.mcla-alert-success { background: var(--voxver-success-bg); border-color: var(--voxver-success); color: var(--voxver-text-primary); }
-.mcla-alert-warning { background: var(--voxver-warning-bg); border-color: var(--voxver-warning); color: var(--voxver-text-primary); }
-.mcla-alert-error { background: var(--voxver-error-bg); border-color: var(--voxver-error); color: var(--voxver-text-primary); }
+.voxver-alert { display: flex; gap: var(--voxver-space-3); padding: var(--voxver-space-3) var(--voxver-space-4); border-radius: var(--voxver-radius-md); border-left: 4px solid; font-size: var(--voxver-text-sm); }
+.voxver-alert-info { background: var(--voxver-info-bg); border-color: var(--voxver-info); color: var(--voxver-text-primary); }
+.voxver-alert-success { background: var(--voxver-success-bg); border-color: var(--voxver-success); color: var(--voxver-text-primary); }
+.voxver-alert-warning { background: var(--voxver-warning-bg); border-color: var(--voxver-warning); color: var(--voxver-text-primary); }
+.voxver-alert-error { background: var(--voxver-error-bg); border-color: var(--voxver-error); color: var(--voxver-text-primary); }
 
-[data-theme="dark"] .mcla-alert-info { background: rgba(14,165,233,0.15); color: #7dd3fc; }
-[data-theme="dark"] .mcla-alert-success { background: rgba(34,197,94,0.15); color: #86efac; }
-[data-theme="dark"] .mcla-alert-warning { background: rgba(245,158,11,0.15); color: #fcd34d; }
-[data-theme="dark"] .mcla-alert-error { background: rgba(239,68,68,0.15); color: #fca5a5; }
+[data-theme="dark"] .voxver-alert-info { background: var(--voxver-info-bg); color: #7dd3fc; }
+[data-theme="dark"] .voxver-alert-success { background: var(--voxver-success-bg); color: #86efac; }
+[data-theme="dark"] .voxver-alert-warning { background: var(--voxver-warning-bg); color: #fcd34d; }
+[data-theme="dark"] .voxver-alert-error { background: var(--voxver-error-bg); color: #fca5a5; }
 
 /* ==========================================================================
-   10. 标签页 (Tabs) — 渐变下划线
-   ========================================================================== */
+   10. 标签�?(Tabs) �?渐变下划�?   ========================================================================== */
 
-.mcla-tabs { display: flex; border-bottom: 1px solid var(--voxver-border-color); gap: var(--voxver-space-1); }
-.mcla-tab {
+.voxver-tabs { display: flex; border-bottom: 1px solid var(--voxver-border-color); gap: var(--voxver-space-1); }
+.voxver-tab {
   padding: var(--voxver-space-2) var(--voxver-space-4); font-size: var(--voxver-text-sm);
   font-weight: var(--voxver-font-medium); color: var(--voxver-text-secondary);
   border: none; background: none; cursor: pointer; position: relative;
   transition: all var(--voxver-transition-fast);
 }
-.mcla-tab:hover { color: var(--voxver-text-primary); }
-.mcla-tab-active { color: var(--voxver-tab-active-color); font-weight: var(--voxver-font-semibold); }
-.mcla-tab-active::after {
+.voxver-tab:hover { color: var(--voxver-text-primary); }
+.voxver-tab-active { color: var(--voxver-tab-active-color); font-weight: var(--voxver-font-semibold); }
+.voxver-tab-active::after {
   content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px;
   background: var(--voxver-tab-active-border);   /* 渐变下划线！*/
   border-radius: 2px 2px 0 0;
 }
 /* Pill 胶囊模式 */
-.mcla-tabs-pill .mcla-tab { border-radius: var(--voxver-radius-full); }
-.mcla-tabs-pill .mcla-tab-active { background: var(--voxver-gradient-primary); color: #fff; }  /* 渐变！*/
-.mcla-tabs-pill .mcla-tab-active::after { display: none; }
+.voxver-tabs-pill .voxver-tab { border-radius: var(--voxver-radius-full); }
+.voxver-tabs-pill .voxver-tab-active { background: var(--voxver-gradient-primary); color: #fff; }  /* 渐变�?/
+.voxver-tabs-pill .voxver-tab-active::after { display: none; }
 
 /* ==========================================================================
-   11. 导航栏 (Navbar)
+   11. 导航�?(Navbar)
    ========================================================================== */
 
-.mcla-navbar {
+.voxver-navbar {
   display: flex; align-items: center; justify-content: space-between;
   padding: var(--voxver-space-3) var(--voxver-space-4);
   background: var(--voxver-bg-elevated);
   border-bottom: 1px solid var(--voxver-border-color);
   position: sticky; top: 0; z-index: 9998;
 }
-.mcla-navbar-brand {
+.voxver-navbar-brand {
   display: flex; align-items: center; gap: var(--voxver-space-2);
   font-size: var(--voxver-text-lg); font-weight: var(--voxver-font-bold);
   color: var(--voxver-text-primary); text-decoration: none;
 }
-.mcla-navbar-brand span {
+.voxver-navbar-brand span {
   background: var(--voxver-gradient-primary);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.mcla-navbar-nav { display: flex; align-items: center; gap: var(--voxver-space-1); }
-.mcla-nav-link {
+.voxver-navbar-nav { display: flex; align-items: center; gap: var(--voxver-space-1); }
+.voxver-nav-link {
   padding: var(--voxver-space-1) var(--voxver-space-3); font-size: var(--voxver-text-sm);
   font-weight: var(--voxver-font-medium); color: var(--voxver-text-secondary);
   text-decoration: none; border-radius: var(--voxver-radius-sm); transition: all var(--voxver-transition-fast);
 }
-.mcla-nav-link:hover, .mcla-nav-link-active { color: var(--voxver-primary-500); background: var(--voxver-primary-50); }
+.voxver-nav-link:hover, .voxver-nav-link-active { color: var(--voxver-primary-500); background: var(--voxver-primary-50); }
 
 /* ==========================================================================
-   12. 侧边导航 (Sidebar) — VoxVer 启动器专用
-   ========================================================================== */
+   12. 侧边导航 (Sidebar) �?VoxVer 启动器专�?   ========================================================================== */
 
-.mcla-sidebar {
+.voxver-sidebar {
   width: var(--voxver-sidebar-width);
   background: var(--voxver-bg-elevated);
   border-right: 1px solid var(--voxver-border-color);
@@ -626,7 +660,7 @@ svg[class*="mcla-icon"] {
   padding: var(--voxver-space-sm) 0; flex-shrink: 0;
 }
 
-.mcla-nav-item {
+.voxver-nav-item {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   padding: var(--voxver-space-sm) 0; cursor: pointer;
   color: var(--voxver-text-secondary); transition: all var(--voxver-transition-fast);
@@ -653,10 +687,10 @@ svg[class*="mcla-icon"] {
 }
 
 /* ==========================================================================
-   13. 自定义标题栏 (Titlebar) — Electron 专用
+   13. 自定义标题栏 (Titlebar) �?Electron 专用
    ========================================================================== */
 
-.mcla-titlebar {
+.voxver-titlebar {
   height: var(--voxver-titlebar-height);
   background: var(--voxver-titlebar-bg);
   border-bottom: 1px solid var(--voxver-titlebar-border);
@@ -664,7 +698,7 @@ svg[class*="mcla-icon"] {
   -webkit-app-region: drag; user-select: none; flex-shrink: 0;
 }
 
-.mcla-titlebar-brand {
+.voxver-titlebar-brand {
   display: flex; align-items: center; gap: var(--voxver-space-sm);
   padding-left: var(--voxver-space-md);
   &-logo {
@@ -680,7 +714,7 @@ svg[class*="mcla-icon"] {
   }
 }
 
-.mcla-window-controls {
+.voxver-window-controls {
   display: flex; -webkit-app-region: no-drag;
   .wc-btn {
     width: 40px; height: var(--voxver-titlebar-height); border: none; background: transparent;
@@ -693,57 +727,55 @@ svg[class*="mcla-icon"] {
 }
 
 /* ==========================================================================
-   14. 面包屑 (Breadcrumb)
+   14. 面包�?(Breadcrumb)
    ========================================================================== */
 
-.mcla-breadcrumb { display: flex; align-items: center; gap: var(--voxver-space-2); font-size: var(--voxver-text-sm); color: var(--voxver-text-tertiary); }
-.mcla-breadcrumb a { color: var(--voxver-text-secondary); text-decoration: none; transition: color var(--voxver-transition-fast); }
-.mcla-breadcrumb a:hover { color: var(--voxver-primary-500); }
-.mcla-breadcrumb-separator { color: var(--voxver-text-tertiary); }
-.mcla-breadcrumb-current { color: var(--voxver-text-primary); font-weight: var(--voxver-font-medium); }
+.voxver-breadcrumb { display: flex; align-items: center; gap: var(--voxver-space-2); font-size: var(--voxver-text-sm); color: var(--voxver-text-tertiary); }
+.voxver-breadcrumb a { color: var(--voxver-text-secondary); text-decoration: none; transition: color var(--voxver-transition-fast); }
+.voxver-breadcrumb a:hover { color: var(--voxver-primary-500); }
+.voxver-breadcrumb-separator { color: var(--voxver-text-tertiary); }
+.voxver-breadcrumb-current { color: var(--voxver-text-primary); font-weight: var(--voxver-font-medium); }
 
 /* ==========================================================================
-   15. 分页 (Pagination) — 渐变当前页
-   ========================================================================== */
+   15. 分页 (Pagination) �?渐变当前�?   ========================================================================== */
 
-.mcla-pagination { display: flex; align-items: center; gap: var(--voxver-space-1); }
-.mcla-page-item {
+.voxver-pagination { display: flex; align-items: center; gap: var(--voxver-space-1); }
+.voxver-page-item {
   min-width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
   font-size: var(--voxver-text-sm); font-weight: var(--voxver-font-medium);
   color: var(--voxver-text-secondary); border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-sm); background: var(--voxver-bg-primary);
   cursor: pointer; text-decoration: none; transition: all var(--voxver-transition-fast);
 }
-.mcla-page-item:hover { border-color: var(--voxver-primary-300); color: var(--voxver-primary-500); }
-.mcla-page-active { background: var(--voxver-gradient-primary); color: #fff; border-color: transparent; }  /* 渐变！*/
-.mcla-page-disabled { opacity: 0.4; cursor: not-allowed; }
+.voxver-page-item:hover { border-color: var(--voxver-primary-300); color: var(--voxver-primary-500); }
+.voxver-page-active { background: var(--voxver-gradient-primary); color: #fff; border-color: transparent; }  /* 渐变�?/
+.voxver-page-disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ==========================================================================
-   16. 进度条 (Progress) — 渐变填充
+   16. 进度�?(Progress) �?渐变填充
    ========================================================================== */
 
-.mcla-progress { width: 100%; height: 8px; background: var(--voxver-bg-tertiary); border-radius: var(--voxver-radius-full); overflow: hidden; }
-.mcla-progress-bar { height: 100%; background: var(--voxver-progress-bg); border-radius: var(--voxver-radius-full); transition: width var(--voxver-transition-slow); }
-.mcla-progress-bar-animated {
-  animation: mcla-stripes 1s linear infinite;
+.voxver-progress { width: 100%; height: 8px; background: var(--voxver-bg-tertiary); border-radius: var(--voxver-radius-full); overflow: hidden; }
+.voxver-progress-bar { height: 100%; background: var(--voxver-progress-bg); border-radius: var(--voxver-radius-full); transition: width var(--voxver-transition-slow); }
+.voxver-progress-bar-animated {
+  animation: voxver-stripes 1s linear infinite;
   background-image: linear-gradient(
     45deg,
-    rgba(255,255,255,.15) 25%,
+    rgb(255 255 255 / 0.25) 25%,
     transparent 25%,
     transparent 50%,
-    rgba(255,255,255,.15) 50%,
-    rgba(255,255,255,.15) 75%,
+    rgb(255 255 255 / 0.25) 50%,
     transparent 75%,
     transparent
   );
   background-size: 1rem 1rem;
 }
-@keyframes mcla-stripes { from { background-position: 1rem 0; } to { background-position: 0 0; } }
-.mcla-progress-sm { height: 4px; }
-.mcla-progress-lg { height: 12px; }
+@keyframes voxver-stripes { from { background-position: 1rem 0; } to { background-position: 0 0; } }
+.voxver-progress-sm { height: 4px; }
+.voxver-progress-lg { height: 12px; }
 
 /* 进度条带文字标签 */
-.mcla-progress-labeled {
+.voxver-progress-labeled {
   display: flex; align-items: center; gap: var(--voxver-space-3);
   .progress-text {
     font-size: var(--voxver-text-xs); color: var(--voxver-text-secondary);
@@ -755,45 +787,45 @@ svg[class*="mcla-icon"] {
    17. 加载动画 (Loading)
    ========================================================================== */
 
-.mcla-spinner { width: 24px; height: 24px; border: 3px solid var(--voxver-border-color); border-top-color: var(--voxver-primary-500); border-radius: var(--voxver-radius-full); animation: mcla-spin 0.8s linear infinite; }
-.mcla-spinner-sm { width: 16px; height: 16px; border-width: 2px; }
-.mcla-spinner-lg { width: 36px; height: 36px; border-width: 4px; }
-@keyframes mcla-spin { to { transform: rotate(360deg); } }
+.voxver-spinner { width: 24px; height: 24px; border: 3px solid var(--voxver-border-color); border-top-color: var(--voxver-primary-500); border-radius: var(--voxver-radius-full); animation: voxver-spin 0.8s linear infinite; }
+.voxver-spinner-sm { width: 16px; height: 16px; border-width: 2px; }
+.voxver-spinner-lg { width: 36px; height: 36px; border-width: 4px; }
+@keyframes voxver-spin { to { transform: rotate(360deg); } }
 
-.mcla-dots { display: flex; gap: 6px; }
-.mcla-dots span { width: 8px; height: 8px; border-radius: var(--voxver-radius-full); background: var(--voxver-primary-500); animation: mcla-bounce 1.4s ease-in-out infinite both; }
-.mcla-dots span:nth-child(1) { animation-delay: -0.32s; }
-.mcla-dots span:nth-child(2) { animation-delay: -0.16s; }
-@keyframes mcla-bounce { 0%,80%,100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+.voxver-dots { display: flex; gap: 6px; }
+.voxver-dots span { width: 8px; height: 8px; border-radius: var(--voxver-radius-full); background: var(--voxver-primary-500); animation: voxver-bounce 1.4s ease-in-out infinite both; }
+.voxver-dots span:nth-child(1) { animation-delay: -0.32s; }
+.voxver-dots span:nth-child(2) { animation-delay: -0.16s; }
+@keyframes voxver-bounce { 0%,80%,100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
 
-.mcla-skeleton {
+.voxver-skeleton {
   background: linear-gradient(90deg, var(--voxver-bg-tertiary) 25%, var(--voxver-bg-secondary) 50%, var(--voxver-bg-tertiary) 75%);
-  background-size: 200% 100%; animation: mcla-sk 1.5s ease-in-out infinite; border-radius: var(--voxver-radius-sm);
+  background-size: 200% 100%; animation: voxver-sk 1.5s ease-in-out infinite; border-radius: var(--voxver-radius-sm);
 }
-@keyframes mcla-sk { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@keyframes voxver-sk { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 
 /* ==========================================================================
    18. 表格 (Table)
    ========================================================================== */
 
-.mcla-table-wrapper { overflow-x: auto; border-radius: var(--voxver-radius-md); border: 1px solid var(--voxver-border-color); }
-.mcla-table { width: 100%; border-collapse: collapse; font-size: var(--voxver-text-sm); }
-.mcla-table th {
+.voxver-table-wrapper { overflow-x: auto; border-radius: var(--voxver-radius-md); border: 1px solid var(--voxver-border-color); }
+.voxver-table { width: 100%; border-collapse: collapse; font-size: var(--voxver-text-sm); }
+.voxver-table th {
   padding: var(--voxver-space-3) var(--voxver-space-4); text-align: left;
   font-weight: var(--voxver-font-semibold); color: var(--voxver-text-secondary);
   background: var(--voxver-bg-secondary); border-bottom: 2px solid var(--voxver-border-color); white-space: nowrap;
 }
-.mcla-table td { padding: var(--voxver-space-3) var(--voxver-space-4); border-bottom: 1px solid var(--voxver-border-color); color: var(--voxver-text-primary); }
-.mcla-table tbody tr:hover { background: var(--voxver-bg-secondary); }
-.mcla-table tbody tr:last-child td { border-bottom: none; }
-.mcla-table-stripe tbody tr:nth-child(even) { background: var(--voxver-bg-secondary); }
+.voxver-table td { padding: var(--voxver-space-3) var(--voxver-space-4); border-bottom: 1px solid var(--voxver-border-color); color: var(--voxver-text-primary); }
+.voxver-table tbody tr:hover { background: var(--voxver-bg-secondary); }
+.voxver-table tbody tr:last-child td { border-bottom: none; }
+.voxver-table-stripe tbody tr:nth-child(even) { background: var(--voxver-bg-secondary); }
 
 /* ==========================================================================
    19. 下拉菜单 (Dropdown)
    ========================================================================== */
 
-.mcla-dropdown { position: relative; display: inline-block; }
-.mcla-dropdown-menu {
+.voxver-dropdown { position: relative; display: inline-block; }
+.voxver-dropdown-menu {
   position: absolute; top: 100%; left: 0; margin-top: var(--voxver-space-1);
   min-width: 180px; background: var(--voxver-bg-elevated); border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md); box-shadow: var(--voxver-shadow-lg);
@@ -801,22 +833,22 @@ svg[class*="mcla-icon"] {
   opacity: 0; visibility: hidden; transform: translateY(-8px);
   transition: all var(--voxver-transition-fast);
 }
-.mcla-dropdown-open .mcla-dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
-.mcla-dropdown-item {
+.voxver-dropdown-open .voxver-dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+.voxver-dropdown-item {
   display: flex; align-items: center; gap: var(--voxver-space-2);
   padding: var(--voxver-space-2) var(--voxver-space-3); font-size: var(--voxver-text-sm);
   color: var(--voxver-text-secondary); cursor: pointer; transition: all var(--voxver-transition-fast);
   border: none; background: none; width: 100%; text-align: left;
 }
-.mcla-dropdown-item:hover { background: var(--voxver-primary-50); color: var(--voxver-primary-500); }
-.mcla-dropdown-divider { height: 1px; background: var(--voxver-border-color); margin: var(--voxver-space-1) 0; }
+.voxver-dropdown-item:hover { background: var(--voxver-primary-50); color: var(--voxver-primary-500); }
+.voxver-dropdown-divider { height: 1px; background: var(--voxver-border-color); margin: var(--voxver-space-1) 0; }
 
 /* ==========================================================================
    20. 工具提示 (Tooltip)
    ========================================================================== */
 
-.mcla-tooltip { position: relative; display: inline-block; }
-.mcla-tooltip-text {
+.voxver-tooltip { position: relative; display: inline-block; }
+.voxver-tooltip-text {
   position: absolute; bottom: calc(100% + 8px); left: 50%;
   transform: translateX(-50%) translateY(4px); padding: 6px 12px;
   font-size: var(--voxver-text-xs); font-weight: var(--voxver-font-medium); color: #fff;
@@ -824,59 +856,57 @@ svg[class*="mcla-icon"] {
   opacity: 0; visibility: hidden; transition: all var(--voxver-transition-fast);
   z-index: 10001; pointer-events: none;
 }
-.mcla-tooltip-text::after {
+.voxver-tooltip-text::after {
   content: ''; position: absolute; top: 100%; left: 50%;
   transform: translateX(-50%); border: 5px solid transparent; border-top-color: #1e293b;
 }
-.mcla-tooltip:hover .mcla-tooltip-text { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+.voxver-tooltip:hover .voxver-tooltip-text { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
 /* ==========================================================================
-   21. Modal 对话框
-   ========================================================================== */
+   21. Modal 对话�?   ========================================================================== */
 
-.mcla-modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+.voxver-modal-overlay {
+  position: fixed; inset: 0; background: var(--voxver-bg-overlay); backdrop-filter: blur(4px);
   display: flex; align-items: center; justify-content: center; z-index: 10002;
   opacity: 0; visibility: hidden; transition: all var(--voxver-transition-normal);
 }
-.mcla-modal-overlay-open { opacity: 1; visibility: visible; }
-.mcla-modal {
+.voxver-modal-overlay-open { opacity: 1; visibility: visible; }
+.voxver-modal {
   background: var(--voxver-bg-elevated); border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-lg); max-width: 480px; width: 90%; max-height: 85vh;
   overflow-y: auto; box-shadow: var(--voxver-shadow-xl); transform: scale(0.95);
   transition: all var(--voxver-transition-normal);
 }
-.mcla-modal-overlay-open .mcla-modal { transform: scale(1); }
-.mcla-modal-header { display: flex; align-items: center; justify-content: space-between; padding: var(--voxver-space-4) var(--voxver-space-4) 0; }
-.mcla-modal-header h3 { font-size: var(--voxver-text-lg); font-weight: var(--voxver-font-semibold); }
-.mcla-modal-close {
+.voxver-modal-overlay-open .voxver-modal { transform: scale(1); }
+.voxver-modal-header { display: flex; align-items: center; justify-content: space-between; padding: var(--voxver-space-4) var(--voxver-space-4) 0; }
+.voxver-modal-header h3 { font-size: var(--voxver-text-lg); font-weight: var(--voxver-font-semibold); }
+.voxver-modal-close {
   width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
   border: none; background: none; cursor: pointer; border-radius: var(--voxver-radius-sm);
   color: var(--voxver-text-tertiary); transition: all var(--voxver-transition-fast);
 }
-.mcla-modal-close:hover { background: var(--voxver-bg-tertiary); color: var(--voxver-text-primary); }
-.mcla-modal-body { padding: var(--voxver-space-4); color: var(--voxver-text-secondary); font-size: var(--voxver-text-sm); }
-.mcla-modal-footer { display: flex; justify-content: flex-end; gap: var(--voxver-space-2); padding: 0 var(--voxver-space-4) var(--voxver-space-4); }
+.voxver-modal-close:hover { background: var(--voxver-bg-tertiary); color: var(--voxver-text-primary); }
+.voxver-modal-body { padding: var(--voxver-space-4); color: var(--voxver-text-secondary); font-size: var(--voxver-text-sm); }
+.voxver-modal-footer { display: flex; justify-content: flex-end; gap: var(--voxver-space-2); padding: 0 var(--voxver-space-4) var(--voxver-space-4); }
 
 /* ==========================================================================
-   22. 分割线 & 空状态
-   ========================================================================== */
+   22. 分割�?& 空状�?   ========================================================================== */
 
-.mcla-divider { border: none; height: 1px; background: var(--voxver-border-color); margin: var(--voxver-space-4) 0; }
-.mcla-divider-text { display: flex; align-items: center; gap: var(--voxver-space-3); color: var(--voxver-text-tertiary); font-size: var(--voxver-text-sm); }
-.mcla-divider-text::before, .mcla-divider-text::after { content: ''; flex: 1; height: 1px; background: var(--voxver-border-color); }
+.voxver-divider { border: none; height: 1px; background: var(--voxver-border-color); margin: var(--voxver-space-4) 0; }
+.voxver-divider-text { display: flex; align-items: center; gap: var(--voxver-space-3); color: var(--voxver-text-tertiary); font-size: var(--voxver-text-sm); }
+.voxver-divider-text::before, .voxver-divider-text::after { content: ''; flex: 1; height: 1px; background: var(--voxver-border-color); }
 
-.mcla-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--voxver-space-12) var(--voxver-space-4); text-align: center; }
-.mcla-empty-icon { width: 80px; height: 80px; color: var(--voxver-text-tertiary); margin-bottom: var(--voxver-space-4); }
-.mcla-empty-title { font-size: var(--voxver-text-lg); font-weight: var(--voxver-font-semibold); color: var(--voxver-text-primary); margin-bottom: var(--voxver-space-2); }
-.mcla-empty-desc { font-size: var(--voxver-text-sm); color: var(--voxver-text-tertiary); max-width: 320px; margin-bottom: var(--voxver-space-4); }
+.voxver-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--voxver-space-12) var(--voxver-space-4); text-align: center; }
+.voxver-empty-icon { width: 80px; height: 80px; color: var(--voxver-text-tertiary); margin-bottom: var(--voxver-space-4); }
+.voxver-empty-title { font-size: var(--voxver-text-lg); font-weight: var(--voxver-font-semibold); color: var(--voxver-text-primary); margin-bottom: var(--voxver-space-2); }
+.voxver-empty-desc { font-size: var(--voxver-text-sm); color: var(--voxver-text-tertiary); max-width: 320px; margin-bottom: var(--voxver-space-4); }
 
 /* ==========================================================================
    23. VoxVer 专用组件
    ========================================================================== */
 
 /* ---- 实例卡片 ---- */
-.mcla-instance-card {
+.voxver-instance-card {
   background: var(--voxver-bg-elevated);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-lg);
@@ -912,8 +942,8 @@ svg[class*="mcla-icon"] {
   }
 }
 
-/* ---- 下载项 ---- */
-.mcla-download-item {
+/* ---- 下载�?---- */
+.voxver-download-item {
   display: flex; align-items: center; gap: var(--voxver-space-3);
   padding: var(--voxver-space-3) var(--voxver-space-4);
   background: var(--voxver-bg-elevated);
@@ -947,23 +977,17 @@ svg[class*="mcla-icon"] {
 }
 
 /* ---- Hero 区域（首页）---- */
-.mcla-hero {
+.voxver-hero {
   display: flex; flex-direction: column; align-items: center;
   justify-content: center; text-align: center;
   padding: var(--voxver-space-3xl) var(--voxver-space-lg);
   min-height: 360px; position: relative; overflow: hidden;
-  &-bg {
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 30% 50%, color-mix(in oklab, var(--voxver-primary) 8%, transparent) 0%, transparent 70%);
-    z-index: 0;
-  }
   &-content {
     position: relative; z-index: 1;
   }
   &-title {
-    font-size: 48px; font-weight: 800; letter-spacing: -0.5px;
-    background: var(--voxver-gradient-primary);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    font-size: 48px; font-weight: 700; letter-spacing: -0.5px;
+    color: var(--voxver-primary);
     margin: 0 0 var(--voxver-space-sm) 0;
   }
   &-subtitle {
@@ -988,7 +1012,7 @@ svg[class*="mcla-icon"] {
 }
 
 /* ---- 统计数字 ---- */
-.mcla-stat {
+.voxver-stat {
   text-align: center;
   &-value {
     font-size: var(--voxver-text-3xl); font-weight: var(--voxver-font-bold);
@@ -1003,39 +1027,38 @@ svg[class*="mcla-icon"] {
 }
 
 /* ==========================================================================
-   24. 动画关键帧
-   ========================================================================== */
+   24. 动画关键�?   ========================================================================== */
 
-@keyframes mcla-fade-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes mcla-fade-out { from { opacity: 1; } to { opacity: 0; } }
-@keyframes mcla-fade-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes mcla-fade-down { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes mcla-slide-left { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes mcla-slide-right { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes mcla-scale-in { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-@keyframes mcla-bounce-in { 0% { opacity: 0; transform: scale(0.3); } 50% { transform: scale(1.05); } 70% { transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
-@keyframes mcla-spin-steps { 0% { transform: rotate(0deg); } 12.5% { transform: rotate(45deg); } 25% { transform: rotate(90deg); } 37.5% { transform: rotate(135deg); } 50% { transform: rotate(180deg); } 62.5% { transform: rotate(225deg); } 75% { transform: rotate(270deg); } 87.5% { transform: rotate(315deg); } 100% { transform: rotate(360deg); } }
-@keyframes mcla-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-@keyframes mcla-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.04); opacity: 0.85; } }
-@keyframes mcla-pop { 0% { transform: scale(1); } 30% { transform: scale(0.93); } 50% { transform: scale(1.05); } 70% { transform: scale(0.97); } 100% { transform: scale(1); } }
-@keyframes mcla-shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); } 20%, 40%, 60%, 80% { transform: translateX(4px); } }
-@keyframes mcla-glitch-1 { 0%, 100% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(-2px, -2px); } 60% { transform: translate(2px, 2px); } 80% { transform: translate(2px, -2px); } }
-@keyframes mcla-glitch-2 { 0%, 100% { transform: translate(0); } 20% { transform: translate(2px, -2px); } 40% { transform: translate(2px, 2px); } 60% { transform: translate(-2px, -2px); } 80% { transform: translate(-2px, 2px); } }
+@keyframes voxver-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes voxver-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@keyframes voxver-fade-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes voxver-fade-down { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes voxver-slide-left { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes voxver-slide-right { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes voxver-scale-in { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+@keyframes voxver-bounce-in { 0% { opacity: 0; transform: scale(0.3); } 50% { transform: scale(1.05); } 70% { transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes voxver-spin-steps { 0% { transform: rotate(0deg); } 12.5% { transform: rotate(45deg); } 25% { transform: rotate(90deg); } 37.5% { transform: rotate(135deg); } 50% { transform: rotate(180deg); } 62.5% { transform: rotate(225deg); } 75% { transform: rotate(270deg); } 87.5% { transform: rotate(315deg); } 100% { transform: rotate(360deg); } }
+@keyframes voxver-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes voxver-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.04); opacity: 0.85; } }
+@keyframes voxver-pop { 0% { transform: scale(1); } 30% { transform: scale(0.93); } 50% { transform: scale(1.05); } 70% { transform: scale(0.97); } 100% { transform: scale(1); } }
+@keyframes voxver-shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); } 20%, 40%, 60%, 80% { transform: translateX(4px); } }
+@keyframes voxver-glitch-1 { 0%, 100% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(-2px, -2px); } 60% { transform: translate(2px, 2px); } 80% { transform: translate(2px, -2px); } }
+@keyframes voxver-glitch-2 { 0%, 100% { transform: translate(0); } 20% { transform: translate(2px, -2px); } 40% { transform: translate(2px, 2px); } 60% { transform: translate(-2px, -2px); } 80% { transform: translate(-2px, 2px); } }
 
-/* ---- 动画工具类 ---- */
-.animate-fade-in { animation: mcla-fade-in var(--voxver-transition-normal) ease forwards; }
-.animate-fade-up { animation: mcla-fade-up var(--voxver-transition-normal) ease forwards; }
-.animate-fade-down { animation: mcla-fade-down var(--voxver-transition-normal) ease forwards; }
-.animate-scale-in { animation: mcla-scale-in var(--voxver-transition-normal) ease forwards; }
-.animate-bounce-in { animation: mcla-bounce-in 0.5s ease forwards; }
-.animate-spin { animation: mcla-spin-steps 1s steps(8) infinite; }  /* 步进式旋转，保留像素味 */
-.animate-blink { animation: mcla-blink 1s step-end infinite; }
-.animate-pulse { animation: mcla-pulse 2s ease-in-out infinite; }
-.animate-pop { animation: mcla-pop 0.3s ease; }
-.animate-shake { animation: mcla-shake 0.5s ease; }
-.animate-glitch { position: relative; &::before, &::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; } &::before { animation: mcla-glitch-1 0.3s infinite; color: #ff00ff; z-index: -1; } &::after { animation: mcla-glitch-2 0.3s infinite; color: #00ffff; z-index: -2; } }
+/* ---- 动画工具�?---- */
+.animate-fade-in { animation: voxver-fade-in var(--voxver-transition-normal) ease forwards; }
+.animate-fade-up { animation: voxver-fade-up var(--voxver-transition-normal) ease forwards; }
+.animate-fade-down { animation: voxver-fade-down var(--voxver-transition-normal) ease forwards; }
+.animate-scale-in { animation: voxver-scale-in var(--voxver-transition-normal) ease forwards; }
+.animate-bounce-in { animation: voxver-bounce-in 0.5s ease forwards; }
+.animate-spin { animation: voxver-spin-steps 1s steps(8) infinite; }  /* 步进式旋转，保留像素�?*/
+.animate-blink { animation: voxver-blink 1s step-end infinite; }
+.animate-pulse { animation: voxver-pulse 2s ease-in-out infinite; }
+.animate-pop { animation: voxver-pop 0.3s ease; }
+.animate-shake { animation: voxver-shake 0.5s ease; }
+.animate-glitch { position: relative; &::before, &::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; } &::before { animation: voxver-glitch-1 0.3s infinite; color: #ff00ff; z-index: -1; } &::after { animation: voxver-glitch-2 0.3s infinite; color: #00ffff; z-index: -2; } }
 
-/* ---- 延迟工具类 ---- */
+/* ---- 延迟工具�?---- */
 .animate-delay-1 { animation-delay: 0.1s; }
 .animate-delay-2 { animation-delay: 0.2s; }
 .animate-delay-3 { animation-delay: 0.3s; }
@@ -1066,13 +1089,13 @@ body[data-reduce-motion] *::after {
    26. 辅助功能
    ========================================================================== */
 
-/* 屏幕阅读器 — 增强焦点可见性 */
+/* 屏幕阅读�?�?增强焦点可见�?*/
 body[data-screen-reader] :focus-visible {
   outline: 3px solid var(--voxver-accent) !important;
   outline-offset: 3px !important;
 }
 
-/* 键盘导航 — 全局焦点指示器 */
+/* 键盘导航 �?全局焦点指示�?*/
 body[data-keyboard-nav] :focus-visible {
   outline: 3px solid var(--voxver-accent) !important;
   outline-offset: 4px !important;
@@ -1080,7 +1103,7 @@ body[data-keyboard-nav] :focus-visible {
   border-radius: 2px;
 }
 
-/* 高对比度 — 强制黑白主题 */
+/* 高对比度 �?强制黑白主题 */
 body[data-high-contrast] {
   --voxver-bg-primary: #000 !important;
   --voxver-bg-secondary: #111 !important;

@@ -50,8 +50,8 @@
     </button>
 
     <!-- 状态图标 -->
-    <span v-else-if="isCompleted" class="status-icon done">✓</span>
-    <span v-else-if="isFailed" class="status-icon failed">!</span>
+    <span v-else-if="isCompleted" class="status-icon done"></span>
+    <span v-else-if="isFailed" class="status-icon failed"></span>
   </div>
 </template>
 
@@ -106,11 +106,11 @@ function formatSize(b: number): string {
     }
   }
   &.completed {
-    border-color: rgba(34, 197, 94, 0.25);
-    background: linear-gradient(to right, rgba(34, 197, 94, 0.03), transparent);
+    border-color: rgb(34 197 94 / 0.25);
+    background: linear-gradient(to right, rgb(34 197 94 / 0.03), transparent);
   }
   &.failed {
-    border-color: rgba(239, 68, 68, 0.3);
+    border-color: rgb(239 68 68 / 0.3);
     .item-icon svg {
       stroke: #ef4444;
       color: #ef4444;
@@ -155,7 +155,7 @@ function formatSize(b: number): string {
 
 .item-name {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--voxver-text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -210,7 +210,7 @@ function formatSize(b: number): string {
 
   &:hover {
     color: #ef4444;
-    background: rgba(239, 68, 68, 0.08);
+    background: rgb(239 68 68 / 0.08);
   }
 }
 
@@ -229,7 +229,7 @@ function formatSize(b: number): string {
     color: var(--voxver-success);
   }
   &.failed {
-    background: rgba(239, 68, 68, 0.1);
+    background: rgb(239 68 68 / 0.1);
     color: #ef4444;
   }
 }

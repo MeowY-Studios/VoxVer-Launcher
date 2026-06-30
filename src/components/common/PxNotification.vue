@@ -308,7 +308,6 @@ onUnmounted(() => {
   background: var(--voxver-bg-elevated);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-lg, 12px);
-  box-shadow: var(--voxver-shadow-lg, 0 8px 30px rgba(0, 0, 0, 0.18));
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -360,7 +359,7 @@ onUnmounted(() => {
     width: 4px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgb(0 0 0 / 0.1);
     border-radius: 2px;
   }
 }

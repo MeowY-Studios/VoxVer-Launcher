@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <PxModal
     :model-value="modelValue"
     :title="$t('component.shareInstance')"
@@ -51,7 +51,7 @@
         </div>
       </div>
 
-      <!-- 传输中 -->
+      <!-- 分享中 -->
       <div v-else-if="stage === 'transferring'" class="share-stage">
         <div class="share-icon share-icon--transferring">
           <Icon icon="mdi:upload" :size="48" />
@@ -67,7 +67,7 @@
         />
       </div>
 
-      <!-- 完成 -->
+      <!-- 分享完成 -->
       <div v-else-if="stage === 'completed'" class="share-stage">
         <div class="share-icon share-icon--success">
           <Icon icon="mdi:check-circle" :size="48" />
@@ -76,7 +76,7 @@
         <div class="share-stage-subtitle">{{ $t('component.instanceSent') }}</div>
       </div>
 
-      <!-- 错误 -->
+      <!-- 分享失败 -->
       <div v-else-if="stage === 'error'" class="share-stage">
         <div class="share-icon share-icon--error">
           <Icon icon="mdi:alert-circle" :size="48" />
@@ -167,8 +167,8 @@ function formatSpeed(bytes: number): string {
 }
 
 function formatTime(seconds: number): string {
-  if (seconds < 60) return `${Math.round(seconds)} 秒`
-  return `${Math.round(seconds / 60)} 分钟`
+  if (seconds < 60) return `${Math.round(seconds)} 秒前`
+  return `${Math.round(seconds / 60)} 分钟前`
 }
 
 async function copyShareCode() {
@@ -236,7 +236,7 @@ function handleSessionUpdate(_event: Event, data: { sessionId: string; session: 
     emit('complete')
   } else if (s.status === 'error') {
     stage.value = 'error'
-    errorMessage.value = s.error || '分享失败'
+    errorMessage.value = s.error || '分享失败！'
   }
 }
 
@@ -271,7 +271,7 @@ async function startShare() {
     stage.value = 'waiting'
   } catch (e: any) {
     stage.value = 'error'
-    errorMessage.value = e.message || '启动分享失败'
+    errorMessage.value = e.message || '打包失败！'
   }
 }
 
@@ -324,26 +324,26 @@ onUnmounted(() => {
   margin-bottom: 8px;
 }
 .share-icon--packing {
-  background: rgba(59, 130, 246, 0.15);
+  background: rgb(59 130 246 / 0.15);
   color: #3b82f6;
   animation: pulse 2s infinite;
 }
 .share-icon--waiting {
-  background: rgba(168, 85, 247, 0.15);
+  background: rgb(168 85 247 / 0.15);
   color: #a855f7;
   animation: pulse 2s infinite;
 }
 .share-icon--transferring {
-  background: rgba(34, 197, 94, 0.15);
+  background: rgb(34 197 94 / 0.15);
   color: #22c55e;
   animation: bounce 1s infinite;
 }
 .share-icon--success {
-  background: rgba(34, 197, 94, 0.15);
+  background: rgb(34 197 94 / 0.15);
   color: #22c55e;
 }
 .share-icon--error {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgb(239 68 68 / 0.15);
   color: #ef4444;
 }
 

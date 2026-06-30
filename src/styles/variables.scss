@@ -14,13 +14,13 @@
 // 按钮变体
 @mixin btn-variant($type: primary) {
   &-#{$type} {
-    @extend .mcla-btn-#{$type};
+    @extend .voxver-btn-#{$type};
   }
 }
 
 // Badge
 @mixin badge($variant: primary) {
-  @extend .mcla-badge-#{$variant};
+  @extend .voxver-badge-#{$variant};
 }
 
 // 响应式断点

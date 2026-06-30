@@ -496,7 +496,7 @@ onMounted(() => {
 .vd-icon {
   width: 72px;
   height: 72px;
-  border-radius: var(--voxver-radius-lg);
+  border-radius: var(--voxver-radius-sm);
   background: var(--voxver-gradient-primary);
   display: flex;
   align-items: center;
@@ -574,8 +574,8 @@ onMounted(() => {
 .loader-card {
   position: relative;
   background: var(--voxver-bg-hover);
-  border: 1.5px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-lg);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
   padding: 14px;
   cursor: pointer;
   transition: all 0.2s;
@@ -599,7 +599,7 @@ onMounted(() => {
 
 .loader-icon {
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--voxver-primary);
   margin-bottom: 2px;
 }
@@ -645,7 +645,7 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgb(0 0 0 / 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -723,7 +723,7 @@ onMounted(() => {
 }
 .version-name {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--voxver-text-primary);
 }
 .version-date {
@@ -822,7 +822,7 @@ onMounted(() => {
   background: var(--voxver-gradient-primary);
   color: #fff;
   border: none;
-  border-radius: var(--voxver-radius-lg);
+  border-radius: var(--voxver-radius-sm);
   padding: 14px;
   font-size: 15px;
   font-weight: 600;

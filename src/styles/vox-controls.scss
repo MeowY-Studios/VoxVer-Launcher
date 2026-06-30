@@ -1,55 +1,70 @@
 /* ============================================
-   VoxVer Global Controls
+   VoxVer Global Controls — Apple Design System
    全局统一控件样式（.vox-* 前缀）
-   以 SettingsPage.vue scoped 样式为基准，修复不一致
+   严格遵循 Apple DESIGN.md components 规范：
+   - 单一 Action Blue (#0066cc) 交互色
+   - 药丸按钮 (rounded.pill) + 18px 卡片圆角
+   - 唯一 active 微交互：transform: scale(0.95)
+   - 卡片/按钮零阴影（仅产品图有阴影）
+   - 字重阶梯 300/400/600/700（500 缺失）
    ============================================ */
 
-/* ---- Section 标题 ---- */
+/* ---- Section 标题（caption-strong 风格）---- */
 .vox-sec-title {
-  margin: 0 0 14px;
+  margin: 0 0 var(--apple-space-md);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
   color: var(--voxver-text-primary);
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-bottom: 10px;
-  border-bottom: 1.5px solid var(--voxver-border-color-light);
+  gap: var(--apple-space-xs);
+  padding-bottom: 0;
+  border-bottom: none;
 
   svg {
-    color: var(--voxver-primary);
+    color: var(--voxver-text-secondary);
     flex-shrink: 0;
   }
 }
 
 .vox-sec-desc {
-  font-size: 12px;
-  color: var(--voxver-text-muted);
-  margin: 0 0 12px;
-  line-height: 1.6;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  color: var(--voxver-text-secondary);
+  margin: 0 0 var(--apple-space-md);
 }
 
-/* ---- 卡片容器 ---- */
+/* ---- 卡片容器（store-utility-card 风格，无阴影）---- */
 .vox-card {
-  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
+  background: color-mix(in oklab, var(--voxver-text) 2.5%, transparent);
   border: 1px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-lg);
-  box-shadow: var(--voxver-shadow-sm);
+  border-radius: var(--apple-radius-lg);
+  box-shadow: none;
 }
 
 .vox-card--subtle {
-  background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
-  border-radius: var(--voxver-radius-md);
+  background: color-mix(in oklab, var(--voxver-text) 1.5%, transparent);
+  border-radius: var(--apple-radius-md);
+  border: 1px solid var(--voxver-border-color-light);
+  box-shadow: none;
 }
 
 .vox-card-hover {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background var(--voxver-transition-fast);
 
   &:hover {
-    border-color: var(--voxver-primary-400);
-    transform: translateY(-1px);
-    box-shadow: var(--voxver-shadow-md);
+    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
   }
+}
+
+.vox-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--apple-space-lg);
 }
 
 /* ---- 按钮 ---- */
@@ -57,57 +72,183 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 8px 16px;
-  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
-  border: 1.5px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-md);
-  font-size: 13px;
-  font-weight: 500;
+  gap: var(--apple-space-xxs);
+  padding: 8px 15px;
+  background: transparent;
+  border: none;
+  border-radius: var(--apple-radius-sm);
   font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
   color: var(--voxver-text-secondary);
   cursor: pointer;
-  transition: all var(--voxver-transition-fast);
+  transition: background var(--voxver-transition-fast), color var(--voxver-transition-fast), transform var(--voxver-transition-fast);
 
   &:hover {
-    border-color: var(--voxver-primary-400);
-    color: var(--voxver-primary-600);
-    box-shadow: var(--voxver-shadow-glow-primary);
+    background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+    color: var(--voxver-text-primary);
   }
 
   &:active {
-    transform: scale(0.98);
+    transform: scale(0.95);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--apple-primary-focus);
+    outline-offset: 2px;
   }
 
   &:disabled {
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 0.4;
     transform: none;
   }
 }
 
+/* button-primary：Action Blue 药丸 */
 .vox-btn--primary {
-  background: var(--voxver-gradient-primary);
-  border-color: transparent;
-  color: #fff;
+  background: var(--apple-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--apple-radius-pill);
+  padding: 11px 22px;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
 
   &:hover {
-    filter: brightness(1.06);
-    border-color: transparent;
-    color: #fff;
-    box-shadow: var(--voxver-shadow-glow-primary);
+    background: var(--apple-primary);
+    color: #ffffff;
+  }
+
+  &:active {
+    transform: scale(0.95);
+    background: var(--apple-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--apple-primary-focus);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.4;
   }
 }
 
-.vox-btn--destructive {
-  background: color-mix(in oklab, #ef4444 15%, transparent);
-  color: #ef4444;
-  border: 1px solid color-mix(in oklab, #ef4444 30%, transparent);
+/* button-secondary-pill：透明蓝边药丸 */
+.vox-btn--secondary-pill {
+  background: transparent;
+  color: var(--apple-primary);
+  border: 1px solid var(--apple-primary);
+  border-radius: var(--apple-radius-pill);
+  padding: 11px 22px;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
 
   &:hover {
-    background: color-mix(in oklab, #ef4444 25%, transparent);
-    border-color: #ef4444;
-    color: #fff;
+    background: color-mix(in oklab, var(--apple-primary) 6%, transparent);
+    color: var(--apple-primary);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* button-dark-utility：ink 底白字 8px 圆角 */
+.vox-btn--dark-utility {
+  background: var(--apple-ink);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--apple-radius-sm);
+  padding: 8px 15px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
+
+  &:hover {
+    background: var(--apple-ink);
+    color: #ffffff;
+    opacity: 0.88;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* button-pearl-capsule：珍珠底 11px 圆角 */
+.vox-btn--pearl-capsule {
+  background: var(--apple-surface-pearl);
+  color: var(--apple-ink-muted-80);
+  border: none;
+  border-radius: var(--apple-radius-md);
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  box-shadow: inset 0 0 0 3px var(--apple-divider-soft);
+
+  &:hover {
+    background: var(--apple-surface-pearl);
+    opacity: 0.9;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* button-icon-circular：44x44 圆形控制 chip */
+.vox-btn--icon-circular {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: rgb(210 210 215 / 0.64);
+  color: var(--apple-ink);
+  border: none;
+  border-radius: var(--apple-radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: rgb(210 210 215 / 0.80);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* destructive：透明红边药丸（状态色，非主交互） */
+.vox-btn--destructive {
+  background: transparent;
+  color: var(--voxver-error);
+  border: 1px solid color-mix(in oklab, var(--voxver-error) 25%, transparent);
+  border-radius: var(--apple-radius-pill);
+  padding: 11px 22px;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+
+  &:hover {
+    background: color-mix(in oklab, var(--voxver-error) 8%, transparent);
+    border-color: color-mix(in oklab, var(--voxver-error) 40%, transparent);
+    color: var(--voxver-error);
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 }
 
@@ -131,8 +272,8 @@
   position: absolute;
   inset: 0;
   background: var(--voxver-border-color);
-  border-radius: 11px;
-  transition: background 0.25s ease;
+  border-radius: var(--apple-radius-pill);
+  transition: background var(--voxver-transition-normal);
 
   &::before {
     content: '';
@@ -143,12 +284,12 @@
     bottom: 2px;
     background: #fff;
     border-radius: 50%;
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform var(--voxver-transition-normal);
   }
 }
 
 .vox-toggle input:checked + .vox-toggle-slider {
-  background: var(--voxver-primary);
+  background: var(--apple-primary);
 
   &::before {
     transform: translateX(18px);
@@ -159,16 +300,19 @@
 .vox-radio-item {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--apple-space-xs);
   padding: 7px 20px;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
   color: var(--voxver-text-secondary);
   cursor: pointer;
-  transition: all var(--voxver-transition-fast);
+  transition: color var(--voxver-transition-fast);
 
   &.active {
     color: var(--voxver-text-primary);
-    font-weight: 500;
+    font-weight: 600;
   }
 }
 
@@ -178,71 +322,66 @@
   border: 1.5px solid var(--voxver-border-color);
   border-radius: 50%;
   position: relative;
-  transition: all var(--voxver-transition-fast);
+  transition: border-color var(--voxver-transition-fast);
 
   &.checked {
-    border-color: var(--voxver-primary);
+    border-color: var(--apple-primary);
 
     &::after {
       content: '';
       position: absolute;
       inset: 3px;
-      background: var(--voxver-primary);
+      background: var(--apple-primary);
       border-radius: 50%;
     }
   }
 }
 
-/* ---- 网格布局 ---- */
-.vox-card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 12px;
-}
-
-/* ---- 输入框 ---- */
+/* ---- 输入框（search-input 风格：药丸 44px）---- */
 .vox-input {
   width: 100%;
-  padding: 8px 12px;
-  border: 1.5px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-md);
-  font-size: 13px;
+  padding: 10px 16px;
+  border: 1px solid var(--voxver-border-color-light);
+  border-radius: var(--apple-radius-pill);
   font-family: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
   color: var(--voxver-text-primary);
   outline: none;
   box-sizing: border-box;
-  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
-  transition: all var(--voxver-transition-fast);
+  background: transparent;
+  transition: border-color var(--voxver-transition-fast), box-shadow var(--voxver-transition-fast);
 
   &::placeholder {
     color: var(--voxver-text-muted);
   }
 
   &:focus {
-    border-color: var(--voxver-primary);
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 12%, transparent);
+    border-color: var(--apple-primary);
+    box-shadow: 0 0 0 3px rgb(0 102 204 / 0.25);
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
   }
 }
 
-/* ---- 列表卡（行项） ---- */
+/* ---- 列表卡（行项，11px 圆角，无 transform）---- */
 .vox-list-card {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--apple-space-sm);
   padding: 10px 14px;
-  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
-  border-radius: var(--voxver-radius-md);
-  border: 1px solid transparent;
+  background: transparent;
+  border-radius: var(--apple-radius-md);
+  border: none;
   cursor: pointer;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background var(--voxver-transition-fast);
 
   &:hover {
-    border-color: var(--voxver-border-color);
-    box-shadow: var(--voxver-shadow-sm);
+    background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
   }
 }

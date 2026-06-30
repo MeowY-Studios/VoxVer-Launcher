@@ -28,7 +28,7 @@
                   {{ pendingFile.displayName || pendingFile.filename }}
                 </p>
                 <p class="confirm-target">
-                  安装到实例 <strong>{{ currentInstance.name }}</strong>
+                  安装到实例：<strong>{{ currentInstance.name }}</strong>
                 </p>
                 <p class="confirm-path">{{ selectedTarget }}</p>
               </div>
@@ -48,7 +48,7 @@
           </div>
         </Teleport>
 
-        <!-- 顶部标题栏 -->
+        <!-- 顶部标题 -->
         <div class="modal-header">
           <button class="btn-back" @click="close">
             <svg
@@ -145,7 +145,7 @@
             </div>
           </div>
 
-          <!-- MC版本标签栏 -->
+          <!-- MC版本标签 -->
           <div v-if="mcVersions.length" class="version-tabs">
             <button
               class="version-tab"
@@ -365,7 +365,7 @@ const mcVersions = computed(() => {
   })
 
   if (hasSnapshot) {
-    sortedVersions.push('快照版')
+    sortedVersions.push('快照')
   }
 
   return sortedVersions
@@ -383,7 +383,7 @@ const versionFilteredFiles = computed(() => {
     return filteredFiles.value
   }
 
-  if (selectedMcVersion.value === '快照版') {
+  if (selectedMcVersion.value === '快照') {
     return filteredFiles.value.filter((f) =>
       f.gameVersions.some((v) => isSnapshotVersion(v.split('-')[0]))
     )
@@ -394,7 +394,7 @@ const versionFilteredFiles = computed(() => {
   )
 })
 
-/** 按MC版本分组的文件列表 */
+/** 按 MC 版本分组的文件列表 */
 const groupedFiles = computed(() => {
   const filtered = versionFilteredFiles.value
   const groups: Record<string, ProjectFile[]> = {}
@@ -560,7 +560,7 @@ function selectMcVersion(version: string) {
 
 /**
  * 判断文件是否与当前实例兼容
- * 同时检查 MC 版本和加载器
+ * 同时检查 MC 版本和加载器是否兼容
  */
 function isCompatible(file: ProjectFile): boolean {
   if (!currentInstance.value) return true
@@ -600,7 +600,7 @@ async function downloadFile(file: ProjectFile) {
     return
   }
 
-  // 先弹出安装确认
+  // 先弹出安装确认弹窗
   pendingFile.value = file
   showInstallConfirm.value = true
 }
@@ -724,7 +724,7 @@ function formatDate(dateStr: string): string {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(0 0 0 / 0.6);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -742,7 +742,7 @@ function formatDate(dateStr: string): string {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 0.5);
 }
 
 /* ====== 头部 ====== */
@@ -770,7 +770,7 @@ function formatDate(dateStr: string): string {
   transition: all 0.12s;
 
   &:hover {
-    background: var(--voxver-bg-hover, rgba(255, 255, 255, 0.06));
+    background: var(--voxver-bg-hover, rgb(255 255 255 / 0.06));
     color: var(--voxver-text-primary);
   }
 }
@@ -797,12 +797,12 @@ function formatDate(dateStr: string): string {
   transition: all 0.12s;
 
   &:hover {
-    background: var(--voxver-bg-hover, rgba(255, 255, 255, 0.06));
+    background: var(--voxver-bg-hover, rgb(255 255 255 / 0.06));
     color: var(--voxver-text-primary);
   }
 }
 
-/* ====== 加载/空/错误 ====== */
+/* ====== 加载/错误提示 ====== */
 .modal-loading,
 .modal-error,
 .files-loading,
@@ -964,7 +964,7 @@ function formatDate(dateStr: string): string {
   border-radius: var(--voxver-radius-sm);
   color: var(--voxver-text-secondary);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
   cursor: pointer;
   transition: all 0.12s;
 
@@ -985,7 +985,7 @@ function formatDate(dateStr: string): string {
   }
 }
 
-/* ====== 安装目标区 ====== */
+/* ====== 安装目标选择 ====== */
 .target-section {
   background: var(--voxver-bg-secondary);
   border: 1px solid var(--voxver-border-color);
@@ -1041,7 +1041,7 @@ function formatDate(dateStr: string): string {
   margin: 4px 0 0;
 }
 
-/* ====== 文件列表区 ====== */
+/* ====== 文件列表 ====== */
 .files-section {
   margin-bottom: 8px;
 }
@@ -1064,7 +1064,7 @@ function formatDate(dateStr: string): string {
   color: var(--voxver-text-muted);
 }
 
-/* MC版本标签栏 */
+/* MC版本标签 */
 .version-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -1077,7 +1077,7 @@ function formatDate(dateStr: string): string {
 .version-tab {
   padding: 4px 10px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--voxver-text-secondary);
   background: var(--voxver-bg-secondary);
   border: 1px solid var(--voxver-border-color);
@@ -1123,7 +1123,7 @@ function formatDate(dateStr: string): string {
   transition: background 0.12s;
 
   &:hover {
-    background: var(--voxver-bg-hover, rgba(255, 255, 255, 0.03));
+    background: var(--voxver-bg-hover, rgb(255 255 255 / 0.03));
   }
 
   &.expanded {
@@ -1165,7 +1165,7 @@ function formatDate(dateStr: string): string {
   transition: background 0.12s;
 
   &:hover {
-    background: var(--voxver-bg-hover, rgba(255, 255, 255, 0.03));
+    background: var(--voxver-bg-hover, rgb(255 255 255 / 0.03));
   }
 
   &:last-child {
@@ -1180,7 +1180,7 @@ function formatDate(dateStr: string): string {
 
 .file-info .file-name {
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--voxver-text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -1213,7 +1213,7 @@ function formatDate(dateStr: string): string {
 .loader-tag {
   padding: 1px 6px;
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 400;
   background: var(--voxver-bg-secondary);
   color: var(--voxver-text-secondary);
   border-radius: 3px;
@@ -1247,17 +1247,17 @@ function formatDate(dateStr: string): string {
   }
 
   &.incompatible {
-    border-color: rgba(243, 139, 168, 0.4);
+    border-color: rgb(243 139 168 / 0.4);
     &:hover {
-      border-color: rgba(243, 139, 168, 0.6);
+      border-color: rgb(243 139 168 / 0.6);
     }
   }
 
   &.recommended {
-    border-color: rgba(166, 227, 161, 0.3);
-    background: rgba(166, 227, 161, 0.03);
+    border-color: rgb(166 227 161 / 0.3);
+    background: rgb(166 227 161 / 0.03);
     &:hover {
-      border-color: rgba(166, 227, 161, 0.5);
+      border-color: rgb(166 227 161 / 0.5);
     }
   }
 }
@@ -1297,15 +1297,15 @@ function formatDate(dateStr: string): string {
   border-radius: 3px;
 
   &.release {
-    background: rgba(166, 227, 161, 0.1);
+    background: rgb(166 227 161 / 0.1);
     color: var(--voxver-success);
   }
   &.beta {
-    background: rgba(249, 200, 70, 0.1);
+    background: rgb(249 200 70 / 0.1);
     color: #f9c200;
   }
   &.alpha {
-    background: rgba(243, 139, 168, 0.1);
+    background: rgb(243 139 168 / 0.1);
     color: var(--voxver-text-error);
   }
 }
@@ -1315,9 +1315,9 @@ function formatDate(dateStr: string): string {
   font-weight: 700;
   padding: 1px 6px;
   border-radius: 3px;
-  background: rgba(166, 227, 161, 0.15);
+  background: rgb(166 227 161 / 0.15);
   color: var(--voxver-success);
-  border: 1px solid rgba(166, 227, 161, 0.2);
+  border: 1px solid rgb(166 227 161 / 0.2);
 }
 
 .file-meta {
@@ -1359,9 +1359,9 @@ function formatDate(dateStr: string): string {
   transition: all 0.1s;
 
   &.current {
-    background: rgba(166, 227, 161, 0.1);
+    background: rgb(166 227 161 / 0.1);
     color: var(--voxver-success);
-    border-color: rgba(166, 227, 161, 0.3);
+    border-color: rgb(166 227 161 / 0.3);
     font-weight: 600;
   }
 }
@@ -1443,7 +1443,7 @@ function formatDate(dateStr: string): string {
 .confirm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgb(0 0 0 / 0.7);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -1458,7 +1458,7 @@ function formatDate(dateStr: string): string {
   border: 1px solid var(--voxver-border-color);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 0.5);
 }
 
 .confirm-header {
@@ -1530,7 +1530,7 @@ function formatDate(dateStr: string): string {
   padding: 7px 20px;
   border: none;
   border-radius: var(--voxver-radius-sm);
-  background: var(--voxver-gradient-primary, linear-gradient(135deg, var(--voxver-primary), #0ea5e9));
+  background: var(--voxver-primary);
   color: #fff;
   font-size: 13px;
   font-weight: 600;

@@ -3,14 +3,13 @@
    基础样式补充（pixel-ui.css 已包含重置和组件样式）
    ============================================ */
 
-/* ---- 兼容性变量别名（旧 --mcla- 变量迁移，保留类名 .mcla-sidebar 等供 pixel-ui.css 使用）---- */
+/* ---- 兼容性变量别名 ---- */
 :root {
   --voxver-surface: var(--voxver-bg-secondary);
   --voxver-surface-2: var(--voxver-bg-tertiary);
   --voxver-border-2: var(--voxver-border-strong);
   --voxver-primary-bg: var(--voxver-primary-light);
   --voxver-primary-color: var(--voxver-primary);
-  --voxver-primary-hover: var(--voxver-primary-hover);
   --voxver-green: var(--voxver-success);
   --voxver-danger: var(--voxver-error);
   --voxver-accent: var(--voxver-primary);
@@ -40,29 +39,29 @@
   scrollbar-color: var(--voxver-border-color) var(--voxver-bg-secondary);
 }
 
-/* ---- 选中文本 ---- */
+/* ---- 选中文本（Apple Action Blue）---- */
 ::selection {
-  background: var(--voxver-primary-200);
-  color: var(--voxver-primary-900);
+  background: rgb(0 102 204 / 0.2);
+  color: var(--apple-ink);
 }
 
-/* ---- Focus 可见性 ---- */
+/* ---- Focus 可见性（Apple primary-focus 焦点环）---- */
 :focus-visible {
-  outline: 2px solid var(--voxver-primary-500);
+  outline: 2px solid var(--apple-primary-focus);
   outline-offset: 2px;
 }
 
 /* ---- Electron 禁止文字选中区域 ---- */
 [aria-draggable="true"],
 .titlebar,
-.mcla-sidebar,
-.mcla-nav-item {
+.voxver-sidebar,
+.voxver-nav-item {
   user-select: none;
   -webkit-user-select: none;
 }
 
 /* ---- 全局过渡 ---- */
-a, button, input, select, textarea, .mcla-card, .mcla-nav-item, .mcla-tab {
+a, button, input, select, textarea, .voxver-card, .voxver-nav-item, .voxver-tab {
   transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   transition-duration: 150ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -111,30 +110,19 @@ pre {
   transform: translateY(-4px);
 }
 
-/* ---- 卡片悬停效果增强 ---- */
-.mcla-card {
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--voxver-shadow-lg);
-  }
-}
+/* ---- 卡片悬停（Apple：无上浮、无阴影，hover 效果由 .vox-card-hover 提供）---- */
 
-/* ---- 列表项悬停效果 ---- */
-.mcla-list-item {
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  
+/* ---- 列表项悬停（Apple：仅背景 tint，无位移）---- */
+.voxver-list-item {
+  transition: background 0.15s ease;
+
   &:hover {
     background: var(--voxver-bg-hover);
-    transform: translateX(4px);
-  }
-  
-  &:active {
-    transform: translateX(2px);
   }
 }
 
 /* ---- 输入框聚焦增强 ---- */
-.mcla-input {
+.voxver-input {
   &:focus {
     border-color: var(--voxver-primary-400);
     box-shadow: var(--voxver-input-focus-shadow);
@@ -143,9 +131,9 @@ pre {
 }
 
 /* ---- 按钮点击反馈 ---- */
-.mcla-btn {
+.voxver-btn {
   &:active {
-    transform: scale(0.98);
+    transform: scale(0.95);
   }
   
   &:disabled {
@@ -156,7 +144,7 @@ pre {
 }
 
 /* ---- 进度条动画增强 ---- */
-.mcla-progress-bar {
+.voxver-progress-bar {
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -174,50 +162,55 @@ html {
   }
 }
 
-/* ---- PxModal Buttons ---- */
+/* ---- PxModal Buttons（Apple button-primary 药丸）---- */
 .px-btn {
-  padding: 8px 16px;
-  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 22px;
   font-family: inherit;
-  font-weight: 500;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
   border: none;
-  border-radius: var(--voxver-radius-md, 8px);
+  border-radius: var(--apple-radius-pill);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background var(--voxver-transition-fast), transform var(--voxver-transition-fast);
   outline: none;
 }
 
-.px-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
+.px-btn:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
-.px-btn:active:not(:disabled) {
-  transform: translateY(0);
+.px-btn:focus-visible {
+  outline: 2px solid var(--apple-primary-focus);
+  outline-offset: 2px;
 }
 
 .px-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
   transform: none;
 }
 
 .px-btn--primary {
-  background: var(--voxver-gradient-primary, linear-gradient(135deg, var(--voxver-primary), #0ea5e9));
+  background: var(--apple-primary);
   color: #ffffff;
-  box-shadow: 0 4px 12px color-mix(in oklab, var(--voxver-primary) 35%, transparent);
 }
 
 .px-btn--primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--voxver-primary-400), #0ea5e9);
-  box-shadow: 0 6px 16px color-mix(in oklab, var(--voxver-primary) 45%, transparent);
+  background: var(--apple-primary);
+  opacity: 0.92;
 }
 
 .px-btn--secondary {
-  background: var(--voxver-bg-tertiary);
-  color: var(--voxver-text-primary);
-  border: 1px solid var(--voxver-border-color);
+  background: transparent;
+  color: var(--apple-primary);
+  border: 1px solid var(--apple-primary);
 }
 
 .px-btn--secondary:hover:not(:disabled) {
-  background: var(--voxver-border-color);
+  background: color-mix(in oklab, var(--apple-primary) 6%, transparent);
 }

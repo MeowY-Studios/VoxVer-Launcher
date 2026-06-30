@@ -718,7 +718,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, inject, reactive, watch, onMounted, onUnmounted, type Ref } from 'vue'
+import { ref, computed, inject, reactive, watch, onMounted, onUnmounted, nextTick, type Ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useDownloadStore } from '../stores/download.store'
 import { useInstancesStore } from '../stores/instances.store'
@@ -743,6 +743,14 @@ function handleScroll() {
   const el = pageRef.value
   if (!el) return
   showBackToTop.value = el.scrollTop > 300
+}
+
+async function handleLoadMore() {
+  const el = pageRef.value
+  const scrollTop = el?.scrollTop ?? 0
+  await dlStore.loadMore()
+  await nextTick()
+  el?.scrollTo({ top: scrollTop })
 }
 
 // 从 URL query 读取分类、版本、加载器（从版本设置页跳转时传入）
@@ -1378,7 +1386,7 @@ watch(
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.08);
+    background: rgb(0 0 0 / 0.08);
     border-radius: 3px;
   }
 }
@@ -1393,12 +1401,12 @@ watch(
   .dl-header-icon {
     width: 44px;
     height: 44px;
-    border-radius: var(--voxver-radius-lg);
-    background: linear-gradient(135deg, var(--voxver-primary), #42a5f5);
+    border-radius: var(--voxver-radius-sm);
+    background: var(--voxver-primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: var(--voxver-text-inverse);
     flex-shrink: 0;
   }
 
@@ -1425,11 +1433,11 @@ watch(
 
 .ver-tab {
   padding: 7px 16px;
-  border: 1.5px solid var(--voxver-border-color);
+  border: none;
   border-radius: var(--voxver-radius-md);
-  background: var(--voxver-surface);
+  background: transparent;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--voxver-text-secondary);
   cursor: pointer;
   transition: all 0.14s;
@@ -1438,13 +1446,12 @@ watch(
   gap: 4px;
 
   &:hover {
-    border-color: var(--voxver-primary);
+    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
     color: var(--voxver-primary);
   }
   &.active {
-    background: var(--voxver-primary);
-    border-color: var(--voxver-primary);
-    color: #fff;
+    background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
+    color: var(--voxver-primary);
   }
 
   .tab-count {
@@ -1460,7 +1467,7 @@ watch(
   gap: 8px;
   padding: 7px 12px;
   background: var(--voxver-surface);
-  border: 1px solid var(--voxver-border-color);
+  border: 1px solid var(--voxver-border-color-light);
   border-radius: var(--voxver-radius-md);
   margin-bottom: 14px;
   flex-shrink: 0;
@@ -1580,10 +1587,7 @@ watch(
   transition: all 0.14s;
 
   &:hover {
-    border-color: var(--voxver-border-color);
-    border-left-color: var(--voxver-primary);
-    border-left-width: 3px;
-    box-shadow: var(--voxver-shadow-sm);
+    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
   }
 }
 
@@ -1666,7 +1670,7 @@ watch(
 .va-btn {
   height: 30px;
   padding: 0 12px;
-  border: 1.5px solid var(--voxver-border-color);
+  border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-sm);
   background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   font-size: 12px;
@@ -1684,7 +1688,7 @@ watch(
   &.primary {
     background: var(--voxver-primary);
     border-color: var(--voxver-primary);
-    color: #fff;
+    color: var(--voxver-text-inverse);
     &:hover {
       background: var(--voxver-primary-hover);
     }
@@ -1692,14 +1696,14 @@ watch(
   &.is-dl {
     background: var(--voxver-primary-hover);
     border-color: var(--voxver-primary);
-    color: #fff;
+    color: var(--voxver-text-inverse);
     cursor: wait;
     opacity: 0.85;
   }
   &.is-done {
     background: var(--voxver-success);
     border-color: var(--voxver-success);
-    color: #fff;
+    color: var(--voxver-text-inverse);
     cursor: default;
     opacity: 0.8;
   }
@@ -1737,7 +1741,7 @@ watch(
 
 .btn-loadmore {
   padding: 8px 24px;
-  border: 1.5px solid var(--voxver-border-color);
+  border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
   background: var(--voxver-surface);
   font-size: 13px;
@@ -1777,7 +1781,7 @@ watch(
 
   label {
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 400;
     color: var(--voxver-text-primary);
     white-space: nowrap;
     min-width: 36px;
@@ -1797,7 +1801,7 @@ watch(
 .btn-search {
   padding: 8px 28px;
   background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
-  border: 1.5px solid var(--voxver-primary);
+  border: 1px solid var(--voxver-primary);
   border-radius: var(--voxver-radius-md);
   font-size: 13px;
   font-weight: 600;
@@ -1812,7 +1816,7 @@ watch(
 .btn-reset {
   padding: 8px 20px;
   background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
-  border: 1.5px solid var(--voxver-border-color);
+  border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
   font-size: 13px;
   color: var(--voxver-text-secondary);
@@ -1827,7 +1831,7 @@ watch(
 .btn-secondary {
   padding: 8px 20px;
   background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
-  border: 1.5px solid var(--voxver-success);
+  border: 1px solid var(--voxver-success);
   border-radius: var(--voxver-radius-md);
   font-size: 13px;
   color: var(--voxver-success);
@@ -1851,7 +1855,7 @@ watch(
     margin: 0;
     font-size: 14px;
     color: var(--voxver-primary);
-    font-weight: 500;
+    font-weight: 400;
   }
 }
 @keyframes bounce {
@@ -1886,9 +1890,7 @@ watch(
   &:hover {
     border-color: var(--voxver-primary-300);
     border-left-color: var(--voxver-primary);
-    background: color-mix(in oklab, var(--voxver-primary) 4%, transparent);
-    box-shadow: var(--voxver-shadow-md);
-    transform: translateX(2px);
+    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
   }
 
   .res-thumb {
@@ -1909,7 +1911,7 @@ watch(
     justify-content: center;
     font-size: 20px;
     font-weight: 700;
-    color: #fff;
+    color: var(--voxver-text-inverse);
     flex-shrink: 0;
   }
 
@@ -1940,7 +1942,7 @@ watch(
 
     .res-cat {
       font-size: 10px;
-      font-weight: 500;
+      font-weight: 400;
       padding: 1px 5px;
       border-radius: var(--voxver-radius-xs);
       background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
@@ -1970,7 +1972,7 @@ watch(
 
     .res-version {
       color: var(--voxver-text-secondary);
-      font-weight: 500;
+      font-weight: 400;
     }
 
     .res-dl-count {
@@ -1999,10 +2001,10 @@ watch(
         height: 11px;
       }
       &.mr {
-        color: #1bd96a;
+        color: var(--voxver-success);
       }
       &.cf {
-        color: #f16436;
+        color: var(--voxver-error);
       }
     }
   }
@@ -2031,16 +2033,16 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--voxver-border-color);
+  border: none;
   border-radius: var(--voxver-radius-md);
-  background: var(--voxver-bg-elevated);
+  background: transparent;
   color: var(--voxver-text-secondary);
   cursor: pointer;
   transition: all 0.13s;
   flex-shrink: 0;
 
   &:hover:not(:disabled) {
-    border-color: var(--voxver-primary);
+    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
     color: var(--voxver-primary);
   }
 
@@ -2059,7 +2061,7 @@ watch(
   padding: 0 10px;
   border-radius: var(--voxver-radius-md);
   background: var(--voxver-primary);
-  color: #fff;
+  color: var(--voxver-text-inverse);
   font-size: 13px;
   font-weight: 600;
   flex-shrink: 0;
@@ -2104,22 +2106,19 @@ watch(
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  border: 1.5px solid var(--voxver-border-color);
+  border: 1px solid var(--voxver-border-color-light);
   background: var(--voxver-surface);
   color: var(--voxver-text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transition: all 0.18s ease;
   z-index: 50;
 
   &:hover {
-    border-color: var(--voxver-primary);
+    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
     color: var(--voxver-primary);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 14px color-mix(in oklab, var(--voxver-primary) 20%, transparent);
   }
 
   svg {

@@ -246,6 +246,11 @@ onMounted(() => {
   justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
+
+  .vox-btn {
+    border: 1px solid var(--voxver-border-color);
+    background: color-mix(in oklab, var(--voxver-text) 2%, transparent);
+  }
 }
 
 /* 列表项内部布局（卡片样式由 .vox-list-card 提供） */
@@ -261,7 +266,6 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: var(--voxver-shadow-glow-primary);
 }
 
 .ri-info {

@@ -1,6 +1,6 @@
 <template>
   <div class="mod-manager">
-    <!-- 搜索栏 -->
+    <!-- 搜索框 -->
     <div class="mod-search-card">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9E9E9E" stroke-width="2">
         <circle cx="11" cy="11" r="8" />
@@ -14,11 +14,11 @@
       />
     </div>
 
-    <!-- 操作按钮栏 -->
+    <!-- 操作按钮组 --> 
     <div class="mod-toolbar">
       <button class="form-action-btn primary-outline" @click="openModFolder">打开文件夹</button>
       <button class="form-action-btn" @click="installModFromFile">从文件安装</button>
-      <button class="form-action-btn" @click="goToDownloads">下载新 Mod</button>
+      <button class="form-action-btn" @click="goToDownloads">下载Mod</button>
       <button
         class="form-action-btn"
         :class="{ checking: checkingUpdates }"
@@ -42,7 +42,7 @@
           checkingUpdates
             ? '检查中...'
             : hasUpdateCount > 0
-              ? `检查更新 (${hasUpdateCount}↑)`
+              ? `检查更新(${hasUpdateCount}个)`
               : '检查更新'
         }}
       </button>
@@ -69,7 +69,7 @@
           checkingDependencies
             ? '检查中...'
             : missingDepsCount > 0
-              ? `检查依赖 (${missingDepsCount}!)`
+              ? `检查依赖(${missingDepsCount}!)`
               : '检查依赖'
         }}
       </button>
@@ -146,17 +146,17 @@
                 <div class="mod-name-row">
                   <span class="mod-name">{{ mod.name }}</span>
                   <span class="mod-version">{{ mod.version }}</span>
-                  <span v-if="!mod.enabled" class="mod-disabled-badge">已禁用</span>
+                  <span v-if="!mod.enabled" class="mod-disabled-badge">已禁用</span>    
                   <!-- 有更新角标 -->
                   <span v-if="updateInfoMap[mod.filePath]?.hasUpdate" class="mod-update-badge">
-                    ↑ {{ updateInfoMap[mod.filePath].latestVersionName }}
+                    {{ updateInfoMap[mod.filePath].latestVersionName }} 更新
                   </span>
                   <!-- 缺失依赖角标 -->
                   <span
                     v-if="depCheckMap[mod.filePath]?.missingDependencies?.length > 0"
                     class="mod-dep-badge"
                   >
-                    ⚠ {{ depCheckMap[mod.filePath].missingDependencies.length }} deps
+                    {{ depCheckMap[mod.filePath].missingDependencies.length }} 个缺失依赖
                   </span>
                 </div>
                 <p class="mod-desc">{{ mod.description || '暂无描述' }}</p>
@@ -190,7 +190,7 @@
             d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM9 17v-5l-2 2-2-2v5"
           />
         </svg>
-        <p>暂无符合条件的 Mod</p>
+        <p>暂无符合条件的Mod</p>  
       </div>
     </div>
 
@@ -205,9 +205,9 @@
           @click="updateSelectedMod"
         >
           <template v-if="updatingMod === selectedMod">
-            更新中 {{ Math.round((updateProgressMap[selectedMod] ?? 0) * 100) }}%
+            更新 {{ Math.round((updateProgressMap[selectedMod] ?? 0) * 100) }}%
           </template>
-          <template v-else-if="selectedModHasUpdate">↑ 更新可用</template>
+          <template v-else-if="selectedModHasUpdate">更新可用</template>
           <template v-else>检查更新</template>
         </button>
         <button
@@ -216,9 +216,9 @@
           :disabled="installingDeps === selectedMod"
           @click="installSelectedDeps"
         >
-          <template v-if="installingDeps === selectedMod">安装依赖中...</template>
+          <template v-if="installingDeps === selectedMod">安装依赖...</template>
           <template v-else-if="selectedModMissingDeps > 0">
-            ⚠ 安装依赖 ({{ selectedModMissingDeps }})
+            安装依赖 ({ {{ selectedModMissingDeps }})
           </template>
           <template v-else>检查依赖</template>
         </button>
@@ -253,13 +253,13 @@
             <h3 class="mod-detail-name">{{ selectedDetailMod.name }}</h3>
             <p class="mod-detail-version">版本：{{ selectedDetailMod.version }}</p>
             <p v-if="selectedDetailMod.authors?.length" class="mod-detail-authors">
-              作者：{{ selectedDetailMod.authors.join('，') }}
+              作者：{{ selectedDetailMod.authors.join('、') }}
             </p>
             <p v-if="selectedDetailMod.description" class="mod-detail-desc">
               {{ selectedDetailMod.description }}
             </p>
             <p v-if="selectedDetailMod.dependencies?.length" class="mod-detail-deps">
-              依赖：{{ selectedDetailMod.dependencies.join('，') }}
+              依赖：{{ selectedDetailMod.dependencies.join('、') }}
             </p>
             <p v-if="selectedDetailMod.url" class="mod-detail-url">
               链接：<a :href="selectedDetailMod.url" target="_blank">{{ selectedDetailMod.url }}</a>
@@ -351,12 +351,12 @@ const installedMods = ref<ModItem[]>([])
 
 // 更新检测状态
 const checkingUpdates = ref(false)
-// filePath → ModUpdateInfo
+// filePath -> ModUpdateInfo
 const updateInfoMap = ref<Record<string, ModUpdateInfo>>({})
-const updatingMod = ref<string | null>(null) // 正在更新的 filePath
-const updateProgressMap = ref<Record<string, number>>({}) // filePath → 0~1
+const updatingMod = ref<string | null>(null) // 正在更新的Mod
+const updateProgressMap = ref<Record<string, number>>({}) // filePath -> 0~1
 
-// 可更新的 mod 数量（用于 tab 提示）
+// 可更新的 mod 数量（用 ?tab）
 const hasUpdateCount = computed(
   () => Object.values(updateInfoMap.value).filter((u: ModUpdateInfo) => u.hasUpdate).length
 )
@@ -394,7 +394,7 @@ const selectedModMissingDeps = computed(() => {
   return depCheckMap.value[selectedMod.value]?.missingDependencies?.length || 0
 })
 
-// 点击选中 / 再点击取消
+// 点击选中 / 再点击取消选中
 function selectMod(filePath: string) {
   selectedMod.value = selectedMod.value === filePath ? null : filePath
 }
@@ -403,7 +403,7 @@ function selectMod(filePath: string) {
 const showDetailModal = ref(false)
 const selectedDetailMod = ref<ModItem | null>(null)
 
-// 筛选 Tabs
+// 筛选器 Tabs
 const modFilterTabs = computed(() => {
   const all = installedMods.value.length
   const enabled = installedMods.value.filter((m) => m.enabled).length
@@ -494,7 +494,7 @@ async function updateSelectedMod() {
     if (!newInfo?.hasUpdate || !currentMod) {
       window.electronAPI?.notification?.send({
         title: '成功',
-        body: `「${mod?.name || ''}」已是最新版本（${mod?.version || ''}）`,
+        body: `${mod?.name || ''}」已是最新版本（${mod?.version || ''}）`,
         type: 'success'
       })
       return
@@ -514,7 +514,7 @@ async function doUpdateMod(mod: ModItem, info: ModUpdateInfo) {
     })
     return
   }
-  if (!confirm(`更新「${mod.name}」\n${info.currentVersionName} → ${info.latestVersionName}？`))
+  if (!confirm(`更新${mod.name}」\n${info.currentVersionName} -> ${info.latestVersionName}？`))
     return
 
   updatingMod.value = mod.filePath
@@ -536,7 +536,7 @@ async function doUpdateMod(mod: ModItem, info: ModUpdateInfo) {
     unsubProgress?.()
 
     if (result?.ok) {
-      // 从 updateInfoMap 清除已更新的记录
+      // 更新成功 清除已更新的记录
       const newMap = { ...updateInfoMap.value }
       delete newMap[mod.filePath]
       updateInfoMap.value = newMap
@@ -598,7 +598,7 @@ async function installSelectedDeps() {
       })
       return
     }
-    // 重新获取 mod，确保类型安全
+    // 重新获取 mod，确保类型正确
     const currentMod = installedMods.value.find((m) => m.filePath === selectedMod.value)
     if (currentMod) {
       await doInstallDeps(currentMod, newDepCheck)
@@ -609,7 +609,7 @@ async function installSelectedDeps() {
 }
 
 async function doInstallDeps(mod: ModItem, depCheck: ModDependencyCheckResult) {
-  if (!confirm(`为「${mod.name}」安装 ${depCheck.missingDependencies.length} 个缺失依赖？`))
+  if (!confirm(`为 ${mod.name}」安装 ${depCheck.missingDependencies.length} 个缺失依赖？`))
     return
 
   installingDeps.value = mod.filePath
@@ -675,7 +675,7 @@ async function removeSelectedMod() {
   if (!selectedMod.value) return
   const mod = installedMods.value.find((m) => m.filePath === selectedMod.value)
   if (!mod) return
-  if (!confirm(`确定要删除 Mod「${mod.name}」吗？`)) return
+  if (!confirm(`确定要删除 ${mod.name}」吗？`)) return
   try {
     await window.electronAPI?.mod.uninstall(mod.filePath)
     await loadMods()
@@ -755,7 +755,7 @@ async function toggleModEnable(mod: ModItem) {
 
 // 删除单个 Mod
 async function removeMod(mod: ModItem) {
-  if (!confirm(`确定要删除 Mod「${mod.name}」吗？`)) return
+  if (!confirm(`确定要删除 ${mod.name}」吗？`)) return
   try {
     await window.electronAPI?.mod.uninstall(mod.filePath)
     await loadMods()
@@ -776,7 +776,7 @@ onMounted(() => {
   overflow: hidden;
 }
 
-/* 搜索栏 */
+  /* 搜索卡片 */
 .mod-search-card {
   display: flex;
   align-items: center;
@@ -802,7 +802,7 @@ onMounted(() => {
   }
 }
 
-/* 操作按钮栏 */
+  /* 操作按钮 */  
 .mod-toolbar {
   display: flex;
   gap: 8px;
@@ -812,7 +812,7 @@ onMounted(() => {
   padding: 6px 14px;
   border-radius: var(--voxver-radius-sm);
   font-size: 12.5px;
-  font-weight: 500;
+  font-weight: 400;
   cursor: pointer;
   transition: all 0.12s;
   border: 1px solid var(--voxver-border-color);
@@ -830,7 +830,7 @@ onMounted(() => {
   }
 }
 
-/* 筛选 Tabs */
+  /* 筛选器 Tabs */
 .mod-tabs {
   display: flex;
   gap: 4px;
@@ -998,11 +998,11 @@ onMounted(() => {
     border-color: var(--voxver-error);
   }
   &.danger:hover {
-    background: rgba(239, 68, 68, 0.1);
+    background: rgb(239 68 68 / 0.1);
   }
 }
 
-/* 底部操作栏 */
+  /* 底部操作栏 */
 .mod-bottom-bar {
   display: flex;
   align-items: center;
@@ -1044,7 +1044,7 @@ onMounted(() => {
     color: var(--voxver-error);
   }
   &.danger:hover:not(:disabled) {
-    background: rgba(239, 68, 68, 0.1);
+    background: rgb(239 68 68 / 0.1);
   }
 }
 
@@ -1052,7 +1052,7 @@ onMounted(() => {
 .mod-detail-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgb(0 0 0 / 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1158,8 +1158,8 @@ onMounted(() => {
   }
 }
 
-/* 空状态 */
-.empty-state {
+  /* 空状态 */
+ .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1199,7 +1199,7 @@ onMounted(() => {
   margin-right: 4px;
 }
 
-/* mod 卡片有更新时的右侧橙色细边 */
+/* mod 卡片有更新时的右侧橙色边框 */
 .mod-item.has-update {
   border-right: 3px solid #f59e0b;
 }
@@ -1212,9 +1212,9 @@ onMounted(() => {
   border-radius: var(--voxver-radius-xs);
   font-size: 10px;
   font-weight: 600;
-  background: rgba(245, 158, 11, 0.15);
+  background: rgb(245 158 11 / 0.15);
   color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.35);
+  border: 1px solid rgb(245 158 11 / 0.35);
   margin-left: 4px;
 }
 
@@ -1226,13 +1226,13 @@ onMounted(() => {
   border-radius: var(--voxver-radius-xs);
   font-size: 10px;
   font-weight: 600;
-  background: rgba(239, 68, 68, 0.15);
+  background: rgb(239 68 68 / 0.15);
   color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  border: 1px solid rgb(239 68 68 / 0.35);
   margin-left: 4px;
 }
 
-/* 缺失依赖的 mod 卡片左边框 */
+/* 缺失依赖时的左边框 */
 .mod-item.missing-deps {
   border-left: 3px solid #ef4444;
 }
@@ -1250,30 +1250,30 @@ onMounted(() => {
 
   .mod-update-progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--voxver-primary), var(--voxver-primary-400));
+    background: var(--voxver-primary);
     transition: width 0.2s ease;
   }
 }
 
 /* 底部操作栏「更新」按钮有更新时变橙色高亮 */
 .mod-bottom-btn.has-update {
-  background: rgba(245, 158, 11, 0.12);
+  background: rgb(245 158 11 / 0.12);
   color: #f59e0b;
-  border-color: rgba(245, 158, 11, 0.4);
+  border-color: rgb(245 158 11 / 0.4);
 
   &:hover:not(:disabled) {
-    background: rgba(245, 158, 11, 0.22);
+    background: rgb(245 158 11 / 0.22);
   }
 }
 
 /* 底部操作栏「安装依赖」按钮有缺失时变红色高亮 */
 .mod-bottom-btn.missing-deps {
-  background: rgba(239, 68, 68, 0.12);
+  background: rgb(239 68 68 / 0.12);
   color: #ef4444;
-  border-color: rgba(239, 68, 68, 0.4);
+  border-color: rgb(239 68 68 / 0.4);
 
   &:hover:not(:disabled) {
-    background: rgba(239, 68, 68, 0.22);
+    background: rgb(239 68 68 / 0.22);
   }
 }
 

@@ -15,7 +15,7 @@ import './styles/themes/light.scss'
 import './styles/themes/koring.scss'
 
 // 注入 SVG 图标 Sprite 到 DOM（供全局 <use xlink:href="#pc-icon-xxx"> 引用）
-import iconSpriteRaw from './styles/mcla-icons.svg?raw'
+import iconSpriteRaw from './styles/voxver-icons.svg?raw'
 const spriteContainer = document.getElementById('svg-sprite')
 if (spriteContainer) {
   spriteContainer.innerHTML = iconSpriteRaw

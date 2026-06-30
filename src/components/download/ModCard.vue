@@ -1,6 +1,6 @@
-﻿<template>
+<template>
   <div class="mod-card" @click="$emit('click', mod)">
-    <!-- 封面图 -->
+    <!-- 封面 -->
     <div class="mod-cover">
       <img v-if="mod.iconUrl" :src="mod.iconUrl" :alt="mod.name" loading="lazy" />
       <div v-else class="cover-placeholder">
@@ -19,13 +19,13 @@
       </div>
     </div>
 
-    <!-- 信息区 -->
+    <!-- 信息 -->
     <div class="mod-info">
       <h3 class="mod-name">{{ mod.name }}</h3>
       <p class="mod-author">{{ mod.author }}</p>
       <p class="mod-desc">{{ mod.description || $t('component.noDescription') }}</p>
 
-      <!-- 底部元数据 -->
+      <!-- 底部元数 -->
       <div class="mod-meta">
         <span class="meta-tag downloads">
           <svg
@@ -107,8 +107,7 @@ function formatNum(n: number): string {
   transition: all var(--voxver-transition-fast);
 
   &:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--voxver-shadow-md);
+    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
     border-color: var(--voxver-primary-200);
   }
 }
@@ -200,11 +199,11 @@ function formatNum(n: number): string {
     text-transform: uppercase;
 
     &.curseforge {
-      background: rgba(240, 73, 48, 0.1);
+      background: rgb(240 73 48 / 0.1);
       color: #f04930;
     }
     &.modrinth {
-      background: rgba(33, 150, 83, 0.1);
+      background: rgb(33 150 83 / 0.1);
       color: #1db954;
     }
   }

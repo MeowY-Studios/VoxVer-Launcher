@@ -568,7 +568,7 @@ function deleteSelected() {
 .tab-count {
   background: var(--voxver-bg-hover);
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: var(--voxver-radius-sm);
   font-size: 11px;
   min-width: 20px;
   text-align: center;
@@ -651,13 +651,13 @@ function deleteSelected() {
   background: var(--voxver-gradient-primary);
 }
 .task-item.completed::before {
-  background: linear-gradient(180deg, var(--voxver-success), color-mix(in oklab, var(--voxver-success) 70%, #000));
+  background: var(--voxver-success);
 }
 .task-item.failed::before {
-  background: linear-gradient(180deg, var(--voxver-error), color-mix(in oklab, var(--voxver-error) 70%, #000));
+  background: var(--voxver-error);
 }
 .task-item.downloading::before {
-  background: linear-gradient(180deg, var(--voxver-warning), color-mix(in oklab, var(--voxver-warning) 70%, #000));
+  background: var(--voxver-warning);
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -710,7 +710,7 @@ function deleteSelected() {
 .icon-circle {
   width: 44px;
   height: 44px;
-  border-radius: var(--voxver-radius-lg);
+  border-radius: var(--voxver-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -780,7 +780,7 @@ function deleteSelected() {
   font-size: 11px;
   padding: 2px 8px;
   border-radius: var(--voxver-radius-xs);
-  font-weight: 500;
+  font-weight: 400;
 }
 .task-phase-tag.downloading {
   background: color-mix(in oklab, var(--voxver-warning) 20%, transparent);
@@ -819,7 +819,7 @@ function deleteSelected() {
   top: 0;
   left: 0;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.3), transparent);
   animation: shimmer 2s infinite;
 }
 @keyframes shimmer {

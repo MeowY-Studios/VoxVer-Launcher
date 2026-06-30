@@ -6,14 +6,7 @@
           <!-- 标题栏 -->
           <header class="vs-header">
             <button class="vs-back" @click="close">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <path d="M15 18l-6-6 6-6" />
               </svg>
             </button>
@@ -36,13 +29,8 @@
           <div class="vs-body">
             <!-- 左侧导航 -->
             <nav class="vs-nav">
-              <button
-                v-for="item in navItems"
-                :key="item.id"
-                class="vs-nav-item"
-                :class="{ active: activeTab === item.id }"
-                @click="activeTab = item.id"
-              >
+              <button v-for="item in navItems" :key="item.id" class="vs-nav-item"
+                :class="{ active: activeTab === item.id }" @click="activeTab = item.id">
                 <span v-html="item.icon"></span>
                 {{ item.label }}
               </button>
@@ -55,22 +43,15 @@
                 <!-- 版本信息卡片 -->
                 <div class="ver-info-card">
                   <div class="ver-icon">
-                    <svg
-                      width="36"
-                      height="36"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="var(--pcl-blue)"
-                      stroke-width="1.5"
-                    >
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--pcl-blue)"
+                      stroke-width="1.5">
                       <path
-                        d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"
-                      />
+                        d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
                     </svg>
                   </div>
                   <div class="ver-detail">
                     <p class="ver-full-name">{{ versionName }}</p>
-                    <p class="ver-sub">正版版 {{ versionBase }} {{ loaderInfo }}</p>
+                    <p class="ver-sub">正版 {{ versionBase }} {{ loaderInfo }}</p>
                   </div>
                 </div>
 
@@ -92,20 +73,16 @@
                       <option>自动</option>
                       <option>原版</option>
                       <option>Modded</option>
-                      <option>整合包</option>
+                      <option>整合</option>
                     </select>
                   </div>
                   <div class="form-btns">
-                    <button class="form-action-btn" @click="editVersionName">修改版本名</button>
+                    <button class="form-action-btn" @click="editVersionName">修改版本名称</button>
                     <button class="form-action-btn" @click="editVersionDescription">
                       修改版本描述
                     </button>
-                    <button
-                      class="form-action-btn"
-                      :class="{ active: isFavorited }"
-                      @click="toggleFavorite"
-                    >
-                      {{ isFavorited ? '★ 已收藏' : '☆ 加入收藏夹' }}
+                    <button class="form-action-btn" :class="{ active: isFavorited }" @click="toggleFavorite">
+                      {{ isFavorited ? '取消收藏' : '加入收藏' }}
                     </button>
                   </div>
                 </section>
@@ -114,9 +91,9 @@
                 <section class="vs-section">
                   <h3 class="sec-title">快捷方式</h3>
                   <div class="form-btns">
-                    <button class="form-action-btn" @click="openFolder('')">版本文件夹</button>
-                    <button class="form-action-btn" @click="openFolder('saves')">存档文件夹</button>
-                    <button class="form-action-btn" @click="openFolder('mods')">Mod 文件夹</button>
+                    <button class="form-action-btn" @click="openFolder('')">版本文件</button>
+                    <button class="form-action-btn" @click="openFolder('saves')">存档文件</button>
+                    <button class="form-action-btn" @click="openFolder('mods')">Mod 文件</button>
                   </div>
                 </section>
 
@@ -135,20 +112,13 @@
 
               <!-- ===== 设置 ===== -->
               <template v-if="activeTab === 'settings'">
-                <!-- 提示条 -->
+                <!-- 提示 -->
                 <div class="vs-tip-bar">
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 16v-4M12 8h.01" />
                   </svg>
-                  这些设置只对该游戏版本生效，不影响其他版本。
+                  这些设置只对该游戏版本生效，不影响其他版本的运行。
                   <button class="tip-close" @click="showTip = false">×</button>
                 </div>
 
@@ -166,7 +136,7 @@
                     <input type="text" class="form-input" placeholder="跟随全局设置" />
                   </div>
                   <div class="form-row">
-                    <label>自定义信息</label>
+                    <label>自定义路径</label>
                     <input type="text" class="form-input" placeholder="跟随全局设置" />
                   </div>
                   <div class="form-row">
@@ -193,20 +163,13 @@
                     </label>
                     <label class="radio-item" :class="{ active: memMode === 'custom' }">
                       <input type="radio" name="mem" value="custom" v-model="memMode" />
-                      自定义
+                      自定义配置
                     </label>
                   </div>
 
                   <!-- 滑块（自定义模式显示） -->
                   <div v-if="memMode === 'custom'" class="slider-area">
-                    <input
-                      type="range"
-                      class="mem-slider"
-                      min="512"
-                      max="16384"
-                      step="256"
-                      v-model="memCustom"
-                    />
+                    <input type="range" class="mem-slider" min="512" max="16384" step="256" v-model="memCustom" />
                   </div>
 
                   <div v-if="memMode !== 'global'" class="form-row" style="margin-top: 10px">
@@ -231,7 +194,7 @@
                 </section>
 
                 <section class="vs-section">
-                  <h3 class="sec-title">服务器</h3>
+                  <h3 class="sec-title">服务登录</h3>
                   <div class="form-row">
                     <label>登录方式</label>
                     <select class="form-select">
@@ -241,35 +204,23 @@
                     </select>
                   </div>
                   <div class="form-row">
-                    <label>自动进入服务器</label>
-                    <input type="text" class="form-input" placeholder="服务器地址（可选）" />
+                    <label>自动进入服务</label>
+                      <input type="text" class="form-input" placeholder="服务器地址（可选）" />
                   </div>
                 </section>
 
                 <section class="vs-section collapsible" :class="{ collapsed: !showAdvanced }">
                   <h3 class="sec-title clickable" @click="showAdvanced = !showAdvanced">
                     高级选项
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                      :style="{ transform: showAdvanced ? 'rotate(180deg)' : '' }"
-                      style="transition: transform 0.2s"
-                    >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      :style="{ transform: showAdvanced ? 'rotate(180deg)' : '' }" style="transition: transform 0.2s">
                       <path d="M6 9l6 6 6-6" />
                     </svg>
                   </h3>
                   <div v-show="showAdvanced" class="adv-content">
                     <div class="form-row">
                       <label>Java 虚拟机参数</label>
-                      <textarea
-                        class="form-textarea"
-                        rows="2"
-                        placeholder="跟随全局设置"
-                      ></textarea>
+                        <textarea class="form-textarea" rows="2" placeholder="跟随全局设置"></textarea>
                     </div>
                     <div class="form-row">
                       <label>游戏参数</label>
@@ -286,38 +237,23 @@
                     </div>
                     <div class="form-row">
                       <label>启动前执行命令</label>
-                      <input type="text" class="form-input" placeholder="" />
+                        <input type="text" class="form-input" placeholder="" />
                     </div>
                     <div class="checkbox-group">
                       <label class="checkbox-label"><input type="checkbox" /> 禁止更新 Mod</label>
-                      <label class="checkbox-label"
-                        ><input type="checkbox" /> 忽略 Java 兼容性警告</label
-                      >
-                      <label class="checkbox-label"><input type="checkbox" /> 关闭文件校验</label>
-                      <label class="checkbox-label"
-                        ><input type="checkbox" /> 禁用 Java Launch Wrapper</label
-                      >
-                      <label class="checkbox-label"
-                        ><input type="checkbox" /> 禁用 LWJGL Unsafe Agent</label
-                      >
-                      <label class="checkbox-label"
-                        ><input type="checkbox" v-model="useHighPerformanceGPU" />
-                        使用高性能显卡</label
-                      >
+                      <label class="checkbox-label"><input type="checkbox" /> 忽略 Java 兼容性警告</label>
+                        <label class="checkbox-label"><input type="checkbox" /> 关闭文件校验</label>
+                        <label class="checkbox-label"><input type="checkbox" /> 禁用 Java Launch Wrapper</label>
+                        <label class="checkbox-label"><input type="checkbox" /> 禁用 LWJGL Unsafe Agent</label>
+                        <label class="checkbox-label"><input type="checkbox" v-model="useHighPerformanceGPU" />
+                          使用高性能显卡</label>
                     </div>
                   </div>
                 </section>
 
                 <!-- 底部按钮 -->
                 <button class="btn-global-settings" @click="$router.push('/settings')">
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M5 12h14M12 5l7 7-7 7" />
                   </svg>
                   全局设置
@@ -326,12 +262,7 @@
 
               <!-- ===== Mod 管理 ===== -->
               <template v-if="activeTab === 'mods'">
-                <ModManager
-                  :gameDir="gameDir"
-                  :mcVersion="versionBase"
-                  :loader="detectedLoader"
-                  @navigate="close"
-                />
+                <ModManager :gameDir="gameDir" :mcVersion="versionBase" :loader="detectedLoader" @navigate="close" />
               </template>
 
               <!-- ===== 导出 ===== -->
@@ -340,21 +271,12 @@
                 <section class="vs-section">
                   <div class="export-header-row">
                     <div class="form-row compact">
-                      <label>整合包名称</label>
-                      <input
-                        type="text"
-                        class="form-input"
-                        value="1.20.1-Fabric 0.16.9-OptiFine_I6"
-                      />
+                      <label>整合包名</label>
+                        <input type="text" class="form-input" value="1.20.1-Fabric 0.16.9-OptiFine_I6" />
                     </div>
                     <div class="form-row compact">
                       <label>整合包版本</label>
-                      <input
-                        type="text"
-                        class="form-input short"
-                        value="1.0.0"
-                        style="flex: 0 0 120px"
-                      />
+                        <input type="text" class="form-input short" value="1.0.0" style="flex: 0 0 120px" />
                     </div>
                   </div>
                 </section>
@@ -365,142 +287,95 @@
                   <div class="export-tree">
                     <!-- 游戏本体 -->
                     <div class="tree-node">
-                      <label class="tree-checkbox"
-                        ><input type="checkbox" checked /><span class="tree-label-bold"
-                          >游戏本体</span
-                        ><span class="tree-sub">正版版 1.20.1 Fabric 0.16.9</span></label
-                      >
+                      <label class="tree-checkbox"><input type="checkbox" checked /><span
+                          class="tree-label-bold">游戏本体</span><span class="tree-sub">正版1.20.1 Fabric
+                          0.16.9</span></label>
                     </div>
-                    <!-- Mod 组 -->
+                    <!-- Mod -->
                     <div class="tree-node tree-parent">
-                      <label class="tree-checkbox"
-                        ><input type="checkbox" checked /><span class="tree-label-bold">Mod</span
-                        ><span class="tree-sub">模组</span></label
-                      >
+                      <label class="tree-checkbox"><input type="checkbox" checked /><span
+                          class="tree-label-bold">Mod</span><span class="tree-sub">模组</span></label>
                       <div class="tree-children">
                         <div class="tree-child">
-                          <label class="tree-checkbox"
-                            ><input type="checkbox" /><span>已禁用的 Mod</span></label
-                          >
+                          <label class="tree-checkbox"><input type="checkbox" /><span>已禁用的 Mod</span></label>
                         </div>
                         <div class="tree-child">
-                          <label class="tree-checkbox"
-                            ><input type="checkbox" checked /><span>Mod 设置</span></label
-                          >
+                          <label class="tree-checkbox"><input type="checkbox" checked /><span>Mod 设置</span></label>
                         </div>
                         <div class="tree-child">
-                          <label class="tree-checkbox"
-                            ><input type="checkbox" /><span>已绘制的地图</span
-                            ><span class="tree-sub"
-                              >地图类 Mod 为现有的存档、服务器记录的地图、路标等</span
-                            ></label
-                          >
+                          <label class="tree-checkbox"><input type="checkbox" /><span>已绘制的地图</span><span
+                              class="tree-sub">地图为现有的存档、服务器记录的地图、路标等</span></label>
                         </div>
                       </div>
                     </div>
                     <!-- 资源包组 -->
                     <div class="tree-node tree-parent">
-                      <label class="tree-checkbox"
-                        ><input type="checkbox" checked /><span class="tree-label-bold">资源包</span
-                        ><span class="tree-sub">纹理包/材质包</span></label
-                      >
+                      <label class="tree-checkbox"><input type="checkbox" checked /><span
+                          class="tree-label-bold">资源包</span
+                          ><span class="tree-sub">纹理、材质等</span></label>
                       <div class="tree-children">
                         <div class="tree-child">
-                          <label class="tree-checkbox"
-                            ><input type="checkbox" checked /><span
-                              >Minecraft-Mod-Language-Modpack-Converted-1.20.1.zip</span
-                            ></label
-                          >
+                          <label class="tree-checkbox"><input type="checkbox"
+                              checked /><span>Minecraft-Mod-Language-Modpack-Converted-1.20.1.zip</span></label>
                         </div>
                         <div class="tree-child">
-                          <label class="tree-checkbox"
-                            ><input type="checkbox" checked /><span
-                              >[1.20.1]MASA全家桶汉化包.zip</span
-                            ></label
-                          >
+                          <label class="tree-checkbox"><input type="checkbox"
+                              checked /><span>[1.20.1]MASA全家桶汉化包.zip</span></label>
                         </div>
                       </div>
                     </div>
                     <!-- 光影包组 -->
                     <div class="tree-node tree-parent">
-                      <label class="tree-checkbox"
-                        ><input type="checkbox" checked /><span class="tree-label-bold"
-                          >光影包</span
-                        ></label
-                      >
+                      <label class="tree-checkbox"><input type="checkbox" checked /><span
+                          class="tree-label-bold">光影包</span
+                          ></label>
                       <div class="tree-children">
                         <div class="tree-child">
-                          <label class="tree-checkbox"
-                            ><input type="checkbox" checked /><span>assets</span
-                            ><span class="tree-sub">schematics 文件夹</span></label
-                          >
+                          <label class="tree-checkbox"><input type="checkbox" checked /><span>assets</span><span
+                              class="tree-sub">schematics 文件</span></label>
                         </div>
                       </div>
                     </div>
                     <!-- 其他可选项 -->
                     <div class="tree-node">
-                      <label class="tree-checkbox"
-                        ><input type="checkbox" /><span>导出的结构</span
-                        ><span class="tree-sub">schematics 文件夹</span></label
-                      >
+                      <label class="tree-checkbox"><input type="checkbox" /><span>导出的文件</span
+                          ><span class="tree-sub">schematics 文件</span></label>
                     </div>
                     <div class="tree-node">
-                      <label class="tree-checkbox"
-                        ><input type="checkbox" /><span>录像回放</span
-                        ><span class="tree-sub">Replay Mod 的录像文件</span></label
-                      >
+                      <label class="tree-checkbox"><input type="checkbox" /><span>录像回放</span><span
+                          class="tree-sub">Replay Mod 的录像文件</span></label>
                     </div>
                     <div class="tree-node">
-                      <label class="tree-checkbox"
-                        ><input type="checkbox" /><span>单人游戏存档</span
-                        ><span class="tree-sub">世界/地图</span></label
-                      >
+                      <label class="tree-checkbox"><input type="checkbox" /><span>单人游戏存档</span><span
+                          class="tree-sub">世界/地图</span></label>
                     </div>
                     <div class="tree-node">
-                      <label class="tree-checkbox"
-                        ><input type="checkbox" checked /><span>PCL 启动器程序</span
-                        ><span class="tree-sub"
-                          >打包正版版 PCL，以便没有启动器的玩家安装整合包</span
-                        ></label
-                      >
+                      <label class="tree-checkbox"><input type="checkbox" checked /><span>Voxver 启动器程序</span
+                          ><span class="tree-sub">打包正版整合包，以便没有启动器的玩家安装整合包</span></label>
                     </div>
                     <div class="tree-node">
-                      <label class="tree-checkbox"
-                        ><input type="checkbox" checked /><span>PCL 个性化内容</span
-                        ><span class="tree-sub">功能隐藏设置、主页、背景音乐和图片等</span></label
-                      >
+                      <label class="tree-checkbox"><input type="checkbox" checked /><span>Voxver 个性化内容</span><span
+                          class="tree-sub">功能隐藏设置、主页、背景音乐和图片</span></label>
                     </div>
                   </div>
                 </section>
 
                 <!-- 高级选项（可折叠） -->
-                <section class="vs-section collapsible" :class="{ collapsed: !showExportAdvanced }">
-                  <h3 class="sec-title clickable" @click="showExportAdvanced = !showExportAdvanced">
+                <section class="vs-section collapsible" :class="{ collapsed: !showAdvanced }">
+                  <h3 class="sec-title clickable" @click="showAdvanced = !showAdvanced">
                     高级选项
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                       :style="{ transform: showExportAdvanced ? 'rotate(180deg)' : '' }"
-                      style="transition: transform 0.2s"
-                    >
+                      style="transition: transform 0.2s">
                       <path d="M6 9l6 6 6-6" />
                     </svg>
                   </h3>
                   <div v-show="showExportAdvanced" class="adv-content">
-                    <label class="checkbox-label block"
-                      ><input type="checkbox" /> 打包资源文件，以避免在导入时下载</label
-                    >
-                    <label class="checkbox-label block"
-                      ><input type="checkbox" /> 仅从 Modrinth 下载资源文件</label
-                    >
+                    <label class="checkbox-label block"><input type="checkbox" /> 打包资源文件，以避免在导入时下载</label>
+                    <label class="checkbox-label block"><input type="checkbox" /> 仅从 Modrinth 下载资源文件</label>
                     <div class="export-tip-box">
                       配置文件中含有更多高级选项，例如精准控制导出的文件、设置整合包存放位置等。<br />
-                      要修改这些选项，请先点击「保存配置」，在编辑配置文件后再导入。
-                    </div>
+                      要修改这些选项，请先点击「保存配置」，在编辑配置文件后再导入。 </div>
                   </div>
                 </section>
 
@@ -514,18 +389,10 @@
                 <!-- 底部大按钮 -->
                 <div class="export-bottom-btn-wrap">
                   <button class="btn-export-primary">
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
                     </svg>
-                    开始导出
-                  </button>
+                    开始导出 </button>
                 </div>
               </template>
             </main>
@@ -536,22 +403,11 @@
 
     <!-- 补全文件弹窗 -->
     <transition name="modal-fade">
-      <div
-        v-if="showCompleteModal"
-        class="ver-settings-overlay"
-        @click.self="showCompleteModal = false"
-      >
+      <div v-if="showCompleteModal" class="ver-settings-overlay" @click.self="showCompleteModal = false">
         <div class="ver-settings-window" style="width: 520px">
           <header class="vs-header">
             <button class="vs-back" @click="showCompleteModal = false">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <path d="M15 18l-6-6 6-6" />
               </svg>
             </button>
@@ -575,14 +431,7 @@
 
             <!-- 检测完成：文件完整 -->
             <div v-else-if="completeState === 'complete'" class="complete-status success">
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#22c55e"
-                stroke-width="2"
-              >
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
                 <path d="M20 6L9 17l-5-5" />
               </svg>
               <p class="complete-status-text">所有文件完整，无需补全</p>
@@ -591,44 +440,31 @@
               </p>
             </div>
 
-            <!-- 检测完成：有缺失 -->
+            <!-- 检测完成：有缺失文件 -->
             <div v-else-if="completeState === 'missing'" class="complete-status warning">
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#f59e0b"
-                stroke-width="2"
-              >
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="12" />
                 <line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
               <p class="complete-status-text">
-                发现 <strong>{{ missingFiles.length }}</strong> 个缺失文件
-              </p>
-              <p class="complete-status-sub">即将从 BMCLAPI 下载补全</p>
+                发现 <strong>{{ missingFiles.length }}</strong> 个缺失文件 </p>
+              <p class="complete-status-sub">即将从BMCLAPI 下载补全</p>
 
-              <!-- 缺失文件列表（仅显示前 10 个） -->
+              <!-- 缺失文件列表（仅显示前10 个） -->
               <div v-if="missingFiles.length" class="missing-file-list">
                 <div v-for="f in missingFiles.slice(0, 10)" :key="f" class="missing-file-item">
                   <span class="missing-file-dot"></span>
                   <span class="missing-file-path">{{ f }}</span>
                 </div>
                 <div v-if="missingFiles.length > 10" class="missing-file-more">
-                  还有 {{ missingFiles.length - 10 }} 个文件...
+                  还有 {{ missingFiles.length - 10 }} 个文件
                 </div>
               </div>
 
               <!-- 下载按钮 -->
-              <button
-                class="form-action-btn"
-                style="margin-top: 16px; width: 100%"
-                @click="startDownloadMissing"
-              >
-                开始下载
-              </button>
+              <button class="form-action-btn" style="margin-top: 16px; width: 100%" @click="startDownloadMissing">
+                开始下载 </button>
             </div>
 
             <!-- 下载中 -->
@@ -646,37 +482,19 @@
 
             <!-- 下载完成 -->
             <div v-else-if="completeState === 'done'" class="complete-status success">
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#22c55e"
-                stroke-width="2"
-              >
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
                 <path d="M20 6L9 17l-5-5" />
               </svg>
-              <p class="complete-status-text">补全完成！</p>
-              <p class="complete-status-sub">已补全 {{ dlTotal }} 个文件</p>
-              <button
-                class="form-action-btn"
-                style="margin-top: 16px"
-                @click="showCompleteModal = false"
-              >
-                完成
-              </button>
+              <p class="complete-status-text">补全完成</p>
+              <p class="complete-status-sub">已补全{{ dlTotal }} 个文件</p>
+                <button class="form-action-btn" style="margin-top: 16px" @click="showCompleteModal = false">
+                  完成
+                </button>
             </div>
 
             <!-- 错误 -->
             <div v-else-if="completeState === 'error'" class="complete-status error">
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#ef4444"
-                stroke-width="2"
-              >
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="15" y1="9" x2="9" y2="15" />
                 <line x1="9" y1="9" x2="15" y2="15" />
@@ -698,14 +516,7 @@
         <div class="ver-settings-window input-modal-win">
           <header class="vs-header">
             <button class="vs-back" @click="cancelInputModal">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <path d="M15 18l-6-6 6-6" />
               </svg>
             </button>
@@ -719,25 +530,11 @@
             </div>
           </header>
           <div class="vs-body" style="padding: 20px; flex-direction: column; gap: 12px">
-            <input
-              v-if="!inputModalMultiline"
-              v-model="inputModalValue"
-              type="text"
-              class="form-input"
-              :placeholder="inputModalPlaceholder"
-              @keydown.enter="confirmInputModal"
-              @keydown.esc="cancelInputModal"
-              style="width: 100%"
-            />
-            <textarea
-              v-else
-              v-model="inputModalValue"
-              class="form-textarea"
-              :placeholder="inputModalPlaceholder"
-              rows="4"
-              style="width: 100%; resize: vertical; min-height: 80px"
-              @keydown.esc="cancelInputModal"
-            />
+            <input v-if="!inputModalMultiline" v-model="inputModalValue" type="text" class="form-input"
+              :placeholder="inputModalPlaceholder" @keydown.enter="confirmInputModal" @keydown.esc="cancelInputModal"
+              style="width: 100%" />
+            <textarea v-else v-model="inputModalValue" class="form-textarea" :placeholder="inputModalPlaceholder"
+              rows="4" style="width: 100%; resize: vertical; min-height: 80px" @keydown.esc="cancelInputModal" />
             <div style="display: flex; gap: 8px; justify-content: flex-end">
               <button class="form-action-btn" @click="cancelInputModal">取消</button>
               <button class="form-action-btn primary" @click="confirmInputModal">确定</button>
@@ -957,7 +754,7 @@ async function completeFiles() {
     const result = await window.electronAPI?.versions.validate(versionId, gameDir)
     if (!result || typeof result !== 'object' || !('ok' in result) || !result.ok || !('data' in result) || !result.data) {
       completeState.value = 'error'
-        completeError.value = (result as any).error || '检测失败'
+      completeError.value = (result as any).error || '检测失败'
       return
     }
 
@@ -1035,7 +832,7 @@ const navItems = [
 .ver-settings-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgb(0 0 0 / 0.6);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -1084,6 +881,7 @@ const navItems = [
   border-radius: var(--voxver-radius-sm);
   transition: all 0.12s;
   -webkit-app-region: no-drag;
+
   &:hover {
     background: var(--voxver-bg-hover);
     color: var(--voxver-text-primary);
@@ -1115,12 +913,14 @@ const navItems = [
     justify-content: center;
     color: var(--voxver-text-tertiary);
     transition: background 0.12s;
+
     &:hover {
       background: var(--voxver-bg-hover);
       color: var(--voxver-text-primary);
     }
+
     &.vs-close:hover {
-      background: rgba(239, 68, 68, 0.15);
+      background: rgb(239 68 68 / 0.15);
       color: var(--voxver-error);
     }
   }
@@ -1153,14 +953,14 @@ const navItems = [
   border: none;
   background: transparent;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--voxver-text-secondary);
   cursor: pointer;
   text-align: left;
   transition: all 0.12s;
   position: relative;
 
-  > span {
+  >span {
     flex-shrink: 0;
     display: flex;
     color: var(--voxver-text-muted);
@@ -1169,7 +969,8 @@ const navItems = [
   &:hover {
     color: var(--voxver-primary-muted);
     background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
-    > span {
+
+    >span {
       color: var(--voxver-primary-muted);
     }
   }
@@ -1190,13 +991,13 @@ const navItems = [
       border-radius: 0 2px 2px 0;
     }
 
-    > span {
+    >span {
       color: var(--voxver-primary-muted);
     }
   }
 }
 
-/* ---- 右侧内容区 ---- */
+/* ---- 右侧内容 ---- */
 .vs-content {
   flex: 1;
   overflow-y: auto;
@@ -1206,9 +1007,11 @@ const navItems = [
   &::-webkit-scrollbar {
     width: 6px;
   }
+
   &::-webkit-scrollbar-track {
     background: transparent;
   }
+
   &::-webkit-scrollbar-thumb {
     background: var(--voxver-border-color);
     border-radius: 3px;
@@ -1244,6 +1047,7 @@ const navItems = [
       font-weight: 700;
       color: var(--voxver-text-primary);
     }
+
     .ver-sub {
       margin: 3px 0 0;
       font-size: 12px;
@@ -1287,10 +1091,10 @@ const navItems = [
   gap: 12px;
   margin-bottom: 12px;
 
-  > label {
+  >label {
     min-width: 70px;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 400;
     color: var(--voxver-text-secondary);
   }
 }
@@ -1311,9 +1115,11 @@ const navItems = [
     border-color: var(--voxver-primary);
     box-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 15%, transparent);
   }
+
   &.short {
     flex: 0 0 80px;
   }
+
   &.mono {
     font-family: var(--voxver-font-mono);
     font-size: 12px;
@@ -1344,6 +1150,7 @@ const navItems = [
   display: flex;
   gap: 8px;
   flex: 1;
+
   .form-input {
     flex: 1;
   }
@@ -1353,6 +1160,7 @@ const navItems = [
   display: flex;
   gap: 8px;
   flex: 1;
+
   .form-input {
     flex: 1;
   }
@@ -1374,6 +1182,7 @@ const navItems = [
     border-color: var(--voxver-primary);
     color: var(--voxver-primary);
   }
+
   &.small {
     padding: 8px 12px;
   }
@@ -1415,7 +1224,7 @@ const navItems = [
 }
 
 /* 独立按钮组 */
-.vs-content > .form-btns {
+.vs-content>.form-btns {
   background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border-radius: var(--voxver-radius-lg);
   border: 1px solid var(--voxver-border-color);
@@ -1441,6 +1250,7 @@ const navItems = [
     background: var(--voxver-gradient-primary);
     border-color: transparent;
     color: #fff;
+
     &:hover {
       filter: brightness(1.1);
     }
@@ -1455,10 +1265,11 @@ const navItems = [
   }
 
   &.danger {
-    border-color: rgba(239, 68, 68, 0.5);
+    border-color: rgb(239 68 68 / 0.5);
     color: var(--voxver-error);
+
     &:hover {
-      background: rgba(239, 68, 68, 0.1);
+      background: rgb(239 68 68 / 0.1);
       border-color: var(--voxver-error);
     }
   }
@@ -1466,7 +1277,7 @@ const navItems = [
   &.active {
     border-color: #f59e0b;
     color: #f59e0b;
-    background: rgba(245, 158, 11, 0.08);
+    background: rgb(245 158 11 / 0.08);
   }
 }
 
@@ -1512,6 +1323,7 @@ const navItems = [
     font-weight: 600;
     color: var(--voxver-text-primary);
   }
+
   .mod-ver {
     font-size: 11px;
     color: var(--voxver-text-muted);
@@ -1548,6 +1360,7 @@ const navItems = [
     margin: 10px 0 0;
     font-size: 13px;
   }
+
   svg {
     opacity: 0.35;
   }
@@ -1557,9 +1370,11 @@ const navItems = [
 .modal-fade-enter-active {
   transition: opacity 0.18s ease;
 }
+
 .modal-fade-leave-active {
   transition: opacity 0.12s ease;
 }
+
 .modal-fade-enter-from,
 .modal-fade-leave-to {
   opacity: 0;
@@ -1628,6 +1443,7 @@ const navItems = [
   gap: 6px;
   padding: 4px 0;
   border-bottom: 1px solid var(--voxver-border-color);
+
   &:last-child {
     border-bottom: none;
   }
@@ -1696,14 +1512,15 @@ const navItems = [
     transform 0.2s ease,
     opacity 0.18s ease;
 }
+
 .modal-fade-enter-from .ver-settings-window {
   transform: scale(0.96) translateY(10px);
   opacity: 0;
 }
 
-/* ====== 设置页专用样式 ====== */
+/* ====== 设置页专用样式 ===== */
 
-/* 提示条 */
+/* 提示栏 */
 .vs-tip-bar {
   display: flex;
   align-items: center;
@@ -1729,6 +1546,7 @@ const navItems = [
     cursor: pointer;
     padding: 0 2px;
     line-height: 1;
+
     &:hover {
       opacity: 0.6;
     }
@@ -1790,6 +1608,7 @@ const navItems = [
     font-size: 11px;
     color: var(--voxver-text-muted);
   }
+
   .mem-stat-value {
     font-size: 14px;
     font-weight: 700;
@@ -1797,11 +1616,12 @@ const navItems = [
   }
 }
 
-/* 可折叠区块 */
+/* 可折叠区域 */
 .collapsed {
   .sec-title.clickable {
     margin-bottom: 0;
   }
+
   .adv-content {
     display: none;
   }
@@ -1817,6 +1637,7 @@ const navItems = [
   &:hover {
     color: var(--voxver-primary-muted);
   }
+
   svg {
     flex-shrink: 0;
   }
@@ -1831,6 +1652,7 @@ const navItems = [
     opacity: 0;
     transform: translateY(-6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1881,9 +1703,9 @@ const navItems = [
   }
 }
 
-/* ====== Mod 管理页专用样式 ====== */
+/* ====== Mod 管理页专用样式 ===== */
 
-/* 搜索栏 */
+/* 搜索卡片 */
 .mod-search-card {
   display: flex;
   align-items: center;
@@ -1923,6 +1745,7 @@ const navItems = [
 .form-action-btn.primary-outline {
   border-color: var(--voxver-primary);
   color: var(--voxver-primary);
+
   &:hover {
     background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
   }
@@ -2013,10 +1836,12 @@ const navItems = [
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
+
 .spin-icon {
   animation: spin 1.2s linear infinite;
 }
@@ -2049,6 +1874,7 @@ const navItems = [
   font-size: 11px;
   text-decoration: none;
   opacity: 0.5;
+
   &:hover {
     opacity: 1;
   }
@@ -2104,8 +1930,9 @@ const navItems = [
   &:hover {
     background: var(--voxver-bg-hover);
   }
+
   &.danger:hover {
-    background: rgba(239, 68, 68, 0.1);
+    background: rgb(239 68 68 / 0.1);
   }
 }
 
@@ -2116,9 +1943,11 @@ const navItems = [
   height: auto;
   min-height: 160px;
   max-height: 70vh;
+
   .vs-body {
     padding: 20px !important;
   }
+
   textarea {
     min-height: 90px;
   }
@@ -2130,7 +1959,8 @@ const navItems = [
 
   .form-row.compact {
     flex: 1;
-    > label {
+
+    >label {
       min-width: 70px;
     }
   }
@@ -2140,7 +1970,7 @@ const navItems = [
   padding: 16px 18px !important;
 }
 
-/* 导出树 */
+/* 导出选项树 */
 .export-tree {
   display: flex;
   flex-direction: column;
@@ -2180,7 +2010,7 @@ const navItems = [
     flex-shrink: 0;
   }
 
-  > span {
+  >span {
     flex: 1;
     min-width: 0;
     overflow: hidden;
@@ -2191,6 +2021,7 @@ const navItems = [
   .tree-label-bold {
     font-weight: 600;
   }
+
   .tree-sub {
     font-size: 11px;
     color: var(--voxver-text-muted);
@@ -2203,7 +2034,7 @@ const navItems = [
   }
 }
 
-/* 导出操作区 */
+/* 导出操作按钮 */
 .export-actions {
   display: flex;
   gap: 8px;

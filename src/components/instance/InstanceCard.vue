@@ -167,16 +167,14 @@ const relativeTime = computed(() => {
   transition: all var(--voxver-transition-fast);
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--voxver-shadow-lg);
+    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
     .card-actions {
       opacity: 1;
     }
   }
 
   &.selected {
-    border-color: var(--voxver-primary-400);
-    box-shadow: var(--voxver-shadow-glow-primary);
+    border: 1px solid var(--voxver-primary);
   }
 }
 
@@ -188,9 +186,8 @@ const relativeTime = computed(() => {
 
   .cover-icon {
     font-size: 36px;
-    font-weight: 800;
+    font-weight: 700;
     color: var(--voxver-text-secondary);
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
 
   .cover-img {
@@ -206,7 +203,7 @@ const relativeTime = computed(() => {
 
 .card-name {
   font-size: 14.5px;
-  font-weight: 650;
+  font-weight: 600;
   color: var(--voxver-text-primary);
   margin: 0 0 4px;
   overflow: hidden;
@@ -248,7 +245,7 @@ const relativeTime = computed(() => {
   top: 8px;
   right: 8px;
   padding: 5px;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgb(0 0 0 / 0.35);
   backdrop-filter: blur(4px);
   border: none;
   border-radius: 50%;
@@ -276,7 +273,7 @@ const relativeTime = computed(() => {
   display: flex;
   gap: 4px;
   padding: 5px;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgb(0 0 0 / 0.45);
   backdrop-filter: blur(6px);
   border-radius: var(--voxver-radius-md);
   opacity: 0;
@@ -296,7 +293,7 @@ const relativeTime = computed(() => {
       color: #fff;
     }
     &.danger:hover {
-      background: rgba(239, 68, 68, 0.5);
+      background: rgb(239 68 68 / 0.5);
       color: #fff;
     }
   }

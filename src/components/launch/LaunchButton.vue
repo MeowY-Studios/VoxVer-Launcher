@@ -96,7 +96,7 @@ const btnClass = computed(() => ({
     left: 0;
     right: 0;
     height: 50%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent);
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.12), transparent);
     pointer-events: none;
   }
 
@@ -127,10 +127,10 @@ const btnClass = computed(() => ({
   .btn-label {
     font-weight: 700;
     letter-spacing: 0.4px;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    text-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
   }
 
-  /* 字号按尺寸 */
+  /* 字号按尺 */
   &.small {
     .btn-label {
       font-size: 13px;
@@ -185,7 +185,7 @@ const btnClass = computed(() => ({
   /* 运行中 */
   &.running {
     background: linear-gradient(135deg, #059669, #34d399);
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35);
+    box-shadow: 0 4px 20px rgb(16 185 129 / 0.35);
 
     .btn-icon {
       animation: pulse-green 2s ease-in-out infinite;
@@ -199,10 +199,10 @@ const btnClass = computed(() => ({
   @keyframes pulse-green {
     0%,
     100% {
-      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.35);
+      box-shadow: 0 0 0 0 rgb(16 185 129 / 0.35);
     }
     50% {
-      box-shadow: 0 0 0 12px rgba(16, 185, 129, 0);
+      box-shadow: 0 0 0 12px rgb(16 185 129 / 0);
     }
   }
 

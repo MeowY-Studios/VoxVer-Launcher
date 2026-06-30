@@ -2,7 +2,7 @@
   <div class="account-card" :class="{ active: account.isActive === 1, [account.type]: true }">
     <!-- 头像区域 -->
     <div class="card-avatar">
-      <!-- 微软账户：头像占位 -->
+      <!-- 微软账户：头像 -->
       <template v-if="account.type === 'microsoft'">
         <div class="avatar-ms">
           <svg
@@ -18,7 +18,7 @@
           </svg>
         </div>
       </template>
-      <!-- 离线账户：像素 Steve -->
+      <!-- 离线账户：头像 -->
       <template v-else>
         <div class="avatar-steve">
           <svg width="36" height="36" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
@@ -40,7 +40,7 @@
       </span>
     </div>
 
-    <!-- 信息区 -->
+    <!-- 信息区域 -->
     <div class="card-body">
       <h4 class="card-name">{{ account.name }}</h4>
       <p class="card-uuid">{{ shortUuid }}</p>
@@ -169,7 +169,7 @@ const shortUuid = computed(() => {
 
   .card-name {
     font-size: 15px;
-    font-weight: 650;
+    font-weight: 600;
     color: var(--voxver-text-primary);
     margin: 0 0 2px;
   }
@@ -193,7 +193,6 @@ const shortUuid = computed(() => {
 
     &.online {
       background: #22c55e;
-      box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
     }
   }
 }
@@ -228,7 +227,7 @@ const shortUuid = computed(() => {
     &.danger {
       color: #ef4444;
       &:hover {
-        background: rgba(239, 68, 68, 0.08);
+        background: rgb(239 68 68 / 0.08);
       }
     }
   }

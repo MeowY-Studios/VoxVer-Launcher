@@ -682,7 +682,7 @@ watch(
 const dlActiveCat = ref('vanilla')
 
 // 设置页分类
-const settingsActive = ref('launch')
+const settingsActive = ref('home')
 
 provide('settingsActive', settingsActive)
 provide('dlActiveCat', dlActiveCat)
@@ -1159,10 +1159,10 @@ function handleSettingsCategory(itemId: string) {
   color: var(--voxver-text-primary);
 }
 
-/* ====== 渐变标题栏 + 内嵌标签页 ====== */
+/* ====== 全局导航标题栏（Apple surface-black 44px）====== */
 .titlebar {
   height: 44px;
-  background: var(--voxver-gradient-primary);
+  background: var(--voxver-titlebar-bg);
   display: flex;
   align-items: center;
   padding: 0 14px;
@@ -1171,18 +1171,6 @@ function handleSettingsCategory(itemId: string) {
   user-select: none;
   position: relative;
   overflow: hidden;
-
-  /* 标题栏微光装饰 */
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
-    pointer-events: none;
-  }
 }
 
 &.electron .titlebar,
@@ -1191,14 +1179,13 @@ function handleSettingsCategory(itemId: string) {
 }
 
 .brand {
-  font-size: 15px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 600;
   color: #fff;
-  letter-spacing: 1.5px;
+  letter-spacing: -0.12px;
   -webkit-app-region: no-drag;
   pointer-events: auto;
   padding-left: 4px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   position: relative;
   z-index: 1;
 }
@@ -1225,19 +1212,19 @@ function handleSettingsCategory(itemId: string) {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 4px 12px;
-  border-radius: 20px;
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.88);
+  padding: 6px 12px;
+  border-radius: var(--voxver-radius-pill);
+  border: none;
+  background: transparent;
+  color: rgb(255 255 255 / 0.88);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.12px;
   cursor: pointer;
-  transition: all var(--voxver-transition-fast);
+  transition: background var(--voxver-transition-fast), color var(--voxver-transition-fast);
   white-space: nowrap;
   flex-shrink: 0;
-  backdrop-filter: blur(4px);
-  line-height: 1;
   -webkit-app-region: no-drag !important;
   pointer-events: auto !important;
 
@@ -1250,20 +1237,18 @@ function handleSettingsCategory(itemId: string) {
   }
 
   &.active {
-    background: #fff;
-    color: var(--voxver-primary);
-    border-color: #fff;
-    font-weight: 650;
-    box-shadow:
-      0 2px 10px rgba(0, 0, 0, 0.15),
-      0 0 18px color-mix(in oklab, var(--voxver-primary) 25%, transparent);
-    text-shadow: none;
+    background: rgb(255 255 255 / 0.12);
+    color: #fff;
+    font-weight: 600;
   }
 
   &:hover:not(.active) {
-    background: rgba(255, 255, 255, 0.18);
-    border-color: rgba(255, 255, 255, 0.45);
+    background: rgb(255 255 255 / 0.08);
     color: #fff;
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 }
 
@@ -1286,10 +1271,10 @@ function handleSettingsCategory(itemId: string) {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.82);
+    color: rgb(255 255 255 / 0.82);
     transition: all 0.12s;
     &:hover {
-      background: rgba(255, 255, 255, 0.12);
+      background: rgb(255 255 255 / 0.12);
     }
     &.wc-close:hover {
       background: var(--voxver-error);
@@ -1331,15 +1316,11 @@ function handleSettingsCategory(itemId: string) {
   z-index: 1;
 }
 
-/* ====== 左侧边栏 ====== */
+/* ====== 左侧边栏（Apple tile 纯色）====== */
 .sidebar {
   width: 220px;
   min-width: 200px;
-  background:
-    radial-gradient(ellipse at top, color-mix(in oklab, var(--voxver-primary) 6%, transparent) 0%, transparent 60%),
-    linear-gradient(180deg, color-mix(in oklab, var(--voxver-bg-elevated) 88%, transparent) 0%, color-mix(in oklab, var(--voxver-bg-secondary) 92%, transparent) 100%);
-  backdrop-filter: blur(14px) saturate(1.2);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  background: var(--voxver-bg-primary);
   border-right: 1px solid var(--voxver-border-color);
   flex-shrink: 0;
   overflow-y: auto;
@@ -1347,17 +1328,6 @@ function handleSettingsCategory(itemId: string) {
   flex-direction: column;
   position: relative;
   z-index: 2;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--voxver-primary) 30%, transparent), transparent);
-    pointer-events: none;
-  }
 
   &::-webkit-scrollbar {
     width: 4px;
@@ -1382,7 +1352,7 @@ function handleSettingsCategory(itemId: string) {
 .btn-account-manage {
   width: 100%;
   padding: 8px 12px;
-  border: 1.5px solid var(--voxver-border-color);
+  border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
   background: var(--voxver-bg-elevated);
   color: var(--voxver-text-secondary);
@@ -1423,7 +1393,7 @@ function handleSettingsCategory(itemId: string) {
     justify-content: center;
     gap: 5px;
     padding: 7px 0;
-    border: 1.5px solid var(--voxver-border-color);
+    border: 1px solid var(--voxver-border-color);
     background: var(--voxver-bg-elevated);
     border-radius: var(--voxver-radius-md);
     font-size: 12.5px;
@@ -1492,7 +1462,7 @@ function handleSettingsCategory(itemId: string) {
     width: 100%;
     height: 100%;
     border-radius: var(--voxver-radius-xs);
-    background: linear-gradient(135deg, #00a4ef, #0078d4);
+    background: var(--voxver-primary);
     color: #fff;
     font-size: 28px;
     font-weight: 700;
@@ -1511,7 +1481,7 @@ function handleSettingsCategory(itemId: string) {
   .account-select {
     flex: 1;
     padding: 8px 10px;
-    border: 1.5px solid var(--voxver-border-color);
+    border: 1px solid var(--voxver-border-color);
     border-radius: var(--voxver-radius-md);
     font-size: 12.5px;
     color: var(--voxver-text-secondary);
@@ -1531,7 +1501,7 @@ function handleSettingsCategory(itemId: string) {
 
   .btn-login {
     padding: 8px 18px;
-    border: 1.5px solid var(--voxver-primary);
+    border: 1px solid var(--voxver-primary);
     border-radius: var(--voxver-radius-md);
     background: var(--voxver-gradient-primary);
     color: #fff;
@@ -1539,16 +1509,10 @@ function handleSettingsCategory(itemId: string) {
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
-    transition: all var(--voxver-transition-fast);
-    box-shadow: 0 2px 8px color-mix(in oklab, var(--voxver-primary) 25%, transparent);
+    transition: filter 0.12s ease;
 
     &:hover {
       filter: brightness(1.08);
-      box-shadow: 0 4px 14px color-mix(in oklab, var(--voxver-primary) 35%, transparent);
-      transform: translateY(-1px);
-    }
-    &:active {
-      transform: translateY(0);
     }
   }
 }
@@ -1570,7 +1534,7 @@ function handleSettingsCategory(itemId: string) {
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-sm);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--voxver-text-muted);
   text-decoration: none;
   background: var(--voxver-bg-elevated);
@@ -1622,9 +1586,8 @@ function handleSettingsCategory(itemId: string) {
 .avatar-steve {
   width: 64px;
   height: 64px;
-  border-radius: var(--voxver-radius-lg);
+  border-radius: var(--voxver-radius-sm);
   overflow: hidden;
-  box-shadow: var(--voxver-shadow-md);
   margin: 0 auto;
   svg {
     width: 100%;
@@ -1639,7 +1602,7 @@ function handleSettingsCategory(itemId: string) {
   .offline-label {
     display: block;
     font-size: 11.5px;
-    font-weight: 500;
+    font-weight: 400;
     color: var(--voxver-text-muted);
     margin-bottom: 4px;
   }
@@ -1647,7 +1610,7 @@ function handleSettingsCategory(itemId: string) {
   .offline-input {
     width: 100%;
     padding: 10px 12px;
-    border: 1.5px solid var(--voxver-border-color);
+    border: 1px solid var(--voxver-border-color);
     border-radius: var(--voxver-radius-md);
     font-size: 14px;
     font-weight: 600;
@@ -1678,10 +1641,9 @@ function handleSettingsCategory(itemId: string) {
   padding: 14px 0;
   background: var(--voxver-gradient-primary);
   border: none;
-  border-radius: var(--voxver-radius-lg);
+  border-radius: var(--voxver-radius-sm);
   cursor: pointer;
-  transition: all var(--voxver-transition-normal);
-  box-shadow: var(--voxver-shadow-glow-primary);
+  transition: filter 0.15s ease;
   position: relative;
   overflow: hidden;
 
@@ -1693,14 +1655,12 @@ function handleSettingsCategory(itemId: string) {
     left: 0;
     right: 0;
     height: 50%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.15) 0%, transparent 100%);
     pointer-events: none;
   }
 
   &:hover:not(:disabled) {
     filter: brightness(1.06);
-    box-shadow: 0 6px 26px color-mix(in oklab, var(--voxver-primary) 45%, transparent);
-    transform: translateY(-1px);
 
     .launch-label {
       filter: brightness(1.1);
@@ -1708,17 +1668,15 @@ function handleSettingsCategory(itemId: string) {
   }
 
   &:active:not(:disabled) {
-    transform: scale(0.98);
-    box-shadow: 0 2px 10px color-mix(in oklab, var(--voxver-primary) 30%, transparent);
+    filter: brightness(0.95);
   }
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    box-shadow: none;
   }
 
   &.no-version {
-    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    background: var(--voxver-text-muted);
     opacity: 0.9;
   }
 
@@ -1727,12 +1685,12 @@ function handleSettingsCategory(itemId: string) {
     font-weight: 700;
     color: #fff;
     letter-spacing: 0.5px;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    text-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
   }
 
   .launch-version {
     font-size: 11.5px;
-    color: rgba(255, 255, 255, 0.78);
+    color: rgb(255 255 255 / 0.78);
   }
 }
 
@@ -1745,7 +1703,7 @@ function handleSettingsCategory(itemId: string) {
     flex: 1;
     padding: 7px 0;
     background: var(--voxver-bg-elevated);
-    border: 1.5px solid var(--voxver-border-color);
+    border: 1px solid var(--voxver-border-color);
     border-radius: var(--voxver-radius-md);
     font-size: 12px;
     color: var(--voxver-text-secondary);
@@ -1764,7 +1722,7 @@ function handleSettingsCategory(itemId: string) {
   width: 100%;
   background: var(--voxver-bg-elevated);
   border: 1px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-lg);
+  border-radius: var(--voxver-radius-sm);
   box-shadow: var(--voxver-shadow-lg);
   overflow: hidden;
   animation: dropIn 0.14s ease-out;
@@ -1838,19 +1796,21 @@ function handleSettingsCategory(itemId: string) {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 18px;
+    padding: 12px 18px;
     border: none;
     background: transparent;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
+    line-height: 1.43;
+    letter-spacing: -0.224px;
     color: var(--voxver-text-secondary);
     cursor: pointer;
     position: relative;
-    transition: all var(--voxver-transition-fast);
+    transition: background var(--voxver-transition-fast), color var(--voxver-transition-fast);
     text-align: left;
 
     &.sub {
-      padding-left: 22px;
+      padding-left: 28px;
       font-size: 13px;
     }
 
@@ -1858,23 +1818,21 @@ function handleSettingsCategory(itemId: string) {
       flex-shrink: 0;
       display: flex;
       align-items: center;
-      color: var(--voxver-text-muted);
+      color: var(--voxver-text-secondary);
     }
 
     &:hover {
-      color: var(--voxver-primary-600);
-      background: var(--voxver-primary-light);
+      color: var(--voxver-text-primary);
+      background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
       > span {
-        color: var(--voxver-primary-500);
+        color: var(--voxver-text-primary);
       }
     }
 
     &.active {
-      color: var(--voxver-primary);
-      font-weight: 650;
-      background:
-        linear-gradient(to right, color-mix(in oklab, var(--voxver-primary) 14%, transparent), transparent 70%),
-        radial-gradient(ellipse at left center, color-mix(in oklab, var(--voxver-primary) 8%, transparent), transparent 50%);
+      color: var(--apple-primary);
+      font-weight: 600;
+      background: transparent;
 
       &::before {
         content: '';
@@ -1882,14 +1840,13 @@ function handleSettingsCategory(itemId: string) {
         left: 0;
         top: 4px;
         bottom: 4px;
-        width: 3px;
-        background: var(--voxver-gradient-primary);
-        border-radius: 0 var(--voxver-radius-xs) var(--voxver-radius-xs) 0;
-        box-shadow: 0 0 8px color-mix(in oklab, var(--voxver-primary) 50%, transparent);
+        width: 2px;
+        background: var(--apple-primary);
+        border-radius: 0 var(--apple-radius-xs) var(--apple-radius-xs) 0;
       }
 
       > span {
-        color: var(--voxver-primary);
+        color: var(--apple-primary);
       }
     }
   }
@@ -1914,11 +1871,11 @@ function handleSettingsCategory(itemId: string) {
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.12);
+    background: rgb(0 0 0 / 0.12);
     border-radius: 3px;
   }
   &::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.22);
+    background: rgb(0 0 0 / 0.22);
   }
 }
 

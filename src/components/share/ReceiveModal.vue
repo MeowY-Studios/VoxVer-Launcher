@@ -421,11 +421,11 @@ onUnmounted(() => {
 }
 .receive-code-digit:focus {
   border-color: var(--voxver-primary-color);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.2);
 }
 .receive-code-digit--filled {
   border-color: var(--voxver-primary-color);
-  background: rgba(59, 130, 246, 0.08);
+  background: rgb(59 130 246 / 0.08);
 }
 
 .receive-info {

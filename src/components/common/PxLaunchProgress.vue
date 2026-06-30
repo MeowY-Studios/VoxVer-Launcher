@@ -5,7 +5,7 @@
         <div class="px-launch-progress-panel">
           <!-- 标题栏 -->
           <div class="panel-header">
-            <span class="panel-icon">▶</span>
+            <span class="panel-icon">游戏</span>
             <span class="panel-title">正在启动</span>
             <span class="panel-version">{{ versionId }}</span>
             <button
@@ -13,7 +13,7 @@
               @click="handleClose"
               v-if="phase === 'error' || phase === 'idle'"
             >
-              ✕
+              关闭
             </button>
           </div>
 
@@ -30,9 +30,9 @@
               }"
             >
               <span class="phase-icon">
-                <template v-if="step.done">✓</template>
-                <template v-else-if="step.id === phase && phase !== 'error'">⟳</template>
-                <template v-else-if="step.id === phase && phase === 'error'">✕</template>
+                <template v-if="step.done">完成</template>
+                <template v-else-if="step.id === phase && phase !== 'error'">进行中</template>
+                <template v-else-if="step.id === phase && phase === 'error'">错误</template>
                 <template v-else>{{ idx + 1 }}</template>
               </span>
               <span class="phase-label">{{ step.label }}</span>
@@ -105,10 +105,12 @@ interface PhaseDef {
 const phases = ref<PhaseDef[]>([
   { id: 'building-config', label: '构建启动参数', detail: '正在构建启动参数...', done: false },
   { id: 'checking-files', label: '检查游戏文件', detail: '正在检查游戏文件...', done: false },
-  { id: 'validating-java', label: '检测 Java', detail: '正在检测 Java 环境...', done: false },
+  { id: 'validating-java', label: '验证Java', detail: '正在验证Java 环境...', done: false },
   { id: 'launching-process', label: '启动游戏进程', detail: '正在启动游戏进程...', done: false },
-  { id: 'running', label: '游戏运行中', detail: '游戏已启动', done: false }
+  { id: 'running', label: '游戏运行', detail: '游戏已启动', done: false }
 ])
+
+
 
 // 清理函数引用
 let cleanupProgress: (() => void) | null = null
@@ -128,8 +130,9 @@ onMounted(() => {
   // 监听进度
   if (api.game.onProgress) {
     cleanupProgress = api.game.onProgress(
-      (data: { phase: LaunchPhase; message: string; detail?: string }) => {
-        const { phase: newPhase, message: msg, detail: det } = data
+      (data: unknown) => {
+        const d = data as { phase: LaunchPhase; message: string; detail?: string }
+        const { phase: newPhase, message: msg, detail: det } = d
 
         if (newPhase === 'idle') {
           visible.value = false
@@ -146,7 +149,7 @@ onMounted(() => {
           return
         }
 
-        // 标记已完成阶段
+        // 标记已完成阶段        
         const phaseOrder: LaunchPhase[] = [
           'building-config',
           'checking-files',
@@ -231,7 +234,7 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--voxver-bg-overlay);
   backdrop-filter: blur(4px);
 }
 
@@ -240,6 +243,7 @@ defineExpose({
   background: var(--voxver-bg-secondary);
   border: 2px solid var(--voxver-primary);
   border-radius: var(--voxver-radius-xs);
+  box-shadow: 0 0 30px color-mix(in oklab, var(--voxver-primary) 25%, transparent);
   box-shadow: 0 0 30px color-mix(in oklab, var(--voxver-primary) 25%, transparent);
   overflow: hidden;
   font-family: 'Courier New', monospace;
@@ -337,7 +341,7 @@ defineExpose({
 .phase-item.error {
   border-color: var(--voxver-danger);
   color: var(--voxver-danger);
-  background: rgba(239, 68, 68, 0.08);
+  background: rgb(239 68 68 / 0.08);
 }
 
 .phase-icon {
