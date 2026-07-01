@@ -272,97 +272,115 @@
                   <div class="export-header-row">
                     <div class="form-row compact">
                       <label>整合包名</label>
-                        <input type="text" class="form-input" value="1.20.1-Fabric 0.16.9-OptiFine_I6" />
+                        <input type="text" class="form-input" v-model="exportPackName" />
                     </div>
                     <div class="form-row compact">
                       <label>整合包版本</label>
-                        <input type="text" class="form-input short" value="1.0.0" style="flex: 0 0 120px" />
+                        <input type="text" class="form-input short" v-model="exportPackVersion" style="flex: 0 0 120px" />
                     </div>
                   </div>
                 </section>
 
                 <!-- 导出内容列表 -->
                 <section class="vs-section export-list-section">
-                  <h3 class="sec-title">导出内容列表</h3>
+                  <h3 class="sec-title">
+                    导出内容列表
+                    <span v-if="exportLoading" class="export-loading-hint">加载中...</span>
+                  </h3>
                   <div class="export-tree">
                     <!-- 游戏本体 -->
                     <div class="tree-node">
-                      <label class="tree-checkbox"><input type="checkbox" checked /><span
-                          class="tree-label-bold">游戏本体</span><span class="tree-sub">正版1.20.1 Fabric
-                          0.16.9</span></label>
+                      <label class="tree-checkbox"><input type="checkbox" checked disabled /><span
+                          class="tree-label-bold">游戏本体</span><span class="tree-sub">{{ versionBase }} {{ loaderInfo }}</span></label>
                     </div>
                     <!-- Mod -->
                     <div class="tree-node tree-parent">
-                      <label class="tree-checkbox"><input type="checkbox" checked /><span
-                          class="tree-label-bold">Mod</span><span class="tree-sub">模组</span></label>
+                      <label class="tree-checkbox">
+                        <input type="checkbox" v-model="exportOpts.includeMods" />
+                        <span class="tree-label-bold">Mod</span>
+                        <span class="tree-sub">{{ exportMods.length }} 个模组</span>
+                      </label>
+                      <div class="tree-children" v-if="exportMods.length > 0">
+                        <div class="tree-child export-mod-item" v-for="mod in exportMods" :key="mod.fileName">
+                          <label class="tree-checkbox export-mod-checkbox">
+                            <input type="checkbox" checked disabled />
+                            <img
+                              v-if="mod.logoUrl"
+                              :src="mod.logoUrl"
+                              class="export-mod-icon"
+                              alt=""
+                              @error="(e: Event) => ((e.target as HTMLImageElement).style.display = 'none')"
+                            />
+                            <span v-else class="export-mod-icon-default">{{ mod.name.slice(0, 1).toUpperCase() }}</span>
+                            <span class="export-mod-name">{{ mod.name }}</span>
+                            <span class="export-mod-version">{{ mod.version }}</span>
+                            <span v-if="!mod.enabled" class="mod-disabled-badge">已禁用</span>
+                          </label>
+                        </div>
+                      </div>
+                      <div class="tree-children" v-else-if="!exportLoading">
+                        <div class="tree-child"><span class="tree-sub">未找到 Mod</span></div>
+                      </div>
                       <div class="tree-children">
                         <div class="tree-child">
-                          <label class="tree-checkbox"><input type="checkbox" /><span>已禁用的 Mod</span></label>
+                          <label class="tree-checkbox"><input type="checkbox" v-model="exportOpts.includeDisabledMods" /><span>已禁用的 Mod</span></label>
                         </div>
                         <div class="tree-child">
-                          <label class="tree-checkbox"><input type="checkbox" checked /><span>Mod 设置</span></label>
-                        </div>
-                        <div class="tree-child">
-                          <label class="tree-checkbox"><input type="checkbox" /><span>已绘制的地图</span><span
-                              class="tree-sub">地图为现有的存档、服务器记录的地图、路标等</span></label>
+                          <label class="tree-checkbox"><input type="checkbox" v-model="exportOpts.includeModConfigs" /><span>Mod 设置</span></label>
                         </div>
                       </div>
                     </div>
                     <!-- 资源包组 -->
                     <div class="tree-node tree-parent">
-                      <label class="tree-checkbox"><input type="checkbox" checked /><span
-                          class="tree-label-bold">资源包</span
-                          ><span class="tree-sub">纹理、材质等</span></label>
-                      <div class="tree-children">
-                        <div class="tree-child">
-                          <label class="tree-checkbox"><input type="checkbox"
-                              checked /><span>Minecraft-Mod-Language-Modpack-Converted-1.20.1.zip</span></label>
+                      <label class="tree-checkbox">
+                        <input type="checkbox" v-model="exportOpts.includeResourcePacks" />
+                        <span class="tree-label-bold">资源包</span>
+                        <span class="tree-sub">纹理、材质等 ({{ exportResourcePacks.length }})</span>
+                      </label>
+                      <div class="tree-children" v-if="exportResourcePacks.length > 0">
+                        <div class="tree-child" v-for="rp in exportResourcePacks" :key="rp.name">
+                          <label class="tree-checkbox"><input type="checkbox" checked /><span>{{ rp.name }}</span><span class="tree-sub">{{ formatFileSize(rp.size) }}</span></label>
                         </div>
-                        <div class="tree-child">
-                          <label class="tree-checkbox"><input type="checkbox"
-                              checked /><span>[1.20.1]MASA全家桶汉化包.zip</span></label>
-                        </div>
+                      </div>
+                      <div class="tree-children" v-else-if="!exportLoading">
+                        <div class="tree-child"><span class="tree-sub">未找到资源包</span></div>
                       </div>
                     </div>
                     <!-- 光影包组 -->
                     <div class="tree-node tree-parent">
-                      <label class="tree-checkbox"><input type="checkbox" checked /><span
-                          class="tree-label-bold">光影包</span
-                          ></label>
-                      <div class="tree-children">
-                        <div class="tree-child">
-                          <label class="tree-checkbox"><input type="checkbox" checked /><span>assets</span><span
-                              class="tree-sub">schematics 文件</span></label>
+                      <label class="tree-checkbox">
+                        <input type="checkbox" v-model="exportOpts.includeShaderPacks" />
+                        <span class="tree-label-bold">光影包</span>
+                        <span class="tree-sub">{{ exportShaderPacks.length }} 个</span>
+                      </label>
+                      <div class="tree-children" v-if="exportShaderPacks.length > 0">
+                        <div class="tree-child" v-for="sp in exportShaderPacks" :key="sp.name">
+                          <label class="tree-checkbox"><input type="checkbox" checked /><span>{{ sp.name }}</span><span class="tree-sub">{{ formatFileSize(sp.size) }}</span></label>
                         </div>
+                      </div>
+                      <div class="tree-children" v-else-if="!exportLoading">
+                        <div class="tree-child"><span class="tree-sub">未找到光影包</span></div>
                       </div>
                     </div>
                     <!-- 其他可选项 -->
                     <div class="tree-node">
-                      <label class="tree-checkbox"><input type="checkbox" /><span>导出的文件</span
-                          ><span class="tree-sub">schematics 文件</span></label>
-                    </div>
-                    <div class="tree-node">
-                      <label class="tree-checkbox"><input type="checkbox" /><span>录像回放</span><span
-                          class="tree-sub">Replay Mod 的录像文件</span></label>
-                    </div>
-                    <div class="tree-node">
-                      <label class="tree-checkbox"><input type="checkbox" /><span>单人游戏存档</span><span
+                      <label class="tree-checkbox"><input type="checkbox" v-model="exportOpts.includeSaves" /><span>单人游戏存档</span><span
                           class="tree-sub">世界/地图</span></label>
                     </div>
                     <div class="tree-node">
-                      <label class="tree-checkbox"><input type="checkbox" checked /><span>Voxver 启动器程序</span
+                      <label class="tree-checkbox"><input type="checkbox" v-model="exportOpts.includeLauncher" /><span>Voxver 启动器程序</span
                           ><span class="tree-sub">打包正版整合包，以便没有启动器的玩家安装整合包</span></label>
                     </div>
                     <div class="tree-node">
-                      <label class="tree-checkbox"><input type="checkbox" checked /><span>Voxver 个性化内容</span><span
+                      <label class="tree-checkbox"><input type="checkbox" v-model="exportOpts.includePersonalization" /><span>Voxver 个性化内容</span><span
                           class="tree-sub">功能隐藏设置、主页、背景音乐和图片</span></label>
                     </div>
                   </div>
                 </section>
 
                 <!-- 高级选项（可折叠） -->
-                <section class="vs-section collapsible" :class="{ collapsed: !showAdvanced }">
-                  <h3 class="sec-title clickable" @click="showAdvanced = !showAdvanced">
+                <section class="vs-section collapsible" :class="{ collapsed: !showExportAdvanced }">
+                  <h3 class="sec-title clickable" @click="showExportAdvanced = !showExportAdvanced">
                     高级选项
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                       :style="{ transform: showExportAdvanced ? 'rotate(180deg)' : '' }"
@@ -379,16 +397,9 @@
                   </div>
                 </section>
 
-                <!-- 操作按钮 -->
-                <div class="export-actions">
-                  <button class="form-action-btn outline">读取配置</button>
-                  <button class="form-action-btn outline">保存配置</button>
-                  <button class="form-action-btn outline">整合包制作指南</button>
-                </div>
-
                 <!-- 底部大按钮 -->
                 <div class="export-bottom-btn-wrap">
-                  <button class="btn-export-primary">
+                  <button class="btn-export-primary" @click="doExport" :disabled="exportLoading">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
                     </svg>
@@ -709,6 +720,119 @@ const useHighPerformanceGPU = ref(false)
 
 // 导出页状态
 const showExportAdvanced = ref(false)
+const exportLoading = ref(false)
+const exportLoaded = ref(false)
+const exportMods = ref<Array<{
+  name: string
+  version: string
+  logoUrl: string
+  enabled: boolean
+  fileName: string
+}>>([])
+const exportResourcePacks = ref<Array<{ name: string; size: number }>>([])
+const exportShaderPacks = ref<Array<{ name: string; size: number }>>([])
+const exportPackName = ref('')
+const exportPackVersion = ref('1.0.0')
+const exportOpts = ref({
+  includeMods: true,
+  includeDisabledMods: false,
+  includeModConfigs: true,
+  includeResourcePacks: true,
+  includeShaderPacks: true,
+  includeSaves: false,
+  includeLauncher: true,
+  includePersonalization: true
+})
+
+async function loadExportData() {
+  if (exportLoading.value) return
+  exportLoading.value = true
+  exportPackName.value = props.versionName
+  try {
+    const result = await window.electronAPI?.instance?.exportPreview(props.gameDir)
+    if (result?.ok && result.data) {
+      exportMods.value = (result.data.mods || []).map((m: any) => ({
+        name: m.name || m.fileName || '未知 Mod',
+        version: m.version || '未知',
+        logoUrl: m.logoUrl || '',
+        enabled: m.enabled !== false,
+        fileName: m.fileName || ''
+      }))
+      exportResourcePacks.value = result.data.resourcePacks || []
+      exportShaderPacks.value = result.data.shaderPacks || []
+      exportLoaded.value = true
+    }
+  } catch (e: any) {
+    window.electronAPI?.notification?.send({
+      title: '加载导出数据失败',
+      body: e?.message || '无法读取 mod/资源包/光影包列表',
+      type: 'error'
+    })
+  }
+  exportLoading.value = false
+}
+
+watch(activeTab, (tab) => {
+  if (tab === 'export' && !exportLoaded.value && !exportLoading.value) {
+    loadExportData()
+  }
+})
+
+watch(() => props.gameDir, () => {
+  exportLoaded.value = false
+  exportMods.value = []
+  exportResourcePacks.value = []
+  exportShaderPacks.value = []
+})
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return bytes + ' B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+}
+
+async function doExport() {
+  try {
+    const destPath = await window.electronAPI?.dialog?.selectFile({
+      title: '选择导出保存位置',
+      filters: [{ name: 'MCLA 整合包', extensions: ['mcla'] }]
+    })
+    if (!destPath) return
+    const fullPath = destPath.endsWith('.mcla') ? destPath : destPath + '.mcla'
+    const opts = {
+      includeMods: exportOpts.value.includeMods,
+      includeDisabledMods: exportOpts.value.includeDisabledMods,
+      includeConfigs: exportOpts.value.includeModConfigs,
+      includeResourcePacks: exportOpts.value.includeResourcePacks,
+      includeShaderPacks: exportOpts.value.includeShaderPacks,
+      includeSaves: exportOpts.value.includeSaves
+    }
+    const res = await window.electronAPI?.instance?.exportInstance(
+      props.instanceId,
+      fullPath,
+      opts
+    )
+    if (res?.ok) {
+      window.electronAPI?.notification?.send({
+        title: '导出成功',
+        body: '整合包已导出到：' + fullPath,
+        type: 'info'
+      })
+    } else {
+      window.electronAPI?.notification?.send({
+        title: '导出失败',
+        body: res?.error || '未知错误',
+        type: 'error'
+      })
+    }
+  } catch (e: any) {
+    window.electronAPI?.notification?.send({
+      title: '导出失败',
+      body: e?.message || '未知错误',
+      type: 'error'
+    })
+  }
+}
 
 // ===== 补全文件 =====
 type CompleteState = 'idle' | 'checking' | 'complete' | 'missing' | 'downloading' | 'done' | 'error'
@@ -2032,6 +2156,70 @@ const navItems = [
     white-space: normal;
     align-self: center;
   }
+}
+
+/* 导出 mod 列表项 */
+.export-loading-hint {
+  font-size: 11px;
+  color: var(--voxver-text-muted);
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+.export-mod-item {
+  padding: 4px 0;
+}
+
+.export-mod-checkbox {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.export-mod-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.export-mod-icon-default {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: color-mix(in oklab, var(--voxver-primary) 15%, transparent);
+  color: var(--voxver-primary);
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.export-mod-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.export-mod-version {
+  font-size: 11px;
+  color: var(--voxver-text-muted);
+  flex-shrink: 0;
+}
+
+.mod-disabled-badge {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: var(--voxver-radius-full);
+  background: color-mix(in oklab, var(--voxver-warning) 15%, transparent);
+  color: var(--voxver-warning);
+  flex-shrink: 0;
 }
 
 /* 导出操作按钮 */

@@ -60,6 +60,9 @@ coverage/
 # ========== WorkBuddy（开发工具数据）==========
 .workbuddy/
 
+# ========== Trae（IDE 数据）==========
+.trae/
+
 # ========== Electron 专属 ==========
 electron-builder.yml.bak      
 electron-builder.env          

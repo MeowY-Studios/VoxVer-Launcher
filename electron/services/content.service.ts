@@ -2,7 +2,8 @@ import {
   CurseForgeService,
   CurseForgeMod,
   CurseForgeFile,
-  CurseForgeSearchParams
+  CurseForgeSearchParams,
+  CURSEFORGE_CLASS_IDS
 } from './curseforge.service'
 import {
   ModrinthService,
@@ -132,8 +133,11 @@ export class ContentService {
         modLoaderType: this.mapLoaderToCurseForge(params.loader)
       }
 
+      if (params.projectType && CURSEFORGE_CLASS_IDS[params.projectType]) {
+        searchParams.classId = CURSEFORGE_CLASS_IDS[params.projectType]
+      }
+
       if (params.category) {
-        // 需要根据分类名称查找对应的 categoryId
         searchParams.categoryId = await this.getCurseForgeCategoryId(params.category)
       }
 

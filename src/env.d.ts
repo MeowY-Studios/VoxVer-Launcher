@@ -73,6 +73,32 @@ interface ScanMinecraftResult {
   configCount?: number
 }
 
+/** 导出选项 */
+interface ExportOptions {
+  includeMods?: boolean
+  includeDisabledMods?: boolean
+  includeConfigs?: boolean
+  includeResourcePacks?: boolean
+  includeShaderPacks?: boolean
+  includeSaves?: boolean
+}
+
+/** 导出预览数据 */
+interface ExportPreviewData {
+  mods: Array<{
+    id: string
+    name: string
+    version: string
+    filePath: string
+    fileName: string
+    size: number
+    enabled: boolean
+    logoUrl?: string
+  }>
+  resourcePacks: Array<{ name: string; size: number }>
+  shaderPacks: Array<{ name: string; size: number }>
+}
+
 interface ElectronAPI {
   window: {
     minimize: () => Promise<void>
@@ -119,8 +145,9 @@ interface ElectronAPI {
     updateDescription: (id: string, description: string) => Promise<void>
     toggleFavorite: (id: string) => Promise<void>
     scanMinecraft: (dirPath: string) => Promise<IpcResult<ScanMinecraftResult>>
-    exportInstance: (id: string, destPath: string, options?: unknown) => Promise<IpcResult>
+    exportInstance: (id: string, destPath: string, options?: ExportOptions) => Promise<IpcResult>
     importInstance: (mclaFilePath: string, targetDir: string) => Promise<IpcResult>
+    exportPreview: (gameDir: string) => Promise<IpcResult<ExportPreviewData>>
   }
   account: {
     list: () => Promise<Account[]>
@@ -178,7 +205,7 @@ interface ElectronAPI {
     onProgress: (callback: (data: unknown) => void) => () => void
   }
   game: {
-    launch: (instanceId: string, accountId: string, versionId?: string) => Promise<IpcResult & { success?: boolean }>
+    launch: (instanceId: string, accountId: string, versionId?: string) => Promise<IpcResult & { success?: boolean; needsFileDownload?: boolean; missingFiles?: Array<{ type: string; name: string; path: string; size?: number }> }>
     getLog: (instanceId: string) => Promise<string>
     terminate: () => Promise<void>
     isRunning: () => Promise<boolean>
@@ -186,7 +213,7 @@ interface ElectronAPI {
     onLog: (callback: (log: { text: string; level: string }) => void) => () => void
     onExit: (callback: (code: { code: number; signal: string | null; instanceId?: string }) => void) => () => void
     checkMissingFiles: (versionId: string) => Promise<unknown[]>
-    confirmDownloadAndLaunch: (versionId: string, accountId?: string) => Promise<void>
+    confirmDownloadAndLaunch: (versionId: string, accountId?: string) => Promise<IpcResult & { success?: boolean }>
   }
   dialog: {
     selectFolder: (options?: { title?: string }) => Promise<string | null>

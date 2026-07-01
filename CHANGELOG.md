@@ -1,5 +1,46 @@
 # 更新日志
 
+## v0.6.1 — 2026-07-02
+
+### 游戏启动修复
+- **JVM 参数去重修复**：移除 `buildJvmArguments` 中的 `Set` 去重，避免 `--add-opens` 参数丢失导致 `ClassNotFoundException`
+- **版本解析修复**：`extractBaseVersion` 正则锚定开头，避免从整合包名（如"你好，新蒸程！V1.4.2"）中错误提取版本号
+- **类路径去重**：`buildClasspath` 添加 `[...new Set(cp)]` 去重，修复版本 JSON 中重复库声明导致的 `Duplicate key` 错误
+- **GC 参数兼容性**：移除 CMS GC（Java 14+ 已删除），统一使用 G1GC，修复 `Unrecognized VM option 'UseConcMarkSweepGC'`
+- **缺失文件状态处理**：前端正确处理 `needsFileDownload` 状态，弹出确认对话框后调用 `confirmDownloadAndLaunch`
+- **启动状态切换修复**：`spawnProcess` 不再阻塞等待进程退出，进程启动 1.5 秒检测通过后立即切换到"运行中"状态，修复启动器一直显示"启动中"的问题
+- **游戏进程独立运行**：`spawn` 选项改为 `detached: true`，游戏在独立进程组运行，关闭启动器后游戏不会被连带终止
+
+### 文件完整性校验
+- **库文件大小校验**：`checkMissingFiles`、`downloadMissingFiles` 添加文件大小校验，检测 0 字节空文件和大小不匹配文件
+- **资源文件大小校验**：`downloadAssets`、`checkMissingFiles` 资源检查添加文件大小校验
+- **下载前清理损坏文件**：重新下载前删除 0 字节或大小不匹配的文件
+
+### 下载系统修复
+- **BMCLAPI 重定向支持**：`downloadFile` 添加 HTTP 301/302/303/307/308 重定向跟随（最多 5 次），修复 BMCLAPI 镜像跳转导致 0 字节文件
+- **下载后文件验证**：下载完成后校验文件大小不为 0，空文件视为下载失败
+- **0 字节文件跳过修复**：`downloadFile` 不再跳过已存在的 0 字节文件
+- **资源文件下载源优化**：资源文件主源改为官方 Minecraft 资源服务器（`resources.download.minecraft.net`，无速率限制），BMCLAPI 作为备用源，修复 3300+ 资源文件因 BMCLAPI 速率限制（60秒10次）全部返回 403 的问题
+- **并行下载备用源支持**：`parallelDownload` 添加 `fallbackUrl` 支持，主源失败时自动尝试备用源
+
+### UI/UX 优化
+- **自定义下载确认弹窗**：用 `PxModal` 组件替代原生 `confirm()`，包含警告图标、消息文本、取消/下载并启动按钮
+- **弹窗国际化**：新增 `launch.missingFilesTitle`、`launch.missingFilesMessage`、`launch.missingFilesHint` 等 i18n 条目
+
+### Java 管理
+- **默认 Java 版本推荐**：无法解析版本号时默认推荐 Java 21（适配现代 Forge/NeoForge 整合包）
+
+---
+
+## v0.6.0 — 2026-06-28
+
+### UI 重构
+- **设置页分类拆分**：设置页面按功能分类拆分为多个子页面
+- **控件统一**：全局 UI 控件使用 `.vox-*` 类前缀（`.vox-btn`、`.vox-input`、`.vox-card` 等）
+- **主题系统重构**：浅色/深色主题完整切换 + 背景自定义 + 主题色自定义
+
+---
+
 ## v0.5.5 — 2026-06-25
 
 ### 主题系统

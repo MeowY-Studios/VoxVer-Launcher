@@ -2,16 +2,21 @@
  * 下载管理 IPC
  */
 import { ipcMain } from 'electron'
-import { getContentService } from '../services/content.ipc'
+import { getContentService, waitForContentService } from '../services/content.ipc'
 import { ContentPlatform } from '../services/content.service'
 import type { ContentFile } from '../services/content.service'
 import type { MirrorInfo } from '../types/download.types'
 
 export function registerDownloadHandlers(): void {
   ipcMain.handle('download:search-mods', async (_event, params) => {
-    const service = getContentService()
-    const result = await service.searchMods(params)
-    return { success: true, data: result }
+    try {
+      const service = await waitForContentService()
+      const result = await service.searchMods(params)
+      return { success: true, data: result }
+    } catch (e: any) {
+      console.error('[IPC] search-mods error:', e?.message || e)
+      return { success: false, data: [], error: e?.message || 'ContentService 未就绪' }
+    }
   })
 
   ipcMain.handle('download:get-project', async (_event, projectId, platform) => {

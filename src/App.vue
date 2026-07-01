@@ -408,6 +408,40 @@
 
     <!-- 全局悬浮下载面板 -->
     <DownloadFloat />
+
+    <!-- 缺失文件下载确认弹窗 -->
+    <PxModal
+      v-model="showMissingFilesModal"
+      :title="$t('launch.missingFilesTitle')"
+      size="sm"
+      :closable="false"
+      :close-on-backdrop="false"
+      :close-on-esc="false"
+    >
+      <div class="missing-files-modal">
+        <div class="missing-files-modal__icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <p class="missing-files-modal__message">
+          {{ $t('launch.missingFilesMessage', { count: missingFilesCount }) }}
+        </p>
+        <p class="missing-files-modal__hint">
+          {{ $t('launch.missingFilesHint') }}
+        </p>
+      </div>
+      <template #footer>
+        <button class="vox-btn" @click="onMissingFilesCancel">
+          {{ $t('launch.cancelDownload') }}
+        </button>
+        <button class="vox-btn vox-btn--primary" @click="onMissingFilesConfirm">
+          {{ $t('launch.confirmDownload') }}
+        </button>
+      </template>
+    </PxModal>
   </div>
 </template>
 
@@ -418,6 +452,7 @@ import VersionSettings from './components/VersionSettings.vue'
 import VersionSelect from './components/VersionSelect.vue'
 import AccountManager from './components/AccountManager.vue'
 import DownloadFloat from './components/DownloadFloat.vue'
+import PxModal from './components/common/PxModal.vue'
 import { useVersionsStore, useAccountsStore, useInstancesStore, useDownloadStore, useAppStore } from './stores'
 
 const route = useRoute()
@@ -594,6 +629,31 @@ const isLaunching = ref(false)
 const showVersionSelect = ref(false)
 const selectedVersionId = ref('')
 const selectedVersion = ref('选择版本')
+
+// 缺失文件下载确认弹窗
+const showMissingFilesModal = ref(false)
+const missingFilesCount = ref(0)
+let missingFilesResolve: ((value: boolean) => void) | null = null
+
+function confirmMissingFilesDownload(count: number): Promise<boolean> {
+  missingFilesCount.value = count
+  showMissingFilesModal.value = true
+  return new Promise((resolve) => {
+    missingFilesResolve = resolve
+  })
+}
+
+function onMissingFilesConfirm() {
+  showMissingFilesModal.value = false
+  missingFilesResolve?.(true)
+  missingFilesResolve = null
+}
+
+function onMissingFilesCancel() {
+  showMissingFilesModal.value = false
+  missingFilesResolve?.(false)
+  missingFilesResolve = null
+}
 
 interface VersionItem {
   id: string
@@ -879,7 +939,23 @@ async function handleLaunch() {
 
   try {
     const result = await window.electronAPI?.game.launch('', accountId, versionId)
-    if (!result?.success) {
+    if (result?.needsFileDownload) {
+      const count = result.missingFiles?.length || 0
+      const confirmed = await confirmMissingFilesDownload(count)
+      if (confirmed) {
+        const dlResult = await window.electronAPI?.game.confirmDownloadAndLaunch(
+          versionId,
+          accountId
+        )
+        if (!dlResult?.success) {
+          window.electronAPI?.notification?.send({
+            title: '错误',
+            body: '下载并启动失败: ' + (dlResult?.error || '未知错误'),
+            type: 'error'
+          })
+        }
+      }
+    } else if (!result?.success) {
       window.electronAPI?.notification?.send({
         title: '错误',
         body: '启动失败: ' + (result?.error || '未知错误'),
@@ -954,7 +1030,7 @@ const communityCategories = [
   {
     id: 'modpack',
     labelKey: 'download.sidebar.modpack',
-    icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/></svg>'
+    icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L4 5v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V5l-8-3z"/></svg>'
   },
   {
     id: 'datapack',
@@ -1898,5 +1974,34 @@ function handleSettingsCategory(itemId: string) {
   border-top: 1px solid var(--voxver-border-color);
   background: var(--voxver-bg-elevated);
   user-select: none;
+}
+
+/* 缺失文件下载确认弹窗 */
+.missing-files-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+.missing-files-modal__icon {
+  color: var(--voxver-warning);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.missing-files-modal__message {
+  margin: 0;
+  font-size: var(--voxver-text-base);
+  font-weight: var(--voxver-font-semibold);
+  color: var(--voxver-text-primary);
+  line-height: 1.5;
+}
+.missing-files-modal__hint {
+  margin: 0;
+  font-size: var(--voxver-text-sm);
+  color: var(--voxver-text-tertiary);
+  line-height: 1.5;
 }
 </style>

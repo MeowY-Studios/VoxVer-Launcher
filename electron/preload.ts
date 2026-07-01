@@ -145,7 +145,9 @@ const api = {
       options?: { includeMods?: boolean; includeConfigs?: boolean; includeSaves?: boolean }
     ) => ipcRenderer.invoke('instance:export', id, destPath, options),
     importInstance: (mclaFilePath: string, targetDir: string) =>
-      ipcRenderer.invoke('instance:import', mclaFilePath, targetDir)
+      ipcRenderer.invoke('instance:import', mclaFilePath, targetDir),
+    exportPreview: (gameDir: string) =>
+      ipcRenderer.invoke('instance:export-preview', gameDir)
   },
 
   // 账户管理

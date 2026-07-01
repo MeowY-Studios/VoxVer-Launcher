@@ -7,6 +7,7 @@ import * as path from 'path'
 import { app } from 'electron'
 import * as instances from './instances'
 import { createInstanceWithDir } from './instance.enhanced.service'
+import { ModService, ModInfo } from './mod.service'
 
 export interface ExportPackage {
   version: 1
@@ -188,11 +189,21 @@ export async function exportInstance(
   destPath: string,
   options: {
     includeMods?: boolean
+    includeDisabledMods?: boolean
     includeConfigs?: boolean
+    includeResourcePacks?: boolean
+    includeShaderPacks?: boolean
     includeSaves?: boolean
   } = {}
 ): Promise<{ ok: boolean; error?: string; filePath?: string }> {
-  const { includeMods = true, includeConfigs = true, includeSaves = false } = options
+  const {
+    includeMods = true,
+    includeDisabledMods = true,
+    includeConfigs = true,
+    includeResourcePacks = true,
+    includeShaderPacks = true,
+    includeSaves = false
+  } = options
 
   const instance = instances.getInstanceById(instanceId)
   if (!instance) return { ok: false, error: '实例不存在' }
@@ -253,7 +264,15 @@ export async function exportInstance(
       const modsDir = path.join(gameDir, 'mods')
       if (fs.existsSync(modsDir)) {
         manifest.includedFiles.push('mods/')
-        archive.directory(modsDir, 'mods')
+        const modFiles = await fs.promises.readdir(modsDir)
+        for (const file of modFiles) {
+          const filePath = path.join(modsDir, file)
+          const stat = await fs.promises.stat(filePath)
+          if (!stat.isFile()) continue
+          // 未包含禁用 mod 时跳过 .disabled 后缀
+          if (!includeDisabledMods && /\.disabled$/i.test(file)) continue
+          archive.file(filePath, { name: `mods/${file}` })
+        }
       }
     } else {
       manifest.excludedDirs.push('mods')
@@ -268,6 +287,28 @@ export async function exportInstance(
       }
     } else {
       manifest.excludedDirs.push('config')
+    }
+
+    // 可选：resourcepacks
+    if (includeResourcePacks) {
+      const rpDir = path.join(gameDir, 'resourcepacks')
+      if (fs.existsSync(rpDir)) {
+        manifest.includedFiles.push('resourcepacks/')
+        archive.directory(rpDir, 'resourcepacks')
+      }
+    } else {
+      manifest.excludedDirs.push('resourcepacks')
+    }
+
+    // 可选：shaderpacks
+    if (includeShaderPacks) {
+      const spDir = path.join(gameDir, 'shaderpacks')
+      if (fs.existsSync(spDir)) {
+        manifest.includedFiles.push('shaderpacks/')
+        archive.directory(spDir, 'shaderpacks')
+      }
+    } else {
+      manifest.excludedDirs.push('shaderpacks')
     }
 
     // 可选：saves
@@ -385,4 +426,66 @@ export async function importInstance(
  */
 export function getExportDir(): string {
   return app.getPath('downloads')
+}
+
+/**
+ * 获取导出预览数据：mod 列表、资源包列表、光影包列表
+ * @param gameDir 游戏目录（.minecraft 或其下的 versions/xxx）
+ * @param modService 可选，复用已有 ModService 实例以利用缓存
+ */
+export async function getExportPreview(
+  gameDir: string,
+  modService?: ModService
+): Promise<{
+  mods: ModInfo[]
+  resourcePacks: { name: string; size: number }[]
+  shaderPacks: { name: string; size: number }[]
+}> {
+  // 提取 .minecraft 根目录（gameDir 可能是 versions/xxx 子目录）
+  const parts = gameDir.split(/[/\\]/)
+  const mcIdx = parts.findIndex((p) => p === '.minecraft')
+  const mcRoot = mcIdx >= 0 ? parts.slice(0, mcIdx + 1).join(path.sep) : gameDir
+
+  // 获取 mod 列表（复用传入的 modService 或创建新实例）
+  const service = modService || new ModService()
+  let mods: ModInfo[] = []
+  try {
+    mods = await service.getInstalledMods(mcRoot)
+  } catch {
+    mods = []
+  }
+
+  // 读取资源包目录
+  const resourcePacks: { name: string; size: number }[] = []
+  try {
+    const rpDir = path.join(mcRoot, 'resourcepacks')
+    const rpFiles = await fs.promises.readdir(rpDir)
+    for (const file of rpFiles) {
+      const filePath = path.join(rpDir, file)
+      const stat = await fs.promises.stat(filePath)
+      if (stat.isFile() && /\.(zip|jar)$/i.test(file)) {
+        resourcePacks.push({ name: file, size: stat.size })
+      }
+    }
+  } catch {
+    // 目录不存在或读取失败
+  }
+
+  // 读取光影包目录
+  const shaderPacks: { name: string; size: number }[] = []
+  try {
+    const spDir = path.join(mcRoot, 'shaderpacks')
+    const spFiles = await fs.promises.readdir(spDir)
+    for (const file of spFiles) {
+      const filePath = path.join(spDir, file)
+      const stat = await fs.promises.stat(filePath)
+      if (stat.isFile() && /\.(zip|jar)$/i.test(file)) {
+        shaderPacks.push({ name: file, size: stat.size })
+      }
+    }
+  } catch {
+    // 目录不存在或读取失败
+  }
+
+  return { mods, resourcePacks, shaderPacks }
 }

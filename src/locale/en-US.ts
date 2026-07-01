@@ -270,7 +270,12 @@ export default {
   launch: {
     restoreDefaultPath: 'Restore Default Path',
     changePath: 'Change Path',
-    openFolder: 'Open Folder'
+    openFolder: 'Open Folder',
+    missingFilesTitle: 'Missing Files Download',
+    missingFilesMessage: 'Detected {count} missing files. Download and launch game?',
+    missingFilesHint: 'Click "Download & Launch" to automatically download missing files and start the game.',
+    cancelDownload: 'Cancel',
+    confirmDownload: 'Download & Launch'
   },
 
   version: {

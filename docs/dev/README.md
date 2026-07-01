@@ -49,7 +49,7 @@ npm run build:mac
 npm run build:linux
 ```
 
-> 安装包输出在 `build/` 目录。Windows 产物为 NSIS 安装程序（`VoxVer Setup x.x.x.exe`）。
+> 安装包输出在 `build/` 目录。Windows 产物为 NSIS 安装程序（`VoxVer Launcher Setup x.x.x.exe`）。
 
 ---
 
@@ -78,7 +78,7 @@ VoxVer-Launcher/
 │   ├── main.ts                    # 主进程入口
 │   ├── preload.ts                 # 预加载脚本（IPC 桥接，30+ 通道）
 │   ├── adapters/                  # 平台适配器（接口 + Minecraft 实现 + 注册中心）
-│   ├── ipc/                      # IPC 处理器（16 个模块）
+│   ├── ipc/                      # IPC 处理器（20+ 个模块）
 │   │   ├── account.ipc.ts        # 账户认证
 │   │   ├── config.ipc.ts         # 配置读写
 │   │   ├── content.ipc.ts        # 内容服务（皮肤等）
@@ -90,6 +90,13 @@ VoxVer-Launcher/
 │   │   ├── java.ipc.ts           # Java 管理
 │   │   ├── mod.ipc.ts            # Mod 管理 + 更新检测
 │   │   ├── modloader.ipc.ts     # ModLoader 安装
+│   │   ├── share.ipc.ts          # P2P 实例分享
+│   │   ├── modpack.ipc.ts        # 整合包管理
+│   │   ├── hotkey.ipc.ts         # 全局快捷键
+│   │   ├── theme.ipc.ts          # 主题管理
+│   │   ├── backup.ipc.ts         # 备份与迁移
+│   │   ├── updater.ipc.ts        # 自动更新
+│   │   ├── notification.ipc.ts   # 通知系统
 │   │   └── window.ipc.ts         # 窗口控制
 │   ├── services/                 # 业务服务层（15+ 模块）
 │   │   ├── microsoft.auth.ts     # 微软 OAuth Device Code Flow
@@ -101,12 +108,18 @@ VoxVer-Launcher/
 │   │   ├── mod.service.ts        # Mod 管理 + 自动更新
 │   │   ├── skin.service.ts       # 皮肤缓存
 │   │   ├── crash.service.ts      # 崩溃捕获与分析
-│   │   ├── game.launcher.service.ts # 游戏启动核心（JVM 参数、类路径、natives）
+│   │   ├── game.launcher.service.ts # 游戏启动核心（JVM 参数、类路径、natives、文件校验、多源下载）
+│   │   ├── java.management.service.ts # Java 探测与版本推荐
 │   │   ├── launch.config.service.ts  # 启动配置管理
 │   │   ├── instances.ts          # 实例 CRUD
+│   │   ├── instance.export.ts    # 实例导出（.mcla 格式）
 │   │   ├── database.ts           # SQLite 数据库
 │   │   ├── download.service.ts   # 下载队列
-│   │   └── instance.enhanced.service.ts # 实例导入/导出
+│   │   ├── content.service.ts    # 内容聚合服务（Mod/整合包/资源包）
+│   │   ├── backup.service.ts     # 配置备份与迁移
+│   │   ├── hotkey.service.ts     # 全局快捷键
+│   │   ├── theme.service.ts      # 主题管理
+│   │   └── watcher.service.ts    # 进程监控
 │   ├── types/                    # TypeScript 类型定义
 │   │   ├── ipc.types.ts         # 30+ IPC 通道类型映射
 │   │   ├── database.types.ts    # 6 张表 Row 类型 + DDL
@@ -127,10 +140,11 @@ VoxVer-Launcher/
 │   │   ├── LaunchPage.vue       # 游戏启动（版本选择 + 启动按钮）
 │   │   ├── InstancesPage.vue     # 实例列表
 │   │   ├── InstanceDetail.vue   # 实例详情（Mod 管理 + 配置）
+│   │   ├── VersionDetail.vue    # 版本详情（Mod 管理 + 导出 + 启动设置）
 │   │   ├── VersionsPage.vue     # 版本浏览与安装
-│   │   ├── DownloadsPage.vue     # Mod/整合包下载
+│   │   ├── DownloadsPage.vue     # Mod/整合包/资源包/光影下载
 │   │   ├── ModDetailPage.vue    # Mod 详情页
-│   │   ├── SettingsPage.vue     # 全局设置
+│   │   ├── SettingsPage.vue     # 全局设置（分类子页面）
 │   │   └── MorePage.vue         # 关于 / 鸣谢 / FAQ
 │   ├── components/              # 组件
 │   │   ├── common/             # Px UI 组件库（Modal/Progress/Badge/Notification）
@@ -140,6 +154,7 @@ VoxVer-Launcher/
 │   │   └── ModManager.vue      # Mod 管理核心组件
 │   ├── styles/                 # 全局样式
 │   │   ├── pixel-ui.css        # 像素风 CSS 设计系统
+│   │   ├── vox-controls.scss   # 全局 UI 控件（.vox-* 类前缀）
 │   │   ├── themes/             # 主题样式（light/dark）
 │   │   └── global.scss         # 全局样式
 │   └── types/                  # 渲染进程类型
@@ -149,7 +164,8 @@ VoxVer-Launcher/
 ├── scripts/                     # 构建辅助脚本
 ├── tests/                       # 单元测试（Vitest）
 ├── docs/                        # 文档
-│   └── dev/                    # 开发文档（本文件）
+│   ├── dev/                    # 开发文档（本文件）
+│   └── releases/               # 版本发布说明（v0.6.0.md, v0.6.1.md）
 ├── electron-builder.yml         # 打包配置
 ├── electron.vite.config.ts      # electron-vite 配置
 └── package.json
@@ -236,3 +252,5 @@ npx vitest --coverage
 4. **用户体验** — 每个操作都有实时反馈（进度条、状态提示、通知）
 5. **安全** — token 加密存储、不存储密码、API Key 环境变量管理
 6. **像素美学** — Press Start 2P 字体 + 暗色调 + 霓虹发光
+7. **国际化** — UI 文本通过 `$t()` / `tm()` 接入 i18n，翻译资源存放于 `src/locale/`
+8. **控件统一** — 全局 UI 控件使用 `.vox-*` 类前缀，设计令牌使用 CSS 变量（`--voxver-*`）

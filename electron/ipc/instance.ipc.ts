@@ -5,8 +5,9 @@ import { ipcMain } from 'electron'
 import * as instanceService from '../services/instances'
 import type { Instance } from '../services/instances'
 import * as enhanced from '../services/instance.enhanced.service'
+import type { ModService } from '../services/mod.service'
 
-export function registerInstanceHandlers(): void {
+export function registerInstanceHandlers(modService?: ModService): void {
   // ===== 基础 CRUD =====
   ipcMain.handle('instance:list', () => instanceService.listInstances())
   ipcMain.handle('instance:get-by-id', (_event, id: string) => instanceService.getInstanceById(id))
@@ -70,10 +71,13 @@ export function registerInstanceHandlers(): void {
       instanceId: string,
       destPath: string,
       options?: {
-        includeMods?: boolean
-        includeConfigs?: boolean
-        includeSaves?: boolean
-      }
+      includeMods?: boolean
+      includeDisabledMods?: boolean
+      includeConfigs?: boolean
+      includeResourcePacks?: boolean
+      includeShaderPacks?: boolean
+      includeSaves?: boolean
+    }
     ) => {
       try {
         const { exportInstance } = await import('../services/instance.export')
@@ -90,6 +94,16 @@ export function registerInstanceHandlers(): void {
       const { importInstance } = await import('../services/instance.export')
       const result = await importInstance(mclaFilePath, targetDir)
       return result
+    } catch (e: any) {
+      return { ok: false, error: e.message }
+    }
+  })
+
+  ipcMain.handle('instance:export-preview', async (_event, gameDir: string) => {
+    try {
+      const { getExportPreview } = await import('../services/instance.export')
+      const result = await getExportPreview(gameDir, modService)
+      return { ok: true, data: result }
     } catch (e: any) {
       return { ok: false, error: e.message }
     }

@@ -270,7 +270,12 @@ export default {
   launch: {
     restoreDefaultPath: '恢复默认路径',
     changePath: '修改路径',
-    openFolder: '打开目录'
+    openFolder: '打开目录',
+    missingFilesTitle: '缺失文件下载确认',
+    missingFilesMessage: '检测到 {count} 个缺失文件，是否下载并启动游戏？',
+    missingFilesHint: '点击"下载并启动"将自动下载缺失文件并启动游戏。',
+    cancelDownload: '取消',
+    confirmDownload: '下载并启动'
   },
 
   version: {

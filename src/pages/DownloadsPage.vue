@@ -692,9 +692,15 @@
         </button>
       </div>
 
+      <!-- 搜索错误提示 -->
+      <div v-if="dlStore.searchError && !isLoading" class="search-error-bar vox-card">
+        <span class="search-error-text">搜索失败: {{ dlStore.searchError }}</span>
+        <button class="btn-retry" @click="doSearch">重试</button>
+      </div>
+
       <!-- 加载更多 -->
       <div v-if="dlStore.searchResults.length > 0 && dlStore.hasMore" class="load-more-bar">
-        <button class="btn-load-more" :disabled="dlStore.searching" @click="dlStore.loadMore()">
+        <button class="btn-load-more" :disabled="dlStore.searching" @click="handleLoadMore">
           <span v-if="dlStore.searching" class="spin-sm"></span>
           {{ dlStore.searching ? $t('download.loading') : $t('download.loadMore') }}
         </button>
@@ -748,7 +754,13 @@ function handleScroll() {
 async function handleLoadMore() {
   const el = pageRef.value
   const scrollTop = el?.scrollTop ?? 0
-  await dlStore.loadMore()
+  await dlStore.loadMore({
+    query: searchName.value,
+    gameVersion: searchVersion.value || undefined,
+    loaderType: searchLoader.value || undefined,
+    source: searchSource.value,
+    projectType: activeCategory.value
+  })
   await nextTick()
   el?.scrollTo({ top: scrollTop })
 }
@@ -1063,15 +1075,9 @@ function goPage(page: number) {
   pageRef.value?.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-// 切换分类或搜索时重置页码
+// 切换分类时重置页码
 watch(
   () => activeCategory.value,
-  () => {
-    currentPage.value = 1
-  }
-)
-watch(
-  () => dlStore.searchResults.length,
   () => {
     currentPage.value = 1
   }
@@ -1278,7 +1284,10 @@ async function doSearch() {
   isLoading.value = true
   loadProgress.value = 0
   dlStore.searchResults = []
+  dlStore.searchError = ''
+  currentPage.value = 1
 
+  const projectType = activeCategory.value
   try {
     // 统一走单源或串行双源（searchMods 会覆盖 store 结果，串行避免竞争）
     if (searchSource.value === 'all') {
@@ -1288,6 +1297,7 @@ async function doSearch() {
         source: 'modrinth',
         gameVersion: searchVersion.value || undefined,
         loaderType: searchLoader.value || undefined,
+        projectType,
         offset: 0,
         limit: 100
       })
@@ -1299,6 +1309,7 @@ async function doSearch() {
         source: 'curseforge',
         gameVersion: searchVersion.value || undefined,
         loaderType: searchLoader.value || undefined,
+        projectType,
         offset: 0,
         limit: 100
       })
@@ -1307,15 +1318,20 @@ async function doSearch() {
       // 双源结果直接拼接，不去重；按下载量混合排序（不优先任何来源）
       const merged = [...mrResults, ...cfResults]
       dlStore.searchResults = merged.sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
+      // 双源合并后 hasMore 取任一源有更多
+      dlStore.hasMore = dlStore.hasMoreMr || dlStore.hasMoreCf
+      console.log('[doSearch] 双源完成: mr=' + mrResults.length, 'cf=' + cfResults.length, 'merged=' + merged.length, 'hasMore=' + dlStore.hasMore)
     } else {
       await dlStore.searchMods({
         query: searchName.value,
         source: searchSource.value as any,
         gameVersion: searchVersion.value || undefined,
         loaderType: searchLoader.value || undefined,
+        projectType,
         offset: 0,
         limit: 100
       })
+      console.log('[doSearch] 单源完成: results=' + dlStore.searchResults.length, 'hasMore=' + dlStore.hasMore)
     }
   } finally {
     isLoading.value = false
@@ -1339,9 +1355,16 @@ function handleCardClick(r: any) {
   })
 }
 
-// 进入 Mod 分类页时，如果没有搜索结果，自动拉取双源热门内容
+// 需要从 API 拉取数据的社区分类
+const COMMUNITY_CATEGORIES = ['mod', 'modpack', 'shader', 'resourcepack', 'datapack']
+
+// 进入社区分类页时，如果没有搜索结果，自动拉取双源热门内容
 onMounted(() => {
-  if (activeCategory.value === 'mod' && dlStore.searchResults.length === 0 && !searchName.value) {
+  if (
+    COMMUNITY_CATEGORIES.includes(activeCategory.value) &&
+    dlStore.searchResults.length === 0 &&
+    !searchName.value
+  ) {
     // 延迟一点让路由参数先填充
     setTimeout(() => {
       doSearch()
@@ -1362,13 +1385,17 @@ onUnmounted(() => {
   }
 })
 
-// 切换到 mod 分类时，如果无结果也自动拉取
+// 切换社区分类时，清空旧结果并自动拉取新分类数据
 watch(
   () => activeCategory.value,
   (cat) => {
-    if (cat === 'mod' && dlStore.searchResults.length === 0 && !searchName.value) {
-      doSearch()
-    }
+    if (!COMMUNITY_CATEGORIES.includes(cat)) return
+    // 切换分类时清空旧结果，重置分页与搜索词
+    dlStore.searchResults = []
+    dlStore.hasMore = true
+    searchName.value = ''
+    currentPage.value = 1
+    doSearch()
   }
 )
 </script>
@@ -2065,6 +2092,42 @@ watch(
   font-size: 13px;
   font-weight: 600;
   flex-shrink: 0;
+}
+
+/* 搜索错误提示 */
+.search-error-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 20px;
+  margin: 12px 0;
+  border: 1px solid var(--voxver-error);
+  border-radius: var(--voxver-radius-md);
+  background: color-mix(in oklab, var(--voxver-error) 8%, transparent);
+}
+
+.search-error-text {
+  color: var(--voxver-error);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.btn-retry {
+  height: 30px;
+  padding: 0 18px;
+  border: 1px solid var(--voxver-error);
+  border-radius: var(--voxver-radius-sm);
+  background: transparent;
+  color: var(--voxver-error);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.13s;
+
+  &:hover {
+    background: color-mix(in oklab, var(--voxver-error) 10%, transparent);
+  }
 }
 
 /* 加载更多 */

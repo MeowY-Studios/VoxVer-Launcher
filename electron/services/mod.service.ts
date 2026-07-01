@@ -121,6 +121,8 @@ interface FabricModJson {
  */
 export class ModService {
   private cacheDir: string
+  // mod 信息内存缓存：key=filePath，value={mtime, info}，按 mtime 失效
+  private modInfoCache = new Map<string, { mtime: number; info: any }>()
 
   constructor(cacheDir?: string) {
     // 默认缓存目录：%APPDATA%\mcla\mod-icons（Windows）或 ~/.mcla/mod-icons
@@ -137,49 +139,73 @@ export class ModService {
 
   /**
    * 获取所有已安装的 Mod（包括已禁用的 .jar.disabled）
+   * 使用并行处理 + 内存缓存优化加载速度
    */
   async getInstalledMods(gameDir: string): Promise<ModInfo[]> {
     const modsDir = this.getModsDir(gameDir)
-    const mods: ModInfo[] = []
 
     try {
       const files = await fs.readdir(modsDir)
 
-      for (const file of files) {
-        const filePath = path.join(modsDir, file)
-        const stat = await fs.stat(filePath)
-        if (!stat.isFile()) continue
-
-        const isDisabled = file.endsWith('.disabled')
-        const isJar = file.endsWith('.jar') || isDisabled
-        if (!isJar) continue
-
-        const modInfo = await this.readModInfo(filePath)
-        const baseName = isDisabled ? file.replace(/\.disabled$/, '') : file
-
-        mods.push({
-          id: this.generateModId(baseName),
-          name: modInfo.name || this.extractModName(baseName),
-          version: modInfo.version || 'Unknown',
-          description: modInfo.description,
-          authors: modInfo.authors,
-          url: modInfo.url,
-          filePath,
-          fileName: file,
-          size: stat.size,
-          enabled: !isDisabled,
-          loader: modInfo.loader,
-          mcVersion: modInfo.mcVersion,
-          dependencies: modInfo.dependencies,
-          logoUrl: modInfo.logoUrl
+      // 第一步：并行 stat 所有文件，过滤出 jar 文件
+      const fileInfos = await Promise.all(
+        files.map(async (file) => {
+          const filePath = path.join(modsDir, file)
+          const stat = await fs.stat(filePath)
+          const isDisabled = file.endsWith('.disabled')
+          const isJar = file.endsWith('.jar') || isDisabled
+          if (!stat.isFile() || !isJar) return null
+          return { file, filePath, stat, isDisabled }
         })
-      }
+      )
+
+      const validFiles = fileInfos.filter(
+        (f): f is { file: string; filePath: string; stat: any; isDisabled: boolean } => f !== null
+      )
+
+      // 第二步：并行读取所有 mod 信息（带缓存）
+      const mods = await Promise.all(
+        validFiles.map(async ({ file, filePath, stat, isDisabled }) => {
+          const modInfo = await this.readModInfoWithCache(filePath, stat.mtimeMs)
+          const baseName = isDisabled ? file.replace(/\.disabled$/, '') : file
+
+          return {
+            id: this.generateModId(baseName),
+            name: modInfo.name || this.extractModName(baseName),
+            version: modInfo.version || 'Unknown',
+            description: modInfo.description,
+            authors: modInfo.authors,
+            url: modInfo.url,
+            filePath,
+            fileName: file,
+            size: stat.size,
+            enabled: !isDisabled,
+            loader: modInfo.loader,
+            mcVersion: modInfo.mcVersion,
+            dependencies: modInfo.dependencies,
+            logoUrl: modInfo.logoUrl
+          } as ModInfo
+        })
+      )
 
       return mods
     } catch (error) {
       log.error('[ModService] 读取 mods 目录失败:', error)
       return []
     }
+  }
+
+  /**
+   * 带内存缓存的 readModInfo，按文件 mtime 失效
+   */
+  private async readModInfoWithCache(filePath: string, mtime: number) {
+    const cached = this.modInfoCache.get(filePath)
+    if (cached && cached.mtime === mtime) {
+      return cached.info
+    }
+    const info = await this.readModInfo(filePath)
+    this.modInfoCache.set(filePath, { mtime, info })
+    return info
   }
 
   /**
@@ -198,7 +224,7 @@ export class ModService {
    */
   private extractVersionFromFileName(fileName: string): string {
     const match = fileName.match(/-\d[\d.]*(?:-[\w]+)?(?=\.jar)/i)
-    return match ? match[1] : 'Unknown'
+    return match ? match[0].replace(/^-/, '') : 'Unknown'
   }
 
   /**
@@ -286,9 +312,9 @@ export class ModService {
           result.dependencies = Object.keys(manifest.depends)
         }
 
-        // 提取图标
+        // 提取图标（复用已打开的 zip，避免重复打开）
         if (iconPathInJar) {
-          result.logoUrl = await this.extractIconToCache(filePath, iconPathInJar, fileName)
+          result.logoUrl = await this.extractIconToCache(filePath, iconPathInJar, fileName, zip)
         }
       }
 
@@ -317,12 +343,14 @@ export class ModService {
 
   /**
    * 从 jar 文件中提取图标并缓存到本地
-   * 返回 file:// 格式的 URL 字符串，失败返回 undefined
+   * 返回 base64 data URL 格式字符串（避免 file:// CORS 限制），失败返回 undefined
+   * @param zip 可选，复用已打开的 AdmZip 对象避免重复打开
    */
   private async extractIconToCache(
     jarPath: string,
     iconPathInJar: string,
-    jarFileName: string
+    jarFileName: string,
+    zip?: any
   ): Promise<string | undefined> {
     try {
       await fs.mkdir(this.cacheDir, { recursive: true })
@@ -336,16 +364,18 @@ export class ModService {
       )}__${safeIconPath}${iconExt}`
       const cachePath = path.join(this.cacheDir, cacheBaseName)
 
-      // 已缓存则直接返回
+      // 已缓存则读取缓存文件转 base64
       try {
         await fs.access(cachePath)
-        return `file://${cachePath.replace(/\\/g, '/')}`
+        const cachedData = await fs.readFile(cachePath)
+        return this.bufferToDataUrl(cachedData, iconPathInJar)
       } catch {
         // 未缓存，继续提取
       }
 
-      const zip = new AdmZip(jarPath)
-      const entry = zip.getEntry(iconPathInJar)
+      // 复用传入的 zip，避免重复打开同一个 jar
+      const zipToUse = zip || new AdmZip(jarPath)
+      const entry = zipToUse.getEntry(iconPathInJar)
       if (!entry) {
         log.warn(`[ModService] 图标在 jar 中未找到: ${iconPathInJar}`)
         return undefined
@@ -358,11 +388,29 @@ export class ModService {
       }
 
       await fs.writeFile(cachePath, iconData)
-      return `file://${cachePath.replace(/\\/g, '/')}`
+      return this.bufferToDataUrl(iconData, iconPathInJar)
     } catch (e: any) {
       log.warn('[ModService] 提取图标失败:', e?.message)
       return undefined
     }
+  }
+
+  /**
+   * 将图标 Buffer 转为 base64 data URL
+   */
+  private bufferToDataUrl(buf: Buffer, iconPathInJar: string): string {
+    const ext = path.extname(iconPathInJar).slice(1).toLowerCase()
+    const mime =
+      ext === 'png'
+        ? 'image/png'
+        : ext === 'jpg' || ext === 'jpeg'
+          ? 'image/jpeg'
+          : ext === 'gif'
+            ? 'image/gif'
+            : ext === 'webp'
+              ? 'image/webp'
+              : 'image/png'
+    return `data:${mime};base64,${buf.toString('base64')}`
   }
 
   /**
@@ -408,6 +456,7 @@ export class ModService {
   async uninstallMod(modInfo: ModInfo): Promise<boolean> {
     try {
       await fs.unlink(modInfo.filePath)
+      this.modInfoCache.delete(modInfo.filePath)
       return true
     } catch (error) {
       log.error('[ModService] 卸载 Mod 失败:', error)
@@ -424,6 +473,7 @@ export class ModService {
       const newFileName = modInfo.fileName.replace(/\.disabled$/, '')
       const newPath = path.join(path.dirname(modInfo.filePath), newFileName)
       await fs.rename(modInfo.filePath, newPath)
+      this.modInfoCache.delete(modInfo.filePath)
       return true
     } catch (error) {
       log.error('[ModService] 启用 Mod 失败:', error)
@@ -440,6 +490,7 @@ export class ModService {
       const disabledFileName = modInfo.fileName + '.disabled'
       const disabledPath = path.join(path.dirname(modInfo.filePath), disabledFileName)
       await fs.rename(modInfo.filePath, disabledPath)
+      this.modInfoCache.delete(modInfo.filePath)
       return true
     } catch (error) {
       log.error('[ModService] 禁用 Mod 失败:', error)

@@ -7,6 +7,7 @@ export interface CurseForgeSearchParams {
   index?: number
   categoryId?: number
   modLoaderType?: 0 | 1 | 2 // 0=Any, 1=Forge, 2=Fabric
+  classId?: number
 }
 
 export interface CurseForgeMod {
@@ -52,6 +53,15 @@ const CF_BASE = 'https://api.curseforge.com/v1'
 const MINECRAFT_GAME_ID = 432
 const MODS_CLASS_ID = 6
 
+/** CurseForge 分类 classId 映射 */
+export const CURSEFORGE_CLASS_IDS: Record<string, number> = {
+  mod: 6,
+  modpack: 4471,
+  resourcepack: 12,
+  shader: 6,
+  datapack: 6
+}
+
 export class CurseForgeService {
   private apiKey: string
 
@@ -84,9 +94,10 @@ export class CurseForgeService {
       // 无 API Key 时返回空结果
       return { data: [] }
     }
+    const classId = params.classId ?? MODS_CLASS_ID
     const qs = new URLSearchParams({
       gameId: String(MINECRAFT_GAME_ID),
-      classId: String(MODS_CLASS_ID),
+      classId: String(classId),
       pageSize: String(params.pageSize || 20),
       index: String(params.index || 0)
     })

@@ -19,6 +19,20 @@ export const useDownloadStore = defineStore('download', () => {
   const searching = ref(false)
   const searchOffset = ref(0)
   const hasMore = ref(true)
+  /** 搜索错误信息（供 UI 展示） */
+  const searchError = ref('')
+  /** 双源搜索时分别记录各源偏移量 */
+  const searchOffsetMr = ref(0)
+  const searchOffsetCf = ref(0)
+  const hasMoreMr = ref(true)
+  const hasMoreCf = ref(true)
+  /** 保存上次搜索参数，供 loadMore 使用 */
+  const lastSearchParams = ref<{
+    query?: string
+    gameVersion?: string
+    loaderType?: string
+    projectType?: string
+  }>({})
 
   // ====== 搜索软缓存 ======
   /** 缓存结构: key -> { results, offset, hasMore, timestamp } */
@@ -200,10 +214,19 @@ export const useDownloadStore = defineStore('download', () => {
         gameVersion: params?.gameVersion,
         loader: params?.loaderType,
         category: params?.category,
-        projectType: params?.category
+        projectType: params?.projectType
       }
+      console.log('[searchMods] 请求参数:', { srcVal, ...queryParams })
       const response = await window.electronAPI?.download.searchMods(queryParams)
+      console.log('[searchMods] 原始响应:', response)
+      if (response && (response as any).success === false) {
+        searchError.value = (response as any).error || '搜索失败'
+        console.error('[searchMods] IPC 返回错误:', searchError.value)
+      } else {
+        searchError.value = ''
+      }
       const data = (response as any)?.data || []
+      console.log('[searchMods] 数据条数:', data.length, 'srcVal:', srcVal)
       const mapped = data.map(mapRawToModResult)
 
       if (offset === 0) {
@@ -221,24 +244,71 @@ export const useDownloadStore = defineStore('download', () => {
       }
 
       // 判断是否还有更多：本次有返回数据就假设还有，返回为空才确定耗尽
-      hasMore.value = data.length > 0
+      const sourceHasMore = data.length > 0
+      if (srcVal === 'modrinth') {
+        hasMoreMr.value = sourceHasMore
+        searchOffsetMr.value = offset + data.length
+      } else if (srcVal === 'curseforge') {
+        hasMoreCf.value = sourceHasMore
+        searchOffsetCf.value = offset + data.length
+      }
+      hasMore.value = sourceHasMore
+
+      // 保存搜索参数供 loadMore 使用
+      if (offset === 0) {
+        lastSearchParams.value = {
+          query: params?.query,
+          gameVersion: params?.gameVersion,
+          loaderType: params?.loaderType,
+          projectType: params?.projectType
+        }
+      }
 
       // 重新按下载量排序
       searchResults.value.sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
 
       searchOffset.value = offset + data.length
+      console.log('[searchMods] 完成: results=', searchResults.value.length, 'hasMore=', hasMore.value, 'hasMoreMr=', hasMoreMr.value, 'hasMoreCf=', hasMoreCf.value)
     } catch (e: any) {
+      console.error('[searchMods] 搜索失败:', e)
     } finally {
       searching.value = false
     }
   }
 
-  /** 加载更多 */
-  async function loadMore() {
-    await searchMods({
-      offset: searchOffset.value,
-      source: searchSource.value
-    })
+  /** 加载更多（支持双源） */
+  async function loadMore(params?: {
+    query?: string
+    gameVersion?: string
+    loaderType?: string
+    source?: string
+    projectType?: string
+  }) {
+    const p = params ?? lastSearchParams.value
+    const srcVal = params?.source ?? searchSource.value
+    if (srcVal === 'all') {
+      if (hasMoreMr.value) {
+        await searchMods({
+          ...p,
+          source: 'modrinth',
+          offset: searchOffsetMr.value
+        })
+      }
+      if (hasMoreCf.value) {
+        await searchMods({
+          ...p,
+          source: 'curseforge',
+          offset: searchOffsetCf.value
+        })
+      }
+      hasMore.value = hasMoreMr.value || hasMoreCf.value
+    } else {
+      await searchMods({
+        ...p,
+        source: srcVal,
+        offset: searchOffset.value
+      })
+    }
   }
 
   /** 刷新下载队列 */
@@ -275,6 +345,9 @@ export const useDownloadStore = defineStore('download', () => {
     searchResults,
     searching,
     hasMore,
+    hasMoreMr,
+    hasMoreCf,
+    searchError,
     activeCategory,
     activeDownloads,
     queuedDownloads,

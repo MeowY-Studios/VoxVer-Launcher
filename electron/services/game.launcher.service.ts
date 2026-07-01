@@ -190,8 +190,20 @@ class MinecraftLauncher {
         await this.downloadFile(task.url, task.path)
         success++
       } catch (e: any) {
-        log.warn(`[parallelDownload] 下载失败: ${task.url}: ${e.message}`)
-        failed++
+        const fallbackUrl = (task as { fallbackUrl?: string }).fallbackUrl
+        if (fallbackUrl) {
+          try {
+            log.info(`[parallelDownload] 主源失败，尝试备用源: ${fallbackUrl}`)
+            await this.downloadFile(fallbackUrl, task.path)
+            success++
+          } catch (e2: any) {
+            log.warn(`[parallelDownload] 备用源也失败: ${fallbackUrl}: ${e2.message}`)
+            failed++
+          }
+        } else {
+          log.warn(`[parallelDownload] 下载失败: ${task.url}: ${e.message}`)
+          failed++
+        }
       }
       onProgress?.(success + failed, total, task)
     }
@@ -486,11 +498,16 @@ class MinecraftLauncher {
       if (!dl) continue
 
       const fullPath = join(baseLibPath, dl.path)
-      if (!fs.existsSync(fullPath)) {
+      const fileSize = fs.existsSync(fullPath) ? fs.statSync(fullPath).size : 0
+      if (fileSize === 0 || (dl.size > 0 && fileSize !== dl.size)) {
+        const reason =
+          fileSize === 0 ? '文件为空' : `大小不匹配(期望 ${dl.size}, 实际 ${fileSize})`
+        log.warn(`[checkMissingFiles] 库文件缺失或不完整: ${dl.path} (${reason})`)
         missingFiles.push({
           type: 'library',
           name: dl.path.split('/').pop() || dl.path,
-          path: fullPath
+          path: fullPath,
+          size: dl.size
         })
       }
     }
@@ -546,7 +563,8 @@ class MinecraftLauncher {
           const previewObjects = objects.slice(0, 100)
           for (const obj of previewObjects) {
             const objPath = join(assetsPath, 'objects', obj.hash.substring(0, 2), obj.hash)
-            if (!fs.existsSync(objPath)) {
+            const fileSize = fs.existsSync(objPath) ? fs.statSync(objPath).size : 0
+            if (fileSize === 0 || (obj.size > 0 && fileSize !== obj.size)) {
               missingFiles.push({
                 type: 'asset',
                 name: obj.hash.substring(0, 8) + '...',
@@ -599,7 +617,13 @@ class MinecraftLauncher {
       if (!dl) continue
 
       const fullPath = join(baseLibPath, dl.path)
-      if (!fs.existsSync(fullPath)) {
+      const fileSize = fs.existsSync(fullPath) ? fs.statSync(fullPath).size : 0
+      if (fileSize === 0 || (dl.size > 0 && fileSize !== dl.size)) {
+        if (fs.existsSync(fullPath)) {
+          try {
+            fs.unlinkSync(fullPath)
+          } catch {}
+        }
         const bmclUrl = `${BMCLAPI}/libraries/${dl.path}`
         missingLibs.push({ url: bmclUrl, path: fullPath })
       }
@@ -738,12 +762,21 @@ class MinecraftLauncher {
         )
 
         // 收集缺失的资源文件
-        const missingAssets: Array<{ url: string; path: string }> = []
+        const missingAssets: Array<{ url: string; path: string; fallbackUrl?: string }> = []
         for (const obj of objects) {
           const objPath = join(assetsPath, 'objects', obj.hash.substring(0, 2), obj.hash)
-          if (!fs.existsSync(objPath)) {
-            const objUrl = `${BMCLAPI}/assets/${obj.hash.substring(0, 2)}/${obj.hash}`
-            missingAssets.push({ url: objUrl, path: objPath })
+          const fileSize = fs.existsSync(objPath) ? fs.statSync(objPath).size : 0
+          if (fileSize === 0 || (obj.size > 0 && fileSize !== obj.size)) {
+            if (fs.existsSync(objPath)) {
+              try {
+                fs.unlinkSync(objPath)
+              } catch {}
+            }
+            // 官方资源服务器作为主源（无速率限制），BMCLAPI 作为备用
+            const prefix = obj.hash.substring(0, 2)
+            const primaryUrl = `https://resources.download.minecraft.net/${prefix}/${obj.hash}`
+            const fallbackUrl = `${BMCLAPI}/assets/${prefix}/${obj.hash}`
+            missingAssets.push({ url: primaryUrl, path: objPath, fallbackUrl })
           }
         }
 
@@ -802,17 +835,20 @@ class MinecraftLauncher {
       `[buildClasspath] 库文件统计: 总计=${totalCount}, 有效=${cp.length}, 缺失=${missingCount}`
     )
 
+    // 去重（部分整合包版本 JSON 存在重复的库声明）
+    const uniqueCp = [...new Set(cp)]
+
     const versionJar = join(root, 'versions', version, `${version}.jar`)
     if (fs.existsSync(versionJar)) {
-      cp.push(versionJar)
+      uniqueCp.push(versionJar)
       log.info(`[buildClasspath] 版本 JAR 已添加: ${versionJar}`)
     } else {
       log.error(`[buildClasspath] 版本 JAR 缺失: ${versionJar}`)
       throw new Error(`版本核心文件缺失: ${version}.jar，请重新下载游戏版本`)
     }
 
-    log.info(`[buildClasspath] 类路径构建完成，共 ${cp.length} 个文件`)
-    return cp
+    log.info(`[buildClasspath] 类路径构建完成，共 ${uniqueCp.length} 个文件`)
+    return uniqueCp
   }
 
   /**
@@ -957,17 +993,15 @@ class MinecraftLauncher {
         // <2GB 使用保守设置，不额外添加参数
 
         log.info(`[buildJvmArguments] 已添加 G1 GC 优化参数 (现代版本 ${baseVersion})`)
-      } else if (this.compareVersions(baseVersion, '1.12') >= 0) {
-        // 1.12-1.17 使用 CMS GC
+      } else {
+        // 1.17 及以下也使用 G1GC（CMS GC 在 Java 14+ 已被移除，现代 Java 环境均支持 G1GC）
         args.push(
-          '-XX:+UseConcMarkSweepGC',
-          '-XX:+CMSIncrementalMode',
-          '-XX:+CMSClassUnloadingEnabled',
-          '-XX:MaxGCPauseMillis=100'
+          '-XX:+UseG1GC',
+          '-XX:MaxGCPauseMillis=100',
+          '-XX:+DisableExplicitGC'
         )
-        log.info(`[buildJvmArguments] 已添加 CMS GC 参数 (版本 ${baseVersion})`)
+        log.info(`[buildJvmArguments] 已添加 G1 GC 参数 (旧版本 ${baseVersion})`)
       }
-      // <1.12 使用默认 GC
     }
 
     // 高级优化参数
@@ -983,8 +1017,8 @@ class MinecraftLauncher {
       )
     }
 
-    // 去重 + 过滤空值
-    const finalArgs = Array.from(new Set(args.filter(Boolean)))
+    // 过滤空值（不使用 Set 去重，因为 --add-opens/--add-exports 等参数需要多次出现）
+    const finalArgs = args.filter(Boolean)
     log.info(`[buildJvmArguments] JVM 参数构建完成，共 ${finalArgs.length} 个参数`)
     return finalArgs
   }
@@ -1203,14 +1237,28 @@ class MinecraftLauncher {
     }
 
     return new Promise((resolve) => {
-      this.currentProcess = spawn(javaPath, cleanArgs, {
-        cwd,
-        env: spawnEnv,
-        stdio: ['ignore', 'pipe', 'pipe'],
-        detached: false
-      })
+      let resolved = false
+      let spawnFailed = false
+
+      try {
+        this.currentProcess = spawn(javaPath, cleanArgs, {
+          cwd,
+          env: spawnEnv,
+          stdio: ['ignore', 'pipe', 'pipe'],
+          detached: true,
+          windowsHide: true
+        })
+      } catch (e: any) {
+        log.error('[spawnProcess] spawn 异常:', e.message)
+        this.setStatus('idle')
+        this.sendProgress('error', '启动失败', e.message)
+        resolve({ success: false, error: e.message })
+        return
+      }
 
       this.currentInstanceId = cwd
+      const pid = this.currentProcess.pid
+      log.info(`[spawnProcess] 进程已创建, pid=${pid}`)
 
       this.currentProcess.stdout?.on('data', (data: Buffer) => {
         const text = data.toString()
@@ -1225,6 +1273,8 @@ class MinecraftLauncher {
       })
 
       const processRef = this.currentProcess
+
+      // 进程退出处理（独立于 launch 的 resolve）
       this.currentProcess.on('exit', (code, signal) => {
         log.info(`[spawnProcess] 进程退出: code=${code}, signal=${signal}`)
         const exitedId = this.currentInstanceId
@@ -1237,28 +1287,53 @@ class MinecraftLauncher {
           this.saveCrashLog(this.logBuffer)
         }
 
-        if (code === 0) {
-          resolve({ success: true, pid: processRef?.pid })
-        } else {
+        // 如果 launch 还在等待（进程在启动检测期内退出），立即 resolve
+        if (!resolved) {
+          resolved = true
+          if (code === 0) {
+            resolve({ success: true, pid: processRef?.pid })
+          } else {
+            const crash = this.analyzeCrash(this.logBuffer, code ?? -1)
+            if (crash) {
+              this.sendToWindow('game:crash', crash)
+              resolve({ success: false, error: `${crash.message}: ${crash.suggestion}` })
+            } else {
+              resolve({ success: false, error: `进程异常退出，代码: ${code}` })
+            }
+          }
+        } else if (code !== 0) {
+          // 已经 resolve 过（游戏曾正常运行），崩溃时通知前端
           const crash = this.analyzeCrash(this.logBuffer, code ?? -1)
           if (crash) {
             this.sendToWindow('game:crash', crash)
-            resolve({ success: false, error: `${crash.message}: ${crash.suggestion}` })
-          } else {
-            resolve({ success: false, error: `进程异常退出，代码: ${code}` })
           }
+          this.sendProgress('error', '游戏已退出', `退出代码: ${code}`)
         }
       })
 
       this.currentProcess.on('error', (err) => {
         log.error('[spawnProcess] 启动失败:', err.message)
+        spawnFailed = true
         this.currentProcess = null
         this.currentInstanceId = null
         this.setStatus('idle')
         this.sendToWindow('game:error', { message: err.message })
         this.sendProgress('error', '启动失败', err.message)
-        resolve({ success: false, error: err.message })
+        if (!resolved) {
+          resolved = true
+          resolve({ success: false, error: err.message })
+        }
       })
+
+      // 进程成功启动后短暂等待，确认没有立即崩溃，然后 resolve
+      // 这样 launch() 可以继续执行，将状态切换为 'running'
+      setTimeout(() => {
+        if (!resolved && !spawnFailed) {
+          resolved = true
+          log.info(`[spawnProcess] 进程启动检测通过, pid=${pid}`)
+          resolve({ success: true, pid })
+        }
+      }, 1500)
     })
   }
 
@@ -1349,32 +1424,67 @@ class MinecraftLauncher {
   }
 
   /**
-   * 下载文件
+   * 下载文件（支持重定向）
    */
-  downloadFile(url: string, destPath: string, timeout = 30000): Promise<void> {
+  downloadFile(url: string, destPath: string, timeout = 30000, maxRedirects = 5): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (fs.existsSync(destPath)) return resolve()
+      if (fs.existsSync(destPath) && fs.statSync(destPath).size > 0) return resolve()
       const dir = path.dirname(destPath)
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
 
-      const protocol = url.startsWith('https') ? https : http
-      const req = protocol.get(url, { timeout }, (res) => {
-        if (res.statusCode === 404) {
-          req.destroy()
-          return reject(new Error(`404: ${url}`))
-        }
-        const file = fs.createWriteStream(destPath)
-        res.pipe(file)
-        file.on('finish', () => {
-          file.close()
-          resolve()
+      const followRedirect = (currentUrl: string, redirectsLeft: number) => {
+        const protocol = currentUrl.startsWith('https') ? https : http
+        const req = protocol.get(currentUrl, { timeout }, (res) => {
+          // 处理重定向
+          if (
+            [301, 302, 303, 307, 308].includes(res.statusCode || 0) &&
+            res.headers.location
+          ) {
+            if (redirectsLeft <= 0) {
+              req.destroy()
+              return reject(new Error(`重定向次数超过限制: ${url}`))
+            }
+            const redirectUrl = res.headers.location.startsWith('http')
+              ? res.headers.location
+              : new URL(res.headers.location, currentUrl).href
+            req.destroy()
+            followRedirect(redirectUrl, redirectsLeft - 1)
+            return
+          }
+
+          if (res.statusCode === 404) {
+            req.destroy()
+            return reject(new Error(`404: ${url}`))
+          }
+
+          if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {
+            req.destroy()
+            return reject(new Error(`HTTP ${res.statusCode}: ${url}`))
+          }
+
+          const file = fs.createWriteStream(destPath)
+          res.pipe(file)
+          file.on('finish', () => {
+            file.close()
+            const stats = fs.statSync(destPath)
+            if (stats.size === 0) {
+              reject(new Error(`下载文件为空: ${url}`))
+            } else {
+              resolve()
+            }
+          })
+          file.on('error', (err) => {
+            reject(err)
+          })
         })
-      })
-      req.on('error', reject)
-      req.on('timeout', () => {
-        req.destroy()
-        reject(new Error('下载超时'))
-      })
+        req.on('error', reject)
+        req.on('timeout', () => {
+          req.destroy()
+          reject(new Error('下载超时'))
+        })
+      }
+
+      followRedirect(url, maxRedirects)
     })
   }
 
@@ -1610,8 +1720,8 @@ function extractBaseVersion(versionId: string): string {
   if (versionId.includes('\\') || versionId.includes('/')) {
     name = versionId.split(/[\\/]/).pop() || versionId
   }
-  // 匹配版本号模式：1.20.1, 1.19.4, 1.18.2 等
-  const match = name.match(/(\d+\.\d+(?:\.\d+)?)/)
+  // 只在版本名以数字开头时才提取版本号（避免从 "整合包V1.4.2" 中错误提取 "1.4.2"）
+  const match = name.match(/^(\d+\.\d+(?:\.\d+)?)/)
   if (match) {
     return match[1]
   }

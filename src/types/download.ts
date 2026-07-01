@@ -31,6 +31,7 @@ export interface ModSearchParams {
   limit?: number // 每页数量（默认 20）
   sortBy?: SearchSortBy // 排序方式
   category?: string // 分类筛选
+  projectType?: string // 项目类型（mod/modpack/shader/resourcepack/datapack）
   gameVersion?: string // MC 版本筛选
   loaderType?: string // 加载器筛选
 }

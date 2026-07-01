@@ -62,7 +62,7 @@ export function registerAllIpcHandlers(
     log.error('[IPC] config handlers FAILED:', e.message)
   }
   try {
-    registerInstanceHandlers()
+    registerInstanceHandlers(deps?.modService)
     log.info('[IPC] instance handlers registered')
   } catch (e: any) {
     log.error('[IPC] instance handlers FAILED:', e.message)

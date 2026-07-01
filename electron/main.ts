@@ -34,7 +34,7 @@ import { getConfig, getSecureConfig } from './services/config'
 import { VersionsService } from './services/versions'
 import { ModLoaderService } from './services/modloader.service'
 import { DownloadService } from './services/download.service'
-import { initializeContentService } from './services/content.ipc'
+import { initializeContentServiceAsync } from './services/content.ipc'
 import { registerAllIpcHandlers, updateMainWindowRefs } from './ipc'
 import { CrashService } from './services/crash.service'
 import { ModService } from './services/mod.service'
@@ -288,7 +288,7 @@ app.whenReady().then(() => {
       if (!cfApiKey) {
         log.warn('[Content Service] CurseForge API Key not configured, some features may be limited')
       }
-      initializeContentService(cfApiKey, 'VoxVer-Launcher/1.0', downloadService)
+      await initializeContentServiceAsync(cfApiKey, 'VoxVer-Launcher/1.0', downloadService)
       log.info('[Init] Content service initialized')
     })(),
     (async () => {

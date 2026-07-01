@@ -290,6 +290,8 @@ export async function validateJava(javaPath: string): Promise<ValidationResult> 
  * 推荐适合指定MC版本的Java主版本
  */
 export function recommendedJavaMajor(mcVersion: string): number {
+  // 无法解析版本号时，默认推荐 Java 21（现代 MC/Forge/NeoForge 整合包通常需要）
+  if (!mcVersion || !/^\d+\.\d+/.test(mcVersion)) return 21
   // MC 1.20.5+ 需要 Java 21
   if (compareVersions(mcVersion, '1.20.5') >= 0) return 21
   // MC 1.17+ 需要 Java 17
