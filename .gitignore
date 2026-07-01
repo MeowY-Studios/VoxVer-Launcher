@@ -86,8 +86,12 @@ TASKS.md
 ANALYSIS_REPORT_*.md
 VoxVer_介绍.pptx
 
+
 # ========== 备份目录（不上传）==========
 LNTP/
+
+# ========== 版本发布说明（不上传）==========
+docs/releases/
 
 # ========== GitHub Actions CI/CD（需要上传）==========
 # .github/ 目录包含 CI/CD 配置，必须提交！
