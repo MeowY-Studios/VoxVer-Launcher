@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.6.1-6366f1?style=flat-square&labelColor=1e1e2e)
+![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.6.2-14b8a6?style=flat-square&labelColor=1e1e2e)
 ![Electron](https://img.shields.io/badge/Electron-33-478cbf?style=flat-square&logo=electron&logoColor=white)
 ![Vue](https://img.shields.io/badge/Vue-3.5-4db08b?style=flat-square&logo=vuedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6?style=flat-square&logo=typescript&logoColor=white)
@@ -19,7 +19,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 ## 📋 目录
 
 - [📥 下载](#-下载)
-- [🆕 v0.6.1 最近更新](#-v061-最近更新)
+- [🆕 v0.6.2 最近更新](#-v062-最近更新)
 - [✨ 功能概览](#-功能概览)
 - [🖥️ 支持平台](#️-支持平台)
 - [📦 相关文档](#-相关文档)
@@ -30,24 +30,22 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 ## 📥 下载
 
-**[👉 前往 GitHub Releases 下载 v0.6.1](https://github.com/nnkmn/VoxVer-Launcher/releases)**
+**[👉 前往 GitHub Releases 下载 v0.6.2](https://github.com/nnkmn/VoxVer-Launcher/releases)**
 
 ---
 
-## 🆕 v0.6.1 最近更新
+## 🆕 v0.6.2 最近更新
 
-### 游戏启动
-- 修复启动器一直显示"启动中"的问题（进程启动 1.5 秒后自动切换到"运行中"）
-- 关闭启动器后游戏不会被连带关闭（`detached` 独立进程组）
-- 修复 JVM 参数去重导致 `ClassNotFoundException`、CMS GC 兼容性等问题
+### 设计系统重构
+- **Design Token 体系**：OLED 暗色底座（四层黑色阶梯）+ Neubrutalism 工具类 + Bento Grid 布局
+- **磨砂玻璃效果**：侧边栏/主内容区/关于页面统一磨砂质感，`backdrop-filter` 移至 `::before` 修复文字模糊
 
-### 下载系统
-- 资源文件改用官方 Minecraft 资源服务器作为主源，修复 BMCLAPI 速率限制导致 3300+ 文件 403 错误
-- 支持 HTTP 301/302/303/307/308 重定向跟随，修复 BMCLAPI 镜像跳转导致 0 字节文件
-- 文件完整性校验：检测并重新下载 0 字节和大小不匹配的损坏文件
+### 启动画面优化
+- 版本号从 `package.json` 动态加载，4 秒进度条匀速走完后 0.8s 缓慢淡出，不再闪屏
+- Logo 替换为 Alogo.png
 
-### UI/UX
-- 用自定义 `PxModal` 弹窗替代原生 `confirm()` 确认框
+### UI 细节
+- 设置页面/侧边栏滚动条隐藏；移除 Hero 蓝色渐变；颜色选择器磨砂层点击修复
 
 ---
 

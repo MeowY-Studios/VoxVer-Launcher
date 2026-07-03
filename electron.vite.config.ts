@@ -2,6 +2,7 @@ import { resolve } from 'path'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
 import dotenv from 'dotenv'
+import pkg from './package.json'
 
 dotenv.config()
 
@@ -39,7 +40,18 @@ export default defineConfig({
         }
       }
     },
-    plugins: [vue()],
+    define: {
+      __APP_VERSION__: JSON.stringify(pkg.version),
+    },
+    plugins: [
+      vue(),
+      {
+        name: 'html-inject-version',
+        transformIndexHtml(html) {
+          return html.replace('__APP_VERSION__', JSON.stringify(pkg.version))
+        },
+      },
+    ],
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src')

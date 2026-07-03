@@ -45,10 +45,11 @@
   color: var(--apple-ink);
 }
 
-/* ---- Focus 可见性（Apple primary-focus 焦点环）---- */
+/* ---- Focus 可见性（Neubrutalism 粗环）---- */
 :focus-visible {
-  outline: 2px solid var(--apple-primary-focus);
-  outline-offset: 2px;
+  outline: 3px solid var(--voxver-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 /* ---- Electron 禁止文字选中区域 ---- */
@@ -213,4 +214,64 @@ html {
 
 .px-btn--secondary:hover:not(:disabled) {
   background: color-mix(in oklab, var(--apple-primary) 6%, transparent);
+}
+
+/* ---- Neubrutalism 工具类 ---- */
+.nb-card {
+  background: var(--voxver-bg-secondary);
+  border: 2px solid var(--voxver-text-primary);
+  border-radius: 12px;
+  box-shadow: 4px 4px 0 0 rgb(0 0 0 / 0.25);
+  transition: box-shadow var(--voxver-transition-fast), transform var(--voxver-transition-fast);
+}
+.nb-card:hover {
+  box-shadow: 6px 6px 0 0 rgb(0 0 0 / 0.35);
+  transform: translate(-2px, -2px);
+}
+.nb-card:active {
+  box-shadow: 2px 2px 0 0 rgb(0 0 0 / 0.2);
+  transform: translate(2px, 2px);
+}
+
+.nb-btn {
+  border: 2px solid var(--voxver-text-primary);
+  background: var(--voxver-accent);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 10px;
+  box-shadow: 3px 3px 0 0 rgb(0 0 0 / 0.3);
+  transition: all var(--voxver-transition-fast);
+  cursor: pointer;
+}
+.nb-btn:hover {
+  box-shadow: 5px 5px 0 0 rgb(0 0 0 / 0.4);
+  transform: translate(-2px, -2px);
+}
+.nb-btn:active {
+  box-shadow: 1px 1px 0 0 rgb(0 0 0 / 0.2);
+  transform: translate(2px, 2px);
+}
+
+.nb-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border: 1.5px solid var(--voxver-text-primary);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ---- 玻璃态变体（暗色模式下叠加 Neubrutalism）---- */
+[data-theme='dark'] .nb-card {
+  border-color: var(--voxver-border-strong);
+  box-shadow: 4px 4px 0 0 rgb(0 0 0 / 0.5);
+}
+[data-theme='dark'] .nb-card:hover {
+  box-shadow: 6px 6px 0 0 rgb(0 0 0 / 0.6);
+}
+[data-theme='dark'] .nb-btn {
+  border-color: var(--voxver-border-strong);
+  box-shadow: 3px 3px 0 0 rgb(0 0 0 / 0.5);
 }

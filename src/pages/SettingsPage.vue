@@ -214,7 +214,7 @@
       <section class="sec">
         <div class="about-card">
           <div class="about-logo">
-            <img src="/airLogo.png" alt="VoxVer" />
+            <img src="/Alogo.png" alt="VoxVer" />
           </div>
           <p class="about-ver">{{ $t('more.currentVersion') }}{{ appVersion }}</p>
           <div class="about-update-row">
@@ -3698,15 +3698,10 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   height: 100%;
 
   &::-webkit-scrollbar {
-    width: 6px;
+    display: none;
   }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: rgb(0 0 0 / 0.08);
-    border-radius: 3px;
-  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* ---- 区块 ---- */
@@ -4688,7 +4683,9 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 .about-card {
   text-align: center;
   padding: 28px 24px;
-  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 75%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-radius: var(--voxver-radius-sm);
   border: 1px solid var(--voxver-border-color-light);
 
@@ -4697,11 +4694,11 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
     justify-content: center;
     align-items: center;
     margin-bottom: 8px;
-    height: 140px;
+    height: 80px;
     overflow: hidden;
 
     img {
-      height: 200%;
+      height: 100%;
       width: auto;
       display: block;
       object-fit: contain;

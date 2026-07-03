@@ -7,6 +7,7 @@ import i18n from './locale/i18n'
 // VoxVer Design System
 import './styles/pixel-ui.css'
 import './styles/global.scss'
+import './styles/tokens.scss'
 import './styles/vox-controls.scss'
 import './styles/animations.scss'
 import './styles/variables.scss'
@@ -26,13 +27,3 @@ app.use(createPinia())
 app.use(router)
 app.use(i18n)
 app.mount('#app')
-
-setTimeout(() => {
-  const splashScreen = document.getElementById('splash-screen')
-  if (splashScreen) {
-    splashScreen.classList.add('hidden')
-    setTimeout(() => {
-      splashScreen.remove()
-    }, 300)
-  }
-}, 500)

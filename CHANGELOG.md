@@ -1,5 +1,31 @@
 # 更新日志
 
+## v0.6.2 — 2026-07-04
+
+### 设计系统重构
+- **Design Token 体系**：新增 `src/styles/tokens.scss`，定义 OLED 暗色底座（`#0a0a0a`→`#0d0d0d`→`#141414`→`#1a1a1a` 四层阶梯）、Neubrutalism 工具类
+- **磨砂玻璃效果**：侧边栏、主内容区、版本信息区域统一 `backdrop-filter: blur(8px)` + `color-mix` 半透明效果
+- **磨砂层级修复**：`backdrop-filter` 移至 `::before` 伪元素，解决文字模糊问题
+- **HomePage 简化**：移除启动按钮和统计卡片，Hero 卡片仅展示 Logo + 引导文字
+- **Bento Grid 布局优化**：修复卡片高度强制撑开和空白列问题
+
+### 启动画面优化
+- **版本号动态加载**：从 `package.json` 读取版本号，构建时通过 `transformIndexHtml` 注入
+- **进度条动画**：4 秒匀速走完，完成后通过 `transitionend` 事件 0.8s 缓慢淡出，不再闪屏
+- **Logo 替换**：显示 Alogo.png 替代文字标题
+
+### UI 细节
+- **设置页面**：隐藏滚动条（Chrome/Safari/Firefox/IE 全覆盖）
+- **侧边栏**：隐藏滚动条；移除底部版本信息
+- **关于页面**：适配磨砂质感；Alogo 替换 airLogo
+- **颜色选择器**：修复磨砂层遮挡点击（`pointer-events: none`）
+- **主题色**：移除 Hero 卡片的蓝色渐变背景，改为纯背景色
+
+### 构建
+- **版本注入**：`electron.vite.config.ts` 新增 `html-inject-version` 插件
+
+---
+
 ## v0.6.1 — 2026-07-02
 
 ### 游戏启动修复

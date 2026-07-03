@@ -1,119 +1,100 @@
 <template>
   <div class="home-page">
-    <!-- 空状态 / 欢迎区（PCL2 风格：右侧留白） -->
-    <div class="welcome-area">
-      <div class="welcome-card vox-card">
-        <div class="wc-icon">
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="var(--voxver-primary-400)"
-            stroke-width="1.5"
-          >
-            <path
-              d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"
-            />
-          </svg>
-        </div>
-        <h2 class="wc-title">{{ $t('game.play') }}</h2>
-        <p class="wc-desc">{{ $t('home.welcomeTip') }}</p>
+    <!-- Bento Grid 布局 -->
+    <div class="bento-grid">
+      <!-- 欢迎卡片 - 占 4 列 -->
+      <div class="bento-card bento-card--span-4 bento-card--hero">
+        <div class="hero-content">
+          <div class="hero-icon">
+            <img src="/Alogo.png" alt="VoxVer" class="hero-logo-img" />
+          </div>
+          <div class="hero-text">
+            <h1 class="hero-title">{{ $t('home.welcomeTip') }}</h1>
+          </div>
 
-        <div class="wc-actions">
-          <button class="vox-btn" @click="$router.push('/instances')">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-            </svg>
-            {{ $t('instance.instances') }}
-          </button>
-          <button class="vox-btn" @click="$router.push('/downloads')">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
+        </div>
+      </div>
+
+
+
+      <!-- 快捷操作 - 占 4 列 -->
+      <div class="bento-card bento-card--span-4 bento-card--actions">
+        <div class="actions-grid">
+          <button class="action-btn" @click="$router.push('/downloads')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
             </svg>
-            {{ $t('download.downloads') }}
+            <span>{{ $t('download.downloads') }}</span>
           </button>
-          <button class="vox-btn" @click="$router.push('/settings')">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
+          <button class="action-btn" @click="$router.push('/settings')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="3" />
-              <path
-                d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"
-              />
+              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
             </svg>
-            {{ $t('settings.settings') }}
+            <span>{{ $t('settings.settings') }}</span>
           </button>
-          <button class="vox-btn" @click="openReceiveModal">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
+          <button class="action-btn" @click="$router.push('/account')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <span>{{ $t('auth.account') || '账户' }}</span>
+          </button>
+          <button class="action-btn" @click="openReceiveModal">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2">
               <circle cx="18" cy="5" r="3" />
               <circle cx="6" cy="12" r="3" />
               <circle cx="18" cy="19" r="3" />
               <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
             </svg>
-            {{ $t('home.receiveShare') }}
+            <span>{{ $t('home.receiveShare') }}</span>
           </button>
         </div>
       </div>
+    </div>
 
-      <!-- 最近实例 -->
-      <div v-if="recentInstances.length" class="recent-section">
-        <h3 class="vox-sec-title">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
+    <!-- 最近游玩的实例 -->
+    <div v-if="recentInstances.length" class="recent-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
           {{ $t('home.recent') }}
         </h3>
-        <p class="vox-sec-desc">{{ $t('home.recentDesc') }}</p>
-        <div class="vox-card-grid">
-          <div
-            v-for="inst in recentInstances"
-            :key="inst.id"
-            class="vox-list-card vox-card-hover"
-            @click="$router.push('/instances')"
-          >
-            <span class="ri-icon">{{ inst.name[0] }}</span>
-            <div class="ri-info">
-              <p class="ri-name">{{ inst.name }}</p>
-              <p class="ri-meta">{{ inst.mcVersion }} · {{ getLoaderLabel(inst) }}</p>
-            </div>
-            <span class="ri-time">{{ formatTime(inst.lastPlayed) }}</span>
+        <button class="section-link" @click="$router.push('/instances')">
+          {{ $t('home.viewAll') || '查看全部' }}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
+      </div>
+      <div class="recent-grid">
+        <div
+          v-for="inst in recentInstances"
+          :key="inst.id"
+          class="recent-card vox-card--game"
+          @click="$router.push('/instances')"
+        >
+          <div class="rc-icon">{{ inst.name[0] }}</div>
+          <div class="rc-info">
+            <p class="rc-name">{{ inst.name }}</p>
+            <p class="rc-meta">{{ inst.mcVersion }} · {{ getLoaderLabel(inst) }}</p>
           </div>
+          <div class="rc-play">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+          </div>
+          <span class="rc-time">{{ formatTime(inst.lastPlayed) }}</span>
         </div>
       </div>
     </div>
@@ -147,11 +128,9 @@ interface Instance {
 const instancesStore = useInstancesStore()
 const router = useRouter()
 
-// 接收弹窗状态
 const showReceiveModal = ref(false)
 const initialShareCode = ref('')
 
-// 最近实例（从 Store 获取）
 const recentInstances = computed(() => {
   return instancesStore.recentInstances.map((inst: any) => ({
     id: inst.id,
@@ -184,7 +163,7 @@ function openReceiveModal() {
   showReceiveModal.value = true
 }
 
-function onInstanceImported(instanceId: string) {
+function onInstanceImported() {
   instancesStore.fetchInstances()
   router.push('/instances')
 }
@@ -196,71 +175,162 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .home-page {
-  padding: 24px 28px;
+  padding: 28px 32px;
   min-height: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
-.welcome-area {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+/* ===== Hero 卡片 ===== */
+.bento-card--hero {
+  background: var(--voxver-bg-tertiary);
 }
 
-/* 欢迎卡片 — 视觉样式由 .vox-card 提供，此处仅保留布局 */
-.welcome-card {
-  padding: 28px 24px;
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  gap: 20px;
+  height: 100%;
 }
 
-.wc-icon {
-  margin-bottom: 10px;
+.hero-icon {
+  .hero-logo-img {
+    height: 80px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+  }
+}
+
+.hero-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--voxver-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.hero-desc {
+  margin: 0;
+  font-size: 13px;
+  color: var(--voxver-text-tertiary);
+  max-width: 380px;
+  line-height: 1.5;
+}
+
+/* ===== 操作卡片（全宽） ===== */
+.bento-card--actions {
+  padding: 16px 24px;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 8px;
+  border: 1px solid var(--voxver-border-color);
+  border-radius: 14px;
+  background: var(--voxver-bg-elevated);
+  color: var(--voxver-text-secondary);
+  cursor: pointer;
+  transition: all var(--voxver-transition-fast);
+
+  &:hover {
+    border-color: var(--voxver-border-strong);
+    background: var(--voxver-bg-hover);
+    color: var(--voxver-text-primary);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
 
   svg {
-    opacity: 0.4;
-    transition: opacity 0.2s;
+    flex-shrink: 0;
   }
 
-  &:hover svg {
-    opacity: 0.7;
+  span {
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.2;
   }
 }
 
-.wc-title {
-  margin: 0 0 4px;
-  font-size: var(--voxver-text-xl);
-  font-weight: var(--voxver-font-bold);
-  color: var(--voxver-text-primary);
+/* ===== 最近实例 ===== */
+.recent-section {
+  margin-top: 32px;
 }
 
-.wc-desc {
-  margin: 0 0 18px;
-  font-size: var(--voxver-text-sm);
-  color: var(--voxver-text-secondary);
-}
-
-.wc-actions {
+.section-header {
   display: flex;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
 
-  .vox-btn {
-    border: 1px solid var(--voxver-border-color);
-    background: color-mix(in oklab, var(--voxver-text) 2%, transparent);
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--voxver-text-primary);
+
+  svg { color: var(--voxver-accent); }
+}
+
+.section-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border: 1px solid var(--voxver-border-color);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--voxver-text-tertiary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--voxver-transition-fast);
+
+  &:hover {
+    border-color: var(--voxver-border-strong);
+    color: var(--voxver-text-primary);
   }
 }
 
-/* 列表项内部布局（卡片样式由 .vox-list-card 提供） */
-.ri-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--voxver-radius-md);
-  background: var(--voxver-gradient-primary);
+.recent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.recent-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  position: relative;
+}
+
+.rc-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--voxver-launch-gradient);
   color: #fff;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -268,30 +338,68 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.ri-info {
+.rc-info {
   flex: 1;
   min-width: 0;
 
-  .ri-name {
+  .rc-name {
     margin: 0;
     font-size: 13px;
     font-weight: 600;
+    color: var(--voxver-text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  .ri-meta {
+  .rc-meta {
     margin: 2px 0 0;
     font-size: 11px;
     color: var(--voxver-text-muted);
   }
 }
 
-.ri-time {
+.rc-play {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--voxver-accent-soft);
+  color: var(--voxver-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all var(--voxver-transition-fast);
+  flex-shrink: 0;
+}
+
+.recent-card:hover .rc-play {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.rc-time {
   font-size: 11px;
   color: var(--voxver-text-muted);
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .home-page { padding: 16px 20px; }
+
+  .bento-card--hero { padding: 24px; }
+
+  .hero-title { font-size: 20px; }
+
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .recent-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

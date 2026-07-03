@@ -16,20 +16,16 @@
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         background: linear-gradient(135deg, #0D0D1A 0%, #1A1A2E 50%, #0D0D1A 100%);
-        z-index: 9999; transition: opacity 0.3s ease;
+        z-index: 9999; transition: opacity 0.8s ease;
       }
       #splash-screen.hidden { opacity: 0; pointer-events: none; }
-      .splash-logo {
-        width: 80px; height: 80px; margin-bottom: 24px;
-        border-radius: 16px; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
-        display: flex; align-items: center; justify-content: center;
-        animation: pulse 2s ease-in-out infinite;
-      }
-      .splash-logo svg { width: 48px; height: 48px; }
       .splash-title {
-        font-family: 'Segoe UI', -apple-system, sans-serif;
-        font-size: 24px; font-weight: 600; color: #FFFFFF;
-        letter-spacing: 2px; margin-bottom: 8px;
+        margin-bottom: 8px;
+      }
+      .splash-logo-img {
+        height: 48px;
+        width: auto;
+        display: block;
       }
       .splash-version {
         font-family: 'Segoe UI', -apple-system, sans-serif;
@@ -43,7 +39,7 @@
         width: 0%; height: 100%;
         background: linear-gradient(90deg, #6366F1, #8B5CF6);
         border-radius: 2px;
-        animation: progress 2s ease-in-out infinite;
+        animation: progress 4s linear forwards;
       }
       @keyframes pulse {
         0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
@@ -58,14 +54,8 @@
   </head>
   <body>
     <div id="splash-screen">
-      <div class="splash-logo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-          <polyline points="22 4 12 14.01 9 11.01" />
-        </svg>
-      </div>
-      <div class="splash-title">VoxVer</div>
-      <div class="splash-version">v0.5.5</div>
+      <div class="splash-title"><img src="/Alogo.png" alt="VoxVer" class="splash-logo-img" /></div>
+      <div class="splash-version" id="splash-version">v0.0.0</div>
       <div class="splash-progress">
         <div class="splash-progress-bar"></div>
       </div>
@@ -75,20 +65,26 @@
     <script type="module" src="/src/main.ts"></script>
     <script>
       (function() {
+        // 动态设置版本号
+        var verEl = document.getElementById('splash-version');
+        if (verEl) verEl.textContent = 'v' + __APP_VERSION__;
+
         var splash = document.getElementById('splash-screen');
         var hidden = false;
         function hideSplash() {
           if (hidden) return;
           hidden = true;
           if (splash) {
+            splash.addEventListener('transitionend', function() {
+              splash.remove();
+            });
             splash.classList.add('hidden');
-            setTimeout(function() { splash.remove(); }, 300);
           }
         }
-        setTimeout(hideSplash, 5000);
-        if (typeof window.addEventListener === 'function') {
-          window.addEventListener('load', function() { setTimeout(hideSplash, 2000); });
-        }
+        // 进度条 4s 走完后直接缓慢淡出（0.8s）
+        setTimeout(hideSplash, 4100);
+        // 兜底：最多 10s 强制隐藏
+        setTimeout(hideSplash, 10000);
       })();
     </script>
   </body>

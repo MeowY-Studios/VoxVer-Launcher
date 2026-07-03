@@ -159,22 +159,41 @@ const relativeTime = computed(() => {
 <style scoped lang="scss">
 .instance-card {
   position: relative;
-  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
-  border: 1px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-lg);
+  background: var(--voxver-bg-tertiary);
+  border: 2px solid var(--voxver-border-strong);
+  border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
-  transition: all var(--voxver-transition-fast);
+  box-shadow: 4px 4px 0 0 rgb(0 0 0 / 0.3);
+  transition: box-shadow var(--voxver-transition-fast), transform var(--voxver-transition-fast), border-color var(--voxver-transition-fast);
 
   &:hover {
-    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
+    border-color: var(--voxver-accent);
+    box-shadow: 6px 6px 0 0 rgb(0 0 0 / 0.4);
+    transform: translate(-2px, -2px);
     .card-actions {
       opacity: 1;
     }
   }
 
+  &:active {
+    box-shadow: 2px 2px 0 0 rgb(0 0 0 / 0.2);
+    transform: translate(2px, 2px);
+  }
+
   &.selected {
-    border: 1px solid var(--voxver-primary);
+    border-color: var(--voxver-accent);
+    box-shadow: 4px 4px 0 0 rgb(41 151 255 / 0.4);
+  }
+}
+
+[data-theme='dark'] .instance-card {
+  box-shadow: 4px 4px 0 0 rgb(0 0 0 / 0.5);
+  &:hover {
+    box-shadow: 6px 6px 0 0 rgb(0 0 0 / 0.6);
+  }
+  &.selected {
+    box-shadow: 4px 4px 0 0 rgb(41 151 255 / 0.3);
   }
 }
 
@@ -183,10 +202,11 @@ const relativeTime = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  border-bottom: 2px solid var(--voxver-border-strong);
 
   .cover-icon {
     font-size: 36px;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--voxver-text-secondary);
   }
 
@@ -203,7 +223,7 @@ const relativeTime = computed(() => {
 
 .card-name {
   font-size: 14.5px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--voxver-text-primary);
   margin: 0 0 4px;
   overflow: hidden;
@@ -215,15 +235,20 @@ const relativeTime = computed(() => {
   font-size: 12px;
   color: var(--voxver-text-muted);
   margin: 0 0 8px;
+  display: flex;
+  align-items: center;
 
   .loader-tag {
     margin-left: 6px;
-    padding: 1px 6px;
-    font-size: 11px;
-    background: var(--voxver-success-light);
-    color: var(--voxver-success);
-    border-radius: 3px;
-    font-weight: 600;
+    padding: 2px 8px;
+    font-size: 10px;
+    border: 1.5px solid var(--voxver-accent);
+    color: var(--voxver-accent);
+    border-radius: 5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.3;
   }
 }
 
@@ -275,7 +300,7 @@ const relativeTime = computed(() => {
   padding: 5px;
   background: rgb(0 0 0 / 0.45);
   backdrop-filter: blur(6px);
-  border-radius: var(--voxver-radius-md);
+  border-radius: 8px;
   opacity: 0;
   transition: opacity 0.15s;
 
@@ -285,7 +310,7 @@ const relativeTime = computed(() => {
     background: transparent;
     color: var(--voxver-text-secondary);
     cursor: pointer;
-    border-radius: var(--voxver-radius-xs);
+    border-radius: 4px;
     transition: all 0.1s;
 
     &:hover {

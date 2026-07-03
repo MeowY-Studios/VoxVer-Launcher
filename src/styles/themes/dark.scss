@@ -1,53 +1,39 @@
 /**
- * VoxVer 暗色主题 — Apple Design System
+ * VoxVer 暗色主题 — UI UX Pro Max OLED 增强
  *
- * :root 已默认暗色（Apple tile 阶梯 #272729/#2a2a2c/#252527）。
- * 此处覆盖暗色面特定值：主色用 Sky Link Blue (#2997ff) 提升对比度，
- * hover/active 用白色半透明提亮（而非更暗的 tile），边框用白色半透明增强可见度。
- * 无渐变、无发光阴影（别名层接管）。
+ * 基础 OLED 色值由 tokens.scss 提供。
+ * 此处仅覆盖暗色面组件特定变量：主色、hover、focus、导航等。
  */
 
 [data-theme='dark'] {
-  /* ====== 主色（暗色面用 Sky Link Blue 更易读）====== */
-  --voxver-primary: var(--apple-primary-on-dark); /* #2997ff */
-  --voxver-primary-hover: #3aa8ff;
+  /* ====== 主色（暗色面用 Sky Link Blue）====== */
+  --voxver-primary: var(--apple-primary-on-dark);
+  --voxver-primary-hover: #40a9ff;
   --voxver-primary-active: var(--apple-primary-on-dark);
-  --voxver-primary-light: rgb(41 151 255 / 0.15);
+  --voxver-primary-light: rgb(41 151 255 / 0.12);
   --voxver-primary-muted: var(--apple-primary-on-dark);
 
-  /* ====== 主色色阶（统一映射到暗色主色）====== */
-  --voxver-primary-50: var(--apple-primary-on-dark);
-  --voxver-primary-100: var(--apple-primary-on-dark);
-  --voxver-primary-200: var(--apple-primary-on-dark);
-  --voxver-primary-300: var(--apple-primary-on-dark);
-  --voxver-primary-400: var(--apple-primary-on-dark);
-  --voxver-primary-500: var(--apple-primary-on-dark);
-  --voxver-primary-600: var(--apple-primary-on-dark);
-  --voxver-primary-700: #3aa8ff;
-  --voxver-primary-800: #3aa8ff;
-  --voxver-primary-900: #3aa8ff;
+  /* ====== 主色色阶 ====== */
+  --voxver-primary-50: #2997ff;
+  --voxver-primary-100: #2997ff;
+  --voxver-primary-200: #2997ff;
+  --voxver-primary-300: #2997ff;
+  --voxver-primary-400: #2997ff;
+  --voxver-primary-500: #2997ff;
+  --voxver-primary-600: #40a9ff;
+  --voxver-primary-700: #40a9ff;
+  --voxver-primary-800: #40a9ff;
+  --voxver-primary-900: #40a9ff;
 
-  /* ====== 背景 hover/active（白色半透明提亮）====== */
-  --voxver-bg-hover: rgb(255 255 255 / 0.06);
-  --voxver-bg-active: rgb(255 255 255 / 0.1);
-
-  /* ====== 文字（Apple Dark 文字阶梯）====== */
-  --voxver-text-primary: var(--apple-body-on-dark);    /* #ffffff 一级文字 */
-  --voxver-text-secondary: #c7c7cc;                     /* 二级文字 */
-  --voxver-text-tertiary: #a0a0a5;                      /* 三级文字 */
-  --voxver-text-muted: #a0a0a5;
-  --voxver-text: var(--voxver-text-primary);
-
-  /* ====== 边框（白色半透明，增强可见度）====== */
-  --voxver-border-color: rgb(255 255 255 / 0.15);
-  --voxver-border-color-light: rgb(255 255 255 / 0.12);
-  --voxver-border-strong: rgb(255 255 255 / 0.2);
+  /* ====== 背景 hover/active ====== */
+  --voxver-bg-hover: rgb(255 255 255 / 0.05);
+  --voxver-bg-active: rgb(255 255 255 / 0.08);
 
   /* ====== 组件特定 ====== */
   --voxver-input-focus-border: var(--apple-primary-on-dark);
   --voxver-input-focus-shadow: 0 0 0 3px rgb(41 151 255 / 0.25);
   --voxver-btn-primary-bg: var(--apple-primary-on-dark);
-  --voxver-btn-primary-hover: #3aa8ff;
+  --voxver-btn-primary-hover: #40a9ff;
   --voxver-tab-active-color: var(--apple-primary-on-dark);
   --voxver-tab-active-border: var(--apple-primary-on-dark);
   --voxver-nav-active-color: var(--apple-primary-on-dark);
@@ -55,13 +41,13 @@
   --voxver-progress-bg: var(--apple-primary-on-dark);
 
   /* ====== 暗色面链接色 ====== */
-  --voxver-link-on-dark: var(--apple-primary-on-dark); /* #2997ff */
+  --voxver-link-on-dark: var(--apple-primary-on-dark);
 
   /* ====== 滚动条 ====== */
   --voxver-scrollbar-track: transparent;
-  --voxver-scrollbar-thumb: rgb(255 255 255 / 0.14);
-  --voxver-scrollbar-thumb-hover: rgb(255 255 255 / 0.25);
+  --voxver-scrollbar-thumb: rgb(255 255 255 / 0.1);
+  --voxver-scrollbar-thumb-hover: rgb(255 255 255 / 0.2);
 
   /* ====== 覆盖层 ====== */
-  --voxver-bg-overlay: rgb(0 0 0 / 0.75);
+  --voxver-bg-overlay: rgb(0 0 0 / 0.85);
 }
