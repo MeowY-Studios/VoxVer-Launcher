@@ -147,19 +147,25 @@
           <label>{{ $t('modloader.selectModLoader') }}</label>
           <div class="loader-options">
             <!-- Fabric -->
-            <template v-if="fabricVersions.length">
-              <label class="loader-option" v-for="v in fabricVersions.slice(0, 3)" :key="v.id">
-                <input type="radio" :value="`fabric:${v.version}`" v-model="selectedLoader" />
-                <span>{{ v.name }}</span>
-              </label>
-            </template>
+            <div class="loader-type-group" v-if="fabricVersions.length">
+              <span class="loader-type-label">Fabric</span>
+              <select class="input-field vox-input loader-version-select" v-model="fabricSelectedVersion">
+                <option value="">{{ $t('common.pleaseSelect') }}</option>
+                <option v-for="v in fabricVersions" :key="v.version" :value="v.version">
+                  {{ v.version }}
+                </option>
+              </select>
+            </div>
             <!-- Forge -->
-            <template v-if="forgeVersions.length">
-              <label class="loader-option" v-for="v in forgeVersions.slice(0, 3)" :key="v.id">
-                <input type="radio" :value="`forge:${v.version}`" v-model="selectedLoader" />
-                <span>{{ v.name }}</span>
-              </label>
-            </template>
+            <div class="loader-type-group" v-if="forgeVersions.length">
+              <span class="loader-type-label">Forge</span>
+              <select class="input-field vox-input loader-version-select" v-model="forgeSelectedVersion">
+                <option value="">{{ $t('common.pleaseSelect') }}</option>
+                <option v-for="v in forgeVersions" :key="v.version" :value="v.version">
+                  {{ v.version }}
+                </option>
+              </select>
+            </div>
 
             <div class="loader-empty" v-if="!fabricVersions.length && !forgeVersions.length">
               <span class="muted">
@@ -173,7 +179,7 @@
           <button
             class="vox-btn vox-btn--primary"
             @click="installModLoader"
-            :disabled="!selectedVersion || !selectedLoader || modLoaderLoading"
+            :disabled="!selectedVersion || (!fabricSelectedVersion && !forgeSelectedVersion) || modLoaderLoading"
           >
             {{ modLoaderLoading ? $t('modloader.installing') : $t('modloader.install') }}
           </button>
@@ -208,7 +214,8 @@ const error = computed(() => versionsStore.error)
 const searchKeyword = ref('')
 const activeFilter = ref<'all' | 'release' | 'snapshot' | 'old'>('all')
 const selectedVersion = ref('')
-const selectedLoader = ref('')
+const fabricSelectedVersion = ref('')
+const forgeSelectedVersion = ref('')
 const modLoaderLoading = ref(false)
 
 // ===== 计算属性：过滤后的版本列表 =====
@@ -246,7 +253,8 @@ async function refreshVersions() {
 /** 选择一个版本：同步选中状态 + 按需加载 Mod Loader 列表 */
 async function selectVersion(versionId: string) {
   selectedVersion.value = versionId
-  selectedLoader.value = ''
+  fabricSelectedVersion.value = ''
+  forgeSelectedVersion.value = ''
 
   if (versionId) {
     modLoaderLoading.value = true
@@ -258,9 +266,21 @@ async function selectVersion(versionId: string) {
   }
 }
 
+/** 获取当前选中的 Loader 信息 */
+function getSelectedLoader(): { loaderType: string; loaderVersion: string } | null {
+  if (fabricSelectedVersion.value) {
+    return { loaderType: 'fabric', loaderVersion: fabricSelectedVersion.value }
+  }
+  if (forgeSelectedVersion.value) {
+    return { loaderType: 'forge', loaderVersion: forgeSelectedVersion.value }
+  }
+  return null
+}
+
 /** 安装 ModLoader（保持原有逻辑不变，仅增加错误提示） */
 async function installModLoader() {
-  if (!selectedVersion.value || !selectedLoader.value) return
+  const sel = getSelectedLoader()
+  if (!selectedVersion.value || !sel) return
 
   const currentInstance = instancesStore.currentInstance
   if (!currentInstance) {
@@ -272,12 +292,11 @@ async function installModLoader() {
     return
   }
 
-  // 解析用户选择的 "loaderType:version"（简单约定）
-  const [loaderType, loaderVersion] = selectedLoader.value.split(':')
+  const { loaderType, loaderVersion } = sel
 
   try {
     await window.electronAPI.modloader.install(
-      currentInstance.id,
+      currentInstance.id as string,
       loaderType,
       loaderVersion,
       currentInstance.path
@@ -567,12 +586,21 @@ onMounted(() => {
   gap: 12px;
 }
 
-.loader-option {
+.loader-type-group {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  cursor: pointer;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 200px;
+}
+
+.loader-type-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--voxver-text-secondary);
+}
+
+.loader-version-select {
+  width: 200px;
 }
 
 .loader-empty {

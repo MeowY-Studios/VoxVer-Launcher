@@ -153,6 +153,17 @@ export function registerDownloadHandlers(): void {
     }
   )
 
+  // 下载设置 - 获取
+  ipcMain.handle(
+    'download:settings:get-config',
+    async (): Promise<{ success: boolean; data: unknown }> => {
+      const service = getContentService()
+      const downloadService = service.getDownloadService()
+      const result = downloadService.getConfig()
+      return { success: true, data: result }
+    }
+  )
+
   // 下载设置
   ipcMain.handle(
     'download:settings:set-concurrent',

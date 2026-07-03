@@ -16,6 +16,8 @@ export interface UpdateStatus {
 
 let mainWindow: BrowserWindow | null = null
 let cachedUpdateCheckResult: any = null
+let updateChannel: 'stable' | 'beta' = 'stable'
+let autoCheckUpdate = true
 const currentStatus: UpdateStatus = {
   checking: false,
   available: false,
@@ -38,11 +40,11 @@ export function initAutoUpdater(window: BrowserWindow): void {
     return
   }
 
-  autoUpdater.channel = 'VoxVer'
+  autoUpdater.channel = updateChannel === 'beta' ? 'beta' : 'VoxVer'
   autoUpdater.autoDownload = false
   autoUpdater.autoInstallOnAppQuit = false
   autoUpdater.allowDowngrade = false
-  autoUpdater.allowPrerelease = false
+  autoUpdater.allowPrerelease = updateChannel === 'beta'
 
   autoUpdater.on('checking-for-update', () => {
     currentStatus.checking = true
@@ -161,4 +163,27 @@ export function installUpdate(): void {
 
 export function getUpdateStatus(): UpdateStatus {
   return { ...currentStatus }
+}
+
+export function setUpdateChannel(channel: string): void {
+  updateChannel = channel as 'stable' | 'beta'
+  autoUpdater.channel = channel
+  try {
+    const db = require('./database').getDatabase()
+    db.prepare("INSERT OR REPLACE INTO configs (key, value) VALUES ('update_channel', ?)").run(channel)
+  } catch { /* ignore - may not have DB access yet */ }
+  log.info('[updater] Channel set to:', channel)
+}
+
+export function setAutoCheckUpdate(enabled: boolean): void {
+  autoCheckUpdate = enabled
+  try {
+    const db = require('./database').getDatabase()
+    db.prepare("INSERT OR REPLACE INTO configs (key, value) VALUES ('auto_check_update', ?)").run(String(enabled))
+  } catch { /* ignore */ }
+  log.info('[updater] Auto check update:', enabled)
+}
+
+export function getUpdateConfig(): { channel: string; autoCheck: boolean } {
+  return { channel: updateChannel, autoCheck: autoCheckUpdate }
 }

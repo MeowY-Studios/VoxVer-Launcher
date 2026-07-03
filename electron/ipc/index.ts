@@ -24,6 +24,7 @@ import { registerModpackHandlers } from './modpack.ipc'
 import { registerHotkeyHandlers } from './hotkey.ipc'
 import { registerThemeHandlers } from './theme.ipc'
 import { registerBackupHandlers } from './backup.ipc'
+import { registerExternalLauncherHandlers } from './external-launcher.ipc'
 import { registerUpdaterHandlers } from './updater.ipc'
 import { registerLoggerHandlers } from './logger.ipc'
 import { logger } from '../utils/logger'
@@ -187,6 +188,14 @@ export function registerAllIpcHandlers(
     log.info('[IPC] backup handlers registered')
   } catch (e: any) {
     log.error('[IPC] backup handlers FAILED:', e.message)
+  }
+
+  // 外部启动器数据导入（HMCL/PCL2）
+  try {
+    registerExternalLauncherHandlers()
+    log.info('[IPC] external-launcher handlers registered')
+  } catch (e: any) {
+    log.error('[IPC] external-launcher handlers FAILED:', e.message)
   }
 
   // 日志系统（诊断导出 + 日志级别控制）

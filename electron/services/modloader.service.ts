@@ -48,6 +48,47 @@ export class ModLoaderService {
   }
 
   /**
+   * 获取指定 MC 版本支持的所有 ModLoader 版本列表
+   */
+  async getLoaderVersionList(mcVersion: string, loaderType: string): Promise<string[]> {
+    try {
+      if (loaderType === 'fabric') {
+        const response = await axios.get(`${FABRIC_META_BASE}/versions/loader/${mcVersion}`)
+        const data = response.data
+        if (Array.isArray(data)) {
+          return data.map((v: { loader: { version: string } }) => v.loader?.version).filter(Boolean)
+        }
+      } else if (loaderType === 'forge') {
+        const response = await axios.get(FORGE_PROMO_URL)
+        const promos = response.data.promos
+        const versions: string[] = []
+        for (const key of Object.keys(promos)) {
+          if (key.startsWith(`${mcVersion}-`)) {
+            versions.push(`${mcVersion}-${promos[key]}`)
+          }
+        }
+        return [...new Set(versions)]
+      } else if (loaderType === 'neoforge') {
+        const response = await axios.get(`${NEOFORGE_META}/v3/versions/neoforge/${mcVersion}`)
+        const data = response.data
+        if (Array.isArray(data)) {
+          return data.map((v: { version: string }) => v.version).filter(Boolean)
+        }
+      } else if (loaderType === 'quilt') {
+        const response = await axios.get(`${QUILT_META_BASE}/versions/loader/${mcVersion}`)
+        const data = response.data
+        if (Array.isArray(data)) {
+          return data.map((v: { loader: { version: string } }) => v.loader?.version).filter(Boolean)
+        }
+      }
+      return []
+    } catch (err: any) {
+      log.warn(`获取 ${loaderType} 版本列表失败:`, err.message)
+      return []
+    }
+  }
+
+  /**
    * 初始化支持的 Mod 加载器信息
    */
   private initializeModLoaders(): void {

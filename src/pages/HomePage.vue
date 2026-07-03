@@ -109,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useInstancesStore } from '../stores'
@@ -130,6 +130,7 @@ const router = useRouter()
 
 const showReceiveModal = ref(false)
 const initialShareCode = ref('')
+let protocolCleanup: (() => void) | undefined
 
 const recentInstances = computed(() => {
   return instancesStore.recentInstances.map((inst: any) => ({
@@ -170,6 +171,16 @@ function onInstanceImported() {
 
 onMounted(() => {
   instancesStore.fetchInstances()
+
+  // 监听协议唤起（voxver://share:CODE）
+  protocolCleanup = window.electronAPI.share.onProtocolInvoke((code: string) => {
+    initialShareCode.value = code
+    showReceiveModal.value = true
+  })
+})
+
+onUnmounted(() => {
+  protocolCleanup?.()
 })
 </script>
 

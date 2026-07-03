@@ -210,7 +210,19 @@ const api = {
       ipcRenderer.on('download:progress', listener)
       return () => ipcRenderer.removeListener('download:progress', listener)
     },
-    cancelDownload: (id: string) => ipcRenderer.invoke('download:cancel', id)
+    cancelDownload: (id: string) => ipcRenderer.invoke('download:cancel', id),
+    // 镜像源管理
+    getMirrors: () => ipcRenderer.invoke('download:mirrors:list'),
+    getCurrentMirror: () => ipcRenderer.invoke('download:mirrors:get-current'),
+    setMirror: (index: number) => ipcRenderer.invoke('download:mirrors:set', index),
+    testMirrorSpeed: () => ipcRenderer.invoke('download:mirrors:test'),
+    autoSelectMirror: () => ipcRenderer.invoke('download:mirrors:auto-select'),
+    // 下载设置
+    getDownloadConfig: () => ipcRenderer.invoke('download:settings:get-config'),
+    setMaxConcurrent: (max: number) => ipcRenderer.invoke('download:settings:set-concurrent', max),
+    setMaxThreads: (max: number) => ipcRenderer.invoke('download:settings:set-threads', max),
+    setSpeedLimit: (limit: number) => ipcRenderer.invoke('download:settings:set-speed-limit', limit),
+    setMaxRetries: (max: number) => ipcRenderer.invoke('download:settings:set-retries', max)
   },
 
   // Java 管理
@@ -311,6 +323,8 @@ const api = {
   modloader: {
     getLoaders: (mcVersion: string) =>
       ipcRenderer.invoke('modloader:get-loaders', { minecraftVersion: mcVersion }),
+    getVersions: (mcVersion: string, loaderType: string) =>
+      ipcRenderer.invoke('modloader:get-versions', { minecraftVersion: mcVersion, loaderType }),
     install: (instanceId: string, loaderType: string, loaderVersion: string, gameDir: string) =>
       ipcRenderer.invoke('modloader:install', {
         instanceId,
@@ -542,6 +556,9 @@ const api = {
     download: () => ipcRenderer.invoke('updater:download'),
     install: () => ipcRenderer.invoke('updater:install'),
     getStatus: () => ipcRenderer.invoke('updater:status'),
+    getConfig: () => ipcRenderer.invoke('updater:get-config'),
+    setChannel: (channel: string) => ipcRenderer.invoke('updater:set-channel', channel),
+    setAutoCheck: (enabled: boolean) => ipcRenderer.invoke('updater:set-auto-check', enabled),
     onStatusChange: (
       callback: (status: {
         checking: boolean
@@ -613,7 +630,10 @@ const api = {
       ipcRenderer.invoke('theme:import-background', { sourcePath }),
     deleteBackground: (localPath: string) =>
       ipcRenderer.invoke('theme:delete-background', { localPath }),
-    computeVars: (hex: string) => ipcRenderer.invoke('theme:compute-vars', { hex })
+    computeVars: (hex: string) => ipcRenderer.invoke('theme:compute-vars', { hex }),
+    exportTheme: (settings: ThemeSettings) => ipcRenderer.invoke('theme:export', { settings }),
+    importTheme: (json: string) => ipcRenderer.invoke('theme:import', { json }),
+    getPresets: () => ipcRenderer.invoke('theme:presets')
   },
 
   // 数据备份与迁移
@@ -635,6 +655,12 @@ const api = {
     }
   },
 
+  // 外部启动器数据导入（HMCL/PCL2）
+  externalLauncher: {
+    detect: () => ipcRenderer.invoke('external-launcher:detect'),
+    scanDir: (gameDir: string) => ipcRenderer.invoke('external-launcher:scan-dir', gameDir)
+  },
+
   // 分享功能（P2P 实例分享）
   share: (() => {
     const packListeners = new Map<Function, Function>()
@@ -654,6 +680,12 @@ const api = {
         ipcRenderer.invoke('share:close-session', { sessionId }),
       getSession: (sessionId: string) =>
         ipcRenderer.invoke('share:get-session', { sessionId }),
+      onProtocolInvoke: (callback: (shareCode: string) => void) => {
+        const listener = (_event: IpcRendererEvent, data: { shareCode: string }) =>
+          callback(data.shareCode)
+        ipcRenderer.on('share:protocol-invoke', listener)
+        return () => ipcRenderer.removeListener('share:protocol-invoke', listener)
+      },
       onPackProgress: (
         callback: (event: IpcRendererEvent, data: { instanceId: string; stage: string; progress: number }) => void
       ) => {

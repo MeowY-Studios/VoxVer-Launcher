@@ -150,7 +150,110 @@ export function deleteBackground(localPath: string): boolean {
   return false
 }
 
-// ========== 主题色 ==========
+/**
+ * 将主题设置导出为可分享的 JSON 字符串
+ */
+export function exportThemeAsJson(settings: ThemeSettings): string {
+  return JSON.stringify({
+    version: 1,
+    type: 'voxver_theme',
+    settings,
+    exportedAt: new Date().toISOString()
+  }, null, 2)
+}
+
+/**
+ * 从 JSON 字符串导入主题设置
+ */
+export function importThemeFromJson(jsonStr: string): { ok: boolean; settings?: ThemeSettings; error?: string } {
+  try {
+    const data = JSON.parse(jsonStr)
+    if (data.type !== 'voxver_theme') {
+      return { ok: false, error: '无效的主题文件格式' }
+    }
+    const settings: ThemeSettings = { ...DEFAULT_THEME, ...data.settings }
+    if (!isValidHex(settings.themeColor)) {
+      return { ok: false, error: '无效的主题色' }
+    }
+    return { ok: true, settings }
+  } catch (e: any) {
+    return { ok: false, error: e.message || '解析主题文件失败' }
+  }
+}
+
+// ========== 主题预设 ==========
+
+export interface ThemePreset {
+  id: string
+  name: string
+  description: string
+  themeColor: string
+  accentColor: string
+  thumbnail?: string
+}
+
+export const BUILTIN_PRESETS: ThemePreset[] = [
+  {
+    id: 'indigo',
+    name: '靛青',
+    description: '默认靛青紫配色',
+    themeColor: '#6366f1',
+    accentColor: '#8b5cf6'
+  },
+  {
+    id: 'teal',
+    name: '深青',
+    description: 'GitHub Dark 风格墨色',
+    themeColor: '#14b8a6',
+    accentColor: '#0d9488'
+  },
+  {
+    id: 'coral',
+    name: '珊瑚',
+    description: '温暖活力的橙色系',
+    themeColor: '#f43f5e',
+    accentColor: '#e11d48'
+  },
+  {
+    id: 'amber',
+    name: '琥珀',
+    description: '明亮的金色主题',
+    themeColor: '#f59e0b',
+    accentColor: '#d97706'
+  },
+  {
+    id: 'emerald',
+    name: '翠绿',
+    description: '清新的绿色主题',
+    themeColor: '#10b981',
+    accentColor: '#059669'
+  },
+  {
+    id: 'sky',
+    name: '天蓝',
+    description: '清爽的蓝色主题',
+    themeColor: '#0ea5e9',
+    accentColor: '#0284c7'
+  },
+  {
+    id: 'violet',
+    name: '紫罗兰',
+    description: '优雅的紫色主题',
+    themeColor: '#8b5cf6',
+    accentColor: '#7c3aed'
+  },
+  {
+    id: 'rose',
+    name: '玫瑰',
+    description: '柔美的粉色主题',
+    themeColor: '#ec4899',
+    accentColor: '#db2777'
+  }
+]
+
+export function getBuiltinPresets(): ThemePreset[] {
+  return BUILTIN_PRESETS
+}
 
 /**
  * 基于主色生成完整的 CSS 变量集（供前端直接 apply 到 document）

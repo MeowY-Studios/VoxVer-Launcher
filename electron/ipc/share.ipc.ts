@@ -189,7 +189,8 @@ export function registerShareHandlers(): void {
 
       const { app } = await import('electron')
       const targetDir = app.getPath('userData')
-      const instancesDir = `${targetDir}\\instances`
+      const path = await import('path')
+      const instancesDir = path.join(targetDir, 'instances')
 
       const result = await unpackSharedInstance(
         fileInfo.filePath,

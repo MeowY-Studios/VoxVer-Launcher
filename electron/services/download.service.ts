@@ -54,6 +54,17 @@ export class DownloadService extends EventEmitter {
     this.maxRetries = max
   }
 
+  getConfig() {
+    return {
+      maxConcurrent: this.maxConcurrent,
+      maxThreadsPerFile: this.maxThreadsPerFile,
+      speedLimit: this.speedLimit,
+      maxRetries: this.maxRetries,
+      currentMirror: this.currentMirror,
+      mirrors: this.getMirrors()
+    }
+  }
+
   getMirrors() {
     return BMCLAPI_MIRRORS
   }

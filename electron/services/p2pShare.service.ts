@@ -144,9 +144,22 @@ const DEFAULT_PEER_CONFIG = {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun2.l.google.com:19302' },
-      { urls: 'stun:stun3.l.google.com:19302' },
-      { urls: 'stun:stun4.l.google.com:19302' }
+      { urls: 'stun:stun:openrelay.metered.ca:80' },
+      {
+        urls: 'turn:openrelay.metered.ca:80',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      }
     ]
   }
 }
@@ -265,7 +278,7 @@ class P2PShareService {
     const shareCode = this.generateShareCode()
 
     try {
-      const peer = await this.createPeerWithRetry()
+      const peer = await this.createPeerWithRetry(shareCode)
       const peerId = peer.id
 
       this.shareCodeToPeerId.set(shareCode, peerId)
@@ -455,7 +468,7 @@ class P2PShareService {
         this.updateSessionStatus(sessionId, 'error', '连接已断开，请重试')
       })
 
-      const targetPeerId = senderPeerId || this.shareCodeToPeerId.get(shareCode) || shareCode
+      const targetPeerId = senderPeerId || shareCode
       log.info('Connecting to sender', { targetPeerId, shareCode })
 
       const conn = peer.connect(targetPeerId, { reliable: true, serialization: 'binary' })
@@ -565,6 +578,7 @@ class P2PShareService {
 
           info.receivedChunks.add(chunkIndex)
           session.transferredChunks = info.receivedChunks.size
+          this.retryCount.delete(`${sessionId}_${chunkIndex}`)
           this.notifyProgress(sessionId)
 
           const nextChunk = chunkIndex + 1
@@ -575,12 +589,23 @@ class P2PShareService {
           }
         } catch (e) {
           log.error('Failed to write chunk', { sessionId, chunkIndex }, e)
-          const errMsg: ErrorMessage = {
-            type: 'error',
-            data: { message: `分片 ${chunkIndex} 写入失败` }
+          const retryKey = `${sessionId}_${chunkIndex}`
+          const retries = (this.retryCount.get(retryKey) || 0) + 1
+          this.retryCount.set(retryKey, retries)
+
+          if (retries <= CHUNK_RETRY_COUNT) {
+            log.warn('Retrying chunk', { sessionId, chunkIndex, retry: retries })
+            // 重新请求当前分片
+            setTimeout(() => this.requestNextChunk(sessionId, conn, chunkIndex), 500 * retries)
+          } else {
+            this.retryCount.delete(retryKey)
+            const errMsg: ErrorMessage = {
+              type: 'error',
+              data: { message: `分片 ${chunkIndex} 写入失败（已重试 ${CHUNK_RETRY_COUNT} 次）` }
+            }
+            conn.send(errMsg)
+            this.updateSessionStatus(sessionId, 'error', `分片 ${chunkIndex} 写入失败`)
           }
-          conn.send(errMsg)
-          this.updateSessionStatus(sessionId, 'error', `分片 ${chunkIndex} 写入失败`)
         }
         break
       }
@@ -593,6 +618,8 @@ class P2PShareService {
       }
     }
   }
+
+  private retryCount: Map<string, number> = new Map()
 
   private requestNextChunk(sessionId: string, conn: DataConnection, chunkIndex: number): void {
     const msg: RequestChunkMessage = {
@@ -731,15 +758,18 @@ class P2PShareService {
 
     const receiverSession = this.receiverSessions.get(sessionId)
     if (receiverSession) {
-      const info = this.fileInfo.get(sessionId)
-      if (info?.tempFilePath && fs.existsSync(info.tempFilePath)) {
-        try {
-          fs.unlinkSync(info.tempFilePath)
-        } catch {
-          // ignore
+      // 「稍后导入」场景下保留已完成会话的文件，等导入后再清理
+      if (receiverSession.status !== 'completed') {
+        const info = this.fileInfo.get(sessionId)
+        if (info?.tempFilePath && fs.existsSync(info.tempFilePath)) {
+          try {
+            fs.unlinkSync(info.tempFilePath)
+          } catch {
+            // ignore
+          }
         }
+        this.fileInfo.delete(sessionId)
       }
-      this.fileInfo.delete(sessionId)
       this.receiverSessions.delete(sessionId)
     }
 

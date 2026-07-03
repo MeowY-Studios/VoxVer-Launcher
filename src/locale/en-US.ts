@@ -32,6 +32,8 @@ export default {
     back: 'Back',
     next: 'Next',
     finish: 'Finish',
+    seconds: '{n}s',
+    minutes: '{n}min',
     apply: 'Apply',
     reset: 'Reset',
     import: 'Import',
@@ -1063,6 +1065,15 @@ export default {
     both: 'Search Both',
     fileNameFormat: 'File Name Format',
     fileNameFormatDesc: 'Naming convention for downloaded Mod/resource pack files',
+    // 数据迁移
+    dataMigration: {
+      title: 'Import from Other Launchers',
+      desc: 'Detect locally installed HMCL / PCL2 launchers and import their instance data',
+      detect: 'Detect External Launchers',
+      detectDesc: 'Scan this computer for HMCL and PCL2 installations',
+      detectBtn: 'Start Detection',
+      notFound: 'No external launchers detected'
+    },
     nameVersion: 'Name-Version',
     idName: 'ID-Name',
     original: 'Keep Original File Name',

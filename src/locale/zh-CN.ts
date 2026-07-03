@@ -32,6 +32,8 @@ export default {
     back: '返回',
     next: '下一步',
     finish: '完成',
+    seconds: '{n} 秒',
+    minutes: '{n} 分钟',
     apply: '应用',
     reset: '重置',
     import: '导入',
@@ -1069,6 +1071,15 @@ export default {
     both: '两者都搜索',
     fileNameFormat: '文件名格式',
     fileNameFormatDesc: '下载的 Mod/资源包文件命名规则',
+    // 数据迁移
+    dataMigration: {
+      title: '从其他启动器导入',
+      desc: '检测本机已安装的 HMCL / PCL2 启动器，并导入其实例数据',
+      detect: '检测外部启动器',
+      detectDesc: '扫描本机 HMCL 和 PCL2 的安装位置',
+      detectBtn: '开始检测',
+      notFound: '未检测到外部启动器'
+    },
     nameVersion: '名称-版本',
     idName: 'ID-名称',
     original: '保留原始文件名',

@@ -119,34 +119,33 @@ export const useVersionsStore = defineStore('versions', () => {
     }
   }
 
-  /** 获取 ModLoader 版本列表（当前仅做类型收紧，缓存可后续按需加入） */
+  /** 获取 ModLoader 版本列表 */
   async function fetchModLoaderVersions(mcVersion: string) {
     loading.value = true
     try {
-      const loaders = (await window.electronAPI?.modloader?.getLoaders?.(mcVersion)) as
-        | {
-            fabric?: Array<{ id?: string; version: string; stable?: boolean }>
-            forge?: Array<{ id?: string; version: string; stable?: boolean }>
-          }
-        | undefined
-
-      if (loaders) {
-        fabricVersions.value = (loaders.fabric || []).map((v) => ({
-          id: v.id || v.version,
-          name: `Fabric ${v.version}`,
-          version: v.version,
-          stable: v.stable !== false
+      // 获取 Fabric 版本列表
+      const fabricRes = await window.electronAPI?.modloader?.getVersions?.(mcVersion, 'fabric')
+      if (fabricRes?.ok && Array.isArray(fabricRes.data)) {
+        fabricVersions.value = fabricRes.data.map((v: string) => ({
+          id: v,
+          name: `Fabric ${v}`,
+          version: v,
+          stable: true
         }))
+      }
 
-        forgeVersions.value = (loaders.forge || []).map((v) => ({
-          id: v.id || v.version,
-          name: `Forge ${v.version}`,
-          version: v.version,
+      // 获取 Forge 版本列表
+      const forgeRes = await window.electronAPI?.modloader?.getVersions?.(mcVersion, 'forge')
+      if (forgeRes?.ok && Array.isArray(forgeRes.data)) {
+        forgeVersions.value = forgeRes.data.map((v: string) => ({
+          id: v,
+          name: `Forge ${v}`,
+          version: v,
           stable: true
         }))
       }
     } catch {
-      // 静默处理（Mod Loader 列表非核心功能）
+      // 静默处理
     } finally {
       loading.value = false
     }

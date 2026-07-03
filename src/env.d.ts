@@ -171,6 +171,18 @@ interface ElectronAPI {
     getQueue: () => Promise<unknown[]>
     onProgress: (callback: (progress: unknown) => void) => () => void
     cancelDownload: (id: string) => Promise<void>
+    // 镜像源管理
+    getMirrors: () => Promise<{ success: boolean; data: Array<{ name: string; url: string; ping: number }> }>
+    getCurrentMirror: () => Promise<{ success: boolean; data: { name: string; url: string; ping: number } }>
+    setMirror: (index: number) => Promise<{ success: boolean }>
+    testMirrorSpeed: () => Promise<{ success: boolean; data: Array<{ name: string; url: string; ping: number }> }>
+    autoSelectMirror: () => Promise<{ success: boolean; data: number }>
+    // 下载设置
+    getDownloadConfig: () => Promise<{ success: boolean; data: { maxConcurrent: number; maxThreadsPerFile: number; speedLimit: number; maxRetries: number; currentMirror: { name: string; url: string; ping: number }; mirrors: Array<{ name: string; url: string; ping: number }> } }>
+    setMaxConcurrent: (max: number) => Promise<{ success: boolean }>
+    setMaxThreads: (max: number) => Promise<{ success: boolean }>
+    setSpeedLimit: (limit: number) => Promise<{ success: boolean }>
+    setMaxRetries: (max: number) => Promise<{ success: boolean }>
   }
   java: {
     detect: () => Promise<unknown[]>
@@ -201,6 +213,7 @@ interface ElectronAPI {
   }
   modloader: {
     getLoaders: (mcVersion: string) => Promise<unknown[]>
+    getVersions: (mcVersion: string, loaderType: string) => Promise<{ ok: boolean; data: string[]; error?: string }>
     install: (instanceId: string, loaderType: string, loaderVersion: string, gameDir: string) => Promise<void>
     onProgress: (callback: (data: unknown) => void) => () => void
   }
@@ -280,10 +293,13 @@ interface ElectronAPI {
     onDependencyProgress: (callback: (data: unknown) => void) => () => void
   }
   updater: {
-    check: () => Promise<unknown>
-    download: () => Promise<void>
-    install: () => Promise<void>
-    getStatus: () => Promise<unknown>
+    check: () => Promise<{ success: boolean }>
+    download: () => Promise<{ success: boolean }>
+    install: () => Promise<{ success: boolean }>
+    getStatus: () => Promise<{ success: boolean; data: unknown }>
+    getConfig: () => Promise<{ channel: string; autoCheck: boolean }>
+    setChannel: (channel: string) => Promise<{ success: boolean }>
+    setAutoCheck: (enabled: boolean) => Promise<{ success: boolean }>
     onStatusChange: (callback: (status: unknown) => void) => () => void
   }
   modpack: {
@@ -306,6 +322,9 @@ interface ElectronAPI {
     importBackground: (sourcePath: string) => Promise<string | null>
     deleteBackground: (localPath: string) => Promise<void>
     computeVars: (hex: string) => Promise<unknown>
+    exportTheme: (settings: unknown) => Promise<{ ok: boolean; json?: string; error?: string }>
+    importTheme: (json: string) => Promise<{ ok: boolean; settings?: unknown; cssVars?: unknown; backgroundDataUrl?: string | null; error?: string }>
+    getPresets: () => Promise<Array<{ id: string; name: string; description: string; themeColor: string; accentColor: string }>>
   }
   backup: {
     create: (options?: unknown) => Promise<IpcResult & { filePath?: string; size?: number }>
@@ -315,6 +334,10 @@ interface ElectronAPI {
     getDir: () => Promise<string>
     onProgress: (callback: (progress: unknown) => void) => () => void
   }
+  externalLauncher: {
+    detect: () => Promise<{ success: boolean; data: Array<{ type: string; name: string; path: string; instances: Array<{ name: string; version: string; loaderType: string; loaderVersion: string; gameDir: string; modCount: number; source: string }>; detected: boolean }> }>
+    scanDir: (gameDir: string) => Promise<{ success: boolean; data: { name: string; version: string; loaderType: string; loaderVersion: string; gameDir: string; modCount: number; source: string } | null }>
+  }
   share: {
     startInstance: (instanceId: string) => Promise<ShareStartResult>
     stopShare: (sessionId: string) => void
@@ -322,6 +345,7 @@ interface ElectronAPI {
     receiveInstance: (shareCode: string) => Promise<{ sessionId: string }>
     importReceived: (sessionId: string) => Promise<ShareImportResult>
     getSession: (sessionId: string) => Promise<unknown>
+    onProtocolInvoke: (callback: (shareCode: string) => void) => () => void
     onPackProgress: (callback: (event: Event, data: { instanceId: string; stage: string; progress: number }) => void) => () => void
     onSessionUpdate: (callback: (event: Event, data: { sessionId: string; session: ShareSession }) => void) => () => void
     onProgressUpdate: (callback: (event: Event, data: { sessionId: string; progress: { transferredChunks: number; totalChunks: number; bytesPerSecond: number; estimatedRemaining: number } }) => void) => () => void

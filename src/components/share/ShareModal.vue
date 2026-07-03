@@ -140,7 +140,7 @@ const copied = ref(false)
 
 const shareCodeDigits = computed(() => shareCode.value.split(''))
 
-const shareLink = computed(() => `mcla://share:${shareCode.value}`)
+const shareLink = computed(() => `voxver://share:${shareCode.value}`)
 
 const packStageText = computed(() => {
   switch (packStage.value) {
@@ -167,8 +167,8 @@ function formatSpeed(bytes: number): string {
 }
 
 function formatTime(seconds: number): string {
-  if (seconds < 60) return `${Math.round(seconds)} 秒前`
-  return `${Math.round(seconds / 60)} 分钟前`
+  if (seconds < 60) return t('common.seconds', { n: Math.round(seconds) })
+  return t('common.minutes', { n: Math.round(seconds / 60) })
 }
 
 async function copyShareCode() {

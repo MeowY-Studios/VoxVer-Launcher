@@ -10,6 +10,9 @@ import {
   getBackgroundAsDataUrl,
   deleteBackground,
   computeThemeVars,
+  exportThemeAsJson,
+  importThemeFromJson,
+  getBuiltinPresets,
   type ThemeSettings
 } from '../services/theme.service'
 
@@ -52,6 +55,32 @@ export function registerThemeHandlers(): void {
 
   ipcMain.handle('theme:compute-vars', (_event, payload: { hex: string }) => {
     return computeThemeVars(payload.hex)
+  })
+
+  ipcMain.handle('theme:export', (_event, payload: { settings: ThemeSettings }) => {
+    try {
+      const json = exportThemeAsJson(payload.settings)
+      return { ok: true, json }
+    } catch (e: any) {
+      return { ok: false, error: e.message }
+    }
+  })
+
+  ipcMain.handle('theme:import', (_event, payload: { json: string }) => {
+    const result = importThemeFromJson(payload.json)
+    if (result.ok && result.settings) {
+      saveTheme(result.settings)
+      const vars = computeThemeVars(result.settings.themeColor)
+      const bgDataUrl = result.settings.bgImageLocalPath
+        ? getBackgroundAsDataUrl(result.settings.bgImageLocalPath)
+        : null
+      return { ok: true, settings: result.settings, cssVars: vars, backgroundDataUrl: bgDataUrl }
+    }
+    return { ok: false, error: result.error }
+  })
+
+  ipcMain.handle('theme:presets', () => {
+    return getBuiltinPresets()
   })
 
   log.info('theme handlers registered')

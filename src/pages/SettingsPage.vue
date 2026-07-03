@@ -235,6 +235,52 @@
         </div>
       </section>
 
+      <!-- 更新渠道 -->
+      <section class="sec">
+        <h3 class="sec-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 3 21 3 21 8" />
+            <line x1="4" y1="20" x2="21" y2="3" />
+            <polyline points="21 16 21 21 16 21" />
+            <line x1="15" y1="15" x2="21" y2="21" />
+            <line x1="4" y1="4" x2="9" y2="9" />
+          </svg>
+          {{ $t('settings.updateChannel.title') || '更新渠道' }}
+        </h3>
+        <div class="segmented-group">
+          <button
+            class="vox-chip"
+            :class="{ 'vox-chip--active': updateChannel === 'stable' }"
+            @click="onUpdateChannelChange('stable')"
+          >
+            {{ $t('settings.updateChannel.stable') || '稳定版' }}
+          </button>
+          <button
+            class="vox-chip"
+            :class="{ 'vox-chip--active': updateChannel === 'beta' }"
+            @click="onUpdateChannelChange('beta')"
+          >
+            {{ $t('settings.updateChannel.beta') || '测试版' }}
+          </button>
+        </div>
+      </section>
+
+      <!-- 自动检查更新 -->
+      <section class="sec">
+        <h3 class="sec-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
+          {{ $t('settings.autoCheckUpdate') || '启动时自动检查更新' }}
+        </h3>
+        <div class="toggle-row" @click="autoCheckUpdate = !autoCheckUpdate; onAutoCheckChange()">
+          <span class="toggle-label">{{ $t('settings.autoCheckUpdateDesc') || '启动启动器 5 秒后自动检查是否有新版本' }}</span>
+          <div class="vox-toggle" :class="{ 'vox-toggle--on': autoCheckUpdate }">
+            <div class="vox-toggle-knob" />
+          </div>
+        </div>
+      </section>
+
       <!-- 项目信息 -->
       <section class="sec">
         <h3 class="sec-title">{{ $t('settings.aboutSection.projectInfo') }}</h3>
@@ -1050,6 +1096,29 @@
           </div>
         </div>
 
+        <!-- 主题预设画廊 -->
+        <div v-if="themePresets.length > 0" style="margin-top:14px">
+          <label class="row-label" style="margin-bottom:6px;display:block">{{ $t('settings.themePresets') || '主题预设' }}</label>
+          <div class="preset-gallery">
+            <button
+              v-for="p in themePresets"
+              :key="p.id"
+              class="preset-card"
+              :class="{ active: s.themeColor === p.themeColor }"
+              @click="applyThemeColor(p.themeColor); s.accentColor = p.accentColor"
+            >
+              <span class="preset-swatch" :style="{ background: p.themeColor }"></span>
+              <span class="preset-name">{{ p.name }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 导入/导出主题 -->
+        <div style="margin-top:14px;display:flex;gap:8px">
+          <button class="btn vox-btn vox-btn--secondary btn-sm" @click="exportCurrentTheme">导出自定义主题</button>
+          <button class="btn vox-btn vox-btn--secondary btn-sm" @click="importThemeFile">导入主题</button>
+        </div>
+
         <!-- 字号 -->
         <div class="mem-custom-row" style="margin-top:14px">
           <label class="row-label">{{ $t('settings.fontSize') }}</label>
@@ -1511,54 +1580,144 @@
           {{ $t('settings.sidebar.downloadNet') }}
         </h3>
 
+        <!-- 镜像源 -->
         <div class="row">
           <div class="row-main">
             <label class="row-label">{{ $t('settings.downloadSource') }}</label>
             <p class="row-desc">{{ $t('settings.downloadSourceDesc') }}</p>
           </div>
           <div class="row-control">
-            <select class="sel" v-model="s.downloadSource">
-              <option value="bmclapi">{{ $t('settings.bmclapi') }}</option>
-              <option value="official">{{ $t('settings.official') }}</option>
+            <select class="sel" v-model.number="downloadConfig.mirrorIndex" @change="onMirrorChange(downloadConfig.mirrorIndex)">
+              <option v-for="(m, i) in downloadConfig.mirrors" :key="m.url" :value="i">{{ m.name }} {{ m.ping > 0 ? '(' + m.ping + 'ms)' : '' }}</option>
             </select>
           </div>
         </div>
 
+        <!-- 镜像测速 -->
         <div class="row">
           <div class="row-main">
-            <label class="row-label">{{ $t('settings.versionListSource') }}</label>
+            <label class="row-label">{{ $t('settings.downloadSources') || '镜像测速' }}</label>
+            <p class="row-desc">{{ downloadConfig.testingMirror ? '测速中...' : $t('settings.downloadSourceDesc') }}</p>
           </div>
           <div class="row-control">
-            <select class="sel" v-model="s.versionListSource">
-              <option value="bmclapi">BMCLAPI</option>
-              <option value="official">{{ $t('settings.official') }}</option>
-            </select>
+            <button class="btn vox-btn vox-btn--secondary" @click="onTestMirrors" :disabled="downloadConfig.testingMirror" style="margin-right:8px">
+              {{ $t('settings.downloadSources') || '测速' }}
+            </button>
+            <button class="btn vox-btn vox-btn--secondary" @click="onAutoSelectMirror" :disabled="downloadConfig.testingMirror">
+              自动选择
+            </button>
           </div>
         </div>
 
+        <!-- 同时下载数 -->
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">{{ $t('settings.downloadConcurrent') || '同时下载数' }}</label>
+          </div>
+          <div class="row-control">
+            <div class="input-group compact">
+              <input type="range" class="range" v-model.number="downloadConfig.maxConcurrent" min="1" max="16" step="1" @change="onConcurrentChange" />
+              <span class="range-val">{{ downloadConfig.maxConcurrent }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 最大线程数 -->
         <div class="row">
           <div class="row-main">
             <label class="row-label">{{ $t('settings.maxThreads') }}</label>
           </div>
           <div class="row-control">
             <div class="input-group compact">
-              <input type="range" class="range" v-model.number="s.maxThreads" min="1" max="64" step="1" />
-              <span class="range-val">{{ s.maxThreads }} {{ $t('settings.threads') }}</span>
+              <input type="range" class="range" v-model.number="downloadConfig.maxThreadsPerFile" min="1" max="64" step="1" @change="onThreadsChange" />
+              <span class="range-val">{{ downloadConfig.maxThreadsPerFile }} {{ $t('settings.threads') }}</span>
             </div>
           </div>
         </div>
 
+        <!-- 速度限制 -->
         <div class="row">
           <div class="row-main">
             <label class="row-label">{{ $t('settings.speedLimit') }}</label>
           </div>
           <div class="row-control">
             <div class="input-group compact">
-              <input type="number" class="inp short" v-model.number="s.speedLimit" min="0" step="1024" />
+              <input type="number" class="inp short" v-model.number="downloadConfig.speedLimit" min="0" step="128" @change="onSpeedLimitChange" />
               <span class="sep">KB/s</span>
               <span class="row-hint">{{ $t('settings.speedLimitHint') }}</span>
             </div>
           </div>
+        </div>
+
+        <!-- 最大重试数 -->
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">{{ $t('settings.downloadMaxRetries') || '最大重试次数' }}</label>
+          </div>
+          <div class="row-control">
+            <div class="input-group compact">
+              <input type="range" class="range" v-model.number="downloadConfig.maxRetries" min="0" max="20" step="1" @change="onRetriesChange" />
+              <span class="range-val">{{ downloadConfig.maxRetries }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </template>
+
+    <!-- ========== 数据迁移（HMCL/PCL2） ========== -->
+    <template v-if="activeCategory === 'data-migration'">
+      <section class="sec">
+        <h3 class="sec-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83" />
+          </svg>
+          {{ $t('settings.dataMigration.title') || '从其他启动器导入' }}
+        </h3>
+        <p class="sec-desc">{{ $t('settings.dataMigration.desc') || '检测本机已安装的 HMCL / PCL2 启动器，并导入其实例数据' }}</p>
+
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">{{ $t('settings.dataMigration.detect') || '检测外部启动器' }}</label>
+            <p class="row-desc">{{ $t('settings.dataMigration.detectDesc') || '扫描本机 HMCL 和 PCL2 的安装位置' }}</p>
+          </div>
+          <div class="row-control">
+            <button class="btn vox-btn vox-btn--secondary" @click="detectExternalLaunchers" :disabled="externalLaunchersLoading">
+              {{ externalLaunchersLoading ? '检测中...' : ($t('settings.dataMigration.detectBtn') || '开始检测') }}
+            </button>
+          </div>
+        </div>
+
+        <!-- 检测结果 -->
+        <div v-if="externalLaunchers.length > 0" class="data-migration-results">
+          <div v-for="launcher in externalLaunchers" :key="launcher.type" class="migration-card">
+            <div class="migration-card-header">
+              <span class="migration-card-name">{{ launcher.name }}</span>
+              <span class="migration-card-path">{{ launcher.path }}</span>
+              <span class="migration-card-count">{{ launcher.instances.length }} 个实例</span>
+            </div>
+            <div class="migration-instances">
+              <div v-for="inst in launcher.instances" :key="inst.gameDir" class="migration-instance-item">
+                <div class="migration-instance-info">
+                  <span class="migration-instance-name">{{ inst.name }}</span>
+                  <span class="migration-instance-meta">
+                    MC {{ inst.version }}
+                    <template v-if="inst.loaderType !== 'vanilla'"> | {{ inst.loaderType }} {{ inst.loaderVersion }}</template>
+                    | {{ inst.modCount }} mods
+                  </span>
+                </div>
+                <button
+                  class="btn vox-btn vox-btn--secondary btn-sm"
+                  @click="importExternalInstance(inst.gameDir)"
+                >
+                  导入
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="externalLaunchersDetected === false && !externalLaunchersLoading" class="migration-empty">
+          {{ $t('settings.dataMigration.notFound') || '未检测到外部启动器' }}
         </div>
       </section>
     </template>
@@ -2553,6 +2712,7 @@ const s = reactive({
   // 个性化
   opacity: 100,
   themeColor: localStorage.getItem('voxver_themeColor') || '#14b8a6',
+  accentColor: '#8b5cf6',
   lang: (localStorage.getItem('voxver-language') as 'zh-CN' | 'en-US') || 'zh-CN',
   dateFormat: (localStorage.getItem('voxver-dateFormat') as 'follow' | '24h' | '12h') || 'follow',
   bgMusicMode: 'none',
@@ -2740,6 +2900,21 @@ const updateStatus = ref({
   error: null as string | null,
   version: null as string | null,
   releaseNotes: null as string | null
+})
+
+const updateChannel = ref('stable')
+const autoCheckUpdate = ref(true)
+
+// 下载配置
+const downloadConfig = reactive({
+  mirrorIndex: 0,
+  mirrors: [] as Array<{ name: string; url: string; ping: number }>,
+  currentMirror: { name: '', url: '', ping: 0 },
+  maxConcurrent: 4,
+  maxThreadsPerFile: 8,
+  speedLimit: 0,
+  maxRetries: 5,
+  testingMirror: false
 })
 
 const memoryPercent = computed(() => {
@@ -3434,6 +3609,130 @@ async function checkForUpdate() {
   }
 }
 
+async function loadUpdateConfig() {
+  try {
+    const config = await window.electronAPI?.updater?.getConfig()
+    if (config) {
+      updateChannel.value = config.channel || 'stable'
+      autoCheckUpdate.value = config.autoCheck !== false
+    }
+  } catch { /* ignore */ }
+}
+
+async function onUpdateChannelChange(channel: string) {
+  updateChannel.value = channel
+  await window.electronAPI?.updater?.setChannel(channel)
+}
+
+async function onAutoCheckChange() {
+  await window.electronAPI?.updater?.setAutoCheck(autoCheckUpdate.value)
+}
+
+// ====== 下载配置 ======
+async function loadDownloadConfig() {
+  try {
+    const res = await window.electronAPI?.download?.getDownloadConfig()
+    if (res?.success && res.data) {
+      const d = res.data
+      downloadConfig.maxConcurrent = d.maxConcurrent
+      downloadConfig.maxThreadsPerFile = d.maxThreadsPerFile
+      downloadConfig.speedLimit = d.speedLimit
+      downloadConfig.maxRetries = d.maxRetries
+      downloadConfig.mirrors = d.mirrors || []
+      downloadConfig.currentMirror = d.currentMirror || { name: '', url: '', ping: 0 }
+      downloadConfig.mirrorIndex = d.mirrors?.findIndex((m: { url: string }) => m.url === d.currentMirror?.url) ?? 0
+    }
+  } catch { /* ignore */ }
+}
+
+async function onMirrorChange(index: number) {
+  downloadConfig.mirrorIndex = index
+  await window.electronAPI?.download?.setMirror(index)
+  const res = await window.electronAPI?.download?.getCurrentMirror()
+  if (res?.data) downloadConfig.currentMirror = res.data
+}
+
+async function onTestMirrors() {
+  downloadConfig.testingMirror = true
+  try {
+    const res = await window.electronAPI?.download?.testMirrorSpeed()
+    if (res?.data) downloadConfig.mirrors = res.data
+  } catch { /* ignore */ }
+  downloadConfig.testingMirror = false
+}
+
+async function onAutoSelectMirror() {
+  downloadConfig.testingMirror = true
+  try {
+    const res = await window.electronAPI?.download?.autoSelectMirror()
+    if (res?.success !== false && res?.data !== undefined) {
+      downloadConfig.mirrorIndex = res.data
+      const cur = await window.electronAPI?.download?.getCurrentMirror()
+      if (cur?.data) downloadConfig.currentMirror = cur.data
+    }
+  } catch { /* ignore */ }
+  downloadConfig.testingMirror = false
+}
+
+async function onConcurrentChange() {
+  await window.electronAPI?.download?.setMaxConcurrent(downloadConfig.maxConcurrent)
+}
+
+async function onThreadsChange() {
+  await window.electronAPI?.download?.setMaxThreads(downloadConfig.maxThreadsPerFile)
+}
+
+async function onSpeedLimitChange() {
+  await window.electronAPI?.download?.setSpeedLimit(downloadConfig.speedLimit * 1024)
+}
+
+async function onRetriesChange() {
+  await window.electronAPI?.download?.setMaxRetries(downloadConfig.maxRetries)
+}
+
+// ====== 数据迁移 (HMCL/PCL2) ======
+interface ExternalInst {
+  name: string; version: string; loaderType: string; loaderVersion: string
+  gameDir: string; modCount: number; source: string
+}
+interface ExternalLauncher {
+  type: string; name: string; path: string; instances: ExternalInst[]; detected: boolean
+}
+const externalLaunchers = ref<ExternalLauncher[]>([])
+const externalLaunchersLoading = ref(false)
+const externalLaunchersDetected = ref<boolean | null>(null)
+
+async function detectExternalLaunchers() {
+  externalLaunchersLoading.value = true
+  externalLaunchersDetected.value = null
+  try {
+    const res = await window.electronAPI?.externalLauncher?.detect()
+    if (res?.success && Array.isArray(res.data)) {
+      externalLaunchers.value = res.data as ExternalLauncher[]
+      externalLaunchersDetected.value = res.data.length > 0
+    }
+  } catch { externalLaunchersDetected.value = false }
+  externalLaunchersLoading.value = false
+}
+
+async function importExternalInstance(gameDir: string) {
+  try {
+    await window.electronAPI?.instance?.importInstance('', gameDir)
+    // Reload instances list
+    window.electronAPI?.notification?.send({
+      title: '导入成功',
+      body: '实例已导入到启动器',
+      type: 'success'
+    })
+  } catch (e: any) {
+    window.electronAPI?.notification?.send({
+      title: '导入失败',
+      body: e?.message || '未知错误',
+      type: 'error'
+    })
+  }
+}
+
 async function checkForUpdateDownload() {
   try {
     await window.electronAPI?.updater?.download()
@@ -3484,6 +3783,9 @@ onMounted(async () => {
 
   await loadHotkeys()
   await listBackups()
+  await loadUpdateConfig()
+  await loadDownloadConfig()
+  await loadThemePresets()
   setupUpdateListener()
 })
 
@@ -3643,6 +3945,90 @@ function applyThemeColor(hex: string) {
   const darker = mixColor(rgb, { r: 0, g: 0, b: 0 }, 0.2)
   root.style.setProperty('--voxver-gradient-primary', hex)
   root.style.setProperty('--voxver-shadow-glow-primary', 'none')
+}
+
+// ====== 主题预设 ======
+const themePresets = ref<Array<{ id: string; name: string; description: string; themeColor: string; accentColor: string }>>([])
+
+async function loadThemePresets() {
+  try {
+    const presets = await window.electronAPI?.theme?.getPresets()
+    if (Array.isArray(presets)) {
+      themePresets.value = presets
+    }
+  } catch { /* ignore */ }
+}
+
+async function exportCurrentTheme() {
+  try {
+    const res = await window.electronAPI?.theme?.exportTheme?.({
+      themeColor: s.themeColor,
+      bgImageMode: 'none',
+      bgImageLocalPath: '',
+      bgOpacity: 100,
+      bgBlur: 0,
+      bgColorOverlay: false,
+      accentColor: s.accentColor || '#8b5cf6'
+    })
+    if (res?.ok && res.json) {
+      // Save to file via dialog
+      const filePath = await window.electronAPI?.dialog?.selectFile?.({
+        title: '保存主题文件',
+        filters: [{ name: 'VoxVer Theme', extensions: ['voxver_theme.json'] }]
+      })
+      if (filePath) {
+        // For now, copy to clipboard
+        await navigator.clipboard.writeText(res.json)
+        window.electronAPI?.notification?.send({
+          title: '主题已导出',
+          body: '主题 JSON 已复制到剪贴板，可粘贴到文件中保存',
+          type: 'success'
+        })
+      }
+    }
+  } catch (e: any) {
+    window.electronAPI?.notification?.send({
+      title: '导出失败',
+      body: e?.message || '未知错误',
+      type: 'error'
+    })
+  }
+}
+
+async function importThemeFile() {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = '.json'
+  input.onchange = async () => {
+    const file = input.files?.[0]
+    if (!file) return
+    try {
+      const content = await file.text()
+      const res = await window.electronAPI?.theme?.importTheme?.(content)
+      if (res?.ok && res.settings) {
+        const s = res.settings as any
+        applyThemeColor(s.themeColor || '#6366f1')
+        window.electronAPI?.notification?.send({
+          title: '主题已导入',
+          body: '主题设置已应用',
+          type: 'success'
+        })
+      } else {
+        window.electronAPI?.notification?.send({
+          title: '导入失败',
+          body: res?.error || '无效的主题文件',
+          type: 'error'
+        })
+      }
+    } catch (e: any) {
+      window.electronAPI?.notification?.send({
+        title: '导入失败',
+        body: e?.message || '未知错误',
+        type: 'error'
+      })
+    }
+  }
+  input.click()
 }
 
 function hexToRgb(hex: string) {
@@ -5820,5 +6206,135 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 
 .progress-bar-wrap.small {
   height: 6px;
+}
+
+/* ===== 数据迁移 ===== */
+.data-migration-results {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.migration-card {
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
+  border: 1px solid var(--voxver-border-color-light);
+  border-radius: var(--voxver-radius-md);
+  overflow: hidden;
+}
+
+.migration-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
+  border-bottom: 1px solid var(--voxver-border-color-light);
+}
+
+.migration-card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--voxver-text-primary);
+}
+
+.migration-card-path {
+  font-size: 11px;
+  color: var(--voxver-text-muted);
+  font-family: monospace;
+}
+
+.migration-card-count {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--voxver-text-secondary);
+}
+
+.migration-instances {
+  padding: 8px 12px;
+}
+
+.migration-instance-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: var(--voxver-radius-sm);
+
+  & + & {
+    border-top: 1px solid color-mix(in oklab, var(--voxver-border-color) 40%, transparent);
+  }
+}
+
+.migration-instance-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.migration-instance-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--voxver-text-primary);
+}
+
+.migration-instance-meta {
+  font-size: 11px;
+  color: var(--voxver-text-muted);
+}
+
+.migration-empty {
+  margin-top: 16px;
+  padding: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--voxver-text-muted);
+  background: color-mix(in oklab, var(--voxver-bg-primary) 40%, transparent);
+  border-radius: var(--voxver-radius-md);
+  border: 1px dashed var(--voxver-border-color);
+}
+
+/* ===== 主题预设画廊 ===== */
+.preset-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.preset-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
+  border: 1px solid var(--voxver-border-color-light);
+  border-radius: var(--voxver-radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: var(--voxver-primary);
+    background: color-mix(in oklab, var(--voxver-primary) 8%, color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent));
+  }
+
+  &.active {
+    border-color: var(--voxver-primary);
+    background: color-mix(in oklab, var(--voxver-primary) 14%, color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent));
+  }
+}
+
+.preset-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1.5px solid color-mix(in oklab, var(--voxver-border-color) 50%, transparent);
+}
+
+.preset-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--voxver-text-primary);
+  white-space: nowrap;
 }
 </style>

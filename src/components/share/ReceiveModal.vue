@@ -175,8 +175,8 @@ function formatSpeed(bytes: number): string {
 }
 
 function formatTime(seconds: number): string {
-  if (seconds < 60) return `${Math.round(seconds)} 秒`
-  return `${Math.round(seconds / 60)} 分钟`
+  if (seconds < 60) return t('common.seconds', { n: Math.round(seconds) })
+  return t('common.minutes', { n: Math.round(seconds / 60) })
 }
 
 function onCodeInput(index: number) {

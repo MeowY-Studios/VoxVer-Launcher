@@ -95,6 +95,19 @@ export function registerModLoaderHandlers(
     }
   })
 
+  // ── 获取指定 MC 版本 + 加载器类型的版本列表 ───────────
+  ipcMain.handle(
+    'modloader:get-versions',
+    async (_event, opts: { minecraftVersion: string; loaderType: string }) => {
+      try {
+        const versions = await service!.getLoaderVersionList(opts.minecraftVersion, opts.loaderType)
+        return { ok: true, data: versions }
+      } catch (err: any) {
+        return { ok: false, error: err.message }
+      }
+    }
+  )
+
   // ── 安装 ModLoader（带进度推送）────────────────────────────
   ipcMain.handle(
     'modloader:install',
