@@ -177,11 +177,11 @@
   min-width: 200px;
   border-right: 1px solid var(--voxver-border-strong);
   flex-shrink: 0;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 2;
+  overflow: hidden;
 
   &::before {
     content: '';
@@ -193,12 +193,6 @@
     z-index: -1;
     pointer-events: none;
   }
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
 
 /* ---------- 首页侧栏 ---------- */
@@ -628,6 +622,12 @@
   padding: 12px 0;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  flex: 1;
+
+  &::-webkit-scrollbar { display: none; }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 
   .nav-divider {
     padding: 8px 16px 6px;
@@ -769,6 +769,71 @@
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   user-select: none;
+}
+
+/* ====== 性能监控浮动面板 ====== */
+.perf-panel {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 9999;
+  width: 200px;
+  background: color-mix(in oklab, var(--voxver-bg-primary) 85%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--voxver-border-color-light);
+  border-radius: var(--voxver-radius-md);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.perf-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--voxver-border-color-light);
+}
+
+.perf-panel-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--voxver-text-primary);
+}
+
+.perf-panel-close {
+  background: none;
+  border: none;
+  color: var(--voxver-text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  &:hover { color: var(--voxver-text-primary); }
+}
+
+.perf-panel-body {
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.perf-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.perf-metric-label {
+  font-size: 11px;
+  color: var(--voxver-text-muted);
+}
+
+.perf-metric-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--voxver-primary);
+  font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
 }
 
 /* 缺失文件下载确认弹窗 */

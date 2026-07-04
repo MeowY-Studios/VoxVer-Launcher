@@ -92,7 +92,7 @@ export default {
     generate: '生成',
     saving: '保存中...',
     copied: '已复制',
-    retry: '重试'
+    retry: '重试',
   },
   home: {
     welcomeTip: '在左侧选择版本后点击「启动游戏」按钮',
@@ -749,6 +749,29 @@ export default {
     about: '关于',
     debug: '调试',
     diagnostics: '诊断',
+    optional: '可选',
+    generate: '生成',
+    saving: '保存中...',
+    copied: '已复制',
+    retry: '重试',
+    themePresets: '主题预设',
+
+    // 更新通道
+    updateChannel: {
+      title: '更新通道',
+      stable: '稳定版',
+      beta: '测试版',
+      desc: '选择启动器更新来源通道'
+    },
+    autoCheckUpdate: '启动时自动检查更新',
+    autoCheckUpdateDesc: '启动启动器 5 秒后自动检查是否有新版本',
+    disableAutoCheck: '关闭自动检查',
+    enableAutoCheck: '开启自动检查',
+    autoCheckEnable: '开启',
+    autoCheckDisable: '关闭',
+    currentChannel: '当前',
+    autoCheckOn: '已开启',
+    autoCheckOff: '已关闭',
     group: {
       general: '通用',
       game: '游戏',
@@ -760,6 +783,7 @@ export default {
       home: '主页',
       account: '账户',
       about: '关于',
+      launcher: '启动器',
       copyright: '版权',
       gameProfile: '游戏账户与档案',
       javaMemory: 'Java虚拟机与内存',
@@ -1099,9 +1123,13 @@ export default {
       quickBrowse: '快速浏览',
       commonSettings: '常用设置',
       accountTitle: 'VoxVer 账户',
+      accountTitleDesc: '管理登录与账户信息',
       quickAdvanced: '高级设置',
+      quickAdvancedDesc: 'JVM 参数、游戏目录等',
       quickPersonalize: '主题与个性化',
+      quickPersonalizeDesc: '背景、主题预设等',
       quickDownload: '下载与网络',
+      quickDownloadDesc: '下载源、并发、代理等',
       quickJavaMemory: 'Java 虚拟机与内存',
       quickJavaMemoryDesc: '配置 Java 路径、分配内存大小',
       quickLanguage: '语言切换',
@@ -1110,6 +1138,8 @@ export default {
       quickThemeDesc: '切换主题配色、设置背景图片',
       quickAbout: '关于与更新',
       quickAboutDesc: '查看版本信息、检查更新',
+      quickLauncher: '启动器设置',
+      quickLauncherDesc: '更新通道与自动检查',
       comingSoonDesc: '管理你的 VoxVer 启动器账户与登录信息'
     },
     aboutSection: {
@@ -1475,7 +1505,13 @@ export default {
     cleanupOldVersions: '清理旧版本',
     cleanupDownloads: '清理下载文件',
     cleanupOnInstall: '安装后清理',
-    cleanupOnStartup: '启动时清理'
+    cleanupOnStartup: '启动时清理',
+    downloaded: '更新已下载，重启生效',
+    checkFailed: '检查更新失败',
+    viewDetail: '查看详情',
+    showDetail: '查看详情',
+    newVersion: '新版本可用',
+    versionLabel: '版本'
   },
   component: {
     // VersionSelect

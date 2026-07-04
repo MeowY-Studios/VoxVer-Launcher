@@ -7,7 +7,7 @@
 import Database from 'better-sqlite3'
 import { app } from 'electron'
 import { join } from 'path'
-import { existsSync, mkdirSync } from 'fs'
+import { existsSync, mkdirSync, renameSync } from 'fs'
 import { logger } from '../utils/logger'
 const log = logger.child('DB')
 
@@ -21,9 +21,23 @@ function getDbPath(): string {
   if (!existsSync(dbDir)) {
     mkdirSync(dbDir, { recursive: true })
   }
-  const fullPath = join(dbDir, 'mcla.db')
-  log.info('[DB] 数据库完整路径:', fullPath)
-  return fullPath
+
+  const newPath = join(dbDir, 'voxver.db')
+  const oldPath = join(dbDir, 'mcla.db')
+
+  // 迁移：旧版 mcla.db → voxver.db
+  if (existsSync(oldPath) && !existsSync(newPath)) {
+    try {
+      renameSync(oldPath, newPath)
+      log.info('[DB] 已迁移 mcla.db → voxver.db')
+    } catch (e: any) {
+      log.error('[DB] 迁移失败 mcla.db → voxver.db:', e.message)
+      return oldPath
+    }
+  }
+
+  log.info('[DB] 数据库路径:', newPath)
+  return newPath
 }
 
 // 初始化数据库连接

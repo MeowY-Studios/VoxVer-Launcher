@@ -128,6 +128,13 @@ interface ElectronAPI {
     }>
     clearCache: () => Promise<string[]>
     resetSettings: () => Promise<boolean>
+    checkPermissions: () => Promise<{
+      inProtectedDir: boolean
+      canWriteToUserData: boolean
+      exePath: string
+      userDataPath: string
+      isAdmin: boolean
+    }>
   }
   config: {
     get: (key: string) => Promise<unknown>
@@ -218,7 +225,7 @@ interface ElectronAPI {
     onProgress: (callback: (data: unknown) => void) => () => void
   }
   game: {
-    launch: (instanceId: string, accountId: string, versionId?: string) => Promise<IpcResult & { success?: boolean; needsFileDownload?: boolean; missingFiles?: Array<{ type: string; name: string; path: string; size?: number }> }>
+    launch: (instanceId: string, accountId: string, versionId?: string) => Promise<IpcResult & { success?: boolean; pid?: number; needsFileDownload?: boolean; missingFiles?: Array<{ type: string; name: string; path: string; size?: number }> }>
     getLog: (instanceId: string) => Promise<string>
     terminate: () => Promise<void>
     isRunning: () => Promise<boolean>
@@ -226,7 +233,7 @@ interface ElectronAPI {
     onLog: (callback: (log: { text: string; level: string }) => void) => () => void
     onExit: (callback: (code: { code: number; signal: string | null; instanceId?: string }) => void) => () => void
     checkMissingFiles: (versionId: string) => Promise<unknown[]>
-    confirmDownloadAndLaunch: (versionId: string, accountId?: string) => Promise<IpcResult & { success?: boolean }>
+    confirmDownloadAndLaunch: (versionId: string, accountId?: string) => Promise<IpcResult & { success?: boolean; pid?: number }>
   }
   dialog: {
     selectFolder: (options?: { title?: string }) => Promise<string | null>
@@ -337,6 +344,23 @@ interface ElectronAPI {
   externalLauncher: {
     detect: () => Promise<{ success: boolean; data: Array<{ type: string; name: string; path: string; instances: Array<{ name: string; version: string; loaderType: string; loaderVersion: string; gameDir: string; modCount: number; source: string }>; detected: boolean }> }>
     scanDir: (gameDir: string) => Promise<{ success: boolean; data: { name: string; version: string; loaderType: string; loaderVersion: string; gameDir: string; modCount: number; source: string } | null }>
+  }
+  screenshot: {
+    list: (gameDir: string) => Promise<{ ok: boolean; data: Array<{ fileName: string; filePath: string; size: number; createdAt: number; thumbnail: string | null }> }>
+    listAll: (gameDir: string) => Promise<{ ok: boolean; data: Array<{ fileName: string; filePath: string; size: number; createdAt: number }> }>
+    preview: (filePath: string) => Promise<{ ok: boolean; dataUrl: string | null }>
+    thumbnail: (filePath: string) => Promise<{ ok: boolean; dataUrl: string | null }>
+    delete: (filePath: string) => Promise<{ ok: boolean }>
+    rename: (filePath: string, newName: string) => Promise<{ ok: boolean; newPath: string | null }>
+    export: (filePath: string) => Promise<{ ok: boolean }>
+    copy: (filePath: string) => Promise<{ ok: boolean }>
+    open: (filePath: string) => Promise<void>
+  }
+  perfMonitor: {
+    start: (pid: number) => Promise<{ ok: boolean }>
+    stop: () => Promise<{ ok: boolean }>
+    status: () => Promise<{ active: boolean; pid: number | null }>
+    onSnapshot: (callback: (snap: { pid: number; alive: boolean; cpu: number; memoryMB: number; uptimeMs: number; timestamp: number }) => void) => () => void
   }
   share: {
     startInstance: (instanceId: string) => Promise<ShareStartResult>

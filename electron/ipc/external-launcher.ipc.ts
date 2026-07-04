@@ -9,7 +9,7 @@ const log = logger.child('ExternalLauncherIPC')
 export function registerExternalLauncherHandlers(): void {
   ipcMain.handle(
     'external-launcher:detect',
-    async (): Promise<{ success: boolean; data: unknown[] }> => {
+    async (): Promise<{ success: boolean; data: unknown[]; error?: string }> => {
       try {
         const launchers = detectExternalLaunchers()
         return { success: true, data: launchers }
@@ -22,7 +22,7 @@ export function registerExternalLauncherHandlers(): void {
 
   ipcMain.handle(
     'external-launcher:scan-dir',
-    async (_event, gameDir: string): Promise<{ success: boolean; data: unknown }> => {
+    async (_event, gameDir: string): Promise<{ success: boolean; data?: unknown; error?: string }> => {
       try {
         const info = scanGameDir(gameDir)
         return { success: !!info, data: info }

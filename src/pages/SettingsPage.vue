@@ -42,7 +42,10 @@
                 <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
               </svg>
             </div>
-            <span class="quick-grid-label">{{ $t('settings.home.accountTitle') }}</span>
+            <span class="quick-grid-label">
+              {{ $t('settings.home.accountTitle') }}
+              <small class="quick-grid-desc">{{ $t('settings.home.accountTitleDesc') }}</small>
+            </span>
             <span class="quick-grid-arrow">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
             </span>
@@ -53,7 +56,10 @@
                 <polygon points="5 3 19 12 5 21 5 3" />
               </svg>
             </div>
-            <span class="quick-grid-label">{{ $t('settings.home.quickAdvanced') }}</span>
+            <span class="quick-grid-label">
+              {{ $t('settings.home.quickAdvanced') }}
+              <small class="quick-grid-desc">{{ $t('settings.home.quickAdvancedDesc') }}</small>
+            </span>
             <span class="quick-grid-arrow">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
             </span>
@@ -72,7 +78,10 @@
                 <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
               </svg>
             </div>
-            <span class="quick-grid-label">{{ $t('settings.home.quickPersonalize') }}</span>
+            <span class="quick-grid-label">
+              {{ $t('settings.home.quickPersonalize') }}
+              <small class="quick-grid-desc">{{ $t('settings.home.quickPersonalizeDesc') }}</small>
+            </span>
             <span class="quick-grid-arrow">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
             </span>
@@ -85,7 +94,28 @@
                 <line x1="12" y1="15" x2="12" y2="3" />
               </svg>
             </div>
-            <span class="quick-grid-label">{{ $t('settings.home.quickDownload') }}</span>
+            <span class="quick-grid-label">
+              {{ $t('settings.home.quickDownload') }}
+              <small class="quick-grid-desc">{{ $t('settings.home.quickDownloadDesc') }}</small>
+            </span>
+            <span class="quick-grid-arrow">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
+            </span>
+          </button>
+          <button class="quick-grid-item" @click="switchCategory('launcher')">
+            <div class="quick-grid-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <polyline points="16 3 21 3 21 8" />
+                <line x1="4" y1="20" x2="21" y2="3" />
+                <polyline points="21 16 21 21 16 21" />
+                <line x1="15" y1="15" x2="21" y2="21" />
+                <line x1="4" y1="4" x2="9" y2="9" />
+              </svg>
+            </div>
+            <span class="quick-grid-label">
+              {{ $t('settings.home.quickLauncher') || '启动器设置' }}
+              <small class="quick-grid-desc">{{ $t('settings.home.quickLauncherDesc') || '更新通道与自动检查' }}</small>
+            </span>
             <span class="quick-grid-arrow">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
             </span>
@@ -217,6 +247,23 @@
             <img src="/Alogo.png" alt="VoxVer" />
           </div>
           <p class="about-ver">{{ $t('more.currentVersion') }}{{ appVersion }}</p>
+          <!-- 权限警告 -->
+          <div v-if="permWarning" class="perm-warning">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <span>{{ $t('settings.permWarning') || '启动器位于系统保护目录，下载和更新可能因权限不足而失败。建议移动到用户目录（如桌面）。' }}</span>
+          </div>
+          <!-- 已管理员运行 -->
+          <div v-if="permInfo?.isAdmin" class="perm-info-ok">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+            <span>{{ $t('settings.permAdminOk') || '已以管理员身份运行，权限正常' }}</span>
+          </div>
           <div class="about-update-row">
             <div class="about-update-actions">
               <button class="action-btn small outline" @click="checkForUpdate">
@@ -227,59 +274,104 @@
                 </svg>
                 {{ $t('more.checkUpdate') }}
               </button>
-              <a class="action-btn small ghost" href="https://github.com/nnkmn/voxver-launcher/releases" target="_blank">
+              <a class="action-btn small ghost" href="https://github.com/nnkmn/voxver-launcher" target="_blank">
                 {{ $t('more.viewSource') }}
               </a>
             </div>
+            <!-- 更新状态提示 -->
+            <div v-if="updateStatus.checking" class="update-status-text">{{ $t('update.checking') || '正在检查更新...' }}</div>
+            <div v-else-if="updateStatus.available && !updateStatus.downloading && !updateStatus.downloaded" class="update-status-text update-available">
+              {{ $t('update.available') || '有新版本' }} v{{ updateStatus.version }}
+              <button class="btn vox-btn vox-btn--primary btn-sm" style="margin-left:8px" @click="showUpdateAvailableModal = true">
+                {{ $t('update.showDetail') || '查看详情' }}
+              </button>
+            </div>
+            <div v-else-if="updateStatus.downloading" class="update-status-text">
+              {{ $t('update.downloading') || '正在下载' }} {{ Math.round(updateStatus.downloadProgress) }}%
+            </div>
+            <div v-else-if="updateStatus.downloaded" class="update-status-text update-available">
+              {{ $t('update.downloaded') || '更新已下载，重启生效' }}
+              <button class="btn vox-btn vox-btn--primary btn-sm" style="margin-left:8px" @click="installUpdate">
+                {{ $t('update.install') || '立即重启' }}
+              </button>
+            </div>
+            <div v-else-if="updateStatus.error" class="update-status-text update-error">
+              <span>{{ $t('update.checkFailed') || '检查更新失败' }}</span>
+              <button class="btn vox-btn vox-btn--secondary btn-sm" style="margin-left:8px" @click="showUpdateErrModal = true">
+                {{ $t('update.viewDetail') || '查看详情' }}
+              </button>
+            </div>
+            <div v-else-if="updateStatus.checked && !updateStatus.available" class="update-status-text">{{ $t('update.upToDate') || '已是最新版本' }}</div>
           </div>
         </div>
       </section>
 
-      <!-- 更新渠道 -->
-      <section class="sec">
-        <h3 class="sec-title">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="16 3 21 3 21 8" />
-            <line x1="4" y1="20" x2="21" y2="3" />
-            <polyline points="21 16 21 21 16 21" />
-            <line x1="15" y1="15" x2="21" y2="21" />
-            <line x1="4" y1="4" x2="9" y2="9" />
-          </svg>
-          {{ $t('settings.updateChannel.title') || '更新渠道' }}
-        </h3>
-        <div class="segmented-group">
-          <button
-            class="vox-chip"
-            :class="{ 'vox-chip--active': updateChannel === 'stable' }"
-            @click="onUpdateChannelChange('stable')"
-          >
-            {{ $t('settings.updateChannel.stable') || '稳定版' }}
-          </button>
-          <button
-            class="vox-chip"
-            :class="{ 'vox-chip--active': updateChannel === 'beta' }"
-            @click="onUpdateChannelChange('beta')"
-          >
-            {{ $t('settings.updateChannel.beta') || '测试版' }}
-          </button>
-        </div>
-      </section>
-
-      <!-- 自动检查更新 -->
-      <section class="sec">
-        <h3 class="sec-title">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-          </svg>
-          {{ $t('settings.autoCheckUpdate') || '启动时自动检查更新' }}
-        </h3>
-        <div class="toggle-row" @click="autoCheckUpdate = !autoCheckUpdate; onAutoCheckChange()">
-          <span class="toggle-label">{{ $t('settings.autoCheckUpdateDesc') || '启动启动器 5 秒后自动检查是否有新版本' }}</span>
-          <div class="vox-toggle" :class="{ 'vox-toggle--on': autoCheckUpdate }">
-            <div class="vox-toggle-knob" />
+      <!-- 更新错误弹窗 -->
+      <div v-if="showUpdateErrModal" class="modal-overlay" @click.self="showUpdateErrModal = false">
+        <div class="modal-box update-error-modal">
+          <div class="modal-header">
+            <h4>{{ $t('update.checkFailed') || '检查更新失败' }}</h4>
+            <button class="modal-close" @click="showUpdateErrModal = false">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p class="update-err-msg">{{ updateStatus.error }}</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn vox-btn vox-btn--secondary" @click="showUpdateErrModal = false">{{ $t('common.close') || '关闭' }}</button>
           </div>
         </div>
-      </section>
+      </div>
+
+      <!-- 更新可用弹窗 -->
+      <div v-if="showUpdateAvailableModal" class="modal-overlay" @click.self="showUpdateAvailableModal = false">
+        <div class="modal-box update-available-modal">
+          <div class="modal-header">
+            <h4>{{ $t('update.newVersion') || '新版本可用' }}</h4>
+            <button class="modal-close" @click="showUpdateAvailableModal = false">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="update-version-row">
+              <span class="update-version-label">{{ $t('update.versionLabel') || '版本' }}</span>
+              <span class="update-version-num">v{{ updateStatus.version }}</span>
+            </div>
+            <div v-if="updateStatus.releaseNotes" class="update-release-notes">
+              <div class="update-notes-md" v-html="renderMd(updateStatus.releaseNotes)"></div>
+            </div>
+            <!-- 下载进度 -->
+            <div v-if="updateStatus.downloading" class="update-progress-section">
+              <div class="update-progress-bar">
+                <div class="update-progress-fill" :style="{ width: Math.round(updateStatus.downloadProgress) + '%' }"></div>
+              </div>
+              <span class="update-progress-text">{{ Math.round(updateStatus.downloadProgress) }}%</span>
+            </div>
+            <div v-if="updateStatus.downloaded" class="update-downloaded-msg">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+              </svg>
+              <span>{{ $t('update.downloaded') || '更新已下载，重启生效' }}</span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button v-if="!updateStatus.downloading && !updateStatus.downloaded"
+              class="btn vox-btn vox-btn--secondary" @click="showUpdateAvailableModal = false">
+              {{ $t('common.cancel') || '取消' }}
+            </button>
+            <button v-if="!updateStatus.downloading && !updateStatus.downloaded"
+              class="btn vox-btn vox-btn--primary" @click="startDownloadFromModal">
+              {{ $t('update.download') || '下载更新' }}
+            </button>
+            <button v-if="updateStatus.downloaded"
+              class="btn vox-btn vox-btn--primary" @click="installUpdate">
+              {{ $t('update.install') || '立即重启' }}
+            </button>
+            <button v-if="updateStatus.downloading"
+              class="btn vox-btn vox-btn--secondary" disabled>
+              {{ $t('update.downloading') || '正在下载...' }}
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- 项目信息 -->
       <section class="sec">
@@ -402,6 +494,61 @@
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17l10-10M7 7h10v10" /></svg>
             </span>
           </a>
+        </div>
+      </section>
+    </template>
+
+    <!-- ========== 启动器设置 ========== -->
+    <template v-if="activeCategory === 'launcher'">
+      <section class="sec">
+        <h3 class="sec-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 3 21 3 21 8" />
+            <line x1="4" y1="20" x2="21" y2="3" />
+            <polyline points="21 16 21 21 16 21" />
+            <line x1="15" y1="15" x2="21" y2="21" />
+            <line x1="4" y1="4" x2="9" y2="9" />
+          </svg>
+          {{ $t('settings.updateChannel.title') || '更新渠道' }}
+        </h3>
+        <p class="sec-desc">{{ $t('settings.updateChannel.desc') || '选择启动器更新来源通道' }}</p>
+        <div class="setting-row">
+          <div class="segmented-group">
+            <button class="vox-chip vox-chip--stable" :class="{ 'vox-chip--active': updateChannel === 'stable' }" @click="onUpdateChannelChange('stable')">
+              {{ $t('settings.updateChannel.stable') || '稳定版' }}
+            </button>
+            <button class="vox-chip vox-chip--beta" :class="{ 'vox-chip--active': updateChannel === 'beta' }" @click="onUpdateChannelChange('beta')">
+              {{ $t('settings.updateChannel.beta') || '测试版' }}
+            </button>
+          </div>
+          <span class="setting-status">
+            <span class="status-dot" :class="updateChannel === 'stable' ? 'status-dot--stable' : 'status-dot--beta'" />
+            {{ $t('settings.currentChannel') || '当前' }}：{{ updateChannel === 'stable' ? ($t('settings.updateChannel.stable') || '稳定版') : ($t('settings.updateChannel.beta') || '测试版') }}
+          </span>
+        </div>
+      </section>
+
+      <section class="sec">
+        <h3 class="sec-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
+          {{ $t('settings.autoCheckUpdate') || '启动时自动检查更新' }}
+        </h3>
+        <p class="sec-desc">{{ $t('settings.autoCheckUpdateDesc') || '启动启动器 5 秒后自动检查是否有新版本' }}</p>
+        <div class="setting-row">
+          <div class="segmented-group">
+            <button class="vox-chip vox-chip--on" :class="{ 'vox-chip--active': autoCheckUpdate }" @click="autoCheckUpdate = true; onAutoCheckChange()">
+              {{ $t('settings.autoCheckEnable') || '开启' }}
+            </button>
+            <button class="vox-chip vox-chip--off" :class="{ 'vox-chip--active': !autoCheckUpdate }" @click="autoCheckUpdate = false; onAutoCheckChange()">
+              {{ $t('settings.autoCheckDisable') || '关闭' }}
+            </button>
+          </div>
+          <span class="setting-status">
+            <span class="status-dot" :class="autoCheckUpdate ? 'status-dot--on' : 'status-dot--off'" />
+            {{ autoCheckUpdate ? ($t('settings.autoCheckOn') || '已开启') : ($t('settings.autoCheckOff') || '已关闭') }}
+          </span>
         </div>
       </section>
     </template>
@@ -1080,22 +1227,6 @@
           </div>
         </div>
 
-        <!-- 主题色 -->
-        <div style="margin-top: 14px">
-          <label class="row-label" style="margin-bottom:6px;display:block">{{ $t('settings.themeColor') }}</label>
-          <div class="color-options">
-            <button
-              v-for="c in colorPresets"
-              :key="c.name"
-              class="color-swatch"
-              :class="{ active: s.themeColor === c.value }"
-              :style="{ background: c.value }"
-              @click="applyThemeColor(c.value)"
-              :title="c.name"
-            ></button>
-          </div>
-        </div>
-
         <!-- 主题预设画廊 -->
         <div v-if="themePresets.length > 0" style="margin-top:14px">
           <label class="row-label" style="margin-bottom:6px;display:block">{{ $t('settings.themePresets') || '主题预设' }}</label>
@@ -1718,6 +1849,77 @@
 
         <div v-if="externalLaunchersDetected === false && !externalLaunchersLoading" class="migration-empty">
           {{ $t('settings.dataMigration.notFound') || '未检测到外部启动器' }}
+        </div>
+      </section>
+    </template>
+
+    <!-- ========== 游戏截图 ========== -->
+    <template v-if="activeCategory === 'screenshots'">
+      <section class="sec">
+        <h3 class="sec-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+          </svg>
+          {{ $t('settings.screenshots.title') || '游戏截图' }}
+        </h3>
+        <p class="sec-desc">{{ $t('settings.screenshots.desc') || '浏览和管理 Minecraft 游戏截图' }}</p>
+
+        <!-- 实例选择 -->
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">{{ $t('settings.screenshots.selectInstance') || '选择实例' }}</label>
+          </div>
+          <div class="row-control">
+            <select class="sel" v-model="screenshotInstanceId" @change="loadScreenshots">
+              <option value="">{{ $t('common.pleaseSelect') }}</option>
+              <option v-for="inst in allInstances" :key="inst.id" :value="inst.id">{{ inst.name }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 截图网格 -->
+        <div v-if="screenshots.length > 0" class="screenshot-grid">
+          <div v-for="s in screenshots" :key="s.filePath" class="screenshot-card" @click="previewScreenshot(s)">
+            <img v-if="s.thumbnail" :src="s.thumbnail" class="screenshot-thumb" alt="" />
+            <div v-else class="screenshot-thumb-placeholder">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+            </div>
+            <div class="screenshot-info">
+              <span class="screenshot-name">{{ s.fileName }}</span>
+              <span class="screenshot-date">{{ formatScreenshotDate(s.createdAt) }}</span>
+            </div>
+            <div class="screenshot-actions">
+              <button class="btn vox-btn vox-btn--secondary btn-sm" @click.stop="copyScreenshot(s.filePath)" title="复制到剪贴板">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                </svg>
+              </button>
+              <button class="btn vox-btn vox-btn--secondary btn-sm" @click.stop="exportScreenshot(s.filePath)" title="导出">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+              </button>
+              <button class="btn vox-btn vox-btn--secondary btn-sm" @click.stop="deleteScreenshotAction(s)" title="删除">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div v-else-if="screenshotInstanceId && !screenshotsLoading" class="migration-empty">
+          {{ $t('settings.screenshots.empty') || '暂无截图，启动游戏后按 F2 截图' }}
         </div>
       </section>
     </template>
@@ -2595,10 +2797,13 @@ import { useRouter } from 'vue-router'
 import { setLocale } from '../locale/i18n'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '../stores/app.store'
+import { useInstancesStore } from '../stores/instances.store'
 import AccountPage from './AccountPage.vue'
 
 const router = useRouter()
 const appStore = useAppStore()
+const instancesStore = useInstancesStore()
+const allInstances = computed(() => instancesStore.instances)
 const { tm, t } = useI18n()
 const faqItems = computed(() => (tm('more.faq') as Array<{ q: string; a: string }>))
 
@@ -2893,6 +3098,7 @@ const backupFiles = ref<any[]>([])
 // 更新检查状态
 const updateStatus = ref({
   checking: false,
+  checked: false,
   available: false,
   downloading: false,
   downloadProgress: 0,
@@ -2904,6 +3110,12 @@ const updateStatus = ref({
 
 const updateChannel = ref('stable')
 const autoCheckUpdate = ref(true)
+const showUpdateErrModal = ref(false)
+const showUpdateAvailableModal = ref(false)
+
+// 权限检测
+const permInfo = ref<{ inProtectedDir: boolean; canWriteToUserData: boolean; exePath: string; userDataPath: string; isAdmin: boolean } | null>(null)
+const permWarning = computed(() => permInfo.value?.inProtectedDir && !permInfo.value?.isAdmin && !permInfo.value?.canWriteToUserData)
 
 // 下载配置
 const downloadConfig = reactive({
@@ -3710,8 +3922,14 @@ async function detectExternalLaunchers() {
     if (res?.success && Array.isArray(res.data)) {
       externalLaunchers.value = res.data as ExternalLauncher[]
       externalLaunchersDetected.value = res.data.length > 0
+    } else {
+      externalLaunchersDetected.value = false
     }
   } catch { externalLaunchersDetected.value = false }
+  // web 模式下 electronAPI 不可用，显示空状态
+  if (externalLaunchersDetected.value === null) {
+    externalLaunchersDetected.value = false
+  }
   externalLaunchersLoading.value = false
 }
 
@@ -3757,10 +3975,19 @@ async function installUpdate() {
   }
 }
 
+async function checkAppPermissions() {
+  try {
+    const info = await window.electronAPI?.app?.checkPermissions()
+    if (info) permInfo.value = info
+  } catch { /* ignore */ }
+}
+
 function setupUpdateListener() {
   const unsub = window.electronAPI?.updater?.onStatusChange((status: any) => {
+    const isActive = status.checking || status.available || status.downloading || status.downloaded || status.error
     updateStatus.value = {
       checking: status.checking,
+      checked: isActive || !status.checking,
       available: status.available,
       downloading: status.downloading,
       downloadProgress: status.downloadProgress,
@@ -3769,9 +3996,60 @@ function setupUpdateListener() {
       version: status.version,
       releaseNotes: status.releaseNotes
     }
+    // 新版本可用时自动弹出弹窗
+    if (status.available && !status.downloading && !status.downloaded) {
+      showUpdateAvailableModal.value = true
+    }
   })
   return unsub
 }
+
+async function startDownloadFromModal() {
+  updateStatus.value = { ...updateStatus.value, downloading: true, downloadProgress: 0, error: null }
+  await downloadUpdate()
+}
+
+/** 简单 Markdown → HTML 转换 */
+function renderMd(md: string): string {
+  if (!md) return ''
+  let html = md
+    // 转义 HTML
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    // 代码块 (``` ... ```)
+    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+    // 行内代码
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // 粗体 + 斜体
+    .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // 图片
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2" />')
+    // 链接
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+    // 标题 (# ## ###)
+    .replace(/^### (.+)$/gm, '<h5>$1</h5>')
+    .replace(/^## (.+)$/gm, '<h4>$1</h4>')
+    .replace(/^# (.+)$/gm, '<h3>$1</h3>')
+    // 无序列表
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    // 换行
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br/>')
+  // 包裹列表项
+  html = html.replace(/(<li>.*?<\/li>(\s*<br\/?>)?)+/g, '<ul>$&</ul>')
+  // 修复 ul 中多余的 <br/>
+  html = html.replace(/<ul>([\s\S]*?)<\/ul>/g, (_, inner) => '<ul>' + inner.replace(/<br\/?>/g, '') + '</ul>')
+  // 包裹段落
+  if (!html.startsWith('<')) html = '<p>' + html
+  if (!html.endsWith('>')) html = html + '</p>'
+  return html
+}
+
+async function downloadUpdate() {
+  await window.electronAPI?.updater?.download()
+}
+ 
 
 // P2 初始化
 onMounted(async () => {
@@ -3786,7 +4064,9 @@ onMounted(async () => {
   await loadUpdateConfig()
   await loadDownloadConfig()
   await loadThemePresets()
+  await instancesStore.fetchInstances()
   setupUpdateListener()
+  checkAppPermissions()
 })
 
 // ====== 应用版本 ======
@@ -3995,7 +4275,7 @@ async function exportCurrentTheme() {
   }
 }
 
-async function importThemeFile() {
+function importThemeFile() {
   const input = document.createElement('input')
   input.type = 'file'
   input.accept = '.json'
@@ -4029,6 +4309,61 @@ async function importThemeFile() {
     }
   }
   input.click()
+}
+
+// ====== 游戏截图 ======
+const screenshotInstanceId = ref('')
+const screenshots = ref<Array<{ fileName: string; filePath: string; size: number; createdAt: number; thumbnail: string | null }>>([])
+const screenshotsLoading = ref(false)
+
+async function loadScreenshots() {
+  if (!screenshotInstanceId.value) {
+    screenshots.value = []
+    return
+  }
+  screenshotsLoading.value = true
+  try {
+    const inst = allInstances.value.find((i: { id: string }) => i.id === screenshotInstanceId.value)
+    if (!inst) return
+    const res = await window.electronAPI?.screenshot?.list(inst.path || '')
+    if (res?.ok && Array.isArray(res.data)) {
+      screenshots.value = res.data
+    }
+  } catch { screenshots.value = [] }
+  screenshotsLoading.value = false
+}
+
+function formatScreenshotDate(ts: number): string {
+  return new Date(ts).toLocaleString()
+}
+
+async function previewScreenshot(s: { filePath: string }) {
+  try {
+    const res = await window.electronAPI?.screenshot?.open(s.filePath)
+  } catch { /* ignore */ }
+}
+
+async function copyScreenshot(filePath: string) {
+  try {
+    const res = await window.electronAPI?.screenshot?.copy(filePath)
+    if (res?.ok) {
+      window.electronAPI?.notification?.send({ title: '已复制', body: '截图已复制到剪贴板', type: 'success' })
+    }
+  } catch { /* ignore */ }
+}
+
+async function exportScreenshot(filePath: string) {
+  try {
+    await window.electronAPI?.screenshot?.export(filePath)
+  } catch { /* ignore */ }
+}
+
+async function deleteScreenshotAction(s: { filePath: string; fileName: string }) {
+  if (!confirm(`确定要删除 ${s.fileName}？`)) return
+  try {
+    await window.electronAPI?.screenshot?.delete(s.filePath)
+    screenshots.value = screenshots.value.filter((x) => x.filePath !== s.filePath)
+  } catch { /* ignore */ }
 }
 
 function hexToRgb(hex: string) {
@@ -5096,6 +5431,42 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
     color: var(--voxver-text-muted);
   }
 
+  .perm-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    background: color-mix(in oklab, #f59e0b 12%, transparent);
+    border: 1px solid color-mix(in oklab, #f59e0b 30%, transparent);
+    border-radius: var(--voxver-radius-sm);
+    font-size: 12px;
+    color: #f59e0b;
+    line-height: 1.5;
+    text-align: left;
+
+    svg {
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+  }
+
+  .perm-info-ok {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+    background: color-mix(in oklab, #10b981 10%, transparent);
+    border: 1px solid color-mix(in oklab, #10b981 25%, transparent);
+    border-radius: var(--voxver-radius-sm);
+    font-size: 12px;
+    color: #10b981;
+
+    svg {
+      flex-shrink: 0;
+    }
+  }
   .about-update-row {
     display: flex;
     align-items: center;
@@ -5116,6 +5487,245 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
       border-radius: var(--voxver-radius-sm);
     }
   }
+}
+
+.update-status-text {
+  font-size: 12px;
+  color: var(--voxver-text-secondary);
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.update-available {
+  color: var(--voxver-primary);
+  font-weight: 500;
+}
+
+.update-error {
+  color: #ef4444;
+}
+
+/* 更新错误弹窗 */
+.update-error-modal {
+  max-width: 500px;
+  word-break: break-all;
+}
+
+.update-err-msg {
+  font-size: 12px;
+  color: var(--voxver-text-secondary);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 50%, transparent);
+  padding: 12px;
+  border-radius: var(--voxver-radius-sm);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 0;
+  font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+}
+
+/* 更新可用弹窗样式 */
+.update-available-modal {
+  max-width: 420px;
+}
+
+.update-version-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.update-version-label {
+  font-size: 13px;
+  color: var(--voxver-text-muted);
+}
+
+.update-version-num {
+  font-size: 18px;
+  font-weight: 600;
+  color: #22c55e;
+}
+
+.update-release-notes {
+  margin-bottom: 16px;
+}
+
+.update-notes-pre {
+  font-size: 12px;
+  color: var(--voxver-text-secondary);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 50%, transparent);
+  padding: 12px;
+  border-radius: var(--voxver-radius-sm);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 260px;
+  overflow-y: auto;
+  margin: 0;
+  font-family: inherit;
+}
+
+.update-notes-md {
+  font-size: 13px;
+  color: var(--voxver-text-primary);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 50%, transparent);
+  padding: 14px 16px;
+  border-radius: var(--voxver-radius-sm);
+  line-height: 1.7;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.update-notes-md h3,
+.update-notes-md h4,
+.update-notes-md h5 {
+  margin: 0 0 8px 0;
+  color: var(--voxver-text-primary);
+  font-weight: 600;
+}
+
+.update-notes-md h3 { font-size: 15px; }
+.update-notes-md h4 { font-size: 14px; }
+.update-notes-md h5 { font-size: 13px; }
+
+.update-notes-md p {
+  margin: 0 0 8px 0;
+}
+
+.update-notes-md ul {
+  margin: 0 0 8px 0;
+  padding-left: 18px;
+}
+
+.update-notes-md li {
+  margin-bottom: 2px;
+}
+
+.update-notes-md code {
+  background: var(--voxver-bg-tertiary);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+}
+
+.update-notes-md pre {
+  background: var(--voxver-bg-tertiary);
+  padding: 10px 12px;
+  border-radius: var(--voxver-radius-sm);
+  overflow-x: auto;
+  margin: 0 0 8px 0;
+}
+
+.update-notes-md pre code {
+  background: none;
+  padding: 0;
+  font-size: 12px;
+}
+
+.update-notes-md a {
+  color: var(--voxver-accent-color, #14b8a6);
+}
+
+.update-notes-md strong {
+  font-weight: 600;
+}
+
+.update-notes-md img {
+  max-width: 100%;
+  border-radius: var(--voxver-radius-sm);
+}
+
+.update-progress-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.update-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--voxver-bg-tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.update-progress-fill {
+  height: 100%;
+  background: var(--voxver-accent-color, #14b8a6);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.update-progress-text {
+  font-size: 13px;
+  color: var(--voxver-text-secondary);
+  min-width: 40px;
+  text-align: right;
+}
+
+.update-downloaded-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #22c55e;
+  font-size: 14px;
+  margin: 8px 0;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.modal-box {
+  background: var(--voxver-bg-primary);
+  border: 1px solid var(--voxver-border-color-light);
+  border-radius: var(--voxver-radius-md);
+  min-width: 360px;
+  max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--voxver-border-color-light);
+
+  h4 { margin: 0; font-size: 14px; color: var(--voxver-text-primary); }
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--voxver-text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  &:hover { color: var(--voxver-text-primary); }
+}
+
+.modal-body { padding: 16px 18px; }
+
+.modal-footer {
+  padding: 12px 18px;
+  border-top: 1px solid var(--voxver-border-color-light);
+  display: flex;
+  justify-content: flex-end;
 }
 
 .about-redirect-desc {
@@ -6208,6 +6818,70 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   height: 6px;
 }
 
+/* ===== 游戏截图 ===== */
+.screenshot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.screenshot-card {
+  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
+  border: 1px solid var(--voxver-border-color-light);
+  border-radius: var(--voxver-radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: var(--voxver-primary);
+    transform: translateY(-1px);
+  }
+}
+
+.screenshot-thumb {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  display: block;
+}
+
+.screenshot-thumb-placeholder {
+  width: 100%;
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 60%, transparent);
+  color: var(--voxver-text-muted);
+}
+
+.screenshot-info {
+  padding: 8px 10px 4px;
+}
+
+.screenshot-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--voxver-text-primary);
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.screenshot-date {
+  font-size: 10px;
+  color: var(--voxver-text-muted);
+}
+
+.screenshot-actions {
+  display: flex;
+  gap: 4px;
+  padding: 4px 8px 10px;
+}
+
 /* ===== 数据迁移 ===== */
 .data-migration-results {
   margin-top: 20px;
@@ -6336,5 +7010,101 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   font-weight: 500;
   color: var(--voxver-text-primary);
   white-space: nowrap;
+}
+
+/* ===== 更新通道分段选择 ===== */
+.segmented-group {
+  display: inline-flex;
+  background: var(--voxver-bg-raised);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
+  padding: 3px;
+  gap: 2px;
+}
+
+.vox-chip {
+  padding: 6px 18px;
+  border: none;
+  border-radius: calc(var(--voxver-radius-sm) - 1px);
+  background: transparent;
+  color: var(--voxver-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    color: var(--voxver-text-primary);
+    background: color-mix(in oklab, var(--voxver-accent-color) 10%, transparent);
+  }
+
+  &.vox-chip--active {
+    color: var(--voxver-text-primary);
+    background: color-mix(in oklab, var(--voxver-accent-color) 18%, transparent);
+    &:hover { background: color-mix(in oklab, var(--voxver-accent-color) 22%, transparent); }
+  }
+
+  /* 稳定版 → 绿色遮罩 */
+  &.vox-chip--stable.vox-chip--active {
+    background: color-mix(in oklab, #22c55e 18%, transparent);
+    &:hover { background: color-mix(in oklab, #22c55e 24%, transparent); }
+  }
+
+  /* 测试版 → 黄色遮罩 */
+  &.vox-chip--beta.vox-chip--active {
+    background: color-mix(in oklab, #f59e0b 18%, transparent);
+    &:hover { background: color-mix(in oklab, #f59e0b 24%, transparent); }
+  }
+
+  /* 开启 → 绿色遮罩 */
+  &.vox-chip--on.vox-chip--active {
+    background: color-mix(in oklab, #22c55e 18%, transparent);
+    &:hover { background: color-mix(in oklab, #22c55e 24%, transparent); }
+  }
+
+  /* 关闭 → 红色遮罩 */
+  &.vox-chip--off.vox-chip--active {
+    background: color-mix(in oklab, #ef4444 18%, transparent);
+    &:hover { background: color-mix(in oklab, #ef4444 24%, transparent); }
+  }
+}
+
+/* ===== 自动检查更新按钮行 ===== */
+.update-toggle-row {
+  margin-top: 12px;
+}
+
+/* ===== 设置行布局 ===== */
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.setting-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--voxver-text-muted);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &.status-dot--stable { background: #22c55e; }
+  &.status-dot--beta   { background: #f59e0b; }
+  &.status-dot--on     { background: #22c55e; }
+  &.status-dot--off    { background: #6b7280; }
+}
+
+/* toggle chip 继承 vox-chip 样式 */
+.vox-chip--toggle {
+  padding: 6px 20px;
 }
 </style>

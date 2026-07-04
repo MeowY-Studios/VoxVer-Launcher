@@ -281,11 +281,11 @@ export const useDownloadStore = defineStore('download', () => {
     query?: string
     gameVersion?: string
     loaderType?: string
-    source?: string
+    source?: ContentPlatform | 'all'
     projectType?: string
   }) {
     const p = params ?? lastSearchParams.value
-    const srcVal = params?.source ?? searchSource.value
+    const srcVal = (params?.source ?? searchSource.value) as ContentPlatform | 'all'
     if (srcVal === 'all') {
       if (hasMoreMr.value) {
         await searchMods({

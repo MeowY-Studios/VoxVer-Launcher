@@ -441,6 +441,28 @@
       </template>
     </PxModal>
   </div>
+
+  <!-- 性能监控浮动面板 -->
+  <div v-if="showPerfPanel && perfSnapshot" class="perf-panel">
+    <div class="perf-panel-header">
+      <span class="perf-panel-title">性能监控</span>
+      <button class="perf-panel-close" @click="stopPerfMonitor">&times;</button>
+    </div>
+    <div class="perf-panel-body">
+      <div class="perf-metric">
+        <span class="perf-metric-label">CPU</span>
+        <span class="perf-metric-value">{{ perfSnapshot.cpu }}%</span>
+      </div>
+      <div class="perf-metric">
+        <span class="perf-metric-label">内存</span>
+        <span class="perf-metric-value">{{ perfSnapshot.memoryMB }} MB</span>
+      </div>
+      <div class="perf-metric">
+        <span class="perf-metric-label">运行时间</span>
+        <span class="perf-metric-value">{{ formatUptime(perfSnapshot.uptimeMs) }}</span>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -624,6 +646,43 @@ const userHasSelectedVersion = ref(false)
 
 // 启动数据
 const isLaunching = ref(false)
+
+// 性能监控
+const perfSnapshot = ref<{ pid: number; alive: boolean; cpu: number; memoryMB: number; uptimeMs: number } | null>(null)
+const showPerfPanel = ref(false)
+let perfCleanup: (() => void) | null = null
+
+function startPerfMonitor(pid: number) {
+  window.electronAPI?.perfMonitor?.start(pid)
+  showPerfPanel.value = true
+
+  // 清理旧监听
+  perfCleanup?.()
+  perfCleanup = window.electronAPI?.perfMonitor?.onSnapshot((snap) => {
+    perfSnapshot.value = snap
+    if (!snap.alive) {
+      showPerfPanel.value = false
+      perfCleanup?.()
+    }
+  }) ?? null
+}
+
+function stopPerfMonitor() {
+  window.electronAPI?.perfMonitor?.stop()
+  showPerfPanel.value = false
+  perfSnapshot.value = null
+  perfCleanup?.()
+  perfCleanup = null
+}
+
+function formatUptime(ms: number): string {
+  const s = Math.floor(ms / 1000)
+  const m = Math.floor(s / 60)
+  const h = Math.floor(m / 60)
+  if (h > 0) return `${h}h ${m % 60}m`
+  if (m > 0) return `${m}m ${s % 60}s`
+  return `${s}s`
+}
 const showVersionSelect = ref(false)
 const selectedVersionId = ref('')
 const selectedVersion = ref('选择版本')
@@ -951,9 +1010,16 @@ async function handleLaunch() {
             body: '下载并启动失败: ' + (dlResult?.error || '未知错误'),
             type: 'error'
           })
+        } else if (dlResult?.pid) {
+          startPerfMonitor(dlResult.pid)
         }
       }
-    } else if (!result?.success) {
+    } else if (result?.success) {
+      // 启动成功，开始性能监控
+      if (result?.pid) {
+        startPerfMonitor(result.pid)
+      }
+    } else {
       window.electronAPI?.notification?.send({
         title: '错误',
         body: '启动失败: ' + (result?.error || '未知错误'),
@@ -1085,6 +1151,12 @@ const settingsGroups: SettingsNavGroup[] = [
         labelKey: 'settings.sidebar.copyright',
         category: 'copyright',
         icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9a4 4 0 100 6"/></svg>'
+      },
+      {
+        id: 'launcher',
+        labelKey: 'settings.sidebar.launcher',
+        category: 'launcher',
+        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>'
       }
     ]
   },

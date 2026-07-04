@@ -114,7 +114,8 @@ const api = {
     getPaths: () => ipcRenderer.invoke('app:get-paths'),
     getRuntimeInfo: () => ipcRenderer.invoke('app:get-runtime-info'),
     clearCache: () => ipcRenderer.invoke('app:clear-cache'),
-    resetSettings: () => ipcRenderer.invoke('app:reset-settings')
+    resetSettings: () => ipcRenderer.invoke('app:reset-settings'),
+    checkPermissions: () => ipcRenderer.invoke('app:check-permissions')
   },
 
   // 应用配置
@@ -659,6 +660,32 @@ const api = {
   externalLauncher: {
     detect: () => ipcRenderer.invoke('external-launcher:detect'),
     scanDir: (gameDir: string) => ipcRenderer.invoke('external-launcher:scan-dir', gameDir)
+  },
+
+  // 游戏截图
+  screenshot: {
+    list: (gameDir: string) => ipcRenderer.invoke('screenshot:list', gameDir),
+    listAll: (gameDir: string) => ipcRenderer.invoke('screenshot:list-all', gameDir),
+    preview: (filePath: string) => ipcRenderer.invoke('screenshot:preview', filePath),
+    thumbnail: (filePath: string) => ipcRenderer.invoke('screenshot:thumbnail', filePath),
+    delete: (filePath: string) => ipcRenderer.invoke('screenshot:delete', filePath),
+    rename: (filePath: string, newName: string) =>
+      ipcRenderer.invoke('screenshot:rename', { filePath, newName }),
+    export: (filePath: string) => ipcRenderer.invoke('screenshot:export', filePath),
+    copy: (filePath: string) => ipcRenderer.invoke('screenshot:copy', filePath),
+    open: (filePath: string) => ipcRenderer.invoke('screenshot:open', filePath)
+  },
+
+  // 性能监控
+  perfMonitor: {
+    start: (pid: number) => ipcRenderer.invoke('perf-monitor:start', pid),
+    stop: () => ipcRenderer.invoke('perf-monitor:stop'),
+    status: () => ipcRenderer.invoke('perf-monitor:status'),
+    onSnapshot: (callback: (snap: { pid: number; alive: boolean; cpu: number; memoryMB: number; uptimeMs: number; timestamp: number }) => void) => {
+      const handler = (_event: unknown, snap: unknown) => callback(snap as { pid: number; alive: boolean; cpu: number; memoryMB: number; uptimeMs: number; timestamp: number })
+      ipcRenderer.on('perf-monitor:snapshot', handler)
+      return () => ipcRenderer.removeListener('perf-monitor:snapshot', handler)
+    }
   },
 
   // 分享功能（P2P 实例分享）

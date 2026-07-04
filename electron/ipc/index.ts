@@ -25,6 +25,8 @@ import { registerHotkeyHandlers } from './hotkey.ipc'
 import { registerThemeHandlers } from './theme.ipc'
 import { registerBackupHandlers } from './backup.ipc'
 import { registerExternalLauncherHandlers } from './external-launcher.ipc'
+import { registerScreenshotHandlers } from './screenshot.ipc'
+import { registerPerfMonitorHandlers } from './perf-monitor.ipc'
 import { registerUpdaterHandlers } from './updater.ipc'
 import { registerLoggerHandlers } from './logger.ipc'
 import { logger } from '../utils/logger'
@@ -196,6 +198,22 @@ export function registerAllIpcHandlers(
     log.info('[IPC] external-launcher handlers registered')
   } catch (e: any) {
     log.error('[IPC] external-launcher handlers FAILED:', e.message)
+  }
+
+  // 游戏截图
+  try {
+    registerScreenshotHandlers()
+    log.info('[IPC] screenshot handlers registered')
+  } catch (e: any) {
+    log.error('[IPC] screenshot handlers FAILED:', e.message)
+  }
+
+  // 性能监控
+  try {
+    registerPerfMonitorHandlers()
+    log.info('[IPC] perf-monitor handlers registered')
+  } catch (e: any) {
+    log.error('[IPC] perf-monitor handlers FAILED:', e.message)
   }
 
   // 日志系统（诊断导出 + 日志级别控制）

@@ -173,7 +173,7 @@ onMounted(() => {
   instancesStore.fetchInstances()
 
   // 监听协议唤起（voxver://share:CODE）
-  protocolCleanup = window.electronAPI.share.onProtocolInvoke((code: string) => {
+  protocolCleanup = window.electronAPI?.share?.onProtocolInvoke((code: string) => {
     initialShareCode.value = code
     showReceiveModal.value = true
   })

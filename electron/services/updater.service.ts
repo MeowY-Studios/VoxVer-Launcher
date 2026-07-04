@@ -40,11 +40,11 @@ export function initAutoUpdater(window: BrowserWindow): void {
     return
   }
 
-  autoUpdater.channel = updateChannel === 'beta' ? 'beta' : 'VoxVer'
   autoUpdater.autoDownload = false
   autoUpdater.autoInstallOnAppQuit = false
   autoUpdater.allowDowngrade = false
   autoUpdater.allowPrerelease = updateChannel === 'beta'
+  // 不设置 channel，使用默认 latest.yml / beta.yml
 
   autoUpdater.on('checking-for-update', () => {
     currentStatus.checking = true
@@ -135,6 +135,10 @@ export function startDownload(): void {
     log.warn('[updater.download] Cannot download - no update available, available flag is false')
     return
   }
+  currentStatus.downloading = true
+  currentStatus.downloadProgress = 0
+  currentStatus.error = null
+  broadcastStatus()
   log.info('[updater.download] Initiating download, version:', currentStatus.version)
   log.info('[updater.download] Has cached result:', cachedUpdateCheckResult ? 'yes' : 'no')
 
@@ -144,11 +148,13 @@ export function startDownload(): void {
       log.info('[updater.download] Download started, result type:', typeof result)
     })
     .catch((err: any) => {
+      currentStatus.downloading = false
+      currentStatus.error = err && err.message ? err.message : String(err)
+      broadcastStatus()
       log.error(
         '[updater.download] Failed to start download:',
         err && err.message ? err.message : err
       )
-      log.error('[updater.download] Full error:', JSON.stringify(err))
     })
 }
 
@@ -167,7 +173,7 @@ export function getUpdateStatus(): UpdateStatus {
 
 export function setUpdateChannel(channel: string): void {
   updateChannel = channel as 'stable' | 'beta'
-  autoUpdater.channel = channel
+  autoUpdater.allowPrerelease = channel === 'beta'
   try {
     const db = require('./database').getDatabase()
     db.prepare("INSERT OR REPLACE INTO configs (key, value) VALUES ('update_channel', ?)").run(channel)

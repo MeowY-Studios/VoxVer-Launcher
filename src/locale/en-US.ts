@@ -317,6 +317,12 @@ export default {
       help: 'Help',
       feedback: 'Feedback'
     },
+    group: {
+      general: 'General',
+      game: 'Game',
+      personalize: 'Personalize',
+      other: 'Other'
+    },
     mclaDeveloper: 'VoxVer Launcher Developer',
     sponsorMcla: 'Sponsor VoxVer Launcher',
     appName: 'VoxVer Launcher',
@@ -743,6 +749,29 @@ export default {
     about: 'About',
     debug: 'Debug',
     diagnostics: 'Diagnostics',
+    optional: 'Optional',
+    generate: 'Generate',
+    saving: 'Saving...',
+    copied: 'Copied',
+    retry: 'Retry',
+    themePresets: 'Theme Presets',
+
+    // Update channel
+    updateChannel: {
+      title: 'Update Channel',
+      stable: 'Stable',
+      beta: 'Beta',
+      desc: 'Choose the launcher update source channel'
+    },
+    autoCheckUpdate: 'Auto-check for updates on startup',
+    autoCheckUpdateDesc: 'Automatically check for new version 5 seconds after launch',
+    disableAutoCheck: 'Disable Auto-Check',
+    enableAutoCheck: 'Enable Auto-Check',
+    autoCheckEnable: 'On',
+    autoCheckDisable: 'Off',
+    currentChannel: 'Current',
+    autoCheckOn: 'Enabled',
+    autoCheckOff: 'Disabled',
     group: {
       general: 'General',
       game: 'Game',
@@ -754,6 +783,7 @@ export default {
       home: 'Home',
       account: 'Account',
       about: 'About',
+      launcher: 'Launcher',
       copyright: 'Copyright',
       gameProfile: 'Game Account & Profile',
       javaMemory: 'JVM & Memory',
@@ -1093,9 +1123,13 @@ export default {
       quickBrowse: 'Quick Browse',
       commonSettings: 'Common Settings',
       accountTitle: 'VoxVer Account',
+      accountTitleDesc: 'Manage login & account info',
       quickAdvanced: 'Advanced Settings',
+      quickAdvancedDesc: 'JVM args, game directory, etc.',
       quickPersonalize: 'Theme & Personalization',
+      quickPersonalizeDesc: 'Background, theme presets, etc.',
       quickDownload: 'Download & Network',
+      quickDownloadDesc: 'Download source, concurrency, proxy, etc.',
       quickJavaMemory: 'Java VM & Memory',
       quickJavaMemoryDesc: 'Configure Java path and memory allocation',
       quickLanguage: 'Language Switch',
@@ -1104,6 +1138,8 @@ export default {
       quickThemeDesc: 'Switch theme colors and set background image',
       quickAbout: 'About & Updates',
       quickAboutDesc: 'View version info and check for updates',
+      quickLauncher: 'Launcher Settings',
+      quickLauncherDesc: 'Update channel & auto-check',
       comingSoonDesc: 'Manage your VoxVer launcher account and login info'
     },
     aboutSection: {
@@ -1469,7 +1505,13 @@ export default {
     cleanupOldVersions: 'Cleanup Old Versions',
     cleanupDownloads: 'Cleanup Downloads',
     cleanupOnInstall: 'Cleanup on Install',
-    cleanupOnStartup: 'Cleanup on Startup'
+    cleanupOnStartup: 'Cleanup on Startup',
+    downloaded: 'Update downloaded, restart to apply',
+    checkFailed: 'Update check failed',
+    viewDetail: 'View Details',
+    showDetail: 'View Details',
+    newVersion: 'New Version Available',
+    versionLabel: 'Version'
   },
   component: {
     // VersionSelect
