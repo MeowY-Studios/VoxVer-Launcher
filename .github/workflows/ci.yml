@@ -109,10 +109,22 @@ jobs:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
     strategy:
       matrix:
-        platform: [windows]
+        platform: [windows, macos]
         include:
           - platform: windows
-            exe: VoxVer Setup 0.5.5.exe
+            build-script: build:win
+            artifact-name: VoxVer-Launcher-Windows
+            artifact-pattern: |
+              build/VoxVer Launcher Setup *.exe
+              build/*.blockmap
+              build/latest.yml
+          - platform: macos
+            build-script: build:mac
+            artifact-name: VoxVer-Launcher-macOS
+            artifact-pattern: |
+              build/*.dmg
+              build/*.blockmap
+              build/latest-mac.yml
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -133,20 +145,16 @@ jobs:
         run: npm ci
 
       - name: Package application
-        run: npx electron-builder --win
+        run: npx electron-builder --${{ matrix.platform }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
 
       - name: Upload release artifacts
-        uses: actions/upload-release-asset@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/upload-artifact@v4
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: build/${{ matrix.exe }}
-          asset_name: ${{ matrix.exe }}
-          asset_content_type: application/octet-stream
+          name: ${{ matrix.artifact-name }}
+          path: ${{ matrix.artifact-pattern }}
 
   release:
     name: Create Release

@@ -12,7 +12,23 @@ env:
 jobs:
   release:
     name: Build and Release VoxVer Launcher
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        platform: [windows, macos]
+        include:
+          - platform: windows
+            artifact-pattern: |
+              build/VoxVer Launcher Setup *.exe
+              build/*.blockmap
+              build/latest.yml
+            build-script: build:win
+          - platform: macos
+            artifact-pattern: |
+              build/*.dmg
+              build/*.blockmap
+              build/latest-mac.yml
+            build-script: build:mac
+    runs-on: ${{ matrix.platform }}-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -38,35 +54,33 @@ jobs:
         run: npm run build
         continue-on-error: false
 
-      - name: Build Windows Installer
-        run: npm run build:win
+      - name: Build & Package
+        run: npm run ${{ matrix.build-script }}
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
 
       - name: Upload to GitHub Releases
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            build/VoxVer Setup 0.5.5.exe
-            build/VoxVer Setup 0.5.5.exe.blockmap
-            build/latest.yml
+          files: ${{ matrix.artifact-pattern }}
           tag_name: ${{ github.ref_name }}
-          name: VoxVer Launcher v0.5.5
+          name: VoxVer Launcher v0.6.3
           body: |
-            ## VoxVer Launcher v0.5.5 发布
+            ## VoxVer Launcher v0.6.3 发布
 
-            **版本类型**: UI/UX 优化 + i18n 国际化 + 功能完善 + 测试覆盖
+            **版本类型**: 启动器设置重构 + 更新弹窗 + 审查修复
 
             **主要变更**:
-            - ✅ i18n 国际化全面接入（410 处 `$t()` 调用）
-            - ✅ TypeScript 类型全面修复
-            - ✅ UI/UX 优化
-            - ✅ Forge/NeoForge/Quilt 安装完善
-            - ✅ 项目重命名：MCLA → VoxVer Launcher
+            - 启动器设置独立分类（更新通道 + 自动检查）
+            - 更新通道稳定版/测试版分段芯片
+            - 自动检查开启/关闭左右双芯片
+            - 更新弹窗重构（Markdown 渲染 + 下载即时反馈）
+            - i18n 中英文完全对齐
+            - updater 错误清除 + 内存泄漏修复
+            - 支持 Windows + macOS 双平台
 
             **技术栈**: Electron 33.4.11 + Vue 3.5 + TypeScript 5.5
-
-            **升级建议**: 所有用户建议升级到此版本
 
           draft: false
           prerelease: false
@@ -74,5 +88,6 @@ jobs:
       - name: Cleanup
         run: |
           echo "Release workflow completed successfully"
-          echo "Version: 0.5.5"
+          echo "Version: 0.6.3"
+          echo "Platform: ${{ matrix.platform }}"
           echo "Tag: ${{ github.ref_name }}"
