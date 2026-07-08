@@ -65,6 +65,18 @@ interface ModpackOptions {
   version?: string
 }
 
+/** 更新器状态（用于 updater.onStatusChange 回调约束） */
+interface UpdaterStatus {
+  checking: boolean
+  available: boolean
+  downloading: boolean
+  downloadProgress: number
+  downloaded: boolean
+  error: string | null
+  version: string | null
+  releaseNotes: string | null
+}
+
 /** 缺失文件信息（用于 game API 参数约束） */
 interface MissingFileInfo {
   type: 'library' | 'asset' | 'natives' | 'version'
@@ -561,29 +573,11 @@ const api = {
     setChannel: (channel: string) => ipcRenderer.invoke('updater:set-channel', channel),
     setAutoCheck: (enabled: boolean) => ipcRenderer.invoke('updater:set-auto-check', enabled),
     onStatusChange: (
-      callback: (status: {
-        checking: boolean
-        available: boolean
-        downloading: boolean
-        downloadProgress: number
-        downloaded: boolean
-        error: string | null
-        version: string | null
-        releaseNotes: string | null
-      }) => void
+      callback: (status: UpdaterStatus) => void
     ) => {
       const listener = (
         _event: IpcRendererEvent,
-        status: {
-          checking: boolean
-          available: boolean
-          downloading: boolean
-          downloadProgress: number
-          downloaded: boolean
-          error: string | null
-          version: string | null
-          releaseNotes: string | null
-        }
+        status: UpdaterStatus
       ) => callback(status)
       ipcRenderer.on('updater:status', listener)
       return () => ipcRenderer.removeListener('updater:status', listener)

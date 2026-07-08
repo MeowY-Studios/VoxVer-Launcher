@@ -55,10 +55,15 @@ export function initAutoUpdater(window: BrowserWindow): void {
 
   autoUpdater.on('update-available', (info: UpdateInfo) => {
     currentStatus.checking = false
+    currentStatus.error = null
     currentStatus.available = true
     currentStatus.version = info.version
     currentStatus.releaseNotes =
-      typeof info.releaseNotes === 'string' ? info.releaseNotes : JSON.stringify(info.releaseNotes)
+      info.releaseNotes != null
+        ? typeof info.releaseNotes === 'string'
+          ? info.releaseNotes
+          : JSON.stringify(info.releaseNotes)
+        : null
     broadcastStatus()
     log.info('[updater] Update available:', info.version)
     const files = (info as any).files
@@ -84,6 +89,7 @@ export function initAutoUpdater(window: BrowserWindow): void {
 
   autoUpdater.on('update-downloaded', () => {
     currentStatus.downloading = false
+    currentStatus.error = null
     currentStatus.downloaded = true
     currentStatus.downloadProgress = 100
     broadcastStatus()

@@ -1384,7 +1384,7 @@ export default {
     backupExclusions: '排除项',
     backupInclusions: '包含项',
     selectAll: '全选',
-    selectNone: '全选',
+    selectNone: '全不选',
     invertSelection: '反选',
     searchBackups: '搜索备份',
     filterBackups: '筛选备份',

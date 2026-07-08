@@ -2792,7 +2792,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, inject, computed, onMounted, watch, ref } from 'vue'
+import { reactive, inject, computed, onMounted, onUnmounted, watch, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { setLocale } from '../locale/i18n'
 import { useI18n } from 'vue-i18n'
@@ -3984,10 +3984,9 @@ async function checkAppPermissions() {
 
 function setupUpdateListener() {
   const unsub = window.electronAPI?.updater?.onStatusChange((status: any) => {
-    const isActive = status.checking || status.available || status.downloading || status.downloaded || status.error
     updateStatus.value = {
       checking: status.checking,
-      checked: isActive || !status.checking,
+      checked: !status.checking,
       available: status.available,
       downloading: status.downloading,
       downloadProgress: status.downloadProgress,
@@ -4065,8 +4064,12 @@ onMounted(async () => {
   await loadDownloadConfig()
   await loadThemePresets()
   await instancesStore.fetchInstances()
-  setupUpdateListener()
+  const unsubUpdate = setupUpdateListener()
   checkAppPermissions()
+
+  onUnmounted(() => {
+    unsubUpdate()
+  })
 })
 
 // ====== 应用版本 ======
@@ -5553,21 +5556,6 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 
 .update-release-notes {
   margin-bottom: 16px;
-}
-
-.update-notes-pre {
-  font-size: 12px;
-  color: var(--voxver-text-secondary);
-  background: color-mix(in oklab, var(--voxver-bg-secondary) 50%, transparent);
-  padding: 12px;
-  border-radius: var(--voxver-radius-sm);
-  line-height: 1.6;
-  white-space: pre-wrap;
-  word-break: break-word;
-  max-height: 260px;
-  overflow-y: auto;
-  margin: 0;
-  font-family: inherit;
 }
 
 .update-notes-md {
