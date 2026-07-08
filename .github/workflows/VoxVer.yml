@@ -31,12 +31,12 @@ jobs:
     runs-on: ${{ matrix.platform }}-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: ${{ env.NPM_REGISTRY }}
@@ -53,12 +53,6 @@ jobs:
       - name: Build TypeScript
         run: npm run build
         continue-on-error: false
-
-      - name: Rebuild native modules
-        if: matrix.platform == 'macos'
-        run: npx electron-builder install-app-deps
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
 
       - name: Build & Package
         run: npm run ${{ matrix.build-script }}

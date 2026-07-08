@@ -1,5 +1,5 @@
 /* ==========================================================================
-   0. @font-face - 自定义字�?   ========================================================================== */
+   0. @font-face - 鑷畾涔夊瓧浣?   ========================================================================== */
 
 @font-face {
   font-family: 'Press Start 2P';
@@ -11,54 +11,54 @@
 
 /* ==========================================================================
 
-  VoxVer Design System - 像素×渐变混搭�?  基于 Pixel-UI Custom + Gradient 合并改�?  前缀: --voxver- / .voxver-
+  VoxVer Design System - 鍍忕礌脳娓愬彉娣锋惌鐗?  鍩轰簬 Pixel-UI Custom + Gradient 鍚堝苟鏀归€?  鍓嶇紑: --voxver- / .voxver-
 
-  设计理念�?  - 结构来自 Custom 版（变量驱动，用户可完全定制颜色�?  - 渐变效果来自 Gradient 版（按钮/进度�?标签页用渐变�?  - 圆角适中（不硬像素也不过度圆润）
-  - 发光阴影增强视觉层次
+  璁捐鐞嗗康锛?  - 缁撴瀯鏉ヨ嚜 Custom 鐗堬紙鍙橀噺椹卞姩锛岀敤鎴峰彲瀹屽叏瀹氬埗棰滆壊锛?  - 娓愬彉鏁堟灉鏉ヨ嚜 Gradient 鐗堬紙鎸夐挳/杩涘害鏉?鏍囩椤电敤娓愬彉锛?  - 鍦嗚閫備腑锛堜笉纭儚绱犱篃涓嶈繃搴﹀渾娑︼級
+  - 鍙戝厜闃村奖澧炲己瑙嗚灞傛
 
-  用户可通过修改 :root 变量或设置页的定制面板换�?
+  鐢ㄦ埛鍙€氳繃淇敼 :root 鍙橀噺鎴栬缃〉鐨勫畾鍒堕潰鏉挎崲鑲?
   ========================================================================== */
 
 /* ==========================================================================
-   1. CSS 变量 - Apple Design System 设计令牌
-   基于 Apple DESIGN.md 规范：单一 Action Blue 强调色、SF Pro 字体栈�?   药丸按钮 + 18px 卡片圆角、唯一产品阴影�?7px 正文/1.47 行高�?   300/400/600/700 字重阶梯�?00 缺失）、表面色交替替代阴影层级�?   ========================================================================== */
+   1. CSS 鍙橀噺 - Apple Design System 璁捐浠ょ墝
+   鍩轰簬 Apple DESIGN.md 瑙勮寖锛氬崟涓€ Action Blue 寮鸿皟鑹层€丼F Pro 瀛椾綋鏍堛€?   鑽父鎸夐挳 + 18px 鍗＄墖鍦嗚銆佸敮涓€浜у搧闃村奖銆?7px 姝ｆ枃/1.47 琛岄珮銆?   300/400/600/700 瀛楅噸闃舵锛?00 缂哄け锛夈€佽〃闈㈣壊浜ゆ浛鏇夸唬闃村奖灞傜骇銆?   ========================================================================== */
 
 :root {
   /* ==========================================================================
-     第一层：Apple 原始 Token（不可变�?     ========================================================================== */
+     绗竴灞傦細Apple 鍘熷 Token锛堜笉鍙彉锛?     ========================================================================== */
 
-  /* ===== Apple 颜色 ===== */
-  --apple-primary: #0066cc;              /* Action Blue - 唯一交互�?*/
-  --apple-primary-focus: #0071e3;        /* 键盘焦点�?*/
-  --apple-primary-on-dark: #2997ff;      /* 暗色面链�?*/
-  --apple-ink: #1d1d1f;                  /* near-black，所有标�?正文 */
+  /* ===== Apple 棰滆壊 ===== */
+  --apple-primary: #0066cc;              /* Action Blue - 鍞竴浜や簰鑹?*/
+  --apple-primary-focus: #0071e3;        /* 閿洏鐒︾偣鐜?*/
+  --apple-primary-on-dark: #2997ff;      /* 鏆楄壊闈㈤摼鎺?*/
+  --apple-ink: #1d1d1f;                  /* near-black锛屾墍鏈夋爣棰?姝ｆ枃 */
   --apple-body: #1d1d1f;
   --apple-body-on-dark: #ffffff;
-  --apple-body-muted: #cccccc;           /* 暗面次级文字 */
+  --apple-body-muted: #cccccc;           /* 鏆楅潰娆＄骇鏂囧瓧 */
   --apple-ink-muted-80: #333333;
   --apple-ink-muted-48: #7a7a7a;
-  --apple-canvas: #ffffff;               /* 纯白画布 */
-  --apple-parchment: #f5f5f7;            /* Apple 标志�?off-white */
-  --apple-surface-pearl: #fafafc;        /* 珍珠，次级按�?*/
-  --apple-tile-1: #272729;               /* �?tile �?*/
-  --apple-tile-2: #2a2a2c;               /* �?tile 微亮 */
-  --apple-tile-3: #252527;               /* �?tile 微暗 */
-  --apple-surface-black: #000000;        /* 仅全局导航/视频背景 */
-  --apple-chip-translucent: #d2d2d7;     /* 圆形控制 chip */
-  --apple-hairline: #e0e0e0;             /* 1px 边框 */
-  --apple-divider-soft: #f0f0f0;         /* 软分隔线 */
+  --apple-canvas: #ffffff;               /* 绾櫧鐢诲竷 */
+  --apple-parchment: #f5f5f7;            /* Apple 鏍囧織鎬?off-white */
+  --apple-surface-pearl: #fafafc;        /* 鐝嶇彔锛屾绾ф寜閽?*/
+  --apple-tile-1: #272729;               /* 鏆?tile 涓?*/
+  --apple-tile-2: #2a2a2c;               /* 鏆?tile 寰寒 */
+  --apple-tile-3: #252527;               /* 鏆?tile 寰殫 */
+  --apple-surface-black: #000000;        /* 浠呭叏灞€瀵艰埅/瑙嗛鑳屾櫙 */
+  --apple-chip-translucent: #d2d2d7;     /* 鍦嗗舰鎺у埗 chip */
+  --apple-hairline: #e0e0e0;             /* 1px 杈规 */
+  --apple-divider-soft: #f0f0f0;         /* 杞垎闅旂嚎 */
 
-  /* ===== Apple 阴影（唯一一个，仅产品图�?==== */
+  /* ===== Apple 闃村奖锛堝敮涓€涓€涓紝浠呬骇鍝佸浘锛?==== */
   --apple-product-shadow: rgb(0 0 0 / 0.22) 3px 5px 30px 0;
 
-  /* ===== Apple 圆角 ===== */
+  /* ===== Apple 鍦嗚 ===== */
   --apple-radius-xs: 5px;
   --apple-radius-sm: 8px;
   --apple-radius-md: 11px;
   --apple-radius-lg: 18px;
   --apple-radius-pill: 9999px;
 
-  /* ===== Apple 间距 ===== */
+  /* ===== Apple 闂磋窛 ===== */
   --apple-space-xxs: 4px;
   --apple-space-xs: 8px;
   --apple-space-sm: 12px;
@@ -68,43 +68,43 @@
   --apple-space-xxl: 48px;
   --apple-space-section: 80px;
 
-  /* ===== Apple 字体 ===== */
+  /* ===== Apple 瀛椾綋 ===== */
   --apple-font-sans: -apple-system, BlinkMacSystemFont, system-ui, 'Inter', sans-serif;
   --apple-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 
   /* ==========================================================================
-     第二层：VoxVer 兼容别名（保留旧名，值映射到 Apple token�?     2496 �?var(--voxver-*) 引用零改�?     ========================================================================== */
+     绗簩灞傦細VoxVer 鍏煎鍒悕锛堜繚鐣欐棫鍚嶏紝鍊兼槧灏勫埌 Apple token锛?     2496 澶?var(--voxver-*) 寮曠敤闆舵敼鍔?     ========================================================================== */
 
-  /* ===== 字体 ===== */
+  /* ===== 瀛椾綋 ===== */
   --voxver-font-sans: var(--apple-font-sans);
   --voxver-font-mono: var(--apple-font-mono);
   --voxver-font-pixel: 'Press Start 2P', 'VT323', monospace;
 
-  /* ===== 圆角（Apple 圆角阶梯�?==== */
-  --voxver-radius-xs: var(--apple-radius-xs);      /* 5px (�?4px) */
-  --voxver-radius-sm: var(--apple-radius-sm);      /* 8px (�?6px) */
-  --voxver-radius-md: var(--apple-radius-md);      /* 11px (�?8px) */
-  --voxver-radius-lg: var(--apple-radius-lg);      /* 18px (�?12px) */
-  --voxver-radius-xl: var(--apple-radius-lg);      /* 18px (�?16px，Apple �?xl) */
+  /* ===== 鍦嗚锛圓pple 鍦嗚闃舵锛?==== */
+  --voxver-radius-xs: var(--apple-radius-xs);      /* 5px (鍘?4px) */
+  --voxver-radius-sm: var(--apple-radius-sm);      /* 8px (鍘?6px) */
+  --voxver-radius-md: var(--apple-radius-md);      /* 11px (鍘?8px) */
+  --voxver-radius-lg: var(--apple-radius-lg);      /* 18px (鍘?12px) */
+  --voxver-radius-xl: var(--apple-radius-lg);      /* 18px (鍘?16px锛孉pple 鏃?xl) */
   --voxver-radius-full: var(--apple-radius-pill);  /* 9999px */
 
-  /* ===== 边框宽度 ===== */
+  /* ===== 杈规瀹藉害 ===== */
   --voxver-border-width: 1px;
   --voxver-border-width-md: 2px;
 
-  /* ===== 过渡速度 ===== */
+  /* ===== 杩囨浮閫熷害 ===== */
   --voxver-transition-fast: 150ms ease;
   --voxver-transition-normal: 250ms ease;
   --voxver-transition-slow: 400ms ease;
 
-  /* ===== 阴影（Apple �?chrome 阴影，仅产品图）===== */
+  /* ===== 闃村奖锛圓pple 鏃?chrome 闃村奖锛屼粎浜у搧鍥撅級===== */
   --voxver-shadow-sm: none;
   --voxver-shadow-md: none;
   --voxver-shadow-lg: none;
   --voxver-shadow-xl: none;
   --voxver-product-shadow: var(--apple-product-shadow);
 
-  /* ===== 渐变发光阴影（Apple �?glow，映射为 none�?==== */
+  /* ===== 娓愬彉鍙戝厜闃村奖锛圓pple 鏃?glow锛屾槧灏勪负 none锛?==== */
   --voxver-shadow-glow-primary: none;
   --voxver-shadow-glow-secondary: none;
   --voxver-shadow-glow-success: none;
@@ -112,47 +112,47 @@
   --voxver-shadow-glow-error: none;
   --voxver-shadow-glow-info: none;
 
-  /* ===== 间距系统（Apple 间距�?==== */
+  /* ===== 闂磋窛绯荤粺锛圓pple 闂磋窛锛?==== */
   --voxver-space-1: var(--apple-space-xxs);       /* 4px */
   --voxver-space-2: var(--apple-space-xs);        /* 8px */
   --voxver-space-3: var(--apple-space-sm);        /* 12px */
-  --voxver-space-4: var(--apple-space-md);        /* 17px (�?16px) */
-  --voxver-space-5: var(--apple-space-lg);        /* 24px (�?20px) */
+  --voxver-space-4: var(--apple-space-md);        /* 17px (鍘?16px) */
+  --voxver-space-5: var(--apple-space-lg);        /* 24px (鍘?20px) */
   --voxver-space-6: var(--apple-space-lg);        /* 24px */
   --voxver-space-8: var(--apple-space-xl);        /* 32px */
-  --voxver-space-10: var(--apple-space-xxl);      /* 48px (�?40px) */
+  --voxver-space-10: var(--apple-space-xxl);      /* 48px (鍘?40px) */
   --voxver-space-12: var(--apple-space-xxl);      /* 48px */
-  --voxver-space-16: var(--apple-space-section);  /* 80px (�?64px) */
+  --voxver-space-16: var(--apple-space-section);  /* 80px (鍘?64px) */
 
-  /* ===== 字号（Apple 字体层级�?==== */
+  /* ===== 瀛楀彿锛圓pple 瀛椾綋灞傜骇锛?==== */
   --voxver-font-scale: 1;
   --voxver-text-xs: calc(12px * var(--voxver-font-scale));    /* fine-print / nav-link */
   --voxver-text-sm: calc(14px * var(--voxver-font-scale));    /* caption / button-utility */
-  --voxver-text-base: calc(17px * var(--voxver-font-scale));  /* body (Apple 正文，原 14px) */
-  --voxver-text-lg: calc(17px * var(--voxver-font-scale));    /* body (�?base) */
+  --voxver-text-base: calc(17px * var(--voxver-font-scale));  /* body (Apple 姝ｆ枃锛屽師 14px) */
+  --voxver-text-lg: calc(17px * var(--voxver-font-scale));    /* body (鍚?base) */
   --voxver-text-xl: calc(21px * var(--voxver-font-scale));    /* tagline */
   --voxver-text-2xl: calc(24px * var(--voxver-font-scale));   /* lead-airy */
   --voxver-text-3xl: calc(28px * var(--voxver-font-scale));   /* lead */
   --voxver-text-4xl: calc(40px * var(--voxver-font-scale));   /* display-lg */
 
-  /* ===== 字重（Apple 阶梯 300/400/600/700�?00 刻意缺失�?==== */
+  /* ===== 瀛楅噸锛圓pple 闃舵 300/400/600/700锛?00 鍒绘剰缂哄け锛?==== */
   --voxver-font-light: 300;
   --voxver-font-normal: 400;
-  --voxver-font-medium: 400;    /* Apple �?500，映射为 400 */
+  --voxver-font-medium: 400;    /* Apple 鏃?500锛屾槧灏勪负 400 */
   --voxver-font-semibold: 600;
   --voxver-font-bold: 700;
 
-  /* ===== 标题栏高度（Apple global-nav 44px�?==== */
+  /* ===== 鏍囬鏍忛珮搴︼紙Apple global-nav 44px锛?==== */
   --voxver-titlebar-height: 44px;
 
-  /* ===== 侧边栏宽�?===== */
+  /* ===== 渚ц竟鏍忓搴?===== */
   --voxver-sidebar-width: 220px;
 
   /* ================================
-     颜色系统 - Apple 暗色（默�?:root�?     暗色主导，符合启动器使用场景
+     棰滆壊绯荤粺 - Apple 鏆楄壊锛堥粯璁?:root锛?     鏆楄壊涓诲锛岀鍚堝惎鍔ㄥ櫒浣跨敤鍦烘櫙
      ================================ */
 
-  /* 背景色（Apple surface-tile 阶梯�?/
+  /* 鑳屾櫙鑹诧紙Apple surface-tile 闃舵锛?/
   --voxver-bg-primary: var(--apple-tile-1);     /* #272729 */
   --voxver-bg-secondary: var(--apple-tile-2);   /* #2a2a2c */
   --voxver-bg-tertiary: var(--apple-tile-3);    /* #252527 */
@@ -161,26 +161,26 @@
   --voxver-bg-active: var(--apple-tile-3);      /* #252527 */
   --voxver-bg-input: var(--apple-tile-3);       /* #252527 */
 
-  /* 文字色（Apple body-on-dark 阶梯�?/
+  /* 鏂囧瓧鑹诧紙Apple body-on-dark 闃舵锛?/
   --voxver-text-primary: var(--apple-body-on-dark);   /* #ffffff */
   --voxver-text-secondary: var(--apple-body-muted);    /* #cccccc */
   --voxver-text-tertiary: #98989d;
   --voxver-text-muted: #98989d;
   --voxver-text-inverse: var(--apple-ink);            /* #1d1d1f */
 
-  /* 边框色（Apple 软分隔线�?/
+  /* 杈规鑹诧紙Apple 杞垎闅旂嚎锛?/
   --voxver-border-color: #3a3a3c;
   --voxver-border-color-light: #2a2a2c;
   --voxver-border-strong: #3a3a3c;
 
-  /* ===== 主色系统（Apple Action Blue，单一强调色）===== */
+  /* ===== 涓昏壊绯荤粺锛圓pple Action Blue锛屽崟涓€寮鸿皟鑹诧級===== */
   --voxver-primary: var(--apple-primary);              /* #0066cc */
   --voxver-primary-light: rgb(0 102 204 / 0.12);
   --voxver-primary-hover: var(--apple-primary-focus);  /* #0071e3 */
   --voxver-primary-active: var(--apple-primary);       /* #0066cc */
   --voxver-primary-muted: var(--apple-primary);        /* #0066cc */
 
-  /* 主色色阶（Apple 无色阶，统一映射�?primary/primary-focus�?/
+  /* 涓昏壊鑹查樁锛圓pple 鏃犺壊闃讹紝缁熶竴鏄犲皠鍒?primary/primary-focus锛?/
   --voxver-primary-50: var(--apple-primary);
   --voxver-primary-100: var(--apple-primary);
   --voxver-primary-200: var(--apple-primary);
@@ -192,7 +192,7 @@
   --voxver-primary-800: var(--apple-primary-focus);
   --voxver-primary-900: var(--apple-primary-focus);
 
-  /* 渐变色（Apple 无装饰渐变，映射为纯色）*/
+  /* 娓愬彉鑹诧紙Apple 鏃犺楗版笎鍙橈紝鏄犲皠涓虹函鑹诧級*/
   --voxver-gradient-primary: var(--apple-primary);
   --voxver-gradient-secondary: var(--apple-primary);
   --voxver-gradient-success: var(--voxver-success);
@@ -200,24 +200,24 @@
   --voxver-gradient-error: var(--voxver-error);
   --voxver-gradient-info: var(--voxver-info);
 
-  /* 功能色（保留，仅用于状态指�?badge/日志，不用于按钮�?/
-  --voxver-success: #34c759;        /* Apple 系统�?*/
+  /* 鍔熻兘鑹诧紙淇濈暀锛屼粎鐢ㄤ簬鐘舵€佹寚绀?badge/鏃ュ織锛屼笉鐢ㄤ簬鎸夐挳锛?/
+  --voxver-success: #34c759;        /* Apple 绯荤粺缁?*/
   --voxver-success-light: rgb(52 199 89 / 0.15);
   --voxver-success-bg: rgb(52 199 89 / 0.15);
 
-  --voxver-warning: #ff9500;        /* Apple 系统�?*/
+  --voxver-warning: #ff9500;        /* Apple 绯荤粺姗?*/
   --voxver-warning-light: rgb(255 149 0 / 0.15);
   --voxver-warning-bg: rgb(255 149 0 / 0.15);
 
-  --voxver-error: #ff3b30;          /* Apple 系统�?*/
+  --voxver-error: #ff3b30;          /* Apple 绯荤粺绾?*/
   --voxver-error-light: rgb(255 59 48 / 0.15);
   --voxver-error-bg: rgb(255 59 48 / 0.15);
 
-  --voxver-info: var(--apple-primary);  /* Apple �?info，用 primary */
+  --voxver-info: var(--apple-primary);  /* Apple 鏃?info锛岀敤 primary */
   --voxver-info-light: rgb(0 102 204 / 0.15);
   --voxver-info-bg: rgb(0 102 204 / 0.15);
 
-  /* ===== 组件特定颜色 ===== */
+  /* ===== 缁勪欢鐗瑰畾棰滆壊 ===== */
   --voxver-btn-primary-bg: var(--apple-primary);
   --voxver-btn-primary-color: #ffffff;
   --voxver-btn-primary-hover: var(--apple-primary-focus);
@@ -244,12 +244,12 @@
   --voxver-titlebar-bg: var(--apple-surface-black);
   --voxver-titlebar-border: transparent;
 
-  /* ===== 滚动�?===== */
+  /* ===== 婊氬姩鏉?===== */
   --voxver-scrollbar-track: transparent;
   --voxver-scrollbar-thumb: rgb(255 255 255 / 0.14);
   --voxver-scrollbar-thumb-hover: rgb(255 255 255 / 0.25);
 
-  /* ===== 简写别名（兼容旧代码）===== */
+  /* ===== 绠€鍐欏埆鍚嶏紙鍏煎鏃т唬鐮侊級===== */
   --voxver-text: var(--voxver-text-primary);
   --voxver-bg: var(--voxver-bg-primary);
   --voxver-border: var(--voxver-border-color);
@@ -261,10 +261,10 @@
   --voxver-danger: var(--voxver-error);
 }
 
-/* 暗色/亮色主题变量�?themes/dark.scss �?themes/light.scss 提供，此处不再重复定�?*/
+/* 鏆楄壊/浜壊涓婚鍙橀噺鐢?themes/dark.scss 鍜?themes/light.scss 鎻愪緵锛屾澶勪笉鍐嶉噸澶嶅畾涔?*/
 
 /* ==========================================================================
-   2. 基础重置 & 工具�?   ========================================================================== */
+   2. 鍩虹閲嶇疆 & 宸ュ叿绫?   ========================================================================== */
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -302,7 +302,7 @@ svg[class*="voxver-icon"] {
 .voxver-icon-lg { width: 28px; height: 28px; }
 .voxver-icon-xl { width: 36px; height: 36px; }
 
-/* ---- 间距工具�?---- */
+/* ---- 闂磋窛宸ュ叿绫?---- */
 .m-m-0 { margin: 0 !important; }
 .m-m-1 { margin: var(--voxver-space-1) !important; }
 .m-m-2 { margin: var(--voxver-space-2) !important; }
@@ -315,7 +315,7 @@ svg[class*="voxver-icon"] {
 .m-p-3 { padding: var(--voxver-space-3) !important; }
 .m-p-4 { padding: var(--voxver-space-4) !important; }
 
-/* ---- Flex/Grid/文字工具�?---- */
+/* ---- Flex/Grid/鏂囧瓧宸ュ叿绫?---- */
 .m-flex { display: flex; }
 .m-flex-col { flex-direction: column; }
 .m-flex-wrap { flex-wrap: wrap; }
@@ -349,7 +349,7 @@ svg[class*="voxver-icon"] {
 .m-invisible { visibility: hidden; }
 
 /* ==========================================================================
-   3. 按钮 (Button) �?渐变风格
+   3. 鎸夐挳 (Button) 鈥?娓愬彉椋庢牸
    ========================================================================== */
 
 .voxver-btn {
@@ -380,7 +380,7 @@ svg[class*="voxver-icon"] {
 .voxver-btn:active { transform: translateY(-1px); box-shadow: var(--voxver-shadow-md); }
 .voxver-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
-/* Primary �?渐变主按�?*/
+/* Primary 鈥?娓愬彉涓绘寜閽?*/
 .voxver-btn-primary {
   background: var(--voxver-btn-primary-bg);
   color: var(--voxver-btn-primary-color);
@@ -391,20 +391,20 @@ svg[class*="voxver-icon"] {
   box-shadow: 0 6px 25px color-mix(in oklab, var(--voxver-primary) 45%, transparent);
 }
 
-/* Secondary �?渐变次要按钮（粉红系�?*/
+/* Secondary 鈥?娓愬彉娆¤鎸夐挳锛堢矇绾㈢郴锛?*/
 .voxver-btn-secondary {
   background: var(--voxver-gradient-secondary);
   color: #fff;
   box-shadow: var(--voxver-shadow-glow-secondary);
 }
 
-/* 功能色按�?�?全部渐变 */
+/* 鍔熻兘鑹叉寜閽?鈥?鍏ㄩ儴娓愬彉 */
 .voxver-btn-success { background: var(--voxver-gradient-success); color: #fff; box-shadow: var(--voxver-shadow-glow-success); }
 .voxver-btn-warning { background: var(--voxver-gradient-warning); color: #fff; box-shadow: var(--voxver-shadow-glow-warning); }
 .voxver-btn-danger { background: var(--voxver-gradient-error); color: #fff; box-shadow: var(--voxver-shadow-glow-error); }
 .voxver-btn-info { background: var(--voxver-gradient-info); color: #fff; box-shadow: var(--voxver-shadow-glow-info); }
 
-/* Ghost 幽灵按钮 */
+/* Ghost 骞界伒鎸夐挳 */
 .voxver-btn-ghost {
   background: var(--voxver-btn-ghost-bg);
   color: var(--voxver-primary);
@@ -412,7 +412,7 @@ svg[class*="voxver-icon"] {
 }
 .voxver-btn-ghost:hover { background: var(--voxver-btn-ghost-hover-bg); }
 
-/* Outline 线框按钮 */
+/* Outline 绾挎鎸夐挳 */
 .voxver-btn-outline {
   background: transparent;
   color: var(--voxver-primary-500);
@@ -420,22 +420,22 @@ svg[class*="voxver-icon"] {
 }
 .voxver-btn-outline:hover { background: var(--voxver-primary-50); }
 
-/* 尺寸 */
+/* 灏哄 */
 .voxver-btn-sm { padding: var(--voxver-space-1) var(--voxver-space-3); font-size: var(--voxver-text-xs); border-radius: var(--voxver-radius-sm); }
 .voxver-btn-lg { padding: var(--voxver-space-3) var(--voxver-space-6); font-size: var(--voxver-text-base); border-radius: var(--voxver-radius-lg); }
 
-/* 图标按钮 */
+/* 鍥炬爣鎸夐挳 */
 .voxver-btn-icon { padding: var(--voxver-space-2); aspect-ratio: 1; border-radius: var(--voxver-radius-md); }
 .voxver-btn-circle { border-radius: var(--voxver-radius-full); }
 
-/* 按钮�?*/
+/* 鎸夐挳缁?*/
 .voxver-btn-group { display: inline-flex; border-radius: var(--voxver-radius-md); overflow: hidden; }
 .voxver-btn-group .voxver-btn { border-radius: 0; margin-right: -1px; }
 .voxver-btn-group .voxver-btn:first-child { border-radius: var(--voxver-radius-md) 0 0 var(--voxver-radius-md); }
 .voxver-btn-group .voxver-btn:last-child { border-radius: 0 var(--voxver-radius-md) var(--voxver-radius-md) 0; }
 
 /* ==========================================================================
-   4. 输入�?(Input)
+   4. 杈撳叆妗?(Input)
    ========================================================================== */
 
 .voxver-input-wrapper { position: relative; display: flex; align-items: center; }
@@ -472,7 +472,7 @@ svg[class*="voxver-icon"] {
 }
 
 /* ==========================================================================
-   5. 复选框 & 单选框 & 开�?   ========================================================================== */
+   5. 澶嶉€夋 & 鍗曢€夋 & 寮€鍏?   ========================================================================== */
 
 .voxver-checkbox { display: inline-flex; align-items: center; gap: var(--voxver-space-2); cursor: pointer; user-select: none; }
 .voxver-checkbox input { position: absolute; opacity: 0; width: 0; height: 0; }
@@ -517,12 +517,12 @@ svg[class*="voxver-icon"] {
   background: #fff; border-radius: var(--voxver-radius-full); transition: all var(--voxver-transition-fast);
   box-shadow: 0 1px 3px rgb(255 255 255 / 0.25);
 }
-.voxver-switch input:checked + .voxver-switch-track { background: var(--voxver-gradient-primary); }  /* 渐变�?/
+.voxver-switch input:checked + .voxver-switch-track { background: var(--voxver-gradient-primary); }  /* 娓愬彉锛?/
 .voxver-switch input:checked + .voxver-switch-track::after { left: 22px; }
 .voxver-switch input:focus-visible + .voxver-switch-track { box-shadow: var(--voxver-input-focus-shadow); }
 
 /* ==========================================================================
-   6. 卡片 (Card) �?含渐变边框变�?   ========================================================================== */
+   6. 鍗＄墖 (Card) 鈥?鍚笎鍙樿竟妗嗗彉浣?   ========================================================================== */
 
 .voxver-card {
   background: var(--voxver-card-bg);
@@ -538,13 +538,13 @@ svg[class*="voxver-icon"] {
 .voxver-card-body { color: var(--voxver-text-secondary); }
 .voxver-card-footer { margin-top: var(--voxver-space-4); padding-top: var(--voxver-space-3); border-top: 1px solid var(--voxver-border-color); }
 
-/* 渐变边框卡片（Apple 规范：简化为纯色边框�?*/
+/* 娓愬彉杈规鍗＄墖锛圓pple 瑙勮寖锛氱畝鍖栦负绾壊杈规锛?*/
 .voxver-card-gradient {
   border: 1px solid var(--voxver-primary);
 }
 
 /* ==========================================================================
-   7. 徽章 (Badge)
+   7. 寰界珷 (Badge)
    ========================================================================== */
 
 .voxver-badge {
@@ -559,14 +559,14 @@ svg[class*="voxver-icon"] {
 .voxver-badge-info { background: var(--voxver-info-bg); color: var(--voxver-info); }
 .voxver-badge-dot { width: 8px; height: 8px; border-radius: var(--voxver-radius-full); display: inline-block; background: var(--voxver-primary); }
 
-/* 渐变徽章 */
+/* 娓愬彉寰界珷 */
 .voxver-badge-gradient {
   background: var(--voxver-gradient-primary);
   color: #fff;
 }
 
 /* ==========================================================================
-   8. 头像 (Avatar)
+   8. 澶村儚 (Avatar)
    ========================================================================== */
 
 .voxver-avatar {
@@ -585,7 +585,7 @@ svg[class*="voxver-icon"] {
 .voxver-avatar-group .voxver-avatar:not(:first-child) { margin-left: -10px; border: 2px solid var(--voxver-bg-primary); }
 
 /* ==========================================================================
-   9. 提示/警告�?(Alert)
+   9. 鎻愮ず/璀﹀憡妗?(Alert)
    ========================================================================== */
 
 .voxver-alert { display: flex; gap: var(--voxver-space-3); padding: var(--voxver-space-3) var(--voxver-space-4); border-radius: var(--voxver-radius-md); border-left: 4px solid; font-size: var(--voxver-text-sm); }
@@ -600,7 +600,7 @@ svg[class*="voxver-icon"] {
 [data-theme="dark"] .voxver-alert-error { background: var(--voxver-error-bg); color: #fca5a5; }
 
 /* ==========================================================================
-   10. 标签�?(Tabs) �?渐变下划�?   ========================================================================== */
+   10. 鏍囩椤?(Tabs) 鈥?娓愬彉涓嬪垝绾?   ========================================================================== */
 
 .voxver-tabs { display: flex; border-bottom: 1px solid var(--voxver-border-color); gap: var(--voxver-space-1); }
 .voxver-tab {
@@ -613,16 +613,16 @@ svg[class*="voxver-icon"] {
 .voxver-tab-active { color: var(--voxver-tab-active-color); font-weight: var(--voxver-font-semibold); }
 .voxver-tab-active::after {
   content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px;
-  background: var(--voxver-tab-active-border);   /* 渐变下划线！*/
+  background: var(--voxver-tab-active-border);   /* 娓愬彉涓嬪垝绾匡紒*/
   border-radius: 2px 2px 0 0;
 }
-/* Pill 胶囊模式 */
+/* Pill 鑳跺泭妯″紡 */
 .voxver-tabs-pill .voxver-tab { border-radius: var(--voxver-radius-full); }
-.voxver-tabs-pill .voxver-tab-active { background: var(--voxver-gradient-primary); color: #fff; }  /* 渐变�?/
+.voxver-tabs-pill .voxver-tab-active { background: var(--voxver-gradient-primary); color: #fff; }  /* 娓愬彉锛?/
 .voxver-tabs-pill .voxver-tab-active::after { display: none; }
 
 /* ==========================================================================
-   11. 导航�?(Navbar)
+   11. 瀵艰埅鏍?(Navbar)
    ========================================================================== */
 
 .voxver-navbar {
@@ -650,7 +650,7 @@ svg[class*="voxver-icon"] {
 .voxver-nav-link:hover, .voxver-nav-link-active { color: var(--voxver-primary-500); background: var(--voxver-primary-50); }
 
 /* ==========================================================================
-   12. 侧边导航 (Sidebar) �?VoxVer 启动器专�?   ========================================================================== */
+   12. 渚ц竟瀵艰埅 (Sidebar) 鈥?VoxVer 鍚姩鍣ㄤ笓鐢?   ========================================================================== */
 
 .voxver-sidebar {
   width: var(--voxver-sidebar-width);
@@ -687,7 +687,7 @@ svg[class*="voxver-icon"] {
 }
 
 /* ==========================================================================
-   13. 自定义标题栏 (Titlebar) �?Electron 专用
+   13. 鑷畾涔夋爣棰樻爮 (Titlebar) 鈥?Electron 涓撶敤
    ========================================================================== */
 
 .voxver-titlebar {
@@ -727,7 +727,7 @@ svg[class*="voxver-icon"] {
 }
 
 /* ==========================================================================
-   14. 面包�?(Breadcrumb)
+   14. 闈㈠寘灞?(Breadcrumb)
    ========================================================================== */
 
 .voxver-breadcrumb { display: flex; align-items: center; gap: var(--voxver-space-2); font-size: var(--voxver-text-sm); color: var(--voxver-text-tertiary); }
@@ -737,7 +737,7 @@ svg[class*="voxver-icon"] {
 .voxver-breadcrumb-current { color: var(--voxver-text-primary); font-weight: var(--voxver-font-medium); }
 
 /* ==========================================================================
-   15. 分页 (Pagination) �?渐变当前�?   ========================================================================== */
+   15. 鍒嗛〉 (Pagination) 鈥?娓愬彉褰撳墠椤?   ========================================================================== */
 
 .voxver-pagination { display: flex; align-items: center; gap: var(--voxver-space-1); }
 .voxver-page-item {
@@ -748,11 +748,11 @@ svg[class*="voxver-icon"] {
   cursor: pointer; text-decoration: none; transition: all var(--voxver-transition-fast);
 }
 .voxver-page-item:hover { border-color: var(--voxver-primary-300); color: var(--voxver-primary-500); }
-.voxver-page-active { background: var(--voxver-gradient-primary); color: #fff; border-color: transparent; }  /* 渐变�?/
+.voxver-page-active { background: var(--voxver-gradient-primary); color: #fff; border-color: transparent; }  /* 娓愬彉锛?/
 .voxver-page-disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ==========================================================================
-   16. 进度�?(Progress) �?渐变填充
+   16. 杩涘害鏉?(Progress) 鈥?娓愬彉濉厖
    ========================================================================== */
 
 .voxver-progress { width: 100%; height: 8px; background: var(--voxver-bg-tertiary); border-radius: var(--voxver-radius-full); overflow: hidden; }
@@ -774,7 +774,7 @@ svg[class*="voxver-icon"] {
 .voxver-progress-sm { height: 4px; }
 .voxver-progress-lg { height: 12px; }
 
-/* 进度条带文字标签 */
+/* 杩涘害鏉″甫鏂囧瓧鏍囩 */
 .voxver-progress-labeled {
   display: flex; align-items: center; gap: var(--voxver-space-3);
   .progress-text {
@@ -784,7 +784,7 @@ svg[class*="voxver-icon"] {
 }
 
 /* ==========================================================================
-   17. 加载动画 (Loading)
+   17. 鍔犺浇鍔ㄧ敾 (Loading)
    ========================================================================== */
 
 .voxver-spinner { width: 24px; height: 24px; border: 3px solid var(--voxver-border-color); border-top-color: var(--voxver-primary-500); border-radius: var(--voxver-radius-full); animation: voxver-spin 0.8s linear infinite; }
@@ -805,7 +805,7 @@ svg[class*="voxver-icon"] {
 @keyframes voxver-sk { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 
 /* ==========================================================================
-   18. 表格 (Table)
+   18. 琛ㄦ牸 (Table)
    ========================================================================== */
 
 .voxver-table-wrapper { overflow-x: auto; border-radius: var(--voxver-radius-md); border: 1px solid var(--voxver-border-color); }
@@ -821,7 +821,7 @@ svg[class*="voxver-icon"] {
 .voxver-table-stripe tbody tr:nth-child(even) { background: var(--voxver-bg-secondary); }
 
 /* ==========================================================================
-   19. 下拉菜单 (Dropdown)
+   19. 涓嬫媺鑿滃崟 (Dropdown)
    ========================================================================== */
 
 .voxver-dropdown { position: relative; display: inline-block; }
@@ -844,7 +844,7 @@ svg[class*="voxver-icon"] {
 .voxver-dropdown-divider { height: 1px; background: var(--voxver-border-color); margin: var(--voxver-space-1) 0; }
 
 /* ==========================================================================
-   20. 工具提示 (Tooltip)
+   20. 宸ュ叿鎻愮ず (Tooltip)
    ========================================================================== */
 
 .voxver-tooltip { position: relative; display: inline-block; }
@@ -863,7 +863,7 @@ svg[class*="voxver-icon"] {
 .voxver-tooltip:hover .voxver-tooltip-text { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
 
 /* ==========================================================================
-   21. Modal 对话�?   ========================================================================== */
+   21. Modal 瀵硅瘽妗?   ========================================================================== */
 
 .voxver-modal-overlay {
   position: fixed; inset: 0; background: var(--voxver-bg-overlay); backdrop-filter: blur(4px);
@@ -890,7 +890,7 @@ svg[class*="voxver-icon"] {
 .voxver-modal-footer { display: flex; justify-content: flex-end; gap: var(--voxver-space-2); padding: 0 var(--voxver-space-4) var(--voxver-space-4); }
 
 /* ==========================================================================
-   22. 分割�?& 空状�?   ========================================================================== */
+   22. 鍒嗗壊绾?& 绌虹姸鎬?   ========================================================================== */
 
 .voxver-divider { border: none; height: 1px; background: var(--voxver-border-color); margin: var(--voxver-space-4) 0; }
 .voxver-divider-text { display: flex; align-items: center; gap: var(--voxver-space-3); color: var(--voxver-text-tertiary); font-size: var(--voxver-text-sm); }
@@ -902,10 +902,10 @@ svg[class*="voxver-icon"] {
 .voxver-empty-desc { font-size: var(--voxver-text-sm); color: var(--voxver-text-tertiary); max-width: 320px; margin-bottom: var(--voxver-space-4); }
 
 /* ==========================================================================
-   23. VoxVer 专用组件
+   23. VoxVer 涓撶敤缁勪欢
    ========================================================================== */
 
-/* ---- 实例卡片 ---- */
+/* ---- 瀹炰緥鍗＄墖 ---- */
 .voxver-instance-card {
   background: var(--voxver-bg-elevated);
   border: 1px solid var(--voxver-border-color);
@@ -942,7 +942,7 @@ svg[class*="voxver-icon"] {
   }
 }
 
-/* ---- 下载�?---- */
+/* ---- 涓嬭浇椤?---- */
 .voxver-download-item {
   display: flex; align-items: center; gap: var(--voxver-space-3);
   padding: var(--voxver-space-3) var(--voxver-space-4);
@@ -976,7 +976,7 @@ svg[class*="voxver-icon"] {
   &-actions { display: flex; gap: var(--voxver-space-1); flex-shrink: 0; }
 }
 
-/* ---- Hero 区域（首页）---- */
+/* ---- Hero 鍖哄煙锛堥椤碉級---- */
 .voxver-hero {
   display: flex; flex-direction: column; align-items: center;
   justify-content: center; text-align: center;
@@ -1011,7 +1011,7 @@ svg[class*="voxver-icon"] {
   }
 }
 
-/* ---- 统计数字 ---- */
+/* ---- 缁熻鏁板瓧 ---- */
 .voxver-stat {
   text-align: center;
   &-value {
@@ -1027,7 +1027,7 @@ svg[class*="voxver-icon"] {
 }
 
 /* ==========================================================================
-   24. 动画关键�?   ========================================================================== */
+   24. 鍔ㄧ敾鍏抽敭甯?   ========================================================================== */
 
 @keyframes voxver-fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes voxver-fade-out { from { opacity: 1; } to { opacity: 0; } }
@@ -1045,20 +1045,20 @@ svg[class*="voxver-icon"] {
 @keyframes voxver-glitch-1 { 0%, 100% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(-2px, -2px); } 60% { transform: translate(2px, 2px); } 80% { transform: translate(2px, -2px); } }
 @keyframes voxver-glitch-2 { 0%, 100% { transform: translate(0); } 20% { transform: translate(2px, -2px); } 40% { transform: translate(2px, 2px); } 60% { transform: translate(-2px, -2px); } 80% { transform: translate(-2px, 2px); } }
 
-/* ---- 动画工具�?---- */
+/* ---- 鍔ㄧ敾宸ュ叿绫?---- */
 .animate-fade-in { animation: voxver-fade-in var(--voxver-transition-normal) ease forwards; }
 .animate-fade-up { animation: voxver-fade-up var(--voxver-transition-normal) ease forwards; }
 .animate-fade-down { animation: voxver-fade-down var(--voxver-transition-normal) ease forwards; }
 .animate-scale-in { animation: voxver-scale-in var(--voxver-transition-normal) ease forwards; }
 .animate-bounce-in { animation: voxver-bounce-in 0.5s ease forwards; }
-.animate-spin { animation: voxver-spin-steps 1s steps(8) infinite; }  /* 步进式旋转，保留像素�?*/
+.animate-spin { animation: voxver-spin-steps 1s steps(8) infinite; }  /* 姝ヨ繘寮忔棆杞紝淇濈暀鍍忕礌鍛?*/
 .animate-blink { animation: voxver-blink 1s step-end infinite; }
 .animate-pulse { animation: voxver-pulse 2s ease-in-out infinite; }
 .animate-pop { animation: voxver-pop 0.3s ease; }
 .animate-shake { animation: voxver-shake 0.5s ease; }
 .animate-glitch { position: relative; &::before, &::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; } &::before { animation: voxver-glitch-1 0.3s infinite; color: #ff00ff; z-index: -1; } &::after { animation: voxver-glitch-2 0.3s infinite; color: #00ffff; z-index: -2; } }
 
-/* ---- 延迟工具�?---- */
+/* ---- 寤惰繜宸ュ叿绫?---- */
 .animate-delay-1 { animation-delay: 0.1s; }
 .animate-delay-2 { animation-delay: 0.2s; }
 .animate-delay-3 { animation-delay: 0.3s; }
@@ -1066,7 +1066,7 @@ svg[class*="voxver-icon"] {
 .animate-delay-5 { animation-delay: 0.5s; }
 
 /* ==========================================================================
-   25. 减少动效支持
+   25. 鍑忓皯鍔ㄦ晥鏀寔
    ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1086,16 +1086,16 @@ body[data-reduce-motion] *::after {
 }
 
 /* ==========================================================================
-   26. 辅助功能
+   26. 杈呭姪鍔熻兘
    ========================================================================== */
 
-/* 屏幕阅读�?�?增强焦点可见�?*/
+/* 灞忓箷闃呰鍣?鈥?澧炲己鐒︾偣鍙鎬?*/
 body[data-screen-reader] :focus-visible {
   outline: 3px solid var(--voxver-accent) !important;
   outline-offset: 3px !important;
 }
 
-/* 键盘导航 �?全局焦点指示�?*/
+/* 閿洏瀵艰埅 鈥?鍏ㄥ眬鐒︾偣鎸囩ず鍣?*/
 body[data-keyboard-nav] :focus-visible {
   outline: 3px solid var(--voxver-accent) !important;
   outline-offset: 4px !important;
@@ -1103,7 +1103,7 @@ body[data-keyboard-nav] :focus-visible {
   border-radius: 2px;
 }
 
-/* 高对比度 �?强制黑白主题 */
+/* 楂樺姣斿害 鈥?寮哄埗榛戠櫧涓婚 */
 body[data-high-contrast] {
   --voxver-bg-primary: #000 !important;
   --voxver-bg-secondary: #111 !important;

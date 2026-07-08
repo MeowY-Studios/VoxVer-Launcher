@@ -15,7 +15,8 @@ export default defineConfig({
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'electron/main.ts')
-        }
+        },
+        external: ['@aws-sdk/client-s3']
       }
     }
   },
