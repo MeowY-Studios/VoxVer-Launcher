@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '24'
   ELECTRON_CACHE: ${{ runner.os }}-electron-cache
   ELECTRON_BUILDER_CACHE: ${{ runner.os }}-electron-builder-cache
 
@@ -39,7 +39,7 @@ jobs:
     strategy:
       matrix:
         platform: [windows]
-        node: ['20']
+        node: ['24']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -103,6 +103,8 @@ jobs:
         run: npx vitest run --reporter=verbose
 
   package:
+    # macos-latest = macOS 26 (ARM64, Node 24, npm 11, OpenSSL 3.x) as of 2026-07
+    # windows-latest = Windows Server 2025
     name: Package (${{ matrix.platform }})
     runs-on: ${{ matrix.platform }}-latest
     needs: [build, test]
@@ -132,7 +134,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: Download build artifacts
@@ -143,6 +145,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Rebuild native modules (macOS)
+        if: matrix.platform == 'macos'
+        run: npx electron-builder install-app-deps
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
 
       - name: Package application
         run: npx electron-builder --${{ matrix.platform }}
@@ -189,7 +197,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies

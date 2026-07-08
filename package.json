@@ -5,6 +5,9 @@
   "main": "./out/main/index.js",
   "author": "EccenTri",
   "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/nnkmn/VoxVer-Launcher.git"
@@ -59,13 +62,13 @@
     "@typescript-eslint/eslint-plugin": "^8.60.1",
     "@typescript-eslint/parser": "^8.60.1",
     "@vitejs/plugin-vue": "^5.1.0",
-    "@vitest/coverage-v8": "^2.1.9",
+    "@vitest/coverage-v8": "^4.1.10",
     "@vue/test-utils": "^2.4.6",
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
-    "electron": "^33.4.11",
-    "electron-builder": "^25.0.0",
-    "electron-vite": "^2.3.0",
+    "electron": "^43.1.0",
+    "electron-builder": "^26.15.3",
+    "electron-vite": "^5.0.0",
     "eslint": "^10.4.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
@@ -80,7 +83,7 @@
     "typescript-eslint": "^8.60.1",
     "unplugin-icons": "^23.0.1",
     "unplugin-vue-components": "^32.0.0",
-    "vite": "^5.4.0",
-    "vitest": "^2.0.0"
+    "vite": "^8.1.3",
+    "vitest": "^4.1.10"
   }
 }
