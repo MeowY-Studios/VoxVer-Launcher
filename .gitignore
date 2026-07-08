@@ -99,6 +99,6 @@ docs/releases/
 # 以下文件需要提交：
 # .github/workflows/ci.yml
 # .github/workflows/VoxVer.yml
-# ========== 临时图片（不上传）==========
-StarLight.Corelogo.png
+    # ========== 临时图片（不上传）==========
+    StarLight.Corelogo.png
 

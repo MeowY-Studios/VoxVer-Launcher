@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.6.2-14b8a6?style=flat-square&labelColor=1e1e2e)
+![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.6.3-14b8a6?style=flat-square&labelColor=1e1e2e)
 ![Electron](https://img.shields.io/badge/Electron-33-478cbf?style=flat-square&logo=electron&logoColor=white)
 ![Vue](https://img.shields.io/badge/Vue-3.5-4db08b?style=flat-square&logo=vuedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6?style=flat-square&logo=typescript&logoColor=white)
@@ -19,7 +19,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 ## 📋 目录
 
 - [📥 下载](#-下载)
-- [🆕 v0.6.2 最近更新](#-v062-最近更新)
+- [🆕 v0.6.3 最近更新](#-v063-最近更新)
 - [✨ 功能概览](#-功能概览)
 - [🖥️ 支持平台](#️-支持平台)
 - [📦 相关文档](#-相关文档)
@@ -30,22 +30,28 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 ## 📥 下载
 
-**[👉 前往 GitHub Releases 下载 v0.6.2](https://github.com/nnkmn/VoxVer-Launcher/releases)**
+**[👉 前往 GitHub Releases 下载 v0.6.3](https://github.com/nnkmn/VoxVer-Launcher/releases)**
 
 ---
 
-## 🆕 v0.6.2 最近更新
+## 🆕 v0.6.3 最近更新
 
-### 设计系统重构
-- **Design Token 体系**：OLED 暗色底座（四层黑色阶梯）+ Neubrutalism 工具类 + Bento Grid 布局
-- **磨砂玻璃效果**：侧边栏/主内容区/关于页面统一磨砂质感，`backdrop-filter` 移至 `::before` 修复文字模糊
+### 启动器设置独立分类 + 更新弹窗重构
+- **侧边栏新入口**：版权下方新增"启动器"条目，更新通道 / 自动检查独立设置
+- **更新弹窗**：检测到新版本自动弹出 Modal，Markdown 渲染更新日志，弹窗内进度条 + 一键重启
+- **下载即时反馈**：点击下载立即显示进度，异常时弹窗内展示错误
 
-### 启动画面优化
-- 版本号从 `package.json` 动态加载，4 秒进度条匀速走完后 0.8s 缓慢淡出，不再闪屏
-- Logo 替换为 Alogo.png
+### CI/CD 升级
+- **macOS 构建**：GitHub Actions 双架构 (ARM64 macOS 26 + x64 macOS 13) DMG 构建
+- **Node.js 24**：全工作流升级 Node 24，`actions/checkout@v5` + `actions/setup-node@v5`
+- **国产化版本**：VoxVer CI 工作流自动构建 Windows +
 
-### UI 细节
-- 设置页面/侧边栏滚动条隐藏；移除 Hero 蓝色渐变；颜色选择器磨砂层点击修复
+### UI 修复 & i18n 补全
+- 浅色模式芯片文字可见性、侧边栏遮罩滚动、主题色选择器清理
+- 补充 24 处缺失翻译，zh-CN / en-US key 结构完全对齐
+
+### 更新器修复
+- `update-available` 事件 error 清理、`releaseNotes` null 守卫、IPC 监听器内存泄漏修复
 
 ---
 
@@ -75,7 +81,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 | 平台 | 状态 | 架构 |
 |------|------|------|
 | Windows 10+ | ✅ 已支持 | x64 |
-| macOS | ⏳ 计划中 | x64 / arm64 |
+| macOS | ✅ 已支持 (CI) | x64 / arm64 |
 | Linux | ⏳ 计划中 | x64 |
 
 ---
