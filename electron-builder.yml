@@ -42,10 +42,3 @@ nsis:
   uninstallDisplayName: VoxVer Launcher
   installerIcon: resources/icons/icon.ico
   uninstallerIcon: resources/icons/icon.ico
-
-publish:
-  provider: github
-  owner: nnkmn
-  repo: VoxVer-Launcher
-  releaseType: release
-  updaterCacheDirName: voxver-updater
