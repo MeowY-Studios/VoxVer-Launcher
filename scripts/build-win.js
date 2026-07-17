@@ -24,9 +24,15 @@ try {
   const srcDir = path.join(__dirname, '..', tmpDir)
   const destDir = path.join(__dirname, '..', finalDir)
 
-  // 确保 build 目录存在（覆盖）
-  if (fs.existsSync(destDir)) {
-    fs.rmSync(destDir, { recursive: true, force: true })
+  // 尝试清理旧 build 目录
+  try {
+    if (fs.existsSync(destDir)) {
+      fs.rmSync(destDir, { recursive: true, force: true })
+    }
+  } catch (e) {
+    console.warn(`Cannot remove old build directory: ${e.message}`)
+    console.warn('Skipping copy to build, artifacts are in', tmpDir)
+    return
   }
 
   copyDirSync(srcDir, destDir)
