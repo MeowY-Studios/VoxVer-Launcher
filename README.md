@@ -46,27 +46,6 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 ---
 
-## 🆕 v0.6.3 最近更新
-
-### 启动器设置独立分类 + 更新弹窗重构
-- **侧边栏新入口**：版权下方新增"启动器"条目，更新通道 / 自动检查独立设置
-- **更新弹窗**：检测到新版本自动弹出 Modal，Markdown 渲染更新日志，弹窗内进度条 + 一键重启
-- **下载即时反馈**：点击下载立即显示进度，异常时弹窗内展示错误
-
-### CI/CD 升级
-- **macOS 构建**：GitHub Actions 双架构 (ARM64 macOS 26 + x64 macOS 13) DMG 构建
-- **Node.js 24**：全工作流升级 Node 24，`actions/checkout@v5` + `actions/setup-node@v5`
-- **国产化版本**：VoxVer CI 工作流自动构建 Windows +
-
-### UI 修复 & i18n 补全
-- 浅色模式芯片文字可见性、侧边栏遮罩滚动、主题色选择器清理
-- 补充 24 处缺失翻译，zh-CN / en-US key 结构完全对齐
-
-### 更新器修复
-- `update-available` 事件 error 清理、`releaseNotes` null 守卫、IPC 监听器内存泄漏修复
-
----
-
 ## ✨ 功能概览
 
 | 类别 | 功能 |
