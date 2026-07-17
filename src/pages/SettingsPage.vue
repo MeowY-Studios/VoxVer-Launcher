@@ -357,7 +357,7 @@
                 <line x1="12" y1="8" x2="12" y2="12" />
                 <line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
-              <span>{{ $t('update.downloadFailed') || '下载失败' }}: {{ updateStatus.error }}</span>
+              <span>{{ $t('update.downloadFailed') }}: {{ updateStatus.error }}</span>
             </div>
           </div>
           <div class="modal-footer">
@@ -371,7 +371,7 @@
             </button>
             <button v-if="updateStatus.error && !updateStatus.downloading && !updateStatus.downloaded"
               class="btn vox-btn vox-btn--primary" @click="startDownloadFromModal">
-              {{ $t('update.retry') || '重新下载' }}
+              {{ $t('update.retry') }}
             </button>
             <button v-if="updateStatus.downloaded"
               class="btn vox-btn vox-btn--primary" @click="installUpdate">

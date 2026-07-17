@@ -1480,6 +1480,8 @@ export default {
     upToDate: '已是最新版本',
     newVersion: '新版本可用',
     versionLabel: '版本',
+    downloadFailed: '下载失败',
+    retry: '重新下载',
     updateTimeout: '更新超时',
     updateRetryCount: '重试次数',
     updateRetryDelay: '重试延迟',

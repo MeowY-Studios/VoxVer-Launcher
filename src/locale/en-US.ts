@@ -1480,6 +1480,8 @@ export default {
     upToDate: 'Up to date',
     newVersion: 'New version available',
     versionLabel: 'Version',
+    downloadFailed: 'Download Failed',
+    retry: 'Retry',
     updateTimeout: 'Update Timeout',
     updateRetryCount: 'Retry Count',
     updateRetryDelay: 'Retry Delay',
