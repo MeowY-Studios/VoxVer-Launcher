@@ -3,6 +3,8 @@
  * 与 electron/services/instances.ts 的 Instance 接口对齐
  */
 
+import { $t } from '../utils/i18n'
+
 /** 实例加载器类型 */
 export type LoaderType = 'vanilla' | 'forge' | 'fabric' | 'neoforge' | 'quilt'
 
@@ -71,7 +73,7 @@ export interface CreateInstanceParams {
 
 /** 默认实例值 */
 export const DEFAULT_INSTANCE: Omit<GameInstance, 'id' | 'createdAt' | 'updatedAt'> = {
-  name: '新实例',
+  name: $t('instance.defaultName'),
   path: '',
   mcVersion: '1.20.1',
   loaderType: 'vanilla',

@@ -17,7 +17,7 @@
                 <path d="M15 18l-6-6 6-6" />
               </svg>
             </button>
-            <span class="acc-title">账户管理</span>
+            <span class="acc-title">{{ $t('auth.accountManager') }}</span>
             <div class="acc-wc">
               <button class="acc-wc-btn" @click="minimize">
                 <svg width="10" height="1" viewBox="0 0 10 1">
@@ -47,8 +47,8 @@
                   <rect width="24" height="24" rx="4" />
                   <text x="5" y="17.5" font-size="14" font-weight="bold" fill="#fff">M</text>
                 </svg>
-                <span class="acc-section-title">微软账户</span>
-                <span class="acc-badge">{{ msAccounts.length }} 个</span>
+                <span class="acc-section-title">{{ $t('auth.microsoftAccount') }}</span>
+                <span class="acc-badge">{{ $t('auth.accountCount', { count: msAccounts.length }) }}</span>
               </div>
 
               <!-- 已保存的微软账户列表 -->
@@ -72,14 +72,14 @@
                       class="acc-btn-ghost"
                       @click="switchMsAccount(acc.id)"
                     >
-                      使用
+                      {{ $t('auth.useAccount') }}
                     </button>
-                    <span v-else class="acc-badge success">当前</span>
+                    <span v-else class="acc-badge success">{{ $t('auth.currentAccount') }}</span>
                     <button
                       class="acc-btn-ghost acc-btn-danger"
                       @click="removeMicrosoftAccount(acc.id)"
                     >
-                      删除
+                      {{ $t('common.delete') }}
                     </button>
                   </div>
                 </div>
@@ -87,7 +87,7 @@
 
               <!-- 无账户提示 -->
               <div class="acc-section-body acc-empty" v-else>
-                <p class="acc-empty-hint">使用微软账户登录以访问多人游戏服务器</p>
+                <p class="acc-empty-hint">{{ $t('auth.loginTip') }}</p>
               </div>
 
               <!-- 添加新账户 -->
@@ -101,7 +101,7 @@
                     <rect width="24" height="24" rx="4" />
                     <text x="5" y="17.5" font-size="14" font-weight="bold" fill="#fff">M</text>
                   </svg>
-                  {{ msAccounts.length > 0 ? '添加另一个微软账户' : '登录微软账户' }}
+                  {{ msAccounts.length > 0 ? $t('auth.addAnotherMicrosoftAccount') : $t('auth.loginMicrosoftAccount') }}
                 </button>
               </div>
             </section>
@@ -124,8 +124,8 @@
                     d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"
                   />
                 </svg>
-                <span class="acc-section-title">离线账户</span>
-                <span class="acc-badge">{{ offlineAccounts.length }} 个</span>
+                <span class="acc-section-title">{{ $t('auth.offlineAccount') }}</span>
+                <span class="acc-badge">{{ $t('auth.accountCount', { count: offlineAccounts.length }) }}</span>
               </div>
 
               <!-- 已保存的离线账户列表 -->
@@ -148,17 +148,17 @@
                       v-if="acc.isActive !== 1"
                       class="acc-btn-ghost"
                       @click="switchToAccount(acc.id)"
-                      title="切换到此账号"
+                      :title="$t('auth.switchToAccount')"
                     >
-                      使用
+                      {{ $t('auth.useAccount') }}
                     </button>
-                    <span v-else class="acc-badge success">当前</span>
+                    <span v-else class="acc-badge success">{{ $t('auth.currentAccount') }}</span>
                     <button
                       class="acc-btn-ghost acc-btn-danger"
                       @click="deleteOffline(acc.id)"
-                      title="删除账号"
+                      :title="$t('auth.deleteAccount')"
                     >
-                      删除
+                      {{ $t('common.delete') }}
                     </button>
                   </div>
                 </div>
@@ -167,33 +167,33 @@
               <!-- 添加新离线账户 -->
               <div class="acc-section-body">
                 <div class="acc-form-group">
-                  <label class="acc-label">玩家名称</label>
+                  <label class="acc-label">{{ $t('auth.playerName') }}</label>
                   <input
                     type="text"
                     class="acc-input"
                     v-model="offlineName"
-                    placeholder="2-16 个字符"
+                    :placeholder="$t('auth.playerNamePlaceholderShort')"
                     maxlength="16"
                   />
                 </div>
                 <div class="acc-form-group">
-                  <label class="acc-label">UUID（可选）</label>
+                  <label class="acc-label">{{ $t('auth.uuidOptional') }}</label>
                   <div class="acc-input-row">
                     <input
                       type="text"
                       class="acc-input"
                       v-model="offlineUuid"
-                      placeholder="留空则自动生成"
+                      :placeholder="$t('auth.uuidPlaceholder')"
                     />
                     <button class="acc-btn-ghost" @click="offlineUuid = generateUUID()">
-                      生成
+                      {{ $t('common.generate') }}
                     </button>
                   </div>
                 </div>
                 <div class="acc-form-actions">
                   <span v-if="offlineError" class="acc-error">{{ offlineError }}</span>
                   <button class="acc-btn-primary" @click="saveOffline" :disabled="savingOffline">
-                    {{ savingOffline ? '保存中...' : '添加离线账户' }}
+                    {{ savingOffline ? $t('common.saving') : $t('auth.addOfflineAccount') }}
                   </button>
                 </div>
               </div>
@@ -213,7 +213,7 @@
                 <line x1="12" y1="8" x2="12" y2="12" />
                 <line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
-              <span>离线模式无法加入需要正版验证的服务器，但可以玩单人模式和部分服务器。</span>
+              <span>{{ $t('auth.offlineModeHint') }}</span>
             </aside>
           </div>
         </div>
@@ -225,29 +225,29 @@
       <div class="modal-overlay" v-if="loginState !== 'idle'" @click.self="cancelLogin">
         <div class="modal-card">
           <div class="modal-header">
-            <span class="modal-title">登录微软账户</span>
+            <span class="modal-title">{{ $t('auth.loginMicrosoftAccount') }}</span>
             <button class="modal-close" @click="cancelLogin">✕</button>
           </div>
           <div class="modal-body">
             <!-- 等待用户访问链接 -->
             <template v-if="loginState === 'waiting_user'">
               <div class="device-flow">
-                <p class="device-flow-hint">请在浏览器中打开以下链接并输入代码：</p>
+                <p class="device-flow-hint">{{ $t('auth.deviceFlowHint') }}</p>
                 <a class="device-flow-link" :href="deviceCodeInfo.verificationUri" target="_blank">
                   {{ deviceCodeInfo.verificationUri }}
                 </a>
                 <div class="device-code-box">
                   <span class="device-code">{{ deviceCodeInfo.userCode }}</span>
                   <button class="btn-ghost btn-sm" @click="copyCode">
-                    {{ codeCopied ? '已复制' : '复制' }}
+                    {{ codeCopied ? $t('common.copied') : $t('common.copy') }}
                   </button>
                 </div>
                 <p class="device-flow-tip">
-                  输入代码后点「下一步」并完成微软登录，此窗口会自动更新。
+                  {{ $t('auth.deviceFlowTip') }}
                 </p>
                 <div class="loader-row">
                   <span class="loader"></span>
-                  <span class="loader-text">等待授权...</span>
+                  <span class="loader-text">{{ $t('auth.waitingAuthorization') }}</span>
                 </div>
               </div>
             </template>
@@ -272,7 +272,7 @@
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="9 12 11 14 15 10" />
                 </svg>
-                <p>登录成功，欢迎 {{ newAccountName }}！</p>
+                <p>{{ $t('auth.loginSuccess') }} {{ newAccountName }}！</p>
               </div>
             </template>
             <!-- 错误 -->
@@ -296,23 +296,23 @@
                   style="margin-top: 12px"
                   @click="startMicrosoftLogin"
                 >
-                  重试
+                  {{ $t('common.retry') }}
                 </button>
               </div>
             </template>
           </div>
           <div class="modal-footer">
             <button v-if="loginState === 'done'" class="acc-btn-outline" @click="closeOAuthModal">
-              完成
+              {{ $t('common.finish') }}
             </button>
             <button
               v-else-if="loginState === 'error'"
               class="acc-btn-outline"
               @click="closeOAuthModal"
             >
-              关闭
+              {{ $t('common.close') }}
             </button>
-            <button v-else class="acc-btn-outline" @click="cancelLogin">取消</button>
+            <button v-else class="acc-btn-outline" @click="cancelLogin">{{ $t('common.cancel') }}</button>
           </div>
         </div>
       </div>
@@ -322,12 +322,14 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAccountsStore } from '../stores/accounts.store'
 
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits<{ 'update:visible': [val: boolean] }>()
 
 const accountsStore = useAccountsStore()
+const { t } = useI18n()
 
 // ====== 微软账户列表 ======
 const msAccounts = computed(() => accountsStore.accounts.filter((a: any) => a.type === 'microsoft'))
@@ -411,7 +413,7 @@ function handleLoginProgress(stage: string, detail?: string) {
   switch (stage) {
     case 'device_code':
       loginState.value = 'processing'
-      loginProgressText.value = '正在获取设备码...'
+      loginProgressText.value = t('auth.fetchingDeviceCode')
       break
     case 'waiting_user': {
       try {
@@ -429,22 +431,22 @@ function handleLoginProgress(stage: string, detail?: string) {
     }
     case 'token_received':
       loginState.value = 'processing'
-      loginProgressText.value = '微软令牌获取成功，验证 Xbox 账户...'
+      loginProgressText.value = t('auth.tokenReceivedVerifyingXbox')
       break
     case 'xbox_live':
-      loginProgressText.value = detail || '正在连接 Xbox Live...'
+      loginProgressText.value = detail || t('auth.connectingXboxLive')
       break
     case 'xsts':
-      loginProgressText.value = detail || '正在获取 XSTS 令牌...'
+      loginProgressText.value = detail || t('auth.fetchingXstsToken')
       break
     case 'minecraft':
-      loginProgressText.value = detail || '正在验证 Minecraft 账户...'
+      loginProgressText.value = detail || t('auth.verifyingMinecraft')
       break
     case 'profile':
-      loginProgressText.value = detail || '正在获取游戏档案...'
+      loginProgressText.value = detail || t('auth.fetchingProfile')
       break
     case 'saving':
-      loginProgressText.value = '正在保存账户...'
+      loginProgressText.value = t('auth.savingAccount')
       break
     case 'done':
       loginState.value = 'done'
@@ -452,11 +454,11 @@ function handleLoginProgress(stage: string, detail?: string) {
       break
     case 'error':
       loginState.value = 'error'
-      loginError.value = detail || '登录失败，请重试'
+      loginError.value = detail || t('auth.loginFailedRetry')
       break
     case 'timeout':
       loginState.value = 'error'
-      loginError.value = '设备码已过期，请重新点击登录'
+      loginError.value = t('auth.deviceCodeExpired')
       break
     case 'cancelled':
       loginState.value = 'idle'
@@ -466,7 +468,7 @@ function handleLoginProgress(stage: string, detail?: string) {
 
 async function startMicrosoftLogin() {
   loginState.value = 'processing'
-  loginProgressText.value = '正在初始化...'
+  loginProgressText.value = t('auth.initializing')
   loginError.value = ''
   newAccountName.value = ''
   codeCopied.value = false
@@ -474,14 +476,14 @@ async function startMicrosoftLogin() {
   const result = await window.electronAPI?.account.loginMicrosoft()
 
   if (result && typeof result === 'object' && 'ok' in result && result.ok && 'data' in result && result.data) {
-    newAccountName.value = result.data.name || '新账户'
+    newAccountName.value = result.data.name || t('auth.newAccount')
     loginState.value = 'done'
     await accountsStore.fetchAccounts()
   } else if (result && 'error' in result && result.error === 'LOGIN_CANCELLED') {
     loginState.value = 'idle'
   } else {
     loginState.value = 'error'
-    loginError.value = result.error || '登录失败，请重试'
+    loginError.value = result.error || t('auth.loginFailedRetry')
   }
 }
 
@@ -510,7 +512,7 @@ async function saveOffline() {
   offlineError.value = ''
   const name = offlineName.value.trim()
   if (!name || name.length < 2) {
-    offlineError.value = '玩家名至少 2 个字符'
+    offlineError.value = t('auth.playerNameMinLength')
     return
   }
   savingOffline.value = true
@@ -519,10 +521,10 @@ async function saveOffline() {
     if (result?.ok) {
       await accountsStore.fetchAccounts()
     } else {
-      offlineError.value = result?.error || '保存失败'
+      offlineError.value = result?.error || t('auth.saveFailed')
     }
   } catch (e: any) {
-    offlineError.value = e.message || '保存失败'
+    offlineError.value = e.message || t('auth.saveFailed')
   } finally {
     savingOffline.value = false
   }

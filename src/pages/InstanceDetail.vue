@@ -441,6 +441,7 @@ import { useI18n } from 'vue-i18n'
 import { useInstancesStore } from '../stores/instances.store'
 import { useModsStore } from '../stores/mods.store'
 import { formatRelativeTime, formatDuration } from '../utils/format'
+import { getCurrentLocale } from '../locale/i18n'
 import type { GameInstance, RawGameInstance, LoaderType } from '../types/instance'
 import PxModal from '../components/common/PxModal.vue'
 import ShareModal from '../components/share/ShareModal.vue'
@@ -508,17 +509,17 @@ const activeModCount = computed(() => localMods.value.filter((m) => m.status ===
 const loaderLabel = computed(() => {
   if (!instance.value) return '-'
   const { getLoaderName } = require('../utils/format')
-  if (instance.value.loaderType === 'vanilla') return '原版'
+  if (instance.value.loaderType === 'vanilla') return t('game.vanilla') as string
   return `${getLoaderName(instance.value.loaderType)} ${instance.value.loaderVersion}`.trim()
 })
 
 const formatLastPlayed = computed(() => {
-  if (!instance.value?.lastPlayed) return '从未游玩'
+  if (!instance.value?.lastPlayed) return t('instance.neverPlayed') as string
   return formatRelativeTime(instance.value.lastPlayed)
 })
 
 const playTimeStr = computed(() => {
-  if (!instance.value) return '0分钟'
+  if (!instance.value) return t('instance.zeroMinutes') as string
   return formatDuration(instance.value.playTime)
 })
 
@@ -561,7 +562,7 @@ async function fetchDetail() {
     // 并行加载 Mod 列表和配置列表
     await Promise.all([loadMods(), loadConfigFiles()])
   } catch (e: any) {
-    error.value = e.message || '加载实例详情失败'
+    error.value = e.message || t('instance.loadFailed') as string
   }
 }
 
@@ -640,7 +641,7 @@ async function openConfigEditor(cfg: ConfigFile) {
     await nextTick()
     configTextarea.value?.focus()
   } else {
-    configError.value = res?.error || '读取失败'
+    configError.value = res?.error || t('instance.readFailed') as string
   }
 }
 
@@ -667,7 +668,7 @@ async function saveConfig() {
       configDirty.value = false
       editingConfig.value = null
     } else {
-      configError.value = res?.error || '保存失败'
+      configError.value = res?.error || t('instance.saveFailed') as string
     }
   } finally {
     savingConfig.value = false
@@ -721,15 +722,15 @@ function formatFileSize(bytes: number): string {
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('zh-CN')
+  return new Date(iso).toLocaleDateString(getCurrentLocale().replace('-', '_'))
 }
 
 function statusLabel(status: LocalModStatus): string {
   const map: Record<LocalModStatus, string> = {
-    active: '已启用',
-    disabled: '已禁用',
-    incompatible: '不兼容',
-    error: '错误'
+    active: t('instance.statusActive') as string,
+    disabled: t('instance.statusDisabled') as string,
+    incompatible: t('instance.statusIncompatible') as string,
+    error: t('instance.statusError') as string
   }
   return map[status] || status
 }

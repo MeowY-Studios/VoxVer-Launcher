@@ -236,7 +236,7 @@ function handleSessionUpdate(_event: Event, data: { sessionId: string; session: 
     emit('complete')
   } else if (s.status === 'error') {
     stage.value = 'error'
-    errorMessage.value = s.error || '分享失败！'
+    errorMessage.value = s.error || t('component.shareFailed')
   }
 }
 
@@ -271,7 +271,7 @@ async function startShare() {
     stage.value = 'waiting'
   } catch (e: any) {
     stage.value = 'error'
-    errorMessage.value = e.message || '打包失败！'
+    errorMessage.value = e.message || t('component.packFailed')
   }
 }
 

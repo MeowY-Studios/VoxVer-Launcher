@@ -111,7 +111,7 @@ export const useVersionsStore = defineStore('versions', () => {
 
       return versions.value
     } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : '获取版本列表失败'
+      const message = e instanceof Error ? e.message : $t('version.fetchFailed')
       error.value = message
       return []
     } finally {

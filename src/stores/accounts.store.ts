@@ -4,6 +4,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Account } from '../types/account'
+import { $t } from '../utils/i18n'
 
 export const useAccountsStore = defineStore('accounts', () => {
   // * ====== 状态 ======
@@ -22,7 +23,7 @@ export const useAccountsStore = defineStore('accounts', () => {
   /** 显示名称 */
   const displayName = computed(() => {
     if (!activeAccount.value) return ''
-    return activeAccount.value.name || '未知用户'
+    return activeAccount.value.name || $t('auth.unknownUser')
   })
 
   // * ====== 操作 ======
@@ -35,7 +36,7 @@ export const useAccountsStore = defineStore('accounts', () => {
       const rawList = await window.electronAPI?.account.list()
       accounts.value = (rawList || []).map(mapRawToAccount)
     } catch (e: any) {
-      error.value = e.message || '加载账户失败'
+      error.value = e.message || $t('auth.loadFailed')
     } finally {
       loading.value = false
     }
@@ -47,13 +48,13 @@ export const useAccountsStore = defineStore('accounts', () => {
       const result = await window.electronAPI?.account.loginMicrosoft()
       if (!result || typeof result !== 'object' || !('ok' in result) || !(result as any).ok) {
         if ((result as any).error === 'LOGIN_CANCELLED') return false
-        error.value = (result as any).error || '微软登录失败'
+        error.value = (result as any).error || $t('auth.microsoftLoginFailed')
         return false
       }
       await fetchAccounts()
       return true
     } catch (e: any) {
-      error.value = e.message || '微软登录失败'
+      error.value = e.message || $t('auth.microsoftLoginFailed')
       return false
     }
   }
@@ -66,10 +67,10 @@ export const useAccountsStore = defineStore('accounts', () => {
         await fetchAccounts()
         return true
       }
-      error.value = (result as any).error || '离线登录失败' 
+      error.value = (result as any).error || $t('auth.offlineLoginFailed') 
       return false
     } catch (e: any) {
-      error.value = e.message || '离线登录失败'
+      error.value = e.message || $t('auth.offlineLoginFailed')
       return false
     }
   }

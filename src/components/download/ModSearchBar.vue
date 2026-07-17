@@ -20,7 +20,7 @@
         :placeholder="placeholder"
         @keydown.enter="handleSearch"
       />
-      <button v-if="query" class="clear-btn" @click="clearQuery">清除</button>
+      <button v-if="query" class="clear-btn" @click="clearQuery">{{ $t('common.clear') }}</button>
     </div>
 
     <!-- 平台切换 -->
@@ -62,14 +62,17 @@
         <circle cx="11" cy="11" r="8" />
         <path d="M21 21l-4.35-4.35" />
       </svg>
-      搜索
+      {{ $t('common.search') }}
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { ContentPlatform } from '../../types/download'
+
+const { t } = useI18n()
 
 const props = withDefaults(
   defineProps<{
@@ -85,7 +88,7 @@ const props = withDefaults(
     source: 'modrinth',
     activeCategory: '',
     showCategories: false,
-    placeholder: '搜索 Mod...'
+    placeholder: t('component.searchModPlaceholder')
   }
 )
 

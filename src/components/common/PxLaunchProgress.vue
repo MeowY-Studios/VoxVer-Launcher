@@ -5,15 +5,15 @@
         <div class="px-launch-progress-panel">
           <!-- 标题栏 -->
           <div class="panel-header">
-            <span class="panel-icon">游戏</span>
-            <span class="panel-title">正在启动</span>
+            <span class="panel-icon">{{ $t('component.launchProgressGame') }}</span>
+            <span class="panel-title">{{ $t('component.launchProgressLaunching') }}</span>
             <span class="panel-version">{{ versionId }}</span>
             <button
               class="panel-close"
               @click="handleClose"
               v-if="phase === 'error' || phase === 'idle'"
             >
-              关闭
+              {{ $t('common.close') }}
             </button>
           </div>
 
@@ -30,9 +30,9 @@
               }"
             >
               <span class="phase-icon">
-                <template v-if="step.done">完成</template>
-                <template v-else-if="step.id === phase && phase !== 'error'">进行中</template>
-                <template v-else-if="step.id === phase && phase === 'error'">错误</template>
+                <template v-if="step.done">{{ $t('component.launchProgressComplete') }}</template>
+                <template v-else-if="step.id === phase && phase !== 'error'">{{ $t('component.launchProgressInProgress') }}</template>
+                <template v-else-if="step.id === phase && phase === 'error'">{{ $t('common.error') }}</template>
                 <template v-else>{{ idx + 1 }}</template>
               </span>
               <span class="phase-label">{{ step.label }}</span>
@@ -43,22 +43,22 @@
           <!-- 实时日志 -->
           <div class="log-area" v-if="showLog || phase === 'running'">
             <div class="log-header" @click="showLog = !showLog">
-              <span>{{ showLog ? '收起日志' : '展开日志' }}</span>
+              <span>{{ showLog ? $t('component.launchProgressCollapseLog') : $t('component.launchProgressExpandLog') }}</span>
             </div>
             <pre v-if="showLog" class="log-content">{{ logBuffer }}</pre>
           </div>
 
           <!-- 底部按钮 -->
           <div class="panel-footer" v-if="phase === 'running'">
-            <button class="px-btn px-btn-sm" @click="$emit('openLog')">查看完整日志</button>
+            <button class="px-btn px-btn-sm" @click="$emit('openLog')">{{ $t('component.launchProgressViewFullLog') }}</button>
           </div>
           <div class="panel-footer" v-if="phase === 'error'">
             <button
               class="px-btn px-btn-sm px-btn-danger"
               @click="$emit('showError', errorMessage)"
             >
-              查看错误详情
-            </button>
+                {{ $t('component.launchProgressViewError') }}
+              </button>
           </div>
         </div>
       </div>
@@ -68,6 +68,9 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   versionId?: string
@@ -103,11 +106,11 @@ interface PhaseDef {
 }
 
 const phases = ref<PhaseDef[]>([
-  { id: 'building-config', label: '构建启动参数', detail: '正在构建启动参数...', done: false },
-  { id: 'checking-files', label: '检查游戏文件', detail: '正在检查游戏文件...', done: false },
-  { id: 'validating-java', label: '验证Java', detail: '正在验证Java 环境...', done: false },
-  { id: 'launching-process', label: '启动游戏进程', detail: '正在启动游戏进程...', done: false },
-  { id: 'running', label: '游戏运行', detail: '游戏已启动', done: false }
+  { id: 'building-config', label: t('component.launchProgressBuildConfig'), detail: t('component.launchProgressBuildingConfig'), done: false },
+  { id: 'checking-files', label: t('component.launchProgressCheckFiles'), detail: t('component.launchProgressCheckingFiles'), done: false },
+  { id: 'validating-java', label: t('component.launchProgressValidateJava'), detail: t('component.launchProgressValidatingJava'), done: false },
+  { id: 'launching-process', label: t('component.launchProgressLaunchProcess'), detail: t('component.launchProgressLaunchingProcess'), done: false },
+  { id: 'running', label: t('component.launchProgressGameRunning'), detail: t('component.launchProgressGameLaunched'), done: false }
 ])
 
 
@@ -142,7 +145,7 @@ onMounted(() => {
 
         if (newPhase === 'error') {
           phase.value = 'error'
-          errorMessage.value = msg || '启动失败'
+          errorMessage.value = msg || t('component.launchProgressLaunchFailed')
           message.value = msg
           detail.value = det || ''
           visible.value = true

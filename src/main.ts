@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import i18n from './locale/i18n'
+import { setI18n } from './utils/i18n'
 
 // * VoxVer Design System
 import './styles/tokens.scss'
@@ -24,4 +25,5 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 app.use(i18n)
+setI18n(i18n.global)
 app.mount('#app')

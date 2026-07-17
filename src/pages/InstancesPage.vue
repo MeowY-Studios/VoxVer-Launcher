@@ -240,7 +240,7 @@
         <div class="list-info">
           <p class="list-name">{{ inst.name }}</p>
           <p class="list-meta">
-            {{ inst.mc_version }} · {{ getLoaderLabel(inst) || '原版' }} ·
+            {{ inst.mc_version }} · {{ getLoaderLabel(inst) || $t('game.vanilla') }} ·
             {{ inst.last_played ? formatTime(inst.last_played) : $t('instance.neverPlayed') }}
           </p>
         </div>
@@ -625,7 +625,7 @@ async function scanImportDir() {
       if (!res.data.valid) importError.value = res.data.suggestions?.[0] || '目录无效'
     } else {
       importStep.value = 'error'
-      importError.value = res?.error || '扫描失败'
+      importError.value = res?.error || t('instance.scanFailed')
     }
   } catch (e: any) {
     importStep.value = 'error'
@@ -640,7 +640,7 @@ async function doImport() {
     const minecraftPath = await window.electronAPI?.path?.getMinecraft()
     if (!minecraftPath) {
       importStep.value = 'error'
-      importError.value = '无法获取 .minecraft 目录'
+      importError.value = t('instance.cannotGetMinecraftDir')
       return
     }
     const res = await window.electronAPI?.instance?.importInstance(importDir.value, minecraftPath)
@@ -649,7 +649,7 @@ async function doImport() {
       await loadInstances()
     } else {
       importStep.value = 'error'
-      importError.value = res?.error || '导入失败'
+      importError.value = res?.error || t('instance.importFailed')
     }
   } catch (e: any) {
     importStep.value = 'error'
@@ -670,8 +670,8 @@ async function doExport() {
   exportLoading.value = true
   try {
     const destPath = await window.electronAPI?.dialog?.selectFile({
-      title: '导出实例',
-      filters: [{ name: 'VoxVer 导出包', extensions: ['mcla'] }]
+      title: t('instance.exportInstanceTitle') as string,
+      filters: [{ name: t('instance.voxVerExportPackage') as string, extensions: ['mcla'] }]
     })
     if (!destPath) return
     const fullPath = destPath.endsWith('.mcla') ? destPath : destPath + '.mcla'
@@ -684,8 +684,8 @@ async function doExport() {
       showExport.value = false
     } else {
       window.electronAPI?.notification?.send({
-        title: '错误',
-        body: '导出失败: ' + (res?.error || '未知错误'),
+        title: t('common.error'),
+        body: (t('instance.exportFailed') as string).replace('{error}', res?.error || (t('download.unknownError') as string)),
         type: 'error'
       })
     }
@@ -709,17 +709,17 @@ async function confirmDeleteInstance(inst: Instance) {
 }
 
 function formatTime(dateStr: string | null | undefined): string {
-  if (!dateStr) return '从未启动'
+  if (!dateStr) return t('instance.neverPlayed') as string
   const ts = new Date(dateStr).getTime()
-  if (isNaN(ts)) return '未知'
+  if (isNaN(ts)) return t('instance.unknown') as string
   const diff = Date.now() - ts
   const mins = Math.floor(diff / 60000)
-  if (mins < 60) return `${mins}分钟前`
+  if (mins < 60) return (t('instance.minutesAgo') as string).replace('{n}', String(mins))
   const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours}小时前`
+  if (hours < 24) return (t('instance.hoursAgo') as string).replace('{n}', String(hours))
   const days = Math.floor(hours / 24)
-  if (days < 30) return `${days}天前`
-  return `${Math.floor(days / 30)}个月前`
+  if (days < 30) return (t('instance.daysAgo') as string).replace('{n}', String(days))
+  return (t('instance.monthsAgo') as string).replace('{n}', String(Math.floor(days / 30)))
 }
 
 onMounted(() => {

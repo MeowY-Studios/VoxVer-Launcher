@@ -249,7 +249,7 @@ async function startReceive() {
     sessionId.value = result.sessionId
   } catch (e: any) {
     stage.value = 'error'
-    errorMessage.value = e.message || '连接失败'
+    errorMessage.value = e.message || t('component.connectionFailed')
   }
 }
 
@@ -263,10 +263,10 @@ async function importInstance() {
       emit('imported', result.instanceId)
       close()
     } else {
-      errorMessage.value = result.error || '导入失败'
+      errorMessage.value = result.error || t('component.importFailed')
     }
   } catch (e: any) {
-    errorMessage.value = e.message || '导入失败'
+    errorMessage.value = e.message || t('component.importFailed')
   } finally {
     importing.value = false
   }
@@ -290,7 +290,7 @@ function handleSessionUpdate(_event: Event, data: { sessionId: string; session: 
     stage.value = 'completed'
   } else if (s.status === 'error') {
     stage.value = 'error'
-    errorMessage.value = s.error || '接收失败'
+    errorMessage.value = s.error || t('component.receiveFailed')
   }
 }
 

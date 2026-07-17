@@ -9,16 +9,16 @@
       <input
         type="text"
         class="mod-search-input"
-        placeholder="搜索 Mod 名称 / 描述 / 标签"
+        :placeholder="$t('mod.searchPlaceholder')"
         v-model="modSearchText"
       />
     </div>
 
     <!-- 操作按钮组 --> 
     <div class="mod-toolbar">
-      <button class="form-action-btn primary-outline" @click="openModFolder">打开文件夹</button>
-      <button class="form-action-btn" @click="installModFromFile">从文件安装</button>
-      <button class="form-action-btn" @click="goToDownloads">下载Mod</button>
+      <button class="form-action-btn primary-outline" @click="openModFolder">{{ $t('mod.openFolder') }}</button>
+      <button class="form-action-btn" @click="installModFromFile">{{ $t('mod.installFromFile') }}</button>
+      <button class="form-action-btn" @click="goToDownloads">{{ $t('mod.downloadMod') }}</button>
       <button
         class="form-action-btn"
         :class="{ checking: checkingUpdates }"
@@ -40,10 +40,10 @@
         </svg>
         {{
           checkingUpdates
-            ? '检查中...'
+            ? $t('mod.checking')
             : hasUpdateCount > 0
-              ? `检查更新(${hasUpdateCount}个)`
-              : '检查更新'
+              ? $t('mod.checkUpdatesCount', { count: hasUpdateCount })
+              : $t('mod.checkUpdates')
         }}
       </button>
       <button
@@ -67,10 +67,10 @@
         </svg>
         {{
           checkingDependencies
-            ? '检查中...'
+            ? $t('mod.checking')
             : missingDepsCount > 0
-              ? `检查依赖(${missingDepsCount}!)`
-              : '检查依赖'
+              ? $t('mod.checkDepsCount', { count: missingDepsCount })
+              : $t('mod.checkDependencies')
         }}
       </button>
     </div>
@@ -103,7 +103,7 @@
           <circle cx="12" cy="12" r="10" />
           <path d="M12 6v6l4 2" />
         </svg>
-        <p>正在加载 Mod...</p>
+        <p>{{ $t('mod.loadingMods') }}</p>
       </div>
       <div v-else-if="filteredMods.length" class="mod-list-wrapper">
         <VirtualScroll
@@ -146,32 +146,32 @@
                 <div class="mod-name-row">
                   <span class="mod-name">{{ mod.name }}</span>
                   <span class="mod-version">{{ mod.version }}</span>
-                  <span v-if="!mod.enabled" class="mod-disabled-badge">已禁用</span>    
+                  <span v-if="!mod.enabled" class="mod-disabled-badge">{{ $t('mod.disabled') }}</span>    
                   <!-- 有更新角标 -->
                   <span v-if="updateInfoMap[mod.filePath]?.hasUpdate" class="mod-update-badge">
-                    {{ updateInfoMap[mod.filePath].latestVersionName }} 更新
+                    {{ $t('mod.updateBadge', { name: updateInfoMap[mod.filePath].latestVersionName }) }}
                   </span>
                   <!-- 缺失依赖角标 -->
                   <span
                     v-if="depCheckMap[mod.filePath]?.missingDependencies?.length > 0"
                     class="mod-dep-badge"
                   >
-                    {{ depCheckMap[mod.filePath].missingDependencies.length }} 个缺失依赖
+                    {{ $t('mod.missingDepsBadge', { count: depCheckMap[mod.filePath].missingDependencies.length }) }}
                   </span>
                 </div>
-                <p class="mod-desc">{{ mod.description || '暂无描述' }}</p>
+                <p class="mod-desc">{{ mod.description || $t('mod.noDescription') }}</p>
               </div>
 
               <div
                 class="mod-actions"
                 :class="{ visible: mod.hovered || selectedMod === mod.filePath }"
               >
-                <button class="mod-action-btn" @click.stop="showModDetails(mod)">详情</button>
-                <button class="mod-action-btn" @click.stop="openModFile(mod)">文件位置</button>
+                <button class="mod-action-btn" @click.stop="showModDetails(mod)">{{ $t('mod.detail') }}</button>
+                <button class="mod-action-btn" @click.stop="openModFile(mod)">{{ $t('mod.fileLocation') }}</button>
                 <button class="mod-action-btn" @click.stop="toggleModEnable(mod)">
-                  {{ mod.enabled ? '禁用' : '启用' }}
+                  {{ mod.enabled ? $t('mod.disable') : $t('mod.enable') }}
                 </button>
-                <button class="mod-action-btn danger" @click.stop="removeMod(mod)">删除</button>
+                <button class="mod-action-btn danger" @click.stop="removeMod(mod)">{{ $t('common.delete') }}</button>
               </div>
             </div>
           </template>
@@ -190,13 +190,13 @@
             d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM9 17v-5l-2 2-2-2v5"
           />
         </svg>
-        <p>暂无符合条件的Mod</p>  
+        <p>{{ $t('mod.noMatchingMods') }}</p>  
       </div>
     </div>
 
     <!-- 底部操作栏（单点选中时出现） -->
     <div v-if="selectedMod" class="mod-bottom-bar">
-      <span class="mod-bottom-label">已选中：{{ selectedModName }}</span>
+      <span class="mod-bottom-label">{{ $t('mod.selectedLabel', { name: selectedModName }) }}</span>
       <div class="mod-bottom-actions">
         <button
           class="mod-bottom-btn"
@@ -205,10 +205,10 @@
           @click="updateSelectedMod"
         >
           <template v-if="updatingMod === selectedMod">
-            更新 {{ Math.round((updateProgressMap[selectedMod] ?? 0) * 100) }}%
+            {{ $t('mod.updatingProgress', { percent: Math.round((updateProgressMap[selectedMod] ?? 0) * 100) }) }}
           </template>
-          <template v-else-if="selectedModHasUpdate">更新可用</template>
-          <template v-else>检查更新</template>
+          <template v-else-if="selectedModHasUpdate">{{ $t('mod.updateAvailable') }}</template>
+          <template v-else>{{ $t('mod.checkUpdates') }}</template>
         </button>
         <button
           class="mod-bottom-btn"
@@ -216,17 +216,17 @@
           :disabled="installingDeps === selectedMod"
           @click="installSelectedDeps"
         >
-          <template v-if="installingDeps === selectedMod">安装依赖...</template>
+          <template v-if="installingDeps === selectedMod">{{ $t('mod.installingDeps') }}</template>
           <template v-else-if="selectedModMissingDeps > 0">
-            安装依赖 ({ {{ selectedModMissingDeps }})
+            {{ $t('mod.installDepsCount', { count: selectedModMissingDeps }) }}
           </template>
-          <template v-else>检查依赖</template>
+          <template v-else>{{ $t('mod.checkDependencies') }}</template>
         </button>
         <button class="mod-bottom-btn" @click="toggleSelectedModEnable">
-          {{ selectedModEnabled ? '禁用' : '启用' }}
+          {{ selectedModEnabled ? $t('mod.disable') : $t('mod.enable') }}
         </button>
-        <button class="mod-bottom-btn danger" @click="removeSelectedMod">删除</button>
-        <button class="mod-bottom-btn" @click="selectedMod = null">取消选择</button>
+        <button class="mod-bottom-btn danger" @click="removeSelectedMod">{{ $t('common.delete') }}</button>
+        <button class="mod-bottom-btn" @click="selectedMod = null">{{ $t('mod.cancelSelection') }}</button>
       </div>
     </div>
 
@@ -235,7 +235,7 @@
       <div v-if="showDetailModal" class="mod-detail-overlay" @click.self="showDetailModal = false">
         <div class="mod-detail-window">
           <header class="mod-detail-header">
-            <span class="mod-detail-title">Mod 详情</span>
+            <span class="mod-detail-title">{{ $t('mod.modDetails') }}</span>
             <button class="mod-detail-close" @click="showDetailModal = false">
               <svg width="10" height="10" viewBox="0 0 10 10">
                 <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.2" />
@@ -251,20 +251,20 @@
             <div v-else class="mod-detail-icon-default">{{ selectedDetailMod.name[0] }}</div>
 
             <h3 class="mod-detail-name">{{ selectedDetailMod.name }}</h3>
-            <p class="mod-detail-version">版本：{{ selectedDetailMod.version }}</p>
+            <p class="mod-detail-version">{{ $t('mod.detailVersion', { version: selectedDetailMod.version }) }}</p>
             <p v-if="selectedDetailMod.authors?.length" class="mod-detail-authors">
-              作者：{{ selectedDetailMod.authors.join('、') }}
+              {{ $t('mod.detailAuthors', { authors: selectedDetailMod.authors.join('、') }) }}
             </p>
             <p v-if="selectedDetailMod.description" class="mod-detail-desc">
               {{ selectedDetailMod.description }}
             </p>
             <p v-if="selectedDetailMod.dependencies?.length" class="mod-detail-deps">
-              依赖：{{ selectedDetailMod.dependencies.join('、') }}
+              {{ $t('mod.detailDependencies', { deps: selectedDetailMod.dependencies.join('、') }) }}
             </p>
             <p v-if="selectedDetailMod.url" class="mod-detail-url">
-              链接：<a :href="selectedDetailMod.url" target="_blank">{{ selectedDetailMod.url }}</a>
+              {{ $t('mod.detailLink') }}<a :href="selectedDetailMod.url" target="_blank">{{ selectedDetailMod.url }}</a>
             </p>
-            <p class="mod-detail-path">路径：{{ selectedDetailMod.filePath }}</p>
+            <p class="mod-detail-path">{{ $t('mod.detailPath', { path: selectedDetailMod.filePath }) }}</p>
           </div>
         </div>
       </div>
@@ -275,7 +275,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import VirtualScroll from './common/VirtualScroll.vue'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   gameDir: string
@@ -409,9 +412,9 @@ const modFilterTabs = computed(() => {
   const enabled = installedMods.value.filter((m) => m.enabled).length
   const disabled = installedMods.value.filter((m) => !m.enabled).length
   return [
-    { key: 'all', label: '全部', count: all },
-    { key: 'enabled', label: '启用', count: enabled },
-    { key: 'disabled', label: '禁用', count: disabled }
+    { key: 'all', label: t('mod.all'), count: all },
+    { key: 'enabled', label: t('mod.enable'), count: enabled },
+    { key: 'disabled', label: t('mod.disable'), count: disabled }
   ]
 })
 
@@ -441,7 +444,7 @@ async function loadMods() {
     const mods = Array.isArray(result) ? result : result?.data || []
     installedMods.value = mods.map((m: any) => ({
       name: m.name,
-      version: m.version || '未知',
+      version: m.version || t('mod.unknownVersion'),
       description: m.description || m.fileName || '',
       logoUrl: m.logoUrl || '',
       hovered: false,
@@ -493,8 +496,8 @@ async function updateSelectedMod() {
     const currentMod = installedMods.value.find((m) => m.filePath === selectedMod.value)
     if (!newInfo?.hasUpdate || !currentMod) {
       window.electronAPI?.notification?.send({
-        title: '成功',
-        body: `${mod?.name || ''}」已是最新版本（${mod?.version || ''}）`,
+        title: t('common.success'),
+        body: t('mod.upToDateMsg', { name: mod?.name || '', version: mod?.version || '' }),
         type: 'success'
       })
       return
@@ -508,13 +511,13 @@ async function updateSelectedMod() {
 async function doUpdateMod(mod: ModItem, info: ModUpdateInfo) {
   if (!info?.latestDownloadUrl) {
     window.electronAPI?.notification?.send({
-      title: '提示',
-      body: '未找到可下载的更新文件',
+      title: t('common.info'),
+      body: t('mod.updateFileNotFound'),
       type: 'warning'
     })
     return
   }
-  if (!confirm(`更新${mod.name}」\n${info.currentVersionName} -> ${info.latestVersionName}？`))
+  if (!confirm(t('mod.confirmUpdate', { name: mod.name, currentVersion: info.currentVersionName, latestVersion: info.latestVersionName })))
     return
 
   updatingMod.value = mod.filePath
@@ -543,15 +546,15 @@ async function doUpdateMod(mod: ModItem, info: ModUpdateInfo) {
       await loadMods()
     } else {
       window.electronAPI?.notification?.send({
-        title: '错误',
-        body: `更新失败：${result?.error || '未知错误'}`,
+        title: t('common.error'),
+        body: t('mod.updateFailedMsg', { error: result?.error || t('mod.unknownError') }),
         type: 'error'
       })
     }
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `更新出错：${e.message}`,
+      title: t('common.error'),
+      body: t('mod.updateErrorMsg', { error: e.message }),
       type: 'error'
     })
   } finally {
@@ -592,8 +595,8 @@ async function installSelectedDeps() {
     const newDepCheck = depCheckMap.value[selectedMod.value]
     if (!newDepCheck || newDepCheck.missingDependencies.length === 0) {
       window.electronAPI?.notification?.send({
-        title: '提示',
-        body: '未检测到缺失的依赖',
+        title: t('common.info'),
+        body: t('mod.noMissingDeps'),
         type: 'info'
       })
       return
@@ -609,7 +612,7 @@ async function installSelectedDeps() {
 }
 
 async function doInstallDeps(mod: ModItem, depCheck: ModDependencyCheckResult) {
-  if (!confirm(`为 ${mod.name}」安装 ${depCheck.missingDependencies.length} 个缺失依赖？`))
+  if (!confirm(t('mod.confirmInstallDeps', { name: mod.name, count: depCheck.missingDependencies.length })))
     return
 
   installingDeps.value = mod.filePath
@@ -632,23 +635,23 @@ async function doInstallDeps(mod: ModItem, depCheck: ModDependencyCheckResult) {
     if (result?.ok) {
       const data = (result as any).data || {}
       window.electronAPI?.notification?.send({
-        title: '依赖安装完成',
-        body: `成功 ${data.success?.length || 0} 个，失败 ${data.failed?.length || 0} 个`,
+        title: t('mod.depInstallComplete'),
+        body: t('mod.depInstallResult', { success: data.success?.length || 0, failed: data.failed?.length || 0 }),
         type: data.failed?.length ? 'warning' : 'success'
       })
       await loadMods()
       await checkAllDependencies()
     } else {
       window.electronAPI?.notification?.send({
-        title: '错误',
-        body: `安装失败：${result?.error || '未知错误'}`,
+        title: t('common.error'),
+        body: t('mod.installFailedMsg', { error: result?.error || t('mod.unknownError') }),
         type: 'error'
       })
     }
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `安装出错：${e.message}`,
+      title: t('common.error'),
+      body: t('mod.installErrorMsg', { error: e.message }),
       type: 'error'
     })
   } finally {
@@ -675,7 +678,7 @@ async function removeSelectedMod() {
   if (!selectedMod.value) return
   const mod = installedMods.value.find((m) => m.filePath === selectedMod.value)
   if (!mod) return
-  if (!confirm(`确定要删除 ${mod.name}」吗？`)) return
+  if (!confirm(t('mod.confirmDeleteMod', { name: mod.name }))) return
   try {
     await window.electronAPI?.mod.uninstall(mod.filePath)
     await loadMods()
@@ -755,7 +758,7 @@ async function toggleModEnable(mod: ModItem) {
 
 // * 删除单个 Mod
 async function removeMod(mod: ModItem) {
-  if (!confirm(`确定要删除 ${mod.name}」吗？`)) return
+  if (!confirm(t('mod.confirmDeleteMod', { name: mod.name }))) return
   try {
     await window.electronAPI?.mod.uninstall(mod.filePath)
     await loadMods()

@@ -5,6 +5,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { LocalMod, LocalModStatus } from '../types/mod'
+import { $t } from '../utils/i18n'
 
 export const useModsStore = defineStore('mods', () => {
   // * ====== 状态 ======
@@ -77,7 +78,7 @@ export const useModsStore = defineStore('mods', () => {
         mods.value = []
       }
     } catch (e: any) {
-      error.value = e.message || '加载 Mod 列表失败'
+      error.value = e.message || $t('mod.modLoadFailed')
     } finally {
       loading.value = false
     }
@@ -96,7 +97,7 @@ export const useModsStore = defineStore('mods', () => {
       }
       mod.status = newStatus
     } catch (e: any) {
-      error.value = e.message || '操作失败'
+      error.value = e.message || $t('mod.modOperationFailed')
     }
   }
 
@@ -108,7 +109,7 @@ export const useModsStore = defineStore('mods', () => {
       await window.electronAPI?.mod?.uninstall(mod.filePath)
       mods.value = mods.value.filter((m) => m.id !== modId)
     } catch (e: any) {
-      error.value = e.message || '删除失败'
+      error.value = e.message || $t('mod.modDeleteFailed')
     }
   }
 

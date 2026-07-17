@@ -127,7 +127,7 @@
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                 </button>
-                <button class="va-btn" @click.stop="openChangelog(ver)" title="更新日志">
+                <button class="va-btn" @click.stop="openChangelog(ver)" :title="$t('download.changelog')">
                   <svg
                     width="13"
                     height="13"
@@ -235,7 +235,7 @@
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                 </button>
-                <button class="va-btn" @click.stop="openChangelog(ver)" title="更新日志">
+                <button class="va-btn" @click.stop="openChangelog(ver)" :title="$t('download.changelog')">
                   <svg
                     width="13"
                     height="13"
@@ -342,7 +342,7 @@
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                 </button>
-                <button class="va-btn" @click.stop="openChangelog(ver)" title="更新日志">
+                <button class="va-btn" @click.stop="openChangelog(ver)" :title="$t('download.changelog')">
                   <svg
                     width="13"
                     height="13"
@@ -450,7 +450,7 @@
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                 </button>
-                <button class="va-btn" @click.stop="openChangelog(ver)" title="更新日志">
+                <button class="va-btn" @click.stop="openChangelog(ver)" :title="$t('download.changelog')">
                   <svg
                     width="13"
                     height="13"
@@ -491,7 +491,7 @@
 
       <!-- 加载更多 -->
       <div class="ver-more" v-if="hasMoreVersions">
-        <button class="btn-loadmore" @click="loadMoreVersions">加载更多版本</button>
+        <button class="btn-loadmore" @click="loadMoreVersions">{{ $t('download.loadMoreVersions') }}</button>
       </div>
     </template>
 
@@ -499,7 +499,7 @@
     <template v-else>
       <!-- 筛选表单 -->
       <section class="filter-section vox-card">
-        <h3 class="fs-title">搜索{{ categoryLabel }}</h3>
+        <h3 class="fs-title">{{ $t('download.search') }}{{ categoryLabel }}</h3>
         <div class="filter-grid">
           <div class="f-row">
             <label>{{ $t('download.name') }}</label>
@@ -521,7 +521,7 @@
           <div class="f-row">
             <label>{{ $t('download.version') }}</label>
             <select class="f-select vox-input" v-model="searchVersion">
-              <option value="">全部</option>
+              <option value="">{{ $t('download.all') }}</option>
               <option v-for="v in mcVersionOptions" :key="v" :value="v">{{ v }}</option>
             </select>
           </div>
@@ -550,7 +550,7 @@
           >
             <label>{{ $t('download.type') }}</label>
             <select class="f-select vox-input" v-model="searchType">
-              <option value="">全部</option>
+              <option value="">{{ $t('download.all') }}</option>
               <option v-for="t in availableTypes" :key="t" :value="t">{{ t }}</option>
             </select>
           </div>
@@ -694,8 +694,8 @@
 
       <!-- 搜索错误提示 -->
       <div v-if="dlStore.searchError && !isLoading" class="search-error-bar vox-card">
-        <span class="search-error-text">搜索失败: {{ dlStore.searchError }}</span>
-        <button class="btn-retry" @click="doSearch">重试</button>
+        <span class="search-error-text">{{ $t('download.searchError') }}: {{ dlStore.searchError }}</span>
+        <button class="btn-retry" @click="doSearch">{{ $t('common.retry') }}</button>
       </div>
 
       <!-- 加载更多 -->
@@ -728,10 +728,13 @@ import { ref, computed, inject, reactive, watch, onMounted, onUnmounted, nextTic
 import { useRouter, useRoute } from 'vue-router'
 import { useDownloadStore } from '../stores/download.store'
 import { useInstancesStore } from '../stores/instances.store'
+import { useI18n } from 'vue-i18n'
 import type { ModSearchResult } from '../types/download'
 import type { ContentPlatform } from '../types/download'
 import type { GameInstance } from '../types/instance'
 import { isFeaturedVersion, getVersionDesc, getVersionTypeColor } from '../config/version.config'
+
+const { t } = useI18n()
 
 const dlActiveCat = inject<Ref<string>>('dlActiveCat')!
 const activeCategory = computed(() => dlActiveCat.value)
@@ -798,15 +801,7 @@ watch(
   { immediate: true }
 )
 
-const categoryMap: Record<string, string> = {
-  vanilla: '原版游戏',
-  mod: 'Mod',
-  modpack: '整合包',
-  datapack: '数据包',
-  resourcepack: '资源包',
-  shader: '光影包'
-}
-const categoryLabel = computed(() => categoryMap[activeCategory.value] || '资源')
+const categoryLabel = computed(() => t(`download.sidebar.${activeCategory.value}`))
 
 // * ====== Stores ======
 const dlStore = useDownloadStore()
@@ -899,12 +894,12 @@ function isAprilFools(id: string): boolean {
 
 function typeLabelOf(type: VerItem['type']): string {
   const map: Record<string, string> = {
-    release: '正式版',
-    snapshot: '快照',
-    old: '旧版',
-    april: '愚人节'
+    release: t('game.release') as string,
+    snapshot: t('download.snapshot') as string,
+    old: t('download.oldAlpha') as string,
+    april: t('download.aprilVersion') as string
   }
-  return map[type] || '正式版'
+  return map[type] || (t('game.release') as string)
 }
 
 // * 加载版本列表
@@ -1006,11 +1001,11 @@ async function downloadServer(ver: VerItem) {
   if (!api?.dialog) return
 
   const result = await (api.dialog as any).showSaveDialog({
-    title: '选择服务端保存位置',
+    title: t('download.selectServerSaveLocation') as string,
     defaultPath: `minecraft_server.${ver.id.split('-')[0]}.jar`,
     filters: [
-      { name: 'Jar 文件', extensions: ['jar'] },
-      { name: '所有文件', extensions: ['*'] }
+      { name: t('download.jarFiles') as string, extensions: ['jar'] },
+      { name: t('download.allFiles') as string, extensions: ['*'] }
     ]
   })
 
@@ -1018,14 +1013,14 @@ async function downloadServer(ver: VerItem) {
     const res = await (api.versions as any).downloadServer(ver.id, result.filePath)
     if (res?.ok) {
       window.electronAPI?.notification?.send({
-        title: '成功',
-        body: `服务端下载成功: ${result.filePath}`,
+        title: t('common.success'),
+        body: (t('download.serverDownloadSuccess') as string).replace('{path}', result.filePath),
         type: 'success'
       })
     } else {
       window.electronAPI?.notification?.send({
-        title: '错误',
-        body: `下载失败: ${res?.error || '未知错误'}`,
+        title: t('common.error'),
+        body: (t('download.downloadFailed') as string).replace('{error}', res?.error || (t('download.unknownError') as string)),
         type: 'error'
       })
     }
@@ -1106,35 +1101,35 @@ const mcVersionOptions = [
 const availableTypes = computed(() => {
   if (activeCategory.value === 'mod')
     return [
-      '世界元素',
-      '生物群系',
-      '维度',
-      '矿物与资源',
-      '天然结构',
-      '科技',
-      '管道与物流',
-      '自动化',
-      '能源',
-      '红石',
-      '食物与烹饪',
-      '农业',
-      '游戏机制',
-      '存储',
-      '合成表',
-      '冒险探索',
-      '魔法',
-      '战斗',
-      '生物',
-      '物品',
-      '装备工具',
-      'GUI',
-      '信息显示',
-      '优化性能',
-      '服务器管理'
+      t('download.types.worldElements'),
+      t('download.types.biomes'),
+      t('download.types.dimensions'),
+      t('download.types.oresAndResources'),
+      t('download.types.structures'),
+      t('download.types.technology'),
+      t('download.types.pipesAndLogistics'),
+      t('download.types.automation'),
+      t('download.types.energy'),
+      t('download.types.redstone'),
+      t('download.types.foodAndCooking'),
+      t('download.types.agriculture'),
+      t('download.types.gameMechanics'),
+      t('download.types.storage'),
+      t('download.types.craftingRecipes'),
+      t('download.types.adventure'),
+      t('download.types.magic'),
+      t('download.types.combat'),
+      t('download.types.mobs'),
+      t('download.types.items'),
+      t('download.types.equipment'),
+      t('download.types.gui'),
+      t('download.types.infoDisplay'),
+      t('download.types.performanceOptimization'),
+      t('download.types.serverManagement')
     ]
   if (activeCategory.value === 'shader') return ['Iris', 'OptiFine', 'Voyager', 'Complementary']
   if (activeCategory.value === 'resourcepack') return ['16x', '32x', '64x', '128x+']
-  if (activeCategory.value === 'datapack') return ['实用', 'QoL', '机制', '冒险']
+  if (activeCategory.value === 'datapack') return [t('download.types.utility'), 'QoL', t('download.types.mechanics'), t('download.types.adventureDatapack')]
   return []
 })
 
@@ -1276,8 +1271,8 @@ const filteredResources = computed(() => {
 
 function formatDownloads(n: number): string {
   if (!n) return '0'
-  if (n >= 100000000) return (n / 100000000).toFixed(1) + '亿'
-  if (n >= 10000) return (n / 10000).toFixed(1) + '万'
+  if (n >= 100000000) return (n / 100000000).toFixed(1) + (t('download.billion') as string)
+  if (n >= 10000) return (n / 10000).toFixed(1) + (t('download.tenThousand') as string)
   return String(n)
 }
 

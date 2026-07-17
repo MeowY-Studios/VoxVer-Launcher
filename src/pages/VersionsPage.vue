@@ -285,8 +285,8 @@ async function installModLoader() {
   const currentInstance = instancesStore.currentInstance
   if (!currentInstance) {
     window.electronAPI?.notification?.send({
-      title: '提示',
-      body: '请先在实例管理选择一个实例',
+      title: t('common.tip'),
+      body: t('version.selectInstanceFirst'),
       type: 'warning'
     })
     return
@@ -302,15 +302,15 @@ async function installModLoader() {
       currentInstance.path
     )
     window.electronAPI?.notification?.send({
-      title: '提示',
-      body: 'ModLoader 安装开始，请查看日志',
+      title: t('common.tip'),
+      body: t('version.modLoaderInstallStarted'),
       type: 'info'
     })
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : String(e)
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `安装失败: ${message}`,
+      title: t('common.error'),
+      body: (t('version.installFailed') as string).replace('{error}', message),
       type: 'error'
     })
   }

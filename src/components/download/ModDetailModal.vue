@@ -21,14 +21,14 @@
                 >
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
                 </svg>
-                <span>确认安装</span>
+                <span>{{ $t('mod.confirmInstall') }}</span>
               </div>
               <div class="confirm-body">
                 <p class="confirm-mod-name">
                   {{ pendingFile.displayName || pendingFile.filename }}
                 </p>
                 <p class="confirm-target">
-                  安装到实例：<strong>{{ currentInstance.name }}</strong>
+                  {{ $t('mod.installToInstance') }}<strong>{{ currentInstance.name }}</strong>
                 </p>
                 <p class="confirm-path">{{ selectedTarget }}</p>
               </div>
@@ -40,9 +40,9 @@
                     pendingFile = null
                   "
                 >
-                  取消
+                  {{ $t('common.cancel') }}
                 </button>
-                <button class="btn-confirm" @click="confirmDownload">确认安装</button>
+                <button class="btn-confirm" @click="confirmDownload">{{ $t('mod.confirmInstall') }}</button>
               </div>
             </div>
           </div>
@@ -62,7 +62,7 @@
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
-          <span class="modal-title">资源下载 - {{ detail?.name || 'Mod' }}</span>
+          <span class="modal-title">{{ $t('mod.resourceDownload', { name: detail?.name || 'Mod' }) }}</span>
           <button class="btn-close" @click="close">
             <svg
               width="16"
@@ -81,7 +81,7 @@
         <!-- 加载状态 -->
         <div v-if="loading" class="modal-loading">
           <div class="spin"></div>
-          <span>正在加载...</span>
+          <span>{{ $t('common.loading') }}</span>
         </div>
 
         <!-- 内容 -->
@@ -95,7 +95,7 @@
               </div>
               <div class="mod-info">
                 <h2 class="mod-name">{{ detail.name }}</h2>
-                <p class="mod-desc">{{ detail.description || '暂无描述' }}</p>
+                <p class="mod-desc">{{ detail.description || $t('mod.noDescription') }}</p>
                 <div class="mod-meta">
                   <span class="meta-item">
                     <svg
@@ -129,7 +129,7 @@
                     class="meta-item source"
                     :class="detail.source === 'curseforge' ? 'cf' : 'mr'"
                   >
-                    {{ detail.source === 'curseforge' ? 'CurseForge' : 'Modrinth' }}
+                    {{ detail.source === 'curseforge' ? $t('mod.curseforge') : $t('mod.modrinth') }}
                   </span>
                 </div>
               </div>
@@ -138,10 +138,10 @@
             <!-- 操作按钮 -->
             <div class="info-actions">
               <button class="btn-action primary" @click="openInBrowser">
-                转到 {{ detail.source === 'curseforge' ? 'CurseForge' : 'Modrinth' }}
+                {{ detail.source === 'curseforge' ? $t('mod.goToCurseforge') : $t('mod.goToModrinth') }}
               </button>
-              <button class="btn-action" @click="openMcWiki">转到 MC 百科</button>
-              <button class="btn-action" @click="copyName">复制名称</button>
+              <button class="btn-action" @click="openMcWiki">{{ $t('mod.goToMcWiki') }}</button>
+              <button class="btn-action" @click="copyName">{{ $t('mod.copyName') }}</button>
             </div>
           </div>
 
@@ -152,7 +152,7 @@
               :class="{ active: !selectedMcVersion }"
               @click="selectMcVersion('')"
             >
-              全部
+              {{ $t('mod.all') }}
             </button>
             <button
               v-for="v in mcVersions"
@@ -169,10 +169,10 @@
           <div class="files-section">
             <div v-if="filesLoading" class="files-loading">
               <div class="spin-sm"></div>
-              <span>加载文件列表...</span>
+              <span>{{ $t('mod.loadingFiles') }}</span>
             </div>
 
-            <div v-else-if="!files.length" class="files-empty">暂无可用文件</div>
+            <div v-else-if="!files.length" class="files-empty">{{ $t('mod.noFilesAvailable') }}</div>
 
             <div v-else class="versions-list">
               <div
@@ -186,7 +186,7 @@
                   @click="toggleVersion(mcVersion)"
                 >
                   <span class="group-version">{{ mcVersion }}</span>
-                  <span class="group-count">{{ group.length }} 个文件</span>
+                  <span class="group-count">{{ $t('mod.nFiles', { n: group.length }) }}</span>
                   <svg
                     class="group-arrow"
                     width="14"
@@ -206,7 +206,7 @@
                       <span class="file-meta">
                         <span>{{ formatSize(file.size) }}</span>
                         <span>{{ formatDate(file.datePublished) }}</span>
-                        <span>{{ formatNum(file.downloads) }} 下载</span>
+                        <span>{{ $t('mod.nDownloads', { n: formatNum(file.downloads) }) }}</span>
                       </span>
                     </div>
                     <div class="file-loaders">
@@ -242,7 +242,7 @@
                       >
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
                       </svg>
-                      {{ downloadingId === file.id ? '下载中' : '下载' }}
+                      {{ downloadingId === file.id ? $t('mod.downloadingStatus') : $t('common.download') }}
                     </button>
                   </div>
                 </div>
@@ -253,8 +253,8 @@
 
         <!-- 错误状态 -->
         <div v-else class="modal-error">
-          <p>加载 Mod 详情失败</p>
-          <button class="btn-retry" @click="loadDetail">重试</button>
+          <p>{{ $t('mod.loadingDetail') }}</p>
+          <button class="btn-retry" @click="loadDetail">{{ $t('common.retry') }}</button>
         </div>
       </div>
     </div>
@@ -263,6 +263,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useInstancesStore } from '../../stores/instances.store'
 import { useDownloadStore } from '../../stores/download.store'
 import type { ModSearchResult, ProjectFile } from '../../types/download'
@@ -287,6 +288,7 @@ const emit = defineEmits<{
 
 const instancesStore = useInstancesStore()
 const dlStore = useDownloadStore()
+const { t } = useI18n()
 
 // * ====== 状态 ======
 
@@ -365,7 +367,7 @@ const mcVersions = computed(() => {
   })
 
   if (hasSnapshot) {
-    sortedVersions.push('快照')
+    sortedVersions.push(t('mod.snapshotLabel'))
   }
 
   return sortedVersions
@@ -383,7 +385,7 @@ const versionFilteredFiles = computed(() => {
     return filteredFiles.value
   }
 
-  if (selectedMcVersion.value === '快照') {
+  if (selectedMcVersion.value === t('mod.snapshotLabel')) {
     return filteredFiles.value.filter((f) =>
       f.gameVersions.some((v) => isSnapshotVersion(v.split('-')[0]))
     )
@@ -439,12 +441,12 @@ const lastUpdateTime = computed(() => {
   })
   const diff = Date.now() - new Date(latest.datePublished).getTime()
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-  if (days === 0) return '今天更新'
-  if (days === 1) return '1 天前'
-  if (days < 7) return `${days} 天前`
-  if (days < 30) return `${Math.floor(days / 7)} 周前`
-  if (days < 365) return `${Math.floor(days / 30)} 个月前`
-  return `${Math.floor(days / 365)} 年前`
+  if (days === 0) return t('mod.todayUpdated')
+  if (days === 1) return t('mod.yesterdayUpdated')
+  if (days < 7) return t('mod.daysAgo', { n: days })
+  if (days < 30) return t('mod.weeksAgo', { n: Math.floor(days / 7) })
+  if (days < 365) return t('mod.monthsAgo', { n: Math.floor(days / 30) })
+  return t('mod.yearsAgo', { n: Math.floor(days / 365) })
 })
 
 // ====== 生命周期 ======
@@ -593,8 +595,8 @@ function isRecommended(file: ProjectFile): boolean {
 async function downloadFile(file: ProjectFile) {
   if (!selectedTarget.value) {
     window.electronAPI?.notification?.send({
-      title: '提示',
-      body: '请先选择一个目标实例',
+      title: t('mod.tip'),
+      body: t('mod.selectTargetFirst'),
       type: 'warning'
     })
     return
@@ -634,15 +636,15 @@ async function confirmDownload() {
       await dlStore.refreshQueue()
     } else {
       window.electronAPI?.notification?.send({
-        title: '错误',
-        body: '下载失败：' + (result?.error || '未知错误'),
+        title: t('common.error'),
+        body: t('mod.downloadFailedBody', { error: result?.error || t('mod.unknownError') }),
         type: 'error'
       })
     }
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: '下载出错：' + (e.message || '未知错误'),
+      title: t('common.error'),
+      body: t('mod.downloadErrorBody', { error: e.message || t('mod.unknownError') }),
       type: 'error'
     })
   } finally {
@@ -690,9 +692,9 @@ async function copyName() {
   if (!detail.value) return
   try {
     await navigator.clipboard.writeText(detail.value.name)
-    window.electronAPI?.notification?.send({ title: '成功', body: '名称已复制', type: 'success' })
+    window.electronAPI?.notification?.send({ title: t('common.success'), body: t('mod.nameCopied'), type: 'success' })
   } catch {
-    window.electronAPI?.notification?.send({ title: '错误', body: '复制失败', type: 'error' })
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.copyFailed'), type: 'error' })
   }
 }
 
@@ -701,7 +703,7 @@ function formatNum(n: number | undefined): string {
 }
 
 function formatSize(bytes: number): string {
-  if (!bytes) return '未知'
+  if (!bytes) return t('mod.unknownVersion')
   if (bytes < 1024) return bytes + ' B'
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
   if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB'

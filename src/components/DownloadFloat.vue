@@ -17,14 +17,14 @@
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
-            下载管理
+            {{ $t('download.downloadManager') }}
             <span v-if="activeCount > 0" class="fp-badge">{{ activeCount }}</span>
           </span>
           <div class="fp-actions">
             <button
               class="fp-btn"
               @click="clearCompleted"
-              title="清除已完成"
+              :title="$t('download.clearCompleted')"
               v-if="completedCount > 0"
             >
               <svg
@@ -41,7 +41,7 @@
                 />
               </svg>
             </button>
-            <button class="fp-btn" @click="openManager" title="查看详情">
+            <button class="fp-btn" @click="openManager" :title="$t('component.viewDetails')">
               <svg
                 width="12"
                 height="12"
@@ -53,7 +53,7 @@
                 <rect x="3" y="3" width="18" height="18" rx="2" />
               </svg>
             </button>
-            <button class="fp-btn fp-close" @click="close" title="关闭">
+            <button class="fp-btn fp-close" @click="close" :title="$t('common.close')">
               <svg
                 width="12"
                 height="12"
@@ -85,7 +85,7 @@
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
-            <p>暂无下载任务</p>
+            <p>{{ $t('component.noDownloadTasks') }}</p>
           </div>
 
           <!-- 进行中的任务 -->
@@ -102,7 +102,7 @@
             </div>
             <div class="fp-task-footer">
               <span class="fp-pct">{{ task.progress }}%</span>
-              <button class="fp-cancel-btn" @click="cancelDownload(task.id)" title="取消">
+              <button class="fp-cancel-btn" @click="cancelDownload(task.id)" :title="$t('common.cancel')">
                 <svg
                   width="10"
                   height="10"
@@ -133,12 +133,12 @@
                 fill="none"
                 stroke="currentColor"
                 stroke-width="3"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              已完成
-            </div>
-            <button class="fp-task-dismiss" @click="dismiss(task.id)">移除</button>
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                {{ $t('download.completed') }}
+              </div>
+              <button class="fp-task-dismiss" @click="dismiss(task.id)">{{ $t('component.remove') }}</button>
           </div>
 
           <!-- 失败的任务 -->
@@ -156,19 +156,19 @@
                 fill="none"
                 stroke="currentColor"
                 stroke-width="2.5"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <line x1="15" y1="9" x2="9" y2="15" />
-                <line x1="9" y1="9" x2="15" y2="15" />
-              </svg>
-              失败
-            </div>
-            <button class="fp-task-dismiss" @click="dismiss(task.id)">移除</button>
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+                {{ $t('download.failed') }}
+              </div>
+              <button class="fp-task-dismiss" @click="dismiss(task.id)">{{ $t('component.remove') }}</button>
           </div>
         </div>
 
         <!-- 底部：查看详情 -->
-        <button class="fp-view-all" @click="openManager">查看详情 →</button>
+        <button class="fp-view-all" @click="openManager">{{ $t('component.viewDetails') }} →</button>
       </div>
     </Transition>
   </Teleport>
@@ -177,7 +177,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useDownloadStore } from '../stores/download.store'
+
+const { t } = useI18n()
 
 const router = useRouter()
 const store = useDownloadStore()

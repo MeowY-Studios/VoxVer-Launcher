@@ -14,13 +14,13 @@
           <polyline points="15 18 9 12 15 6" />
         </svg>
       </button>
-      <h1 class="vd-title">$t('version.detail')</h1>
+      <h1 class="vd-title">{{ $t('version.detail') }}</h1>
     </div>
 
     <!-- 加载中 -->
     <div v-if="loading" class="vd-loading">
       <div class="spinner"></div>
-      <span>$t('download.loading')</span>
+      <span>{{ $t('download.loading') }}</span>
     </div>
 
     <!-- 版本信息 -->
@@ -58,8 +58,8 @@
 
       <!-- ModLoader 选择 -->
       <div class="vd-section">
-        <h3 class="section-title">$t('version.addons')</h3>
-        <p class="section-hint">选择一个 ModLoader 类型，为版本添加对应的加载器支持</p>
+        <h3 class="section-title">{{ $t('version.addons') }}</h3>
+        <p class="section-hint">{{ $t('version.selectLoaderHint') }}</p>
 
         <div class="loader-grid">
           <button
@@ -89,7 +89,7 @@
               </svg>
             </div>
             <div v-if="!isLoaderCompatible(loader.type)" class="loader-incompatible">
-              <span>不兼容</span>
+              <span>{{ $t('version.incompatible') }}</span>
             </div>
           </button>
 
@@ -100,8 +100,8 @@
             @click="selectLoader('')"
           >
             <span class="loader-icon">V</span>
-            <span class="loader-name">原版</span>
-            <span class="loader-desc">不含任何 ModLoader</span>
+            <span class="loader-name">{{ $t('game.vanilla') }}</span>
+            <span class="loader-desc">{{ $t('version.noModLoader') }}</span>
             <div v-if="selectedLoader === ''" class="loader-check">
               <svg
                 width="14"
@@ -126,7 +126,7 @@
       >
         <div class="modal-content vox-card">
           <div class="modal-header">
-            <h3>{{ currentLoaderName }} 版本选择</h3>
+            <h3>{{ $t('version.loaderVersionSelect', { name: currentLoaderName }) }}</h3>
             <button class="modal-close" @click="showLoaderVersions = false">
               <svg
                 width="16"
@@ -144,7 +144,7 @@
           <div class="modal-body">
             <div v-if="loaderVersionsLoading" class="versions-loading">
               <div class="spinner"></div>
-              <span>加载版本列表...</span>
+              <span>{{ $t('modloader.loading') }}</span>
             </div>
             <div v-else-if="loaderVersions.length > 0" class="versions-list">
               <div
@@ -158,22 +158,22 @@
                   <span class="version-name">{{ ver.id }}</span>
                   <span class="version-date">{{ formatDate(ver.releaseTime) }}</span>
                 </div>
-                <div v-if="ver.recommended" class="version-badge recommended">推荐</div>
-                <div v-else-if="ver.latest" class="version-badge latest">最新</div>
+                <div v-if="ver.recommended" class="version-badge recommended">{{ $t('version.recommended') }}</div>
+                <div v-else-if="ver.latest" class="version-badge latest">{{ $t('version.latest') }}</div>
               </div>
             </div>
             <div v-else class="no-versions">
-              <p>暂无可用于 {{ versionId }} 的 {{ currentLoaderName }} 版本</p>
+              <p>{{ $t('modloader.noAvailable') }}</p>
             </div>
           </div>
           <div class="modal-footer">
-            <button class="btn-cancel" @click="showLoaderVersions = false">取消</button>
+            <button class="btn-cancel" @click="showLoaderVersions = false">{{ $t('common.cancel') }}</button>
             <button
               class="btn-confirm"
               :disabled="!selectedLoaderVersion"
               @click="confirmLoaderVersion"
             >
-              确认选择
+              {{ $t('version.confirmSelection') }}
             </button>
           </div>
         </div>
@@ -193,7 +193,7 @@
             >
               <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
             </svg>
-            <span>{{ targetFolder || '选择 .minecraft 文件夹' }}</span>
+            <span>{{ targetFolder || $t('version.selectFolder') }}</span>
           </div>
           <button class="btn-browse" @click="browseFolder">
             <svg
@@ -210,7 +210,7 @@
         </div>
 
         <div class="selected-info" v-if="selectedLoader && selectedLoaderVersion">
-          <span>已选择: {{ currentLoaderName }} {{ selectedLoaderVersion }}</span>
+          <span>{{ $t('version.selectedPrefix') }} {{ currentLoaderName }} {{ selectedLoaderVersion }}</span>
         </div>
 
         <button class="btn-download" @click="handleDownload" :disabled="downloading">
@@ -239,15 +239,15 @@
             <polyline points="7 10 12 15 17 10" />
             <line x1="12" y1="15" x2="12" y2="3" />
           </svg>
-          <span>{{ downloading ? '准备下载...' : '开始下载' }}</span>
+          <span>{{ downloading ? $t('version.preparingDownload') : $t('version.startDownload') }}</span>
         </button>
       </div>
     </template>
 
     <!-- 加载失败 -->
     <div v-else class="vd-error">
-      <p>无法加载版本信息</p>
-      <button class="vox-btn vox-btn--primary" @click="loadVersionInfo">重试</button>
+      <p>{{ $t('version.loadFailed') }}</p>
+      <button class="vox-btn vox-btn--primary" @click="loadVersionInfo">{{ $t('common.retry') }}</button>
     </div>
   </div>
 </template>
@@ -255,7 +255,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useDownloadStore } from '../stores/download.store'
+
+const { t: i18n } = useI18n()
 
 const router = useRouter()
 const route = useRoute()
@@ -292,10 +295,10 @@ const currentLoaderName = computed(() => {
 
 const typeLabel = computed(() => {
   const t = versionInfo.value?.type
-  if (t === 'release') return '正式版'
-  if (t === 'snapshot') return '快照版'
-  if (t === 'old_alpha') return '远古版'
-  if (t === 'old_beta') return '测试版'
+  if (t === 'release') return i18n('game.release')
+  if (t === 'snapshot') return i18n('game.snapshot')
+  if (t === 'old_alpha') return i18n('version.oldAlpha')
+  if (t === 'old_beta') return i18n('version.oldBeta')
   return t ?? ''
 })
 

@@ -113,8 +113,8 @@
               </svg>
             </div>
             <span class="quick-grid-label">
-              {{ $t('settings.home.quickLauncher') || '启动器设置' }}
-              <small class="quick-grid-desc">{{ $t('settings.home.quickLauncherDesc') || '更新通道与自动检查' }}</small>
+              {{ $t('settings.home.quickLauncher') }}
+              <small class="quick-grid-desc">{{ $t('settings.home.quickLauncherDesc') }}</small>
             </span>
             <span class="quick-grid-arrow">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg>
@@ -254,7 +254,7 @@
               <line x1="12" y1="9" x2="12" y2="13" />
               <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
-            <span>{{ $t('settings.permWarning') || '启动器位于系统保护目录，下载和更新可能因权限不足而失败。建议移动到用户目录（如桌面）。' }}</span>
+            <span>{{ $t('settings.permWarning') }}</span>
           </div>
           <!-- 已管理员运行 -->
           <div v-if="permInfo?.isAdmin" class="perm-info-ok">
@@ -262,7 +262,7 @@
               <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
-            <span>{{ $t('settings.permAdminOk') || '已以管理员身份运行，权限正常' }}</span>
+            <span>{{ $t('settings.permAdminOk') }}</span>
           </div>
           <div class="about-update-row">
             <div class="about-update-actions">
@@ -286,14 +286,14 @@
       <div v-if="showUpdateErrModal" class="modal-overlay">
         <div class="modal-box update-error-modal">
           <div class="modal-header">
-            <h4>{{ $t('update.checkFailed') || '检查更新失败' }}</h4>
+            <h4>{{ $t('update.checkFailed') }}</h4>
             <button class="modal-close" @click="showUpdateErrModal = false">&times;</button>
           </div>
           <div class="modal-body">
             <p class="update-err-msg">{{ updateStatus.error }}</p>
           </div>
           <div class="modal-footer">
-            <button class="btn vox-btn vox-btn--secondary" @click="showUpdateErrModal = false">{{ $t('common.close') || '关闭' }}</button>
+            <button class="btn vox-btn vox-btn--secondary" @click="showUpdateErrModal = false">{{ $t('common.close') }}</button>
           </div>
         </div>
       </div>
@@ -302,12 +302,12 @@
       <div v-if="showUpdateAvailableModal" class="modal-overlay">
         <div class="modal-box update-available-modal">
           <div class="modal-header">
-            <h4>{{ $t('update.newVersion') || '新版本可用' }}</h4>
+            <h4>{{ $t('update.newVersion') }}</h4>
             <button class="modal-close" @click="showUpdateAvailableModal = false">&times;</button>
           </div>
           <div class="modal-body">
             <div class="update-version-row">
-              <span class="update-version-label">{{ $t('update.versionLabel') || '版本' }}</span>
+              <span class="update-version-label">{{ $t('update.versionLabel') }}</span>
               <span class="update-version-num">v{{ updateStatus.version }}</span>
             </div>
             <div v-if="updateStatus.releaseNotes" class="update-release-notes">
@@ -325,7 +325,7 @@
                 <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
                 <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
-              <span>{{ $t('update.downloaded') || '更新已下载，重启生效' }}</span>
+              <span>{{ $t('update.downloaded') }}</span>
             </div>
             <div v-if="updateStatus.error && !updateStatus.downloading && !updateStatus.downloaded" class="update-error-msg">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -338,12 +338,12 @@
           </div>
           <div class="modal-footer">
             <button v-if="!updateStatus.downloading && !updateStatus.downloaded"
-              class="btn vox-btn vox-btn--secondary" @click="showUpdateAvailableModal = false">
-              {{ $t('common.cancel') || '取消' }}
-            </button>
+            class="btn vox-btn vox-btn--secondary" @click="showUpdateAvailableModal = false">
+            {{ $t('common.cancel') }}
+          </button>
             <button v-if="!updateStatus.downloading && !updateStatus.downloaded && !updateStatus.error"
               class="btn vox-btn vox-btn--primary" @click="startDownloadFromModal">
-              {{ $t('update.download') || '下载更新' }}
+              {{ $t('update.download') }}
             </button>
             <button v-if="updateStatus.error && !updateStatus.downloading && !updateStatus.downloaded"
               class="btn vox-btn vox-btn--primary" @click="startDownloadFromModal">
@@ -351,11 +351,11 @@
             </button>
             <button v-if="updateStatus.downloaded"
               class="btn vox-btn vox-btn--primary" @click="installUpdate">
-              {{ $t('update.install') || '立即重启' }}
+              {{ $t('update.install') }}
             </button>
             <button v-if="updateStatus.downloading"
               class="btn vox-btn vox-btn--secondary" disabled>
-              {{ $t('update.downloading') || '正在下载...' }}
+              {{ $t('update.downloading') }}
             </button>
           </div>
         </div>
@@ -497,21 +497,21 @@
             <line x1="15" y1="15" x2="21" y2="21" />
             <line x1="4" y1="4" x2="9" y2="9" />
           </svg>
-          {{ $t('settings.updateChannel.title') || '更新渠道' }}
+          {{ $t('settings.updateChannel.title') }}
         </h3>
-        <p class="sec-desc">{{ $t('settings.updateChannel.desc') || '选择启动器更新来源通道' }}</p>
+        <p class="sec-desc">{{ $t('settings.updateChannel.desc') }}</p>
         <div class="setting-row">
           <div class="segmented-group">
             <button class="vox-chip vox-chip--stable" :class="{ 'vox-chip--active': updateChannel === 'stable' }" @click="onUpdateChannelChange('stable')">
-              {{ $t('settings.updateChannel.stable') || '稳定版' }}
+              {{ $t('settings.updateChannel.stable') }}
             </button>
             <button class="vox-chip vox-chip--beta" :class="{ 'vox-chip--active': updateChannel === 'beta' }" @click="onUpdateChannelChange('beta')">
-              {{ $t('settings.updateChannel.beta') || '测试版' }}
+              {{ $t('settings.updateChannel.beta') }}
             </button>
           </div>
           <span class="setting-status">
             <span class="status-dot" :class="updateChannel === 'stable' ? 'status-dot--stable' : 'status-dot--beta'" />
-            {{ $t('settings.currentChannel') || '当前' }}：{{ updateChannel === 'stable' ? ($t('settings.updateChannel.stable') || '稳定版') : ($t('settings.updateChannel.beta') || '测试版') }}
+            {{ $t('settings.currentChannel') }}：{{ updateChannel === 'stable' ? $t('settings.updateChannel.stable') : $t('settings.updateChannel.beta') }}
           </span>
         </div>
       </section>
@@ -521,21 +521,21 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
           </svg>
-          {{ $t('settings.autoCheckUpdate') || '启动时自动检查更新' }}
+          {{ $t('settings.autoCheckUpdate') }}
         </h3>
-        <p class="sec-desc">{{ $t('settings.autoCheckUpdateDesc') || '启动启动器 5 秒后自动检查是否有新版本' }}</p>
+        <p class="sec-desc">{{ $t('settings.autoCheckUpdateDesc') }}</p>
         <div class="setting-row">
           <div class="segmented-group">
             <button class="vox-chip vox-chip--on" :class="{ 'vox-chip--active': autoCheckUpdate }" @click="autoCheckUpdate = true; onAutoCheckChange()">
-              {{ $t('settings.autoCheckEnable') || '开启' }}
+              {{ $t('settings.autoCheckEnable') }}
             </button>
             <button class="vox-chip vox-chip--off" :class="{ 'vox-chip--active': !autoCheckUpdate }" @click="autoCheckUpdate = false; onAutoCheckChange()">
-              {{ $t('settings.autoCheckDisable') || '关闭' }}
+              {{ $t('settings.autoCheckDisable') }}
             </button>
           </div>
           <span class="setting-status">
             <span class="status-dot" :class="autoCheckUpdate ? 'status-dot--on' : 'status-dot--off'" />
-            {{ autoCheckUpdate ? ($t('settings.autoCheckOn') || '已开启') : ($t('settings.autoCheckOff') || '已关闭') }}
+            {{ autoCheckUpdate ? $t('settings.autoCheckOn') : $t('settings.autoCheckOff') }}
           </span>
         </div>
       </section>
@@ -689,7 +689,8 @@
           {{ $t('more.voxverAttribution') }}
         </h3>
         <div class="copyright-card">
-          <p class="copyright-text">{{ $t('more.attributionText') }}</p>
+          <p class="copyright-text">{{ $t('more.attributionText1') }}</p>
+          <p class="copyright-text">{{ $t('more.attributionText2') }}</p>
         </div>
       </section>
     </template>
@@ -1215,7 +1216,7 @@
 
         <!-- 主题预设画廊 -->
         <div v-if="themePresets.length > 0" style="margin-top:14px">
-          <label class="row-label" style="margin-bottom:6px;display:block">{{ $t('settings.themePresets') || '主题预设' }}</label>
+          <label class="row-label" style="margin-bottom:6px;display:block">{{ $t('settings.themePresets') }}</label>
           <div class="preset-gallery">
             <button
               v-for="p in themePresets"
@@ -1713,15 +1714,15 @@
         <!-- 镜像测速 -->
         <div class="row">
           <div class="row-main">
-            <label class="row-label">{{ $t('settings.downloadSources') || '镜像测速' }}</label>
-            <p class="row-desc">{{ downloadConfig.testingMirror ? '测速中...' : $t('settings.downloadSourceDesc') }}</p>
+            <label class="row-label">{{ $t('settings.downloadSources') }}</label>
+            <p class="row-desc">{{ downloadConfig.testingMirror ? $t('settings.testingSpeed') : $t('settings.downloadSourceDesc') }}</p>
           </div>
           <div class="row-control">
             <button class="btn vox-btn vox-btn--secondary" @click="onTestMirrors" :disabled="downloadConfig.testingMirror" style="margin-right:8px">
-              {{ $t('settings.downloadSources') || '测速' }}
+              {{ $t('settings.downloadSources') }}
             </button>
             <button class="btn vox-btn vox-btn--secondary" @click="onAutoSelectMirror" :disabled="downloadConfig.testingMirror">
-              自动选择
+              {{ $t('settings.autoSelect') }}
             </button>
           </div>
         </div>
@@ -1729,7 +1730,7 @@
         <!-- 同时下载数 -->
         <div class="row">
           <div class="row-main">
-            <label class="row-label">{{ $t('settings.downloadConcurrent') || '同时下载数' }}</label>
+            <label class="row-label">{{ $t('settings.downloadConcurrent') }}</label>
           </div>
           <div class="row-control">
             <div class="input-group compact">
@@ -1769,7 +1770,7 @@
         <!-- 最大重试数 -->
         <div class="row">
           <div class="row-main">
-            <label class="row-label">{{ $t('settings.downloadMaxRetries') || '最大重试次数' }}</label>
+            <label class="row-label">{{ $t('settings.downloadMaxRetries') }}</label>
           </div>
           <div class="row-control">
             <div class="input-group compact">
@@ -1788,18 +1789,18 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83" />
           </svg>
-          {{ $t('settings.dataMigration.title') || '从其他启动器导入' }}
+          {{ $t('settings.dataMigration.title') }}
         </h3>
-        <p class="sec-desc">{{ $t('settings.dataMigration.desc') || '检测本机已安装的 HMCL / PCL2 启动器，并导入其实例数据' }}</p>
+        <p class="sec-desc">{{ $t('settings.dataMigration.desc') }}</p>
 
         <div class="row">
           <div class="row-main">
-            <label class="row-label">{{ $t('settings.dataMigration.detect') || '检测外部启动器' }}</label>
-            <p class="row-desc">{{ $t('settings.dataMigration.detectDesc') || '扫描本机 HMCL 和 PCL2 的安装位置' }}</p>
+            <label class="row-label">{{ $t('settings.dataMigration.detect') }}</label>
+            <p class="row-desc">{{ $t('settings.dataMigration.detectDesc') }}</p>
           </div>
           <div class="row-control">
             <button class="btn vox-btn vox-btn--secondary" @click="detectExternalLaunchers" :disabled="externalLaunchersLoading">
-              {{ externalLaunchersLoading ? '检测中...' : ($t('settings.dataMigration.detectBtn') || '开始检测') }}
+              {{ externalLaunchersLoading ? $t('settings.detecting') : $t('settings.dataMigration.detectBtn') }}
             </button>
           </div>
         </div>
@@ -1834,7 +1835,7 @@
         </div>
 
         <div v-if="externalLaunchersDetected === false && !externalLaunchersLoading" class="migration-empty">
-          {{ $t('settings.dataMigration.notFound') || '未检测到外部启动器' }}
+          {{ $t('settings.dataMigration.notFound') }}
         </div>
       </section>
     </template>
@@ -1848,14 +1849,14 @@
             <circle cx="8.5" cy="8.5" r="1.5" />
             <polyline points="21 15 16 10 5 21" />
           </svg>
-          {{ $t('settings.screenshots.title') || '游戏截图' }}
+          {{ $t('settings.screenshots.title') }}
         </h3>
-        <p class="sec-desc">{{ $t('settings.screenshots.desc') || '浏览和管理 Minecraft 游戏截图' }}</p>
+        <p class="sec-desc">{{ $t('settings.screenshots.desc') }}</p>
 
         <!-- 实例选择 -->
         <div class="row">
           <div class="row-main">
-            <label class="row-label">{{ $t('settings.screenshots.selectInstance') || '选择实例' }}</label>
+            <label class="row-label">{{ $t('settings.screenshots.selectInstance') }}</label>
           </div>
           <div class="row-control">
             <select class="sel" v-model="screenshotInstanceId" @change="loadScreenshots">
@@ -1881,7 +1882,7 @@
               <span class="screenshot-date">{{ formatScreenshotDate(s.createdAt) }}</span>
             </div>
             <div class="screenshot-actions">
-              <button class="btn vox-btn vox-btn--secondary btn-sm" @click.stop="copyScreenshot(s.filePath)" title="复制到剪贴板">
+              <button class="btn vox-btn vox-btn--secondary btn-sm" @click.stop="copyScreenshot(s.filePath)" :title="$t('settings.copyToClipboard')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                   <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
@@ -1905,7 +1906,7 @@
         </div>
 
         <div v-else-if="screenshotInstanceId && !screenshotsLoading" class="migration-empty">
-          {{ $t('settings.screenshots.empty') || '暂无截图，启动游戏后按 F2 截图' }}
+          {{ $t('settings.screenshots.empty') }}
         </div>
       </section>
     </template>
@@ -3194,8 +3195,8 @@ const featureRows = reactive([
 
 async function browseJava() {
   const path = await window.electronAPI?.dialog.selectFile({
-    title: '选择 java.exe',
-    filters: [{ name: 'Java 可执行文件', extensions: ['exe'] }]
+    title: t('settings.javaDialogTitle'),
+    filters: [{ name: t('settings.javaExecutableFilter'), extensions: ['exe'] }]
   })
   if (path) {
     s.javaPath = path
@@ -3265,26 +3266,26 @@ async function validateJavaPath(path: string) {
     const result = await window.electronAPI?.java?.validate(path)
     if (result?.success) {
       window.electronAPI?.notification?.send({
-        title: '成功',
-        body: `Java 验证成功！ Java 版本: ${result.javaVersion || '未知'} ${result.javacVersion ? `Javac 版本: ${result.javacVersion}` : ''}`,
+        title: t('common.success'),
+        body: t('settings.javaVerifySuccessBody', { version: result.javaVersion || t('settings.unknown') }) + (result.javacVersion ? ` (Javac: ${result.javacVersion})` : ''),
         type: 'success'
       })
     } else {
       window.electronAPI?.notification?.send({
-        title: '错误',
-        body: `Java 验证失败：${result?.error || '未知错误'}`,
+        title: t('common.error'),
+        body: t('settings.javaVerifyFailed') + `：${result?.error || t('settings.unknownError')}`,
         type: 'error'
       })
     }
   } catch (error) {
     console.error('验证 Java 失败:', error)
-    window.electronAPI?.notification?.send({ title: '错误', body: '验证过程出错', type: 'error' })
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('settings.verificationError'), type: 'error' })
   }
 }
 async function browseSkin() {
   const path = await window.electronAPI?.dialog?.selectFile({
-    title: '选择皮肤文件（PNG）',
-    filters: [{ name: 'PNG 图片', extensions: ['png'] }]
+    title: t('settings.skinDialogTitle'),
+    filters: [{ name: t('settings.pngImageFilter'), extensions: ['png'] }]
   })
   if (path) {
     s.customSkinPath = path
@@ -3293,8 +3294,8 @@ async function browseSkin() {
 }
 async function browseBgImage() {
   const path = await window.electronAPI?.dialog?.selectFile({
-    title: '选择背景图片',
-    filters: [{ name: '图片文件', extensions: ['png', 'jpg', 'jpeg', 'webp', 'bmp'] }]
+    title: t('settings.bgImageDialogTitle'),
+    filters: [{ name: t('settings.imageFileFilter'), extensions: ['png', 'jpg', 'jpeg', 'webp', 'bmp'] }]
   })
   if (path) {
     appStore.setBgImagePath(path)
@@ -3334,15 +3335,15 @@ async function openMcDir() {
       await window.electronAPI?.shell.openPath(mcDir)
     } else {
       window.electronAPI?.notification?.send({
-        title: '提示',
-        body: '无法确定 .minecraft 目录位置',
+        title: t('common.tip'),
+        body: t('settings.mcDirNotFound'),
         type: 'warning'
       })
     }
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `打开目录失败: ${e.message}`,
+      title: t('common.error'),
+      body: t('settings.openDirFailedBody', { error: e.message }),
       type: 'error'
     })
   }
@@ -3367,18 +3368,18 @@ function onSkinSelect(val: string) {
 async function saveSkin() {
   if (!s.officialSkinName) {
     window.electronAPI?.notification?.send({
-      title: '提示',
-      body: '请先输入正版玩家名',
+      title: t('common.tip'),
+      body: t('settings.enterPlayerName'),
       type: 'warning'
     })
     return
   }
   try {
-    window.electronAPI?.notification?.send({ title: '成功', body: '皮肤已保存', type: 'success' })
+    window.electronAPI?.notification?.send({ title: t('common.success'), body: t('settings.skinSaved'), type: 'success' })
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `皮肤保存失败: ${e.message}`,
+      title: t('common.error'),
+      body: t('settings.skinSaveFailedBody', { error: e.message }),
       type: 'error'
     })
   }
@@ -3387,18 +3388,18 @@ async function saveSkin() {
 async function refreshSkin() {
   if (!s.officialSkinName) {
     window.electronAPI?.notification?.send({
-      title: '提示',
-      body: '请先输入正版玩家名',
+      title: t('common.tip'),
+      body: t('settings.enterPlayerName'),
       type: 'warning'
     })
     return
   }
   try {
-    window.electronAPI?.notification?.send({ title: '成功', body: '皮肤已刷新', type: 'success' })
+    window.electronAPI?.notification?.send({ title: t('common.success'), body: t('settings.skinRefreshed'), type: 'success' })
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `皮肤刷新失败: ${e.message}`,
+      title: t('common.error'),
+      body: t('settings.skinRefreshFailedBody', { error: e.message }),
       type: 'error'
     })
   }
@@ -3459,18 +3460,18 @@ async function updateHotkey(action: string, accelerator: string) {
     })
     if (res?.error) {
       window.electronAPI?.notification?.send({
-        title: '错误',
-        body: `快捷键保存失败: ${res.error}`,
+        title: t('common.error'),
+        body: t('settings.hotkeySaveFailedBody', { error: res.error }),
         type: 'error'
       })
       return
     }
-    window.electronAPI?.notification?.send({ title: '成功', body: '快捷键已更新', type: 'success' })
+    window.electronAPI?.notification?.send({ title: t('common.success'), body: t('settings.hotkeyUpdated'), type: 'success' })
     await loadHotkeys()
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `快捷键更新失败: ${e.message}`,
+      title: t('common.error'),
+      body: t('settings.hotkeyUpdateFailedBody', { error: e.message }),
       type: 'error'
     })
   }
@@ -3489,14 +3490,14 @@ async function reloadHotkeys() {
   try {
     await window.electronAPI?.hotkey?.reload()
     window.electronAPI?.notification?.send({
-      title: '成功',
-      body: '快捷键已重新加载',
+      title: t('common.success'),
+      body: t('settings.hotkeyReloaded'),
       type: 'success'
     })
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `重载失败: ${e.message}`,
+      title: t('common.error'),
+      body: t('settings.hotkeyReloadFailedBody', { error: e.message }),
       type: 'error'
     })
   }
@@ -3506,7 +3507,7 @@ async function reloadHotkeys() {
 async function browseModpackInstance() {
   try {
     const path = await window.electronAPI?.dialog?.selectFolder({
-      title: '选择实例目录（.minecraft）'
+      title: t('settings.modpackInstanceTitle')
     })
     if (path) s.modpackInstancePath = path
   } catch (e: any) {
@@ -3517,7 +3518,7 @@ async function browseModpackInstance() {
 async function browseModpackOutput() {
   try {
     const path = await window.electronAPI?.dialog?.selectFolder({
-      title: '选择整合包输出目录'
+      title: t('settings.modpackOutputTitle')
     })
     if (path) s.modpackOutputDir = path
   } catch (e: any) {
@@ -3528,23 +3529,23 @@ async function browseModpackOutput() {
 async function packAsMrpack() {
   if (!s.modpackInstancePath) {
     window.electronAPI?.notification?.send({
-      title: '提示',
-      body: '请先选择实例目录',
+      title: t('common.tip'),
+      body: t('settings.selectInstanceDir'),
       type: 'warning'
     })
     return
   }
   if (!s.modpackName) {
     window.electronAPI?.notification?.send({
-      title: '提示',
-      body: '请填写整合包名称',
+      title: t('common.tip'),
+      body: t('settings.enterModpackName'),
       type: 'warning'
     })
     return
   }
   try {
     isWorkingModpack.value = true
-    modpackProgress.value = { stage: '准备中', progress: 0, currentFile: '' }
+    modpackProgress.value = { stage: t('settings.modpackPacking'), progress: 0, currentFile: '' }
 
     const result = await window.electronAPI?.modpack?.pack({
       instancePath: s.modpackInstancePath,
@@ -3562,21 +3563,21 @@ async function packAsMrpack() {
 
     if (result?.ok) {
       window.electronAPI?.notification?.send({
-        title: '成功',
-        body: `整合包创建成功！ 输出文件: ${result.filePath || '(未知)'}`,
+        title: t('common.success'),
+        body: t('settings.modpackCreateSuccessBody', { path: result.filePath || t('settings.unknown') }),
         type: 'success'
       })
     } else {
       window.electronAPI?.notification?.send({
-        title: '错误',
-        body: `创建失败: ${result?.error || '未知错误'}`,
+        title: t('common.error'),
+        body: t('settings.modpackFailedBody', { error: result?.error || t('settings.unknownError') }),
         type: 'error'
       })
     }
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `创建整合包失败: ${e.message}`,
+      title: t('common.error'),
+      body: t('settings.modpackCreateErrorBody', { error: e.message }),
       type: 'error'
     })
   } finally {
@@ -3587,21 +3588,21 @@ async function packAsMrpack() {
 async function importMrpack() {
   try {
     const mrpackPath = await window.electronAPI?.dialog?.selectFile({
-      title: '选择 mrpack 文件',
-      filters: [{ name: 'Modrinth 整合包', extensions: ['mrpack'] }]
+      title: t('settings.mrpackDialogTitle'),
+      filters: [{ name: t('settings.modrinthModpackFilter'), extensions: ['mrpack'] }]
     })
     if (!mrpackPath) return
 
     const targetDir = await window.electronAPI?.dialog?.selectFolder({
-      title: '选择安装位置（父目录，将创建子目录）'
+      title: t('settings.installTargetDir')
     })
     if (!targetDir) return
 
-    const instanceName = prompt('请输入新实例名称:', 'New Modpack')
+    const instanceName = prompt(t('settings.promptNewInstanceName'), 'New Modpack')
     if (!instanceName) return
 
     isWorkingModpack.value = true
-    modpackProgress.value = { stage: '导入中', progress: 0, currentFile: '' }
+    modpackProgress.value = { stage: t('settings.modpackImporting'), progress: 0, currentFile: '' }
 
     const result = await window.electronAPI?.modpack?.import({
       mrpackPath,
@@ -3611,21 +3612,21 @@ async function importMrpack() {
 
     if (result?.ok) {
       window.electronAPI?.notification?.send({
-        title: '成功',
-        body: `整合包导入成功！ 位置: ${result.instancePath || '(未知)'}`,
+        title: t('common.success'),
+        body: t('settings.modpackImportSuccessBody', { path: result.instancePath || t('settings.unknown') }),
         type: 'success'
       })
     } else {
       window.electronAPI?.notification?.send({
-        title: '错误',
-        body: `导入失败: ${result?.error || '未知错误'}`,
+        title: t('common.error'),
+        body: t('settings.modpackImportFailedBody', { error: result?.error || t('settings.unknownError') }),
         type: 'error'
       })
     }
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `导入整合包失败: ${e.message}`,
+      title: t('common.error'),
+      body: t('settings.modpackImportErrorBody', { error: e.message }),
       type: 'error'
     })
   } finally {
@@ -3653,8 +3654,8 @@ async function applyCustomThemeColor(hex: string) {
 async function importBgImage() {
   try {
     const path = await window.electronAPI?.dialog?.selectFile({
-      title: '选择背景图片',
-      filters: [{ name: '图片', extensions: ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif'] }]
+      title: t('settings.bgImageDialogTitle'),
+      filters: [{ name: t('settings.imageFilter'), extensions: ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif'] }]
     })
     if (!path) return
     const local = await window.electronAPI?.theme?.importBackground(path)
@@ -3662,15 +3663,15 @@ async function importBgImage() {
       appStore.setBgImageMode('custom')
       appStore.setBgImagePath(local)
       window.electronAPI?.notification?.send({
-        title: '成功',
-        body: '背景已保存到启动器目录',
+        title: t('common.success'),
+        body: t('settings.bgSaved'),
         type: 'success'
       })
     }
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `导入背景失败: ${e.message}`,
+      title: t('common.error'),
+      body: t('settings.bgImportFailedBody', { error: e.message }),
       type: 'error'
     })
   }
@@ -3680,27 +3681,30 @@ async function importBgImage() {
 async function createBackup() {
   try {
     isWorkingBackup.value = true
-    backupProgress.value = { stage: '备份中', progress: 0, currentItem: '' }
+    backupProgress.value = { stage: t('settings.backupInProgress'), progress: 0, currentItem: '' }
     const result = await window.electronAPI?.backup?.create()
     if (result?.ok) {
       s.backupLastTime = new Date().toLocaleString()
       window.electronAPI?.notification?.send({
-        title: '成功',
-        body: `备份成功！ 文件: ${result.filePath || '(未知)'} 大小: ${result.size != null ? (result.size / 1024).toFixed(1) : '(未知)'} KB`,
+        title: t('common.success'),
+        body: t('settings.backupCreateSuccessBody', {
+          path: result.filePath || t('settings.unknown'),
+          size: result.size != null ? (result.size / 1024).toFixed(1) : t('settings.unknown')
+        }),
         type: 'success'
       })
       await listBackups()
     } else {
       window.electronAPI?.notification?.send({
-        title: '错误',
-        body: `备份失败: ${result?.error || '未知错误'}`,
+        title: t('common.error'),
+        body: t('settings.backupFailedBody', { error: result?.error || t('settings.unknownError') }),
         type: 'error'
       })
     }
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `备份失败: ${e.message}`,
+      title: t('common.error'),
+      body: t('settings.backupErrorBody', { error: e.message }),
       type: 'error'
     })
   } finally {
@@ -3711,34 +3715,34 @@ async function createBackup() {
 async function restoreBackup() {
   try {
     const path = await window.electronAPI?.dialog?.selectFile({
-      title: '选择备份文件（.zip）',
-      filters: [{ name: '备份文件', extensions: ['zip'] }]
+      title: t('settings.backupFileTitle'),
+      filters: [{ name: t('settings.backupFileFilter'), extensions: ['zip'] }]
     })
     if (!path) return
 
-    if (!confirm('恢复备份将覆盖当前数据，确认继续？')) return
+    if (!confirm(t('settings.restoreBackupConfirm'))) return
 
     isWorkingBackup.value = true
-    backupProgress.value = { stage: '恢复中', progress: 0, currentItem: '' }
+    backupProgress.value = { stage: t('settings.backupRestoring'), progress: 0, currentItem: '' }
 
     const result = await window.electronAPI?.backup?.restore(path)
     if (result?.ok) {
       window.electronAPI?.notification?.send({
-        title: '成功',
-        body: '恢复成功！请重启启动器以生效',
+        title: t('common.success'),
+        body: t('settings.backupRestored'),
         type: 'success'
       })
     } else {
       window.electronAPI?.notification?.send({
-        title: '错误',
-        body: `恢复失败: ${result?.error || '未知错误'}`,
+        title: t('common.error'),
+        body: t('settings.backupRestoreFailedBody', { error: result?.error || t('settings.unknownError') }),
         type: 'error'
       })
     }
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `恢复失败: ${e.message}`,
+      title: t('common.error'),
+      body: t('settings.backupRestoreErrorBody', { error: e.message }),
       type: 'error'
     })
   } finally {
@@ -3756,14 +3760,14 @@ async function listBackups() {
 }
 
 async function deleteBackup(fileName: string) {
-  if (!confirm(`确定删除备份文件 ${fileName} 吗？`)) return
+  if (!confirm(t('settings.deleteBackupConfirm', { name: fileName }))) return
   try {
     await window.electronAPI?.backup?.delete(fileName)
     await listBackups()
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `删除失败: ${e.message}`,
+      title: t('common.error'),
+      body: t('settings.deleteFailedBody', { error: e.message }),
       type: 'error'
     })
   }
@@ -3775,14 +3779,14 @@ async function toggleDebugMode() {
     const level = s.debugMode ? 'DEBUG' : 'INFO'
     await window.electronAPI?.logger?.setLevel(level)
     window.electronAPI?.notification?.send({
-      title: '调试模式',
-      body: s.debugMode ? '已开启调试模式，重启后生效' : '已关闭调试模式',
+      title: t('settings.debugModeTitle'),
+      body: s.debugMode ? t('settings.debugModeOn') : t('settings.debugModeOff'),
       type: 'info'
     })
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `设置日志级别失败: ${e.message}`,
+      title: t('common.error'),
+      body: t('settings.setLogLevelFailedBody', { error: e.message }),
       type: 'error'
     })
   }
@@ -3795,21 +3799,21 @@ async function exportDiagnostics() {
     const result = await window.electronAPI?.logger?.exportDiagnostics()
     if (result?.ok) {
       window.electronAPI?.notification?.send({
-        title: '导出成功',
-        body: `诊断日志已保存到: ${result.path}`,
+        title: t('settings.exportSuccess'),
+        body: t('settings.diagSavedToBody', { path: result.path }),
         type: 'success'
       })
     } else {
       window.electronAPI?.notification?.send({
-        title: '导出失败',
-        body: result?.error || '未知错误',
+        title: t('settings.exportFailed'),
+        body: result?.error || t('settings.unknownError'),
         type: 'error'
       })
     }
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `导出诊断日志失败: ${e.message}`,
+      title: t('common.error'),
+      body: t('settings.diagExportFailedBody', { error: e.message }),
       type: 'error'
     })
   } finally {
@@ -3946,14 +3950,14 @@ async function importExternalInstance(gameDir: string) {
     await window.electronAPI?.instance?.importInstance('', gameDir)
     // Reload instances list
     window.electronAPI?.notification?.send({
-      title: '导入成功',
-      body: '实例已导入到启动器',
+      title: t('settings.importSuccess'),
+      body: t('settings.instanceImported'),
       type: 'success'
     })
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '导入失败',
-      body: e?.message || '未知错误',
+      title: t('settings.importFailed'),
+      body: e?.message || t('settings.unknownError'),
       type: 'error'
     })
   }
@@ -3964,8 +3968,8 @@ async function checkForUpdateDownload() {
     await window.electronAPI?.updater?.download()
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `下载失败: ${e.message}`,
+      title: t('common.error'),
+      body: t('settings.downloadFailedBody', { error: e.message }),
       type: 'error'
     })
   }
@@ -3976,8 +3980,8 @@ async function installUpdate() {
     await window.electronAPI?.updater?.install()
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: `安装失败: ${e.message}`,
+      title: t('common.error'),
+      body: t('settings.installFailedBody', { error: e.message }),
       type: 'error'
     })
   }
@@ -4141,8 +4145,8 @@ async function openDirectory(key: 'userData' | 'logs' | 'temp' | 'cache') {
       await window.electronAPI?.shell?.openPath?.(p)
     } catch (e: any) {
       window.electronAPI?.notification?.send({
-        title: '打开失败',
-        body: e?.message || '无法打开目录',
+        title: t('settings.openFailed'),
+        body: e?.message || t('settings.openDirFailed'),
         type: 'error'
       })
     }
@@ -4163,8 +4167,8 @@ async function clearCache() {
     })
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: e?.message || '清除缓存失败',
+      title: t('common.error'),
+      body: e?.message || t('settings.clearCacheFailed'),
       type: 'error'
     })
   } finally {
@@ -4191,15 +4195,15 @@ async function resetSettings() {
       window.electronAPI?.window?.close?.()
     } else {
       window.electronAPI?.notification?.send({
-        title: '重置失败',
-        body: '无法清除配置目录，请手动删除',
+        title: t('settings.resetFailedTitle'),
+        body: t('settings.resetFailedDesc'),
         type: 'error'
       })
     }
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: e?.message || '重置失败',
+      title: t('common.error'),
+      body: e?.message || t('settings.resetFailedTitle'),
       type: 'error'
     })
   }
@@ -4267,23 +4271,23 @@ async function exportCurrentTheme() {
     if (res?.ok && res.json) {
       // Save to file via dialog
       const filePath = await window.electronAPI?.dialog?.selectFile?.({
-        title: '保存主题文件',
-        filters: [{ name: 'VoxVer Theme', extensions: ['voxver_theme.json'] }]
+        title: t('settings.saveThemeFile'),
+        filters: [{ name: t('settings.voxverThemeFilter'), extensions: ['voxver_theme.json'] }]
       })
       if (filePath) {
         // For now, copy to clipboard
         await navigator.clipboard.writeText(res.json)
         window.electronAPI?.notification?.send({
-          title: '主题已导出',
-          body: '主题 JSON 已复制到剪贴板，可粘贴到文件中保存',
+          title: t('settings.themeExported'),
+          body: t('settings.themeExportedDesc'),
           type: 'success'
         })
       }
     }
   } catch (e: any) {
     window.electronAPI?.notification?.send({
-      title: '导出失败',
-      body: e?.message || '未知错误',
+      title: t('settings.exportFailed'),
+      body: e?.message || t('settings.unknownError'),
       type: 'error'
     })
   }
@@ -4303,21 +4307,21 @@ function importThemeFile() {
         const s = res.settings as any
         applyThemeColor(s.themeColor || '#6366f1')
         window.electronAPI?.notification?.send({
-          title: '主题已导入',
-          body: '主题设置已应用',
+          title: t('settings.themeImported'),
+          body: t('settings.themeApplied'),
           type: 'success'
         })
       } else {
         window.electronAPI?.notification?.send({
-          title: '导入失败',
-          body: res?.error || '无效的主题文件',
+          title: t('settings.importFailed'),
+          body: res?.error || t('settings.invalidThemeFile'),
           type: 'error'
         })
       }
     } catch (e: any) {
       window.electronAPI?.notification?.send({
-        title: '导入失败',
-        body: e?.message || '未知错误',
+        title: t('settings.importFailed'),
+        body: e?.message || t('settings.unknownError'),
         type: 'error'
       })
     }
@@ -4361,7 +4365,7 @@ async function copyScreenshot(filePath: string) {
   try {
     const res = await window.electronAPI?.screenshot?.copy(filePath)
     if (res?.ok) {
-      window.electronAPI?.notification?.send({ title: '已复制', body: '截图已复制到剪贴板', type: 'success' })
+      window.electronAPI?.notification?.send({ title: t('settings.copiedTitle'), body: t('settings.screenshotCopied'), type: 'success' })
     }
   } catch { /* ignore */ }
 }
@@ -4373,7 +4377,7 @@ async function exportScreenshot(filePath: string) {
 }
 
 async function deleteScreenshotAction(s: { filePath: string; fileName: string }) {
-  if (!confirm(`确定要删除 ${s.fileName}？`)) return
+  if (!confirm(t('settings.deleteScreenshotConfirm', { name: s.fileName }))) return
   try {
     await window.electronAPI?.screenshot?.delete(s.filePath)
     screenshots.value = screenshots.value.filter((x) => x.filePath !== s.filePath)
@@ -5873,7 +5877,10 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 
 /* ---- 版权声明卡片 ---- */
 .copyright-card {
-  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
   padding: 20px 24px;
   background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   border-radius: var(--voxver-radius-sm);
@@ -5882,7 +5889,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   .copyright-icon {
     width: 64px;
     height: 64px;
-    margin: 0 auto 16px;
+    margin-bottom: 16px;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -18,8 +18,8 @@ import { logger } from '../utils/logger'
 const log = logger.child('Download')
 
 const BMCLAPI_MIRRORS = [
-  { name: '官方', url: 'https://bmclapi2.bangbang93.com', ping: 0 },
-  { name: '阿里云', url: 'https://bmclapi.akarin.dev', ping: 0 }
+  { name: 'Mojang 官方', url: 'https://launchermeta.mojang.com', ping: 0 },
+  { name: 'BMCLAPI', url: 'https://bmclapi2.bangbang93.com', ping: 0 }
 ]
 
 export class DownloadService extends EventEmitter {

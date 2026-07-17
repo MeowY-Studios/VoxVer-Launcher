@@ -381,7 +381,7 @@
                 >
                   <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg
               ></span>
-              全部实例
+              {{ $t('app.allInstances') }}
             </button>
           </nav>
         </template>
@@ -401,7 +401,7 @@
                 >
                   <path d="M15 18l-6-6 6-6" /></svg
               ></span>
-              返回首页
+              {{ $t('app.backToHome') }}
             </button>
           </nav>
         </template>
@@ -421,7 +421,7 @@
                 >
                   <path d="M15 18l-6-6 6-6" /></svg
               ></span>
-              返回下载页
+              {{ $t('app.backToDownloads') }}
             </button>
           </nav>
         </template>
@@ -493,7 +493,7 @@
   <!-- 性能监控浮动面板 -->
   <div v-if="showPerfPanel && perfSnapshot" class="perf-panel">
     <div class="perf-panel-header">
-      <span class="perf-panel-title">性能监控</span>
+      <span class="perf-panel-title">{{ $t('app.perfMonitor') }}</span>
       <button class="perf-panel-close" @click="stopPerfMonitor">&times;</button>
     </div>
     <div class="perf-panel-body">
@@ -502,11 +502,11 @@
         <span class="perf-metric-value">{{ perfSnapshot.cpu }}%</span>
       </div>
       <div class="perf-metric">
-        <span class="perf-metric-label">内存</span>
+        <span class="perf-metric-label">{{ $t('app.memory') }}</span>
         <span class="perf-metric-value">{{ perfSnapshot.memoryMB }} MB</span>
       </div>
       <div class="perf-metric">
-        <span class="perf-metric-label">运行时间</span>
+        <span class="perf-metric-label">{{ $t('app.uptime') }}</span>
         <span class="perf-metric-value">{{ formatUptime(perfSnapshot.uptimeMs) }}</span>
       </div>
     </div>
@@ -841,7 +841,7 @@ async function loadLocalInstalledVersions() {
   // * 优先：使用实例数据库中的实例（更准确的路径信息）
   if (instancesStore.instances.length) {
     versions.value = instancesStore.instances.map((inst) => {
-      const displayName = inst.name || inst.mcVersion || '未知版本'
+      const displayName = inst.name || inst.mcVersion || t('app.unknownVersion')
       return {
         id: inst.path,
         name: displayName,

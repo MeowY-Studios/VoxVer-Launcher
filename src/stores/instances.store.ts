@@ -4,6 +4,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { GameInstance, CreateInstanceParams, LoaderType } from '../types/instance'
+import { $t } from '../utils/i18n'
 
 export const useInstancesStore = defineStore('instances', () => {
   // * ====== 状态 ======
@@ -41,7 +42,7 @@ export const useInstancesStore = defineStore('instances', () => {
       // * 映射 snake_case -> camelCase
       instances.value = (rawList || []).map(mapRawToInstance)
     } catch (e: any) {
-      error.value = e.message || '加载实例失败'
+      error.value = e.message || $t('instance.loadFailed')
     } finally {
       loading.value = false
     }

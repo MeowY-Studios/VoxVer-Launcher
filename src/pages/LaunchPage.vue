@@ -105,23 +105,23 @@
         <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
         <circle cx="12" cy="7" r="4" />
       </svg>
-      账户管理
+      {{ $t('launch.manageAccounts') }}
     </button>
 
     <!-- 游戏日志控制台 -->
     <section class="console-section">
       <div class="console-header">
-        <h3>游戏日志</h3>
+        <h3>{{ $t('launch.gameLog') }}</h3>
         <div class="console-actions">
-          <button class="console-btn" @click="clearLog" title="清空日志">清空</button>
-          <button class="console-btn" @click="copyLog" title="复制日志">复制</button>
+          <button class="console-btn" @click="clearLog" :title="$t('launch.clearLog')">{{ $t('common.clear') }}</button>
+          <button class="console-btn" @click="copyLog" :title="$t('launch.copyLog')">{{ $t('common.copy') }}</button>
           <button
             v-if="isRunning"
             class="console-btn danger"
             @click="terminateGame"
-            title="强制结束"
+            :title="$t('launch.forceTerminate')"
           >
-            终止
+            {{ $t('launch.terminate') }}
           </button>
         </div>
       </div>
@@ -134,7 +134,7 @@
         >
           {{ line }}
         </div>
-        <div v-if="logLines.length === 0" class="log-empty">暂无日志输出，启动游戏后将显示...</div>
+        <div v-if="logLines.length === 0" class="log-empty">{{ $t('launch.noLogOutput') }}</div>
       </div>
     </section>
 
@@ -155,19 +155,19 @@
           <line x1="12" y1="9" x2="12" y2="13" />
           <line x1="12" y1="17" x2="12.01" y2="17" />
         </svg>
-        <h3>游戏崩溃</h3>
+        <h3>{{ $t('launch.gameCrash') }}</h3>
       </div>
       <div class="crash-body">
-        <p class="crash-cause"><strong>原因：</strong>{{ crashReport.cause }}</p>
+        <p class="crash-cause"><strong>{{ $t('launch.crashCause') }}</strong>{{ crashReport.cause }}</p>
         <div v-if="crashReport.recommendedActions?.length" class="crash-actions">
-          <strong>建议操作：</strong>
+          <strong>{{ $t('launch.suggestedActions') }}</strong>
           <ul>
             <li v-for="(action, i) in crashReport.recommendedActions" :key="i">{{ action }}</li>
           </ul>
         </div>
         <details class="crash-stack">
-          <summary>查看崩溃堆栈</summary>
-          <pre>{{ crashReport.stackTrace?.join('\n') || '无' }}</pre>
+          <summary>{{ $t('launch.viewCrashStack') }}</summary>
+          <pre>{{ crashReport.stackTrace?.join('\n') || $t('launch.noStack') }}</pre>
         </details>
       </div>
     </section>
@@ -179,8 +179,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useVersionsStore, useAccountsStore, useInstancesStore } from '../stores'
 import PxLaunchProgress from '../components/common/PxLaunchProgress.vue'
+
+const { t, locale } = useI18n()
 
 const pxProgressRef = ref<InstanceType<typeof PxLaunchProgress> | null>(null)
 
@@ -213,14 +216,14 @@ const crashReport = ref<CrashInfo | null>(null)
 
 // ====== 计算属性 ======
 const mcPathDisplay = computed(() => {
-  if (!mcPath.value) return '正在检测...'
-  if (!mcPathExists.value) return mcPath.value + '（未找到）'
+  if (!mcPath.value) return t('launch.detecting')
+  if (!mcPathExists.value) return mcPath.value + t('launch.notFound')
   return mcPath.value
 })
 const launchLabel = computed(() => {
-  if (isRunning.value) return '运行中'
-  if (isLaunching.value) return '启动中...'
-  return '启动游戏'
+  if (isRunning.value) return t('launch.running')
+  if (isLaunching.value) return t('launch.starting')
+  return t('home.launchGame')
 })
 
 // ====== 方法 ======
@@ -232,7 +235,7 @@ async function handleLaunch() {
 
   isLaunching.value = true
   hasError.value = false
-  statusMessage.value = '正在构建启动参数...'
+  statusMessage.value = t('launch.buildingArgs')
   crashReport.value = null
   pxProgressRef.value?.open()
   addLog('[VoxVer] 开始启动流程...')
@@ -255,7 +258,7 @@ async function handleLaunch() {
     // 如果没有版本，提示用户
     if (!versionId && !instanceId) {
       hasError.value = true
-      statusMessage.value = '请先选择一个游戏版本'
+      statusMessage.value = t('launch.selectVersionFirst')
       addLog('[VoxVer] 未选择版本，无法启动')
       isLaunching.value = false
       return
@@ -273,7 +276,7 @@ async function handleLaunch() {
     addLog(`[VoxVer] launch IPC 返回: ${JSON.stringify(result)}`)
   } catch (e: any) {
     hasError.value = true
-    statusMessage.value = e.message || '启动失败'
+    statusMessage.value = e.message || t('launch.launchFailed')
     addLog(`[VoxVer] 启动失败: ${e.message || e}`)
   } finally {
     // 保持 isLaunching，progress 事件会在成功时设为 false
@@ -287,7 +290,7 @@ async function terminateGame() {
       await api.game.terminate()
     }
     isRunning.value = false
-    statusMessage.value = '游戏已终止'
+    statusMessage.value = t('launch.gameTerminated')
     addLog('[VoxVer] 游戏进程已手动终止')
   } catch (e) {}
 }
@@ -302,7 +305,7 @@ async function checkRunning() {
     }
     isRunning.value = !!running
     if (running) {
-      statusMessage.value = '游戏正在运行中'
+      statusMessage.value = t('launch.gameAlreadyRunning')
     }
   } catch (e) {
     // 忽略
@@ -311,7 +314,7 @@ async function checkRunning() {
 
 /** 添加日志行 */
 function addLog(line: string) {
-  const now = new Date().toLocaleTimeString('zh-CN', { hour12: false })
+  const now = new Date().toLocaleTimeString(locale.value, { hour12: false })
   logLines.value.push(`[${now}] ${line}`)
   // 自动滚动到底部
   if (autoScroll.value && logContainerRef.value) {
@@ -331,13 +334,13 @@ function copyLog() {
   navigator.clipboard
     .writeText(logLines.value.join('\n'))
     .then(() => {
-      statusMessage.value = '日志已复制到剪贴板'
+      statusMessage.value = t('launch.logCopied')
       setTimeout(() => {
         statusMessage.value = ''
       }, 2000)
     })
     .catch(() => {
-      statusMessage.value = '复制失败'
+      statusMessage.value = t('launch.copyFailed')
     })
 }
 
@@ -371,7 +374,7 @@ async function changePath() {
   mcPath.value = selected
   isCustomPath.value = true
   mcPathExists.value = await api.path.exists(selected)
-  statusMessage.value = `已切换到: ${selected}`
+  statusMessage.value = t('launch.switchedTo', { path: selected })
   setTimeout(() => {
     statusMessage.value = ''
   }, 3000)
@@ -387,7 +390,7 @@ async function restoreDefaultPath() {
   mcPath.value = defaultPath
   isCustomPath.value = false
   mcPathExists.value = await api.path.exists(defaultPath)
-  statusMessage.value = `已恢复默认: ${defaultPath}`
+  statusMessage.value = t('launch.restoredDefault', { path: defaultPath })
   setTimeout(() => {
     statusMessage.value = ''
   }, 3000)
@@ -445,9 +448,9 @@ onMounted(async () => {
       addLog(`[VoxVer] 游戏进程退出，退出码: ${data.code}`)
       if (data.code !== 0) {
         hasError.value = true
-        statusMessage.value = `游戏异常退出 (exit code ${data.code})`
+        statusMessage.value = `${t('launch.gameAbnormalExit')} (exit code ${data.code})`
       } else {
-        statusMessage.value = '游戏正常退出'
+        statusMessage.value = t('launch.gameNormalExit')
       }
     }
     window.electronAPI.game.onExit(exitListener)

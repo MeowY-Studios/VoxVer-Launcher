@@ -3,6 +3,8 @@
  * 文件大小、时间、数字等格式化
  */
 
+import { $t } from './i18n'
+
 // * ========== 文件大小 ==========
 
 /** 字节数转人类可读大小 */
@@ -31,14 +33,14 @@ export function formatRelativeTime(dateStr: string): string {
   const diffHour = Math.floor(diffMin / 60)
   const diffDay = Math.floor(diffHour / 24)
 
-  if (diffSec < 60) return '刚刚'
-  if (diffMin < 60) return `${diffMin}分钟前`
-  if (diffHour < 24) return `${diffHour}小时前`
-  if (diffDay < 7) return `${diffDay}天前`
-  if (diffDay < 30) return `${Math.floor(diffDay / 7)}周前`
-  if (diffDay < 365) return `${Math.floor(diffDay / 30)}个月前`
+  if (diffSec < 60) return $t('time.justNow')
+  if (diffMin < 60) return $t('time.minutesAgo', { n: diffMin })
+  if (diffHour < 24) return $t('time.hoursAgo', { n: diffHour })
+  if (diffDay < 7) return $t('time.daysAgo', { n: diffDay })
+  if (diffDay < 30) return $t('time.weeksAgo', { n: Math.floor(diffDay / 7) })
+  if (diffDay < 365) return $t('time.monthsAgo', { n: Math.floor(diffDay / 30) })
 
-  return `${Math.floor(diffDay / 365)}年前`
+  return $t('time.yearsAgo', { n: Math.floor(diffDay / 365) })
 }
 
 /** ISO 时间字符串格式化为本地显示 */
@@ -115,7 +117,7 @@ export function formatVersion(mcVersion: string, loaderType?: string, loaderVer?
 
 /** 加载器名称映射（用于显示） */
 export const LOADER_NAMES: Record<string, string> = {
-  vanilla: '原版',
+  vanilla: 'vanilla',
   fabric: 'Fabric',
   forge: 'Forge',
   neoforge: 'NeoForge',
@@ -124,5 +126,6 @@ export const LOADER_NAMES: Record<string, string> = {
 
 /** 获取加载器显示名 */
 export function getLoaderName(loaderType: string): string {
+  if (loaderType === 'vanilla') return $t('mod.loaders.vanilla')
   return LOADER_NAMES[loaderType] || loaderType
 }

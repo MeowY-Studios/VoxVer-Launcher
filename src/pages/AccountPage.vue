@@ -287,8 +287,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAccountsStore } from '../stores/accounts.store'
 
+const { t } = useI18n()
 const accountsStore = useAccountsStore()
 
 // * ====== 微软账户状态 ======
@@ -487,7 +489,7 @@ async function saveOffline() {
   offlineError.value = ''
   const name = offlineName.value.trim()
   if (!name || name.length < 2) {
-    offlineError.value = '玩家名至少 2 个字符'
+    offlineError.value = t('auth.playerNameMinLength') as string
     return
   }
   savingOffline.value = true
@@ -497,10 +499,10 @@ async function saveOffline() {
       await accountsStore.fetchAccounts()
       syncMsAccount()
     } else {
-      offlineError.value = result?.error || '保存失败'
+      offlineError.value = result?.error || t('auth.saveFailed') as string
     }
   } catch (e: any) {
-    offlineError.value = e.message || '保存失败'
+    offlineError.value = e.message || t('auth.saveFailed') as string
   } finally {
     savingOffline.value = false
   }

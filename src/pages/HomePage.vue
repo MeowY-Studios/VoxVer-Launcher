@@ -41,7 +41,7 @@
               <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
               <circle cx="12" cy="7" r="4" />
             </svg>
-            <span>{{ $t('auth.account') || '账户' }}</span>
+            <span>{{ $t('auth.account') }}</span>
           </button>
           <button class="action-btn" @click="openReceiveModal">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
@@ -70,7 +70,7 @@
           {{ $t('home.recent') }}
         </h3>
         <button class="section-link" @click="$router.push('/instances')">
-          {{ $t('home.viewAll') || '查看全部' }}
+          {{ $t('home.viewAll') }}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2">
             <polyline points="9 18 15 12 9 6" />
@@ -136,23 +136,23 @@ const recentInstances = computed(() => {
   return instancesStore.recentInstances.map((inst: any) => ({
     id: inst.id,
     name: inst.name,
-    mcVersion: inst.mcVersion || inst.mc_version || '未知',
+    mcVersion: inst.mcVersion || inst.mc_version || t('home.unknown'),
     loaderType: inst.loaderType || inst.loader_type || '',
     lastPlayed: inst.lastPlayed || inst.last_played
   }))
 })
 
 function formatTime(dateStr?: string | null): string {
-  if (!dateStr) return '从未启动'
+  if (!dateStr) return t('instance.neverPlayed')
   const ts = new Date(dateStr).getTime()
-  if (isNaN(ts)) return '未知'
+  if (isNaN(ts)) return t('home.unknown')
   const diff = Date.now() - ts
   const mins = Math.floor(diff / 60000)
-  if (mins < 1) return '刚刚'
-  if (mins < 60) return `${mins}分钟前`
+  if (mins < 1) return t('home.justNow')
+  if (mins < 60) return t('home.minutesAgo', { n: mins })
   const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours}小时前`
-  return `${Math.floor(hours / 24)}天前`
+  if (hours < 24) return t('home.hoursAgo', { n: hours })
+  return t('home.daysAgo', { n: Math.floor(hours / 24) })
 }
 
 function getLoaderLabel(inst: Instance): string {

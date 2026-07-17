@@ -14,7 +14,7 @@
           <polyline points="15 18 9 12 15 6" />
         </svg>
       </button>
-      <h1 class="dm-title">下载管理</h1>
+      <h1 class="dm-title">{{ $t('download.downloadManager') }}</h1>
       <div class="header-actions">
         <button v-if="completedCount > 0" class="btn-clear vox-btn vox-btn--destructive" @click="clearCompleted">
           <svg
@@ -29,7 +29,7 @@
             <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
             <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
           </svg>
-          清除已完成
+          {{ $t('download.clearCompleted') }}
         </button>
       </div>
     </div>
@@ -48,7 +48,7 @@
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
-        <input v-model="searchQuery" type="text" placeholder="搜索任务..." class="search-input" />
+        <input v-model="searchQuery" type="text" :placeholder="$t('download.searchTask')" class="search-input" />
       </div>
 
       <!-- 分类标签 -->
@@ -72,19 +72,19 @@
     <div class="dm-stats">
       <div class="stat-item">
         <span class="stat-value">{{ totalCount }}</span>
-        <span class="stat-label">总任务</span>
+        <span class="stat-label">{{ $t('download.totalTasks') }}</span>
       </div>
       <div class="stat-item downloading">
         <span class="stat-value">{{ downloadingCount }}</span>
-        <span class="stat-label">下载中</span>
+        <span class="stat-label">{{ $t('download.downloading') }}</span>
       </div>
       <div class="stat-item completed">
         <span class="stat-value">{{ completedCount }}</span>
-        <span class="stat-label">已完成</span>
+        <span class="stat-label">{{ $t('download.completed') }}</span>
       </div>
       <div class="stat-item failed">
         <span class="stat-value">{{ failedCount }}</span>
-        <span class="stat-label">失败</span>
+        <span class="stat-label">{{ $t('download.failed') }}</span>
       </div>
     </div>
 
@@ -190,7 +190,7 @@
                   v-if="task.phase === 'failed'"
                   class="btn-action retry"
                   @click="retryTask(task)"
-                  title="重试下载"
+                  :title="$t('download.retryDownload')"
                 >
                   <svg
                     width="16"
@@ -209,7 +209,7 @@
                   v-else-if="task.phase === 'completed'"
                   class="btn-action view"
                   @click="viewInstance(task)"
-                  title="查看实例"
+                  :title="$t('download.viewInstance')"
                 >
                   <svg
                     width="16"
@@ -225,7 +225,7 @@
                     />
                   </svg>
                 </button>
-                <button class="btn-action delete" @click="removeTask(task)" title="删除任务">
+                <button class="btn-action delete" @click="removeTask(task)" :title="$t('download.deleteTask')">
                   <svg
                     width="16"
                     height="16"
@@ -261,8 +261,8 @@
             <line x1="12" y1="15" x2="12" y2="3" />
           </svg>
         </div>
-        <h3>暂无下载任务</h3>
-        <p>去下载页面选择游戏版本开始下载</p>
+        <h3>{{ $t('download.noDownloadTasks') }}</h3>
+        <p>{{ $t('download.goToDownloadHint') }}</p>
         <button class="btn-go-download vox-btn vox-btn--primary" @click="goToDownloads">
           <svg
             width="16"
@@ -276,7 +276,7 @@
             <polyline points="7 10 12 15 17 10" />
             <line x1="12" y1="15" x2="12" y2="3" />
           </svg>
-          去下载
+          {{ $t('download.goToDownload') }}
         </button>
       </div>
     </div>
@@ -284,18 +284,18 @@
     <!-- 底部操作栏（选中时显示） -->
     <div v-if="selectedTasks.length > 0" class="dm-selection-bar">
       <div class="selection-info">
-        <span>已选择 {{ selectedTasks.length }} 个任务</span>
+        <span>{{ $t('download.selectedTasks', { count: selectedTasks.length }) }}</span>
       </div>
       <div class="selection-actions">
-        <button class="btn-selection" @click="cancelSelection">取消</button>
-        <button class="btn-selection danger" @click="deleteSelected">删除选中</button>
+        <button class="btn-selection" @click="cancelSelection">{{ $t('common.cancel') }}</button>
+        <button class="btn-selection danger" @click="deleteSelected">{{ $t('download.deleteSelected') }}</button>
       </div>
     </div>
 
     <!-- 底部提示 -->
     <div v-else class="dm-footer">
-      <p>返回后下载将在后台继续</p>
-      <button class="btn-back-bg" @click="goBackToHome">返回主页</button>
+      <p>{{ $t('download.downloadInBackground') }}</p>
+      <button class="btn-back-bg" @click="goBackToHome">{{ $t('download.backToHome') }}</button>
     </div>
   </div>
 </template>
@@ -303,22 +303,24 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useDownloadStore } from '../stores/download.store'
 import type { VersionDownloadTask } from '../types/download'
 
 const router = useRouter()
+const { t } = useI18n()
 const downloadStore = useDownloadStore()
 
 const searchQuery = ref('')
 const activeTab = ref('all')
 const selectedTasks = ref<string[]>([])
 
-const tabs = [
-  { label: '全部', value: 'all' },
-  { label: '下载中', value: 'downloading' },
-  { label: '已完成', value: 'completed' },
-  { label: '失败', value: 'failed' }
-]
+const tabs = computed(() => [
+  { label: t('download.all'), value: 'all' },
+  { label: t('download.downloading'), value: 'downloading' },
+  { label: t('download.completed'), value: 'completed' },
+  { label: t('download.failed'), value: 'failed' }
+])
 
 const tasks = computed(() => Array.from(downloadStore.versionTasks.values()))
 

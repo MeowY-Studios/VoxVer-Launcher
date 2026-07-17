@@ -10,6 +10,7 @@ import type {
   ContentPlatform,
   VersionDownloadTask
 } from '../types/download'
+import { $t } from '../utils/i18n'
 
 export const useDownloadStore = defineStore('download', () => {
   // * ====== 搜索状态 ======
@@ -102,7 +103,7 @@ export const useDownloadStore = defineStore('download', () => {
       name: versionId,
       phase: 'resolving',
       progress: 5,
-      phaseLabel: '解析版本清单...',
+      phaseLabel: $t('download.resolvingManifest'),
       speed: 0,
       downloadedSize: 0,
       totalSize: 0,
@@ -114,7 +115,7 @@ export const useDownloadStore = defineStore('download', () => {
     const res = await api.versions.downloadStart(versionId, targetFolder)
     if (!res?.ok) {
       task.phase = 'failed'
-      task.error = res?.error || '未知错误'
+      task.error = res?.error || $t('download.downloadUnknownError')
       task.phaseLabel = `失败: ${task.error}`
     }
   }
@@ -147,7 +148,7 @@ export const useDownloadStore = defineStore('download', () => {
     if (task) {
       task.phase = 'completed'
       task.progress = 100
-      task.phaseLabel = '下载完成'
+      task.phaseLabel = $t('download.downloadCompleted')
     }
   }
 
@@ -174,10 +175,10 @@ export const useDownloadStore = defineStore('download', () => {
 
     const task: VersionDownloadTask = {
       id: versionId + '-server',
-      name: `服务端 ${versionId}`,
+      name: $t('download.serverVersion', { id: versionId }),
       phase: 'idle',
       progress: 0,
-      phaseLabel: '下载服务端...',
+      phaseLabel: $t('download.downloadingServer'),
       speed: 0,
       downloadedSize: 0,
       totalSize: 0,
@@ -190,10 +191,10 @@ export const useDownloadStore = defineStore('download', () => {
       await api.versions.downloadServer(versionId, savePath)
       task.phase = 'completed'
       task.progress = 100
-      task.phaseLabel = '下载完成'
+      task.phaseLabel = $t('download.downloadCompleted')
     } catch (error: any) {
       task.phase = 'failed'
-      task.error = error.message || '下载失败'
+      task.error = error.message || $t('download.downloadFailed')
       task.phaseLabel = `失败: ${task.error}`
     }
   }
@@ -220,7 +221,7 @@ export const useDownloadStore = defineStore('download', () => {
       const response = await window.electronAPI?.download.searchMods(queryParams)
       console.log('[searchMods] 原始响应:', response)
       if (response && (response as any).success === false) {
-        searchError.value = (response as any).error || '搜索失败'
+        searchError.value = (response as any).error || $t('download.searchFailed')
         console.error('[searchMods] IPC 返回错误:', searchError.value)
       } else {
         searchError.value = ''

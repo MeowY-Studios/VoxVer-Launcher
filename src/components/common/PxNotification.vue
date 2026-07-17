@@ -5,7 +5,7 @@
       class="pxn-bell"
       :class="{ 'has-unread': unreadCount > 0 }"
       @click="showPanel = !showPanel"
-      :title="`通知 (${unreadCount})`"
+      :title="$t('component.notificationCount', { n: unreadCount })"
     >
       <svg
         width="18"
@@ -29,13 +29,13 @@
     <transition name="pxn-panel">
       <div v-if="showPanel" class="pxn-panel">
         <div class="pxn-header">
-          <span class="pxn-title">通知中心</span>
+          <span class="pxn-title">{{ $t('component.notificationCenter') }}</span>
           <div class="pxn-header-actions">
             <button
               v-if="unreadCount > 0"
               class="pxn-action-btn"
               @click="markAllRead"
-              title="全部标为已读"
+              :title="$t('component.markAllRead')"
             >
               <svg
                 width="14"
@@ -52,7 +52,7 @@
               v-if="history.length > 0"
               class="pxn-action-btn"
               @click="clearAll"
-              title="清除全部"
+              :title="$t('component.clearAll')"
             >
               <svg
                 width="14"
@@ -71,7 +71,7 @@
         </div>
 
         <div class="pxn-list">
-          <div v-if="history.length === 0" class="pxn-empty">暂无通知</div>
+          <div v-if="history.length === 0" class="pxn-empty">{{ $t('component.noNotifications') }}</div>
           <div
             v-for="item in sortedHistory"
             :key="item.id"
@@ -147,7 +147,7 @@
               v-if="!item.read"
               class="pxn-read-dot"
               @click.stop="markRead(item.id)"
-              title="标记已读"
+              :title="$t('component.markRead')"
             ></button>
           </div>
         </div>
@@ -159,7 +159,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
+const { t, locale } = useI18n()
 const router = useRouter()
 const showPanel = ref(false)
 const history = ref<any[]>([])
@@ -190,9 +192,9 @@ function formatTime(ts: number): string {
     d.getMonth() === now.getMonth() &&
     d.getDate() === now.getDate()
   if (isToday) {
-    return d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+    return d.toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' })
   }
-  return d.toLocaleDateString('zh-CN', {
+  return d.toLocaleDateString(locale.value, {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',

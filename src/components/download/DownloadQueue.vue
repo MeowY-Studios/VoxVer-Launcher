@@ -2,8 +2,8 @@
   <div class="download-queue">
     <!-- 队列头部 -->
     <div class="queue-header" v-if="showHeader">
-      <h3>下载队列</h3>
-      <span class="queue-count" v-if="total > 0">{{ total }} 个任务</span>
+      <h3>{{ $t('download.downloadQueue') }}</h3>
+      <span class="queue-count" v-if="total > 0">{{ $t('component.taskCount', { n: total }) }}</span>
     </div>
 
     <!-- 空状态 -->
@@ -11,7 +11,7 @@
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-text-muted)" stroke-width="1.5">
         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
       </svg>
-      <p>暂无下载任务</p>
+      <p>{{ $t('component.noDownloadTasks') }}</p>
     </div>
 
     <!-- 任务列表 -->
@@ -37,7 +37,7 @@
         <span v-else class="task-status" :class="task.status">{{ statusLabel(task.status) }}</span>
 
         <!-- 操作 -->
-        <button v-if="canCancel(task)" class="cancel-btn" @click="$emit('cancel', task.id)" title="取消">
+        <button v-if="canCancel(task)" class="cancel-btn" @click="$emit('cancel', task.id)" :title="$t('common.cancel')">
           ×
         </button>
       </div>
@@ -45,7 +45,7 @@
 
     <!-- 总进度（多任务时显示） -->
     <div v-if="tasks.length > 1 && overallProgress !== undefined" class="overall-progress">
-      <span class="label">总进度</span>
+      <span class="label">{{ $t('component.overallProgress') }}</span>
       <div class="overall-bar">
         <div class="overall-fill" :style="{ width: `${overallProgress}%` }"></div>
       </div>
@@ -60,6 +60,9 @@
 <script setup lang="ts">
 import type { DownloadTask, DownloadStatus } from '../../types/download'
 import { formatSpeed as fmtSpeed } from '../../utils/format'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 defineProps<{
   tasks: DownloadTask[]
@@ -76,12 +79,12 @@ const total = defineModel<number>('total', { default: 0 })
 
 function statusLabel(status: DownloadStatus): string {
   const map: Record<DownloadStatus, string> = {
-    pending: '等待',
-    downloading: '下载中',
-    paused: '已暂停',
-    completed: '已完成',
-    failed: '失败',
-    cancelled: '已取消'
+    pending: t('component.downloadStatusPending'),
+    downloading: t('component.downloadStatusDownloading'),
+    paused: t('component.downloadStatusPaused'),
+    completed: t('component.downloadStatusCompleted'),
+    failed: t('component.downloadStatusFailed'),
+    cancelled: t('component.downloadStatusCancelled')
   }
   return map[status] || status
 }
