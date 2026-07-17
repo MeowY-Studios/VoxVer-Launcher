@@ -278,36 +278,12 @@
                 {{ $t('more.viewSource') }}
               </a>
             </div>
-            <!-- 更新状态提示 -->
-            <div v-if="updateStatus.checking" class="update-status-text">{{ $t('update.checking') || '正在检查更新...' }}</div>
-            <div v-else-if="updateStatus.available && !updateStatus.downloading && !updateStatus.downloaded" class="update-status-text update-available">
-              {{ $t('update.available') || '有新版本' }} v{{ updateStatus.version }}
-              <button class="btn vox-btn vox-btn--primary btn-sm" style="margin-left:8px" @click="showUpdateAvailableModal = true">
-                {{ $t('update.showDetail') || '查看详情' }}
-              </button>
-            </div>
-            <div v-else-if="updateStatus.downloading" class="update-status-text">
-              {{ $t('update.downloading') || '正在下载' }} {{ Math.round(updateStatus.downloadProgress) }}%
-            </div>
-            <div v-else-if="updateStatus.downloaded" class="update-status-text update-available">
-              {{ $t('update.downloaded') || '更新已下载，重启生效' }}
-              <button class="btn vox-btn vox-btn--primary btn-sm" style="margin-left:8px" @click="installUpdate">
-                {{ $t('update.install') || '立即重启' }}
-              </button>
-            </div>
-            <div v-else-if="updateStatus.error" class="update-status-text update-error">
-              <span>{{ $t('update.checkFailed') || '检查更新失败' }}</span>
-              <button class="btn vox-btn vox-btn--secondary btn-sm" style="margin-left:8px" @click="showUpdateErrModal = true">
-                {{ $t('update.viewDetail') || '查看详情' }}
-              </button>
-            </div>
-            <div v-else-if="updateStatus.checked && !updateStatus.available" class="update-status-text">{{ $t('update.upToDate') || '已是最新版本' }}</div>
           </div>
         </div>
       </section>
 
       <!-- 更新错误弹窗 -->
-      <div v-if="showUpdateErrModal" class="modal-overlay" @click.self="showUpdateErrModal = false">
+      <div v-if="showUpdateErrModal" class="modal-overlay">
         <div class="modal-box update-error-modal">
           <div class="modal-header">
             <h4>{{ $t('update.checkFailed') || '检查更新失败' }}</h4>
@@ -323,7 +299,7 @@
       </div>
 
       <!-- 更新可用弹窗 -->
-      <div v-if="showUpdateAvailableModal" class="modal-overlay" @click.self="showUpdateAvailableModal = false">
+      <div v-if="showUpdateAvailableModal" class="modal-overlay">
         <div class="modal-box update-available-modal">
           <div class="modal-header">
             <h4>{{ $t('update.newVersion') || '新版本可用' }}</h4>
