@@ -126,6 +126,6 @@ export const LOADER_NAMES: Record<string, string> = {
 
 /** 获取加载器显示名 */
 export function getLoaderName(loaderType: string): string {
-  if (loaderType === 'vanilla') return $t('mod.loaders.vanilla')
+  if (loaderType === 'vanilla') return $t('mod.loaderLabels.vanilla')
   return LOADER_NAMES[loaderType] || loaderType
 }

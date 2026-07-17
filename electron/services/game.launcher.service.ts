@@ -47,6 +47,8 @@ export interface JavaConfig {
 export interface GameCoreConfig {
   root: string
   version: string
+  /** 实例游戏目录（用于版本隔离：mods/configs/saves/options.txt 存储位置）*/
+  gameDir?: string
   isVersionIsolation: boolean
   ip?: string
   port?: number
@@ -295,6 +297,9 @@ class MinecraftLauncher {
       const classpath = await this.buildClasspath(gameCoreConfig, finalVersionJson)
       const classpathStr = classpath.join(process.platform === 'win32' ? ';' : ':')
       log.info(`[launch] 类路径构建完成，耗时 ${Date.now() - classpathStartTime}ms`)
+
+      // 5.5 验证并修复 options.txt（防止窗口偏移导致不可见）
+      this.validateOptionsFile(gameCoreConfig.gameDir || gameCoreConfig.root)
 
       // 6. 构建启动参数
       const jvmArgs = this.buildJvmArguments(
@@ -1046,11 +1051,12 @@ class MinecraftLauncher {
     windowConfig: GameWindowConfig
   ): string[] {
     const args: string[] = []
-    const { root, version } = gameCoreConfig
+    const { root, version, gameDir } = gameCoreConfig
     const { width, height } = windowConfig
     const clientId = `VoxVer-${Date.now()}`
     const versionType = 'release'
     const assetsDir = join(root, 'assets')
+    const effectiveGameDir = gameDir || root
 
     const hasMsa = !!(account.accessToken && account.xuid)
     const userType = hasMsa ? 'msa' : 'legacy'
@@ -1062,7 +1068,7 @@ class MinecraftLauncher {
       '${auth_access_token}': account.accessToken || 'offline',
       '${user_type}': userType,
       '${version_name}': version,
-      '${game_directory}': root,
+      '${game_directory}': effectiveGameDir,
       '${assets_root}': assetsDir,
       '${assets_index_name}': versionJson.assetIndex?.id || version,
       '${user_properties}': '{}',
@@ -1096,10 +1102,75 @@ class MinecraftLauncher {
       args.push(...gameCoreConfig.gameArguments)
     }
 
+    // 确保 --width 和 --height 始终存在（防止依赖 version JSON 占位符时缺失）
+    this.ensureWindowArgs(args, windowConfig)
+
     // 过滤 quickPlay 和空参数
     return args.filter(
       (item) => !item.includes('quickPlay') && !item.startsWith('${quickPlay') && item.trim() !== ''
     )
+  }
+
+  /**
+   * 确保游戏参数中包含窗口尺寸参数
+   */
+  private ensureWindowArgs(args: string[], windowConfig: GameWindowConfig): void {
+    const hasWidth = args.some((a, i) => a === '--width' || (a === '--fullscreen'))
+    const hasHeight = args.some((a, i) => a === '--height' || (a === '--fullscreen'))
+    if (!hasWidth) {
+      args.push('--width', String(windowConfig.width))
+    }
+    if (!hasHeight) {
+      args.push('--height', String(windowConfig.height))
+    }
+  }
+
+  /**
+   * 验证并修复 options.txt 中不合理的窗口尺寸
+   */
+  private validateOptionsFile(gameDir: string): void {
+    const optionsPath = join(gameDir, 'options.txt')
+    try {
+      if (!fs.existsSync(optionsPath)) return
+
+      let content = fs.readFileSync(optionsPath, 'utf-8')
+      let modified = false
+
+      // 修复不合理的 overrideWidth (0 或负数)
+      const widthMatch = content.match(/^overrideWidth:(-?\d+)/m)
+      if (widthMatch) {
+        const w = parseInt(widthMatch[1], 10)
+        if (w <= 0 || w > 7680) {
+          content = content.replace(/^overrideWidth:-?\d+/m, 'overrideWidth:0')
+          modified = true
+          log.info(`[validateOptions] 修复 overrideWidth: ${w} → 0`)
+        }
+      }
+
+      // 修复不合理的 overrideHeight (0 或负数)
+      const heightMatch = content.match(/^overrideHeight:(-?\d+)/m)
+      if (heightMatch) {
+        const h = parseInt(heightMatch[1], 10)
+        if (h <= 0 || h > 4320) {
+          content = content.replace(/^overrideHeight:-?\d+/m, 'overrideHeight:0')
+          modified = true
+          log.info(`[validateOptions] 修复 overrideHeight: ${h} → 0`)
+        }
+      }
+
+      // 修复 fullscreen 可能导致的显示问题，确保 fullscreen:false 时不会出问题
+      if (content.includes('fullscreen:true') && !content.includes('overrideWidth:') && !content.includes('overrideHeight:')) {
+        // 全屏但没有覆盖分辨率，添加默认值防止窗口丢失
+        // 不强制改动，仅记录日志
+        log.info(`[validateOptions] 全屏模式且无覆盖分辨率，由游戏自行处理`)
+      }
+
+      if (modified) {
+        fs.writeFileSync(optionsPath, content, 'utf-8')
+      }
+    } catch (e: any) {
+      log.warn(`[validateOptions] 读取/修复 options.txt 失败: ${e.message}`)
+    }
   }
 
   /**
@@ -1226,6 +1297,15 @@ class MinecraftLauncher {
 
     this.sendProgress('launching-process', '正在启动游戏进程...')
 
+    // Windows: 使用 javaw.exe（GUI 子系统，无控制台）避免 CREATE_NO_WINDOW 标志干扰 LWJGL 2 窗口创建
+    if (process.platform === 'win32' && javaPath.endsWith('java.exe')) {
+      const javawPath = javaPath.replace(/java\.exe$/, 'javaw.exe')
+      if (fs.existsSync(javawPath)) {
+        log.info(`[spawnProcess] 切换到 javaw.exe: ${javawPath}`)
+        javaPath = javawPath
+      }
+    }
+
     // 设置环境变量（移除可能干扰的变量）
     const spawnEnv: Record<string, string | undefined> = {}
     for (const [k, v] of Object.entries(process.env)) {
@@ -1244,9 +1324,7 @@ class MinecraftLauncher {
         this.currentProcess = spawn(javaPath, cleanArgs, {
           cwd,
           env: spawnEnv,
-          stdio: ['ignore', 'pipe', 'pipe'],
-          detached: true,
-          windowsHide: true
+          stdio: ['ignore', 'pipe', 'pipe']
         })
       } catch (e: any) {
         log.error('[spawnProcess] spawn 异常:', e.message)
@@ -1610,6 +1688,10 @@ export function createLaunchConfig(
     versionId: string
     accountId?: string
     gameDir?: string
+    /** 实例独立目录（版本隔离模式），mods/configs/saves 存储位置 */
+    instancePath?: string
+    javaPath?: string
+    jvmArgs?: string
     width?: number
     height?: number
     maxMemory?: number
@@ -1640,6 +1722,10 @@ export function createLaunchConfig(
     mcDir = defaultMcDir()
   }
 
+  // 实例独立目录（版本隔离）
+  const instancePath = options.instancePath
+  const isIsolated = !!(instancePath && instancePath !== mcDir)
+
   // 获取账户
   let account: GameAccount = { name: 'Steve', uuid: offlineUUID('Steve') }
 
@@ -1669,14 +1755,14 @@ export function createLaunchConfig(
     }
   }
 
-  // 获取内存设置
+  // 获取内存设置（实例配置优先）
   const memRow = db.prepare("SELECT value FROM configs WHERE key = 'global_max_memory'").get() as
     | { value: string }
     | undefined
   const maxMem = options.maxMemory || parseInt(memRow?.value || '2048')
   const minMem = options.minMemory || Math.min(512, Math.floor(maxMem / 4))
 
-  // 获取 Java 路径
+  // 获取 Java 路径（实例配置优先）
   const presetRow = db.prepare("SELECT value FROM configs WHERE key = 'java_preset'").get() as
     | { value: string }
     | undefined
@@ -1685,6 +1771,13 @@ export function createLaunchConfig(
     .prepare("SELECT value FROM configs WHERE key = 'java_custom_path'")
     .get() as { value: string } | undefined
   const customJavaPath = customJavaRow?.value || ''
+
+  let effectiveJavaPath = ''
+  if (options.javaPath && fs.existsSync(options.javaPath)) {
+    effectiveJavaPath = options.javaPath
+  } else if (preset === 'custom' && customJavaPath && fs.existsSync(customJavaPath)) {
+    effectiveJavaPath = customJavaPath
+  }
 
   return {
     account,
@@ -1696,13 +1789,11 @@ export function createLaunchConfig(
     gameCoreConfig: {
       root: mcDir,
       version: options.versionId,
-      isVersionIsolation: false
+      gameDir: instancePath,
+      isVersionIsolation: isIsolated
     },
     javaConfig: {
-      javaPath:
-        preset === 'custom' && customJavaPath && fs.existsSync(customJavaPath)
-          ? customJavaPath
-          : '',
+      javaPath: effectiveJavaPath,
       maxMemory: maxMem,
       minMemory: minMem,
       disabledOptimizationAdvancedArgs: false,
@@ -1733,7 +1824,16 @@ function extractBaseVersion(versionId: string): string {
  */
 export async function launchByVersion(
   mainWindow: BrowserWindow,
-  options: { versionId: string; accountId?: string }
+  options: {
+    versionId: string
+    accountId?: string
+    instancePath?: string
+    javaPath?: string
+    maxMemory?: number
+    minMemory?: number
+    width?: number
+    height?: number
+  }
 ): Promise<LaunchResult> {
   const config = createLaunchConfig(mainWindow, options)
   const launcher = getLauncher(mainWindow)
@@ -1752,8 +1852,19 @@ export async function launchGame(
 ): Promise<LaunchResult> {
   const db = getDatabase()
   const instance = db
-    .prepare('SELECT version_id FROM instances WHERE id = ?')
-    .get(options.instanceId) as { version_id: string } | undefined
+    .prepare(
+      'SELECT version_id, path, java_path, jvm_args, min_memory, max_memory, width, height FROM instances WHERE id = ?'
+    )
+    .get(options.instanceId) as {
+      version_id: string
+      path: string
+      java_path: string
+      jvm_args: string
+      min_memory: number
+      max_memory: number
+      width: number
+      height: number
+    } | undefined
 
   if (!instance) {
     return { success: false, error: '实例不存在' }
@@ -1761,7 +1872,13 @@ export async function launchGame(
 
   return launchByVersion(mainWindow, {
     versionId: instance.version_id,
-    accountId: options.accountId
+    accountId: options.accountId,
+    instancePath: instance.path || undefined,
+    javaPath: instance.java_path || undefined,
+    maxMemory: instance.max_memory || undefined,
+    minMemory: instance.min_memory || undefined,
+    width: instance.width || undefined,
+    height: instance.height || undefined
   })
 }
 
@@ -1815,7 +1932,16 @@ function offlineUUID(name: string): string {
  */
 export async function continueLaunchAfterDownload(
   mainWindow: BrowserWindow,
-  options: { versionId: string; accountId?: string }
+  options: {
+    versionId: string
+    accountId?: string
+    instancePath?: string
+    javaPath?: string
+    maxMemory?: number
+    minMemory?: number
+    width?: number
+    height?: number
+  }
 ): Promise<LaunchResult> {
   const config = createLaunchConfig(mainWindow, options)
   const launcher = getLauncher(mainWindow)

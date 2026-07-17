@@ -823,9 +823,14 @@ export default {
     yearsAgo: '{n} 年前',
     downloadFailedBody: '下载失败：{error}',
     downloadErrorBody: '下载出错：{error}',
-    noDescription: '暂无描述',
     snapshotVersion: '快照版',
     snapshotLabel: '快照',
+    modLoadFailed: 'Mod 列表加载失败',
+    modOperationFailed: '操作失败',
+    modDeleteFailed: '删除失败',
+    loaderLabels: {
+      vanilla: '原版'
+    }
   },
 
   instance: {
@@ -1170,8 +1175,7 @@ export default {
     deleteTask: '删除任务',
     resolvingManifest: '解析版本清单...',
     downloadUnknownError: '未知错误',
-    downloadCompleted: '下载完成',
-    downloadFailed: '下载失败',
+    downloadCompleted: '下载完成', 
     searchFailed: '搜索失败',
     serverVersion: '服务端 {id}',
     downloadingServer: '下载服务端...'
@@ -2033,12 +2037,9 @@ export default {
     custom: '自定义',
     updateProxy: '更新代理',
     showDetail: '查看详情',
-    downloaded: '更新已下载，重启生效',
-    checkFailed: '检查更新失败',
+    downloaded: '更新已下载，重启生效', 
     viewDetail: '查看详情',
-    upToDate: '已是最新版本',
-    newVersion: '新版本可用',
-    versionLabel: '版本',
+    upToDate: '已是最新版本', 
     downloadFailed: '下载失败',
     retry: '重新下载',
     updateTimeout: '更新超时',

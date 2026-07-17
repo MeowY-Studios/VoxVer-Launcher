@@ -791,13 +791,12 @@ export default {
     yearsAgo: '{n} years ago',
     downloadFailedBody: 'Download failed: {error}',
     downloadErrorBody: 'Download error: {error}',
-    noDescription: 'No description',
     snapshotVersion: 'Snapshot',
     snapshotLabel: 'Snapshot',
     modLoadFailed: 'Failed to load mod list',
     modOperationFailed: 'Operation failed',
     modDeleteFailed: 'Delete failed',
-    loaders: {
+    loaderLabels: {
       vanilla: 'Vanilla'
     }
   },
@@ -1959,8 +1958,7 @@ export default {
     checkFailed: 'Update check failed',
     viewDetail: 'View Details',
     upToDate: 'Up to date',
-    newVersion: 'New version available',
-    versionLabel: 'Version',
+    newVersion: 'New version available', 
     downloadFailed: 'Download Failed',
     retry: 'Retry',
     updateTimeout: 'Update Timeout',
