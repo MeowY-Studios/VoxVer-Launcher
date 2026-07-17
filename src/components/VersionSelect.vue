@@ -278,7 +278,7 @@ async function importModpack() {
   if (!api?.dialog) return
   try {
     const filePath = await api.dialog.selectFile({
-      title: t('component.selectModpack文件'),
+      title: t('component.selectModpackFile'),
       filters: [{ name: '整合包文件', extensions: ['mrpack', 'zip'] }]
     })
     if (!filePath) return

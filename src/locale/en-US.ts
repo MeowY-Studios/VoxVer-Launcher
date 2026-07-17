@@ -109,6 +109,7 @@ export default {
     selectVersion: 'Version Select',
     versionSettings: 'Version Settings',
     vanilla: 'Vanilla',
+    viewAll: 'View All',
     auth: {
       online: 'Online',
       offline: 'Offline',
@@ -181,6 +182,7 @@ export default {
     launch: 'Launch',
     launching: 'Launching...',
     launched: 'Launched',
+    selectVersion: 'Select Version',
     exit: 'Exit',
     exitCode: 'Exit Code',
     gameDir: 'Game Directory',
@@ -198,6 +200,7 @@ export default {
     offlineMode: 'Offline Mode',
     demoMode: 'Demo Mode',
     version: 'Version',
+    minecraftVersion: 'Minecraft Version',
     snapshot: 'Snapshot',
     release: 'Release',
     latest: 'Latest',
@@ -1551,6 +1554,7 @@ export default {
     noElectronEnv: 'Electron environment not detected',
     notFoundFolder: '.minecraft folder not found',
     remove: 'Remove',
+    selectModpackFile: 'Select Modpack File',
     // InstanceCard
     launch: 'Launch',
     detail: 'Detail',

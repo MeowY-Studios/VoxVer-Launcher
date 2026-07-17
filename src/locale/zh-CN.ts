@@ -109,6 +109,7 @@ export default {
     selectVersion: '版本选择',
     versionSettings: '版本设置',
     vanilla: '原版',
+    viewAll: '查看全部',
     auth: {
       online: '正版',
       offline: '离线',
@@ -181,6 +182,7 @@ export default {
     launch: '启动',
     launching: '启动中...',
     launched: '已启动',
+    selectVersion: '选择版本',
     exit: '退出',
     exitCode: '退出码',
     gameDir: '游戏目录',
@@ -198,6 +200,7 @@ export default {
     offlineMode: '离线模式',
     demoMode: '演示模式',
     version: '版本',
+    minecraftVersion: 'Minecraft 版本',
     snapshot: '快照版',
     release: '正式版',
     latest: '最新版',
@@ -1551,6 +1554,7 @@ export default {
     noElectronEnv: '未检测到 Electron 环境',
     notFoundFolder: '未找到 .minecraft 文件夹',
     remove: '移除',
+    selectModpackFile: '选择整合包文件',
     // InstanceCard
     launch: '启动',
     detail: '详情',
