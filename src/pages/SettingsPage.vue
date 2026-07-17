@@ -351,15 +351,27 @@
               </svg>
               <span>{{ $t('update.downloaded') || '更新已下载，重启生效' }}</span>
             </div>
+            <div v-if="updateStatus.error && !updateStatus.downloading && !updateStatus.downloaded" class="update-error-msg">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <span>{{ $t('update.downloadFailed') || '下载失败' }}: {{ updateStatus.error }}</span>
+            </div>
           </div>
           <div class="modal-footer">
             <button v-if="!updateStatus.downloading && !updateStatus.downloaded"
               class="btn vox-btn vox-btn--secondary" @click="showUpdateAvailableModal = false">
               {{ $t('common.cancel') || '取消' }}
             </button>
-            <button v-if="!updateStatus.downloading && !updateStatus.downloaded"
+            <button v-if="!updateStatus.downloading && !updateStatus.downloaded && !updateStatus.error"
               class="btn vox-btn vox-btn--primary" @click="startDownloadFromModal">
               {{ $t('update.download') || '下载更新' }}
+            </button>
+            <button v-if="updateStatus.error && !updateStatus.downloading && !updateStatus.downloaded"
+              class="btn vox-btn vox-btn--primary" @click="startDownloadFromModal">
+              {{ $t('update.retry') || '重新下载' }}
             </button>
             <button v-if="updateStatus.downloaded"
               class="btn vox-btn vox-btn--primary" @click="installUpdate">
@@ -4015,8 +4027,8 @@ function setupUpdateListener() {
       version: status.version,
       releaseNotes: status.releaseNotes
     }
-    // 新版本可用时自动弹出弹窗
-    if (status.available && !status.downloading && !status.downloaded) {
+    // 新版本可用时自动弹出弹窗（下载失败时不自动重开）
+    if (status.available && !status.downloading && !status.downloaded && !status.error) {
       showUpdateAvailableModal.value = true
     }
   })
