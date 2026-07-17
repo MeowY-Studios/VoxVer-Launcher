@@ -3,7 +3,7 @@
  * 与 electron/preload.ts 和 main.ts 的 registerIpcHandlers 对齐
  */
 
-// ========== 窗口控制 ==========
+// * ========== 窗口控制 ==========
 export const IPC_WINDOW = {
   MINIMIZE: 'window:minimize',
   MAXIMIZE: 'window:maximize',
@@ -12,13 +12,13 @@ export const IPC_WINDOW = {
   MAXIMIZED_CHANGED: 'window:maximized-changed'
 } as const
 
-// ========== 配置 ==========
+// * ========== 配置 ==========
 export const IPC_CONFIG = {
   GET: 'config:get',
   SET: 'config:set'
 } as const
 
-// ========== 实例管理 ==========
+// * ========== 实例管理 ==========
 export const IPC_INSTANCE = {
   LIST: 'instance:list',
   CREATE: 'instance:create',
@@ -27,7 +27,7 @@ export const IPC_INSTANCE = {
   GET_BY_ID: 'instance:get-by-id'
 } as const
 
-// ========== 账户管理 ==========
+// * ========== 账户管理 ==========
 export const IPC_ACCOUNT = {
   LIST: 'account:list',
   LOGIN_MICROSOFT: 'account:login-microsoft',
@@ -36,7 +36,7 @@ export const IPC_ACCOUNT = {
   SET_ACTIVE: 'account:set-active'
 } as const
 
-// ========== 下载管理 ==========
+// * ========== 下载管理 ==========
 export const IPC_DOWNLOAD = {
   SEARCH_MODS: 'download:search-mods',
   GET_PROJECT: 'download:get-project',
@@ -48,26 +48,26 @@ export const IPC_DOWNLOAD = {
   PROGRESS: 'download:progress'
 } as const
 
-// ========== Java 管理 ==========
+// * ========== Java 管理 ==========
 export const IPC_JAVA = {
   DETECT: 'java:detect',
   GET_DEFAULT: 'java:get-default'
 } as const
 
-// ========== 版本管理（游戏） ==========
+// * ========== 版本管理（游戏） ==========
 export const IPC_VERSION = {
   LIST: 'version:list',
   LIST_LOADERS: 'version:list-loaders'
 } as const
 
-// ========== MC 版本清单 ==========
+// * ========== MC 版本清单 ==========
 export const IPC_VERSIONS = {
   LIST: 'versions:list',
   GET_LATEST: 'versions:get-latest',
   GET_INFO: 'versions:get-info'
 } as const
 
-// ========== ModLoader ==========
+// * ========== ModLoader ==========
 export const IPC_MODLOADER = {
   GET_LOADERS: 'modloader:get-loaders',
   INSTALL: 'modloader:install',
@@ -75,7 +75,7 @@ export const IPC_MODLOADER = {
   GET_PROGRESS: 'modloader:get-progress'
 } as const
 
-// ========== 游戏启动 ==========
+// * ========== 游戏启动 ==========
 export const IPC_GAME = {
   LAUNCH: 'game:launch',
   GET_LOG: 'game:get-log',
@@ -85,25 +85,25 @@ export const IPC_GAME = {
   EXIT: 'game:exit'
 } as const
 
-// ========== 内容平台 ==========
+// * ========== 内容平台 ==========
 export const IPC_CONTENT = {
   GET_PLATFORMS: 'content:get-platforms',
   GET_CATEGORIES: 'content:get-categories',
   GET_LOADERS: 'content:get-loaders'
 } as const
 
-// ========== 对话框 ==========
+// * ========== 对话框 ==========
 export const IPC_DIALOG = {
   SELECT_FOLDER: 'dialog:select-folder'
 } as const
 
-// ========== 路径工具 ==========
+// * ========== 路径工具 ==========
 export const IPC_PATH = {
   MINECRAFT: 'path:minecraft',
   EXISTS: 'path:exists'
 } as const
 
-// ========== 分享功能 ==========
+// * ========== 分享功能 ==========
 export const IPC_SHARE = {
   START_INSTANCE: 'share:start-instance',
   STOP_SHARE: 'share:stop-share',
@@ -117,7 +117,7 @@ export const IPC_SHARE = {
   PROTOCOL_INVOKE: 'share:protocol-invoke'
 } as const
 
-// ========== 分享功能类型 ==========
+// * ========== 分享功能类型 ==========
 export interface ShareSession {
   sessionId: string
   shareCode: string
@@ -152,7 +152,7 @@ export interface ShareImportResult {
   error?: string
 }
 
-// ========== 统一导出所有通道名 ==========
+// * ========== 统一导出所有通道名 ==========
 export const IPC_CHANNELS = {
   ...IPC_WINDOW,
   ...IPC_CONFIG,

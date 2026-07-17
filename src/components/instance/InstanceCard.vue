@@ -124,7 +124,7 @@ defineEmits<{
   (e: 'toggle-favorite', id: string): void
 }>()
 
-// 根据实例名生成封面渐变色（确定性）
+// * 根据实例名生成封面渐变色（确定性）
 function coverGradient(name: string): string {
   const colors = [
     ['#14b8a6', '#0ea5e9'],

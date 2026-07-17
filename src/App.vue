@@ -35,18 +35,44 @@
         </button>
       </nav>
 
-      <!-- 窗口控制 -->
+      <!-- 窗口控制 — macOS: 关闭/最小化/最大化（从左到右），Windows: 最小化/最大化/关闭 -->
       <div class="wc" v-if="isElectron">
-        <button class="wc-btn" @click="minimizeWindow">
-          <svg width="10" height="1" viewBox="0 0 10 1">
-            <rect width="10" height="1" fill="currentColor" />
-          </svg>
-        </button>
-        <button class="wc-btn wc-close" @click="closeWindow">
-          <svg width="10" height="10" viewBox="0 0 10 10">
-            <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.2" />
-          </svg>
-        </button>
+        <!-- macOS 顺序：关闭、最小化、最大化 -->
+        <template v-if="platform === 'macos'">
+          <button class="wc-btn wc-close" @click="closeWindow">
+            <svg width="10" height="10" viewBox="0 0 10 10">
+              <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.2" />
+            </svg>
+          </button>
+          <button class="wc-btn wc-minimize" @click="minimizeWindow">
+            <svg width="10" height="1" viewBox="0 0 10 1">
+              <rect width="10" height="1" fill="currentColor" />
+            </svg>
+          </button>
+          <button class="wc-btn wc-maximize" @click="maximizeWindow">
+            <svg width="10" height="10" viewBox="0 0 10 10">
+              <path d="M1 3V9H7V3H1M3 1H9V7H3V1" stroke="currentColor" stroke-width="1.2" fill="none" />
+            </svg>
+          </button>
+        </template>
+        <!-- Windows/Linux 顺序：最小化、最大化、关闭 -->
+        <template v-else>
+          <button class="wc-btn" @click="minimizeWindow">
+            <svg width="10" height="1" viewBox="0 0 10 1">
+              <rect width="10" height="1" fill="currentColor" />
+            </svg>
+          </button>
+          <button class="wc-btn" @click="maximizeWindow">
+            <svg width="10" height="10" viewBox="0 0 10 10">
+              <path d="M1 3V9H7V3H1M3 1H9V7H3V1" stroke="currentColor" stroke-width="1.2" fill="none" />
+            </svg>
+          </button>
+          <button class="wc-btn wc-close" @click="closeWindow">
+            <svg width="10" height="10" viewBox="0 0 10 10">
+              <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.2" />
+            </svg>
+          </button>
+        </template>
       </div>
     </header>
 
@@ -125,20 +151,31 @@
                 </svg>
               </div>
 
-              <!-- 账号选择 -->
+              <!-- 账号选择（自定义下拉） -->
               <div class="login-row">
-                <select class="account-select" @change="onAccountSelect($event)">
-                  <option value="">{{ $t('home.auth.selectAccount') }}</option>
-                  <option
-                    v-for="acc in filteredAccounts"
-                    :key="acc.id"
-                    :value="acc.id"
-                    :selected="acc.isActive === 1"
-                  >
-                    {{ acc.name }} ({{ acc.type === 'microsoft' ? $t('home.auth.microsoft') : $t('home.auth.offline') }})
-                  </option>
-                  <option value="add">{{ $t('home.auth.addAccount') }}</option>
-                </select>
+                <div class="account-select-wrapper" ref="onlineAccountDropdown">
+                  <button class="account-select" @click="toggleOnlineAccountDropdown">
+                    <span>{{ onlineAccountLabel }}</span>
+                    <svg width="10" height="6" viewBox="0 0 10 6" class="select-arrow">
+                      <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" />
+                    </svg>
+                  </button>
+                  <div v-show="showOnlineAccountDropdown" class="account-select-popup open">
+                    <div
+                      v-for="acc in filteredAccounts"
+                      :key="acc.id"
+                      class="account-select-option"
+                      :class="{ selected: acc.isActive === 1 }"
+                      @click="selectOnlineAccount(acc.id)"
+                    >
+                      {{ acc.name }} ({{ acc.type === 'microsoft' ? $t('home.auth.microsoft') : $t('home.auth.offline') }})
+                    </div>
+                    <div class="account-select-divider"></div>
+                    <div class="account-select-option add-option" @click="handleAccountSelectValue('add')">
+                       {{ $t('home.auth.addAccount') }}
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <!-- 外链入口 -->
@@ -214,20 +251,31 @@
                 </svg>
               </div>
 
-              <!-- 离线账号选择 -->
+              <!-- 离线账号选择（自定义下拉） -->
               <div class="login-row">
-                <select class="account-select" @change="onAccountSelect($event)">
-                  <option value="">{{ $t('home.auth.selectAccount') }}</option>
-                  <option
-                    v-for="acc in offlineAccounts"
-                    :key="acc.id"
-                    :value="acc.id"
-                    :selected="acc.isActive === 1"
-                  >
-                    {{ acc.name }}
-                  </option>
-                  <option value="add">{{ $t('home.auth.addOfflineAccount') }}</option>
-                </select>
+                <div class="account-select-wrapper" ref="offlineAccountDropdown">
+                  <button class="account-select" @click="toggleOfflineAccountDropdown">
+                    <span>{{ offlineAccountLabel }}</span>
+                    <svg width="10" height="6" viewBox="0 0 10 6" class="select-arrow">
+                      <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" />
+                    </svg>
+                  </button>
+                  <div v-show="showOfflineAccountDropdown" class="account-select-popup open">
+                    <div
+                      v-for="acc in offlineAccounts"
+                      :key="acc.id"
+                      class="account-select-option"
+                      :class="{ selected: acc.isActive === 1 }"
+                      @click="selectOfflineAccount(acc.id)"
+                    >
+                      {{ acc.name }}
+                    </div>
+                    <div class="account-select-divider"></div>
+                    <div class="account-select-option add-option" @click="handleAccountSelectValue('add')">
+                       {{ $t('home.auth.addOfflineAccount') }}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -466,6 +514,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { ref, computed, onMounted, provide, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import VersionSettings from './components/VersionSettings.vue'
@@ -477,9 +526,11 @@ import { useVersionsStore, useAccountsStore, useInstancesStore, useDownloadStore
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const currentRoute = computed(() => route.path)
 const isElectron = ref(false)
 const appVersion = ref('0.6.0')
+const platform = ref<'windows' | 'macos' | 'linux' | 'unknown'>('unknown')
 const appStore = useAppStore()
 const versionsStore = useVersionsStore()
 const accountsStore = useAccountsStore()
@@ -487,27 +538,27 @@ const instancesStore = useInstancesStore()
 const downloadStore = useDownloadStore()
 const minecraftPath = ref('')
 const versionGameDir = computed(() => {
-  // 1. 如果 selectedVersionId 本身就是完整路径
+  // * 1. 如果 selectedVersionId 本身就是完整路径
   if (selectedVersionId.value.includes('\\') || selectedVersionId.value.includes('/')) {
     return selectedVersionId.value
   }
-  // 2. 匹配实例数据库
+  // * 2. 匹配实例数据库
   const matchingInstance = instancesStore.instances.find(
     (i) => i.id === selectedVersionId.value || i.path?.includes(selectedVersionId.value)
   )
   if (matchingInstance?.path) {
     return matchingInstance.path
   }
-  // 3. 从 minecraftPath 拼接
+  // * 3. 从 minecraftPath 拼接
   return minecraftPath.value ? `${minecraftPath.value}/versions/${selectedVersionId.value}` : ''
 })
 
-// 当前选中版本的 instanceId（通过 path 匹配）
+// * 当前选中版本的 instanceId（通过 path 匹配）
 const currentInstanceId = computed(
   () => instancesStore.instances.find((i) => i.path === versionGameDir.value)?.id ?? ''
 )
 
-// 背景设置 — 通过 IPC 读取本地图片为 data URL，绕过 dev 模式 file:// CORS
+// * 背景设置 — 通过 IPC 读取本地图片为 data URL，绕过 dev 模式 file:// CORS
 const bgImageDataUrl = ref('')
 watch(
   () => [appStore.bgImagePath, appStore.bgImageMode],
@@ -541,18 +592,18 @@ const overlayStyle = computed(() => ({
   opacity: appStore.bgDimAmount > 0 ? appStore.bgDimAmount / 100 : 0.35
 }))
 
-// 版本被删除后刷新
+// * 版本被删除后刷新
 async function onVersionDeleted() {
   await loadLocalInstalledVersions()
   selectedVersionId.value = ''
-  selectedVersion.value = '选择版本'
+  selectedVersion.value = t('game.selectVersion')
 }
 
-// 账户状态 - 从 store 获取
+// * 账户状态 - 从 store 获取
 const userName = computed(() => accountsStore.activeAccount?.name || '')
 const avatarUrl = ref('')
 
-// 加载玩家皮肤
+// * 加载玩家皮肤
 async function loadSkin() {
   const account = accountsStore.activeAccount
   if (!account?.uuid) {
@@ -563,7 +614,7 @@ async function loadSkin() {
   try {
     const result = await window.electronAPI?.account.getSkinDataUrl(account.uuid)
     if (result?.ok && result.data) {
-      // 裁剪出头部
+      // * 裁剪出头部
       avatarUrl.value = await cropSkinHead(result.data)
     } else {
       avatarUrl.value = ''
@@ -585,7 +636,7 @@ async function cropSkinHead(skinDataUrl: string): Promise<string> {
       canvas.height = canvasSize
       const ctx = canvas.getContext('2d')!
       ctx.imageSmoothingEnabled = false
-      // Minecraft 皮肤脸部在 (8, 8) 位置，8x8 像素
+      // * Minecraft 皮肤脸部在 (8, 8) 位置，8x8 像素
       ctx.drawImage(img, 8, 8, SIZE, SIZE, 0, 0, canvasSize, canvasSize)
       const result = canvas.toDataURL('image/png')
       resolve(result)
@@ -597,15 +648,15 @@ async function cropSkinHead(skinDataUrl: string): Promise<string> {
   })
 }
 
-// 正版/离线模式切换（初始值，空字符串，后续由 watch 更新）
+// * 正版/离线模式切换（初始值，空字符串，后续由 watch 更新）
 const accountMode = ref<'online' | 'offline'>('offline')
 
-// 初始化模式
+// * 初始化模式
 function syncAccountMode() {
   accountMode.value = accountsStore.activeAccount?.type === 'microsoft' ? 'online' : 'offline'
 }
 
-// 监听活跃账号变化，自动切换模式 + 加载皮肤
+// * 监听活跃账号变化，自动切换模式 + 加载皮肤
 watch(
   () => accountsStore.activeAccount,
   async () => {
@@ -615,7 +666,7 @@ watch(
   { immediate: true }
 )
 
-// 根据当前模式过滤账号列表
+// * 根据当前模式过滤账号列表
 const filteredAccounts = computed(() => {
   if (accountMode.value === 'online') {
     return accountsStore.accounts.filter((a) => a.type === 'microsoft')
@@ -624,30 +675,91 @@ const filteredAccounts = computed(() => {
   }
 })
 
-// 离线账号列表（始终显示）
+// * 离线账号列表（始终显示）
 const offlineAccounts = computed(() => accountsStore.accounts.filter((a) => a.type === 'offline'))
 
-// 离线名称（localStorage 持久化）
+// * 离线名称（localStorage 持久化）
 const OFFLINE_NAME_KEY = 'voxver_offline_name'
 const offlineName = ref(localStorage.getItem(OFFLINE_NAME_KEY) || 'Steve')
 const offlineNameInput = ref<HTMLInputElement | null>(null)
 
-// 版本设置弹窗
+// * 版本设置弹窗
 const showVersionSettings = ref(false)
 
-// 账户管理抽屉
+// * 账户管理抽屉
 const showAccountManager = ref(false)
 
-// 版本选择弹窗（PCL2 风格）
+// * 版本选择弹窗（PCL2 风格）
 const showVersionSelectModal = ref(false)
 
-// 标记用户是否已手动选择过版本（用于区分首次加载 vs store版本更新）
+// * 标记用户是否已手动选择过版本（用于区分首次加载 vs store版本更新）
 const userHasSelectedVersion = ref(false)
 
-// 启动数据
+// * 账号选择下拉框状态
+const showOnlineAccountDropdown = ref(false)
+const showOfflineAccountDropdown = ref(false)
+const onlineAccountDropdown = ref<HTMLElement | null>(null)
+const offlineAccountDropdown = ref<HTMLElement | null>(null)
+
+// * 在线账号选中标签
+const onlineAccountLabel = computed(() => {
+  const active = filteredAccounts.value.find((a) => a.isActive === 1)
+  if (active) {
+    return `${active.name} (${active.type === 'microsoft' ? t('home.auth.microsoft') : t('home.auth.offline')})`
+  }
+  return t('home.auth.selectAccount')
+})
+
+// * 离线账号选中标签
+const offlineAccountLabel = computed(() => {
+  const active = offlineAccounts.value.find((a) => a.isActive === 1)
+  if (active) {
+    return active.name
+  }
+  return t('home.auth.selectAccount')
+})
+
+function toggleOnlineAccountDropdown() {
+  showOnlineAccountDropdown.value = !showOnlineAccountDropdown.value
+  showOfflineAccountDropdown.value = false
+}
+
+function toggleOfflineAccountDropdown() {
+  showOfflineAccountDropdown.value = !showOfflineAccountDropdown.value
+  showOnlineAccountDropdown.value = false
+}
+
+// * 统一账号选择逻辑
+function handleAccountSelectValue(value: string) {
+  if (value === 'add') {
+    goToAccountSettings()
+    return
+  }
+  const targetAccount = accountsStore.accounts.find((a) => a.id === value)
+  if (value && targetAccount) {
+    accountsStore.setActive(value)
+  }
+}
+
+function selectOnlineAccount(id: string) {
+  showOnlineAccountDropdown.value = false
+  handleAccountSelectValue(id)
+}
+
+function selectOfflineAccount(id: string) {
+  showOfflineAccountDropdown.value = false
+  handleAccountSelectValue(id)
+}
+
+function closeAllAccountDropdowns() {
+  showOnlineAccountDropdown.value = false
+  showOfflineAccountDropdown.value = false
+}
+
+// * 启动数据
 const isLaunching = ref(false)
 
-// 性能监控
+// * 性能监控
 const perfSnapshot = ref<{ pid: number; alive: boolean; cpu: number; memoryMB: number; uptimeMs: number } | null>(null)
 const showPerfPanel = ref(false)
 let perfCleanup: (() => void) | null = null
@@ -656,7 +768,7 @@ function startPerfMonitor(pid: number) {
   window.electronAPI?.perfMonitor?.start(pid)
   showPerfPanel.value = true
 
-  // 清理旧监听
+  // * 清理旧监听
   perfCleanup?.()
   perfCleanup = window.electronAPI?.perfMonitor?.onSnapshot((snap) => {
     perfSnapshot.value = snap
@@ -685,9 +797,9 @@ function formatUptime(ms: number): string {
 }
 const showVersionSelect = ref(false)
 const selectedVersionId = ref('')
-const selectedVersion = ref('选择版本')
+const selectedVersion = ref(t('game.selectVersion'))
 
-// 缺失文件下载确认弹窗
+// * 缺失文件下载确认弹窗
 const showMissingFilesModal = ref(false)
 const missingFilesCount = ref(0)
 let missingFilesResolve: ((value: boolean) => void) | null = null
@@ -718,15 +830,15 @@ interface VersionItem {
   loader?: string
 }
 
-// 本地版本列表（从 Store 获取真实数据）
+// * 本地版本列表（从 Store 获取真实数据）
 const versions = ref<VersionItem[]>([])
 
-// 扫描本地 .minecraft/versions 目录获取已安装版本
+// * 扫描本地 .minecraft/versions 目录获取已安装版本
 async function loadLocalInstalledVersions() {
   const instancesStore = useInstancesStore()
   await instancesStore.fetchInstances()
 
-  // 优先：使用实例数据库中的实例（更准确的路径信息）
+  // * 优先：使用实例数据库中的实例（更准确的路径信息）
   if (instancesStore.instances.length) {
     versions.value = instancesStore.instances.map((inst) => {
       const displayName = inst.name || inst.mcVersion || '未知版本'
@@ -742,7 +854,7 @@ async function loadLocalInstalledVersions() {
     return
   }
 
-  // 兜底：从文件系统扫描（使用已设置的 minecraftPath）
+  // * 兜底：从文件系统扫描（使用已设置的 minecraftPath）
   if (window.electronAPI?.path && minecraftPath.value) {
     try {
       const result = await window.electronAPI.versions.scanFolder(minecraftPath.value)
@@ -757,12 +869,12 @@ async function loadLocalInstalledVersions() {
   }
 }
 
-// Store 版本变化时同步到 versions（仅执行一次，避免热重载重复触发）
+// * Store 版本变化时同步到 versions（仅执行一次，避免热重载重复触发）
 watch(
   () => versionsStore.versions,
   (storeVersions) => {
     if (storeVersions.length) {
-      // 优先用本地已安装版本（已有数据则跳过）
+      // * 优先用本地已安装版本（已有数据则跳过）
       if (versions.value.length) return
 
       versions.value = storeVersions.slice(0, 20).map((v) => ({
@@ -771,11 +883,11 @@ watch(
         loader: ''
       }))
 
-      // 优先用精确保存的版本名恢复（处理带 loader 的版本）
+      // * 优先用精确保存的版本名恢复（处理带 loader 的版本）
       const savedDisplayName = localStorage.getItem('voxver_last_version_name')
       const lastId = localStorage.getItem('voxver_last_version')
       if (savedDisplayName && lastId) {
-        // 尝试在版本列表中匹配
+        // * 尝试在版本列表中匹配
         const match = versions.value.find((v) => v.id === lastId)
         if (match) {
           selectedVersionId.value = lastId
@@ -783,11 +895,11 @@ watch(
           userHasSelectedVersion.value = true
           versionsStore.setCurrentVersion(lastId)
         } else {
-          // 保存的版本不在列表中，保持当前选择（不要 fallback）
+          // ! 保存的版本不在列表中，保持当前选择（不要 fallback）
           userHasSelectedVersion.value = true
         }
       } else if (!userHasSelectedVersion.value && versions.value.length) {
-        // 从未选择过版本 + 有版本列表 → 选第一个
+        // * 从未选择过版本 + 有版本列表 → 选第一个
         selectVersion(versions.value[0])
       }
     }
@@ -795,10 +907,10 @@ watch(
   { immediate: true, once: true }
 )
 
-// 下载页分类
+// * 下载页分类
 const dlActiveCat = ref('vanilla')
 
-// 设置页分类
+// * 设置页分类
 const settingsActive = ref('home')
 
 provide('settingsActive', settingsActive)
@@ -807,17 +919,34 @@ provide('dlActiveCat', dlActiveCat)
 onMounted(async () => {
   isElectron.value = !!window.electronAPI
 
-  // 获取应用版本号
+  // * 获取平台信息（影响窗口控制按钮样式）
+  if (window.electronAPI?.app?.getRuntimeInfo) {
+    const runtime = await window.electronAPI.app.getRuntimeInfo()
+    if (runtime?.platform) {
+      if (runtime.platform === 'darwin') platform.value = 'macos'
+      else if (runtime.platform === 'win32') platform.value = 'windows'
+      else if (runtime.platform === 'linux') platform.value = 'linux'
+    }
+  } else if (navigator?.platform) {
+    const p = navigator.platform.toLowerCase()
+    if (p.includes('mac')) platform.value = 'macos'
+    else if (p.includes('win')) platform.value = 'windows'
+    else if (p.includes('linux')) platform.value = 'linux'
+  }
+  // * 将平台类添加到 HTML 标签，用于 CSS 选择器
+  document.documentElement.classList.add(`platform-${platform.value}`)
+
+  // * 获取应用版本号
   if (window.electronAPI?.app?.getVersion) {
     window.electronAPI.app.getVersion().then((v: string) => {
       if (v) appVersion.value = v
     }).catch(() => {})
   }
 
-  // 初始化主题
+  // * 初始化主题
   appStore.init()
 
-  // 获取 .minecraft 路径（优先 last_selected_folder，其次自定义路径，最后默认）
+  // * 获取 .minecraft 路径（优先 last_selected_folder，其次自定义路径，最后默认）
   if (window.electronAPI?.path) {
     try {
       const lastFolder = await window.electronAPI.folders?.getLast()
@@ -834,15 +963,15 @@ onMounted(async () => {
     } catch (e) {}
   }
 
-  // 加载本地已安装版本（优先于远程版本）
+  // * 加载本地已安装版本（优先于远程版本）
   await loadLocalInstalledVersions()
 
-  // 从 localStorage 恢复已保存的版本（无论数据来源，统一恢复）
+  // * 从 localStorage 恢复已保存的版本（无论数据来源，统一恢复）
   {
     const savedDisplayName = localStorage.getItem('voxver_last_version_name')
     const lastId = localStorage.getItem('voxver_last_version')
     if (savedDisplayName && lastId) {
-      // 优先用精确保存的版本名恢复
+      // * 优先用精确保存的版本名恢复
       const match = versions.value.find((v) => v.id === lastId)
       if (match) {
         selectedVersionId.value = lastId
@@ -850,13 +979,13 @@ onMounted(async () => {
         userHasSelectedVersion.value = true
         versionsStore.setCurrentVersion(lastId)
       } else {
-        // 保存的版本不在当前列表中，保持 lastId，清空显示名
+        // ! 保存的版本不在当前列表中，保持 lastId，清空显示名
         selectedVersionId.value = lastId
         selectedVersion.value = savedDisplayName
         userHasSelectedVersion.value = true
       }
     } else if (!userHasSelectedVersion.value && versions.value.length) {
-      // 从未选择过版本 → 选第一个
+      // * 从未选择过版本 → 选第一个
       const target = versions.value[0]
       selectedVersionId.value = target.id
       selectedVersion.value = `${target.name}${target.loader ? '-' + target.loader : ''}`
@@ -865,24 +994,24 @@ onMounted(async () => {
     }
   }
 
-  // 如果没有本地版本，fallback 到远程版本列表
+  // * 如果没有本地版本，fallback 到远程版本列表
   if (!versions.value.length) {
     versionsStore.fetchVersions()
   }
 
-  // 加载账号列表
+  // * 加载账号列表
   accountsStore.fetchAccounts()
 
-  // 没有找到任何版本时，清除之前的选择并提示用户下载
+  // * 没有找到任何版本时，清除之前的选择并提示用户下载
   if (!versions.value.length) {
     selectedVersionId.value = ''
-    selectedVersion.value = '请先下载版本'
+    selectedVersion.value = t('home.downloadFirst')
     userHasSelectedVersion.value = false
     localStorage.removeItem('voxver_last_version')
     localStorage.removeItem('voxver_last_version_name')
   }
 
-  // 监听版本下载进度事件（始终注册）
+  // * 监听版本下载进度事件（始终注册）
   const api = window.electronAPI
   if (api?.versions) {
     api.versions.onDownloadProgress((data) => {
@@ -890,7 +1019,7 @@ onMounted(async () => {
     })
     api.versions.onDownloadComplete(async (data) => {
       downloadStore.onVersionComplete(data)
-      // 下载完成后自动创建实例
+      // * 下载完成后自动创建实例
       if (api.instance) {
         await api.instance.create({
           name: data.versionId,
@@ -904,11 +1033,19 @@ onMounted(async () => {
       downloadStore.onVersionError(data)
     })
   }
+
+  // * 点击外部关闭账号下拉框
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement
+    if (!target.closest('.account-select-wrapper')) {
+      closeAllAccountDropdowns()
+    }
+  })
 })
 
 const displayName = computed(() => {
   if (accountMode.value === 'online') {
-    return userName.value || '未登录'
+    return userName.value || (t('auth.notLoggedIn') as string)
   }
   return offlineName.value || 'Steve'
 })
@@ -928,25 +1065,15 @@ function selectVersion(ver: VersionItem) {
   showVersionSelect.value = false
 }
 
-// 账号选择处理
+// * 账号选择处理（原生 select 回退，已由自定义下拉替换）
 async function onAccountSelect(event: Event) {
   const select = event.target as HTMLSelectElement
-  const value = select.value
-
-  if (value === 'add') {
-    showAccountManager.value = true
-    select.value = '' // 重置选择
-    return
-  }
-
-  if (value && accountsStore.accounts.find((a) => a.id === value)) {
-    await accountsStore.setActive(value)
-  }
-  select.value = accountsStore.activeAccount?.id || ''
+  handleAccountSelectValue(select.value)
+  select.value = ''
 }
 
 async function onVersionSelect(version: { id: string; name: string; loader?: string }) {
-  // 同步更新 minecraftPath（用户可能切换了 .minecraft 文件夹）
+  // * 同步更新 minecraftPath（用户可能切换了 .minecraft 文件夹）
   if (window.electronAPI?.folders) {
     try {
       const lastFolder = await window.electronAPI.folders.getLast()
@@ -966,7 +1093,7 @@ async function onVersionSelect(version: { id: string; name: string; loader?: str
 }
 
 async function handleLaunch() {
-  // 前置检查
+  // * 前置检查
   if (!selectedVersionId.value) {
     if (confirm('当前没有可用的游戏版本，是否前往下载页面？')) {
       router.push('/downloads')
@@ -986,10 +1113,10 @@ async function handleLaunch() {
   const accountId = accountsStore.activeAccount.id
   const versionId =
     selectedVersionId.value.includes('\\') || selectedVersionId.value.includes('/')
-      ? selectedVersionId.value.split(/[\\/]/).pop() || selectedVersionId.value // 如果是完整路径，提取文件夹名作为版本ID
+      ? selectedVersionId.value.split(/[\\/]/).pop() || selectedVersionId.value // * 如果是完整路径，提取文件夹名作为版本ID
       : selectedVersionId.value
 
-  // 监听启动进度
+  // * 监听启动进度
   if (window.electronAPI?.game.onProgress) {
     window.electronAPI.game.onProgress((progress) => {})
   }
@@ -1015,7 +1142,7 @@ async function handleLaunch() {
         }
       }
     } else if (result?.success) {
-      // 启动成功，开始性能监控
+      // * 启动成功，开始性能监控
       if (result?.pid) {
         startPerfMonitor(result.pid)
       }
@@ -1043,7 +1170,7 @@ function saveOfflineName() {
     offlineName.value = name
     localStorage.setItem(OFFLINE_NAME_KEY, name)
   } else {
-    // 空名称恢复默认
+    // * 空名称恢复默认
     offlineName.value = 'Steve'
     localStorage.setItem(OFFLINE_NAME_KEY, 'Steve')
   }
@@ -1053,7 +1180,7 @@ function handleMicrosoftLogin() {
   router.push('/account')
 }
 
-// ====== 标签定义 ======
+// * ====== 标签定义 ======
 const tabs = [
   {
     path: '/',
@@ -1077,7 +1204,7 @@ const tabs = [
   },
 ]
 
-// 下载分类
+// * 下载分类
 const dlCategories = [
   {
     id: 'vanilla',
@@ -1113,7 +1240,7 @@ const communityCategories = [
   }
 ]
 
-// 设置分类（Koring 分组结构）
+// * 设置分类（Koring 分组结构）
 interface SettingsNavItem {
   id: string
   labelKey: string
@@ -1269,6 +1396,9 @@ const settingsGroups: SettingsNavGroup[] = [
 
 function minimizeWindow() {
   window.electronAPI?.window?.minimize?.()
+}
+function maximizeWindow() {
+  window.electronAPI?.window?.maximize?.()
 }
 function closeWindow() {
   window.electronAPI?.window?.close?.()

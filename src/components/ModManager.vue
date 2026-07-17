@@ -343,36 +343,36 @@ interface ModDependencyCheckResult {
   installedDependencies: ModDependencyInfo[]
 }
 
-// 数据
+// * 数据
 const modSearchText = ref('')
 const modFilter = ref('all')
 const modsLoading = ref(false)
 const installedMods = ref<ModItem[]>([])
 
-// 更新检测状态
+// * 更新检测状态
 const checkingUpdates = ref(false)
-// filePath -> ModUpdateInfo
+// * filePath -> ModUpdateInfo
 const updateInfoMap = ref<Record<string, ModUpdateInfo>>({})
-const updatingMod = ref<string | null>(null) // 正在更新的Mod
-const updateProgressMap = ref<Record<string, number>>({}) // filePath -> 0~1
+const updatingMod = ref<string | null>(null) // * 正在更新的Mod
+const updateProgressMap = ref<Record<string, number>>({}) // * filePath -> 0~1
 
-// 可更新的 mod 数量（用 ?tab）
+// * 可更新的 mod 数量（用 ?tab）
 const hasUpdateCount = computed(
   () => Object.values(updateInfoMap.value).filter((u: ModUpdateInfo) => u.hasUpdate).length
 )
 
-// 依赖检查状态
+// * 依赖检查状态
 const checkingDependencies = ref(false)
 const depCheckMap = ref<Record<string, ModDependencyCheckResult>>({})
 const installingDeps = ref<string | null>(null)
 const depInstallProgress = ref<Record<string, number>>({})
 
-// 有缺失依赖的 mod 数量
+// * 有缺失依赖的 mod 数量
 const missingDepsCount = computed(
   () => Object.values(depCheckMap.value).filter((d) => d.missingDependencies.length > 0).length
 )
 
-// 单点选中
+// * 单点选中
 const selectedMod = ref<string | null>(null)
 const selectedModName = computed(() => {
   if (!selectedMod.value) return ''
@@ -415,7 +415,7 @@ const modFilterTabs = computed(() => {
   ]
 })
 
-// 过滤后的列表
+// * 过滤后的列表
 const filteredMods = computed(() => {
   let list = installedMods.value
   if (modFilter.value === 'enabled') {
@@ -481,13 +481,13 @@ async function checkAllUpdates() {
   }
 }
 
-// 底部栏操作（单选）
+// * 底部栏操作（单选）
 async function updateSelectedMod() {
   if (!selectedMod.value) return
   const mod = installedMods.value.find((m) => m.filePath === selectedMod.value)
   const info = updateInfoMap.value[selectedMod.value]
   if (!mod || !info?.hasUpdate) {
-    // 还没检查或没有更新，先检查一次
+    // * 还没检查或没有更新，先检查一次
     await checkAllUpdates()
     const newInfo = updateInfoMap.value[selectedMod.value]
     const currentMod = installedMods.value.find((m) => m.filePath === selectedMod.value)
@@ -523,7 +523,7 @@ async function doUpdateMod(mod: ModItem, info: ModUpdateInfo) {
   try {
     const api = window.electronAPI
 
-    // 监听更新进度
+    // * 监听更新进度
     const unsubProgress = api.mod?.onUpdateProgress?.(
       (data: any) => {
         if (data.filePath === mod.filePath) {
@@ -536,7 +536,7 @@ async function doUpdateMod(mod: ModItem, info: ModUpdateInfo) {
     unsubProgress?.()
 
     if (result?.ok) {
-      // 更新成功 清除已更新的记录
+      // * 更新成功 清除已更新的记录
       const newMap = { ...updateInfoMap.value }
       delete newMap[mod.filePath]
       updateInfoMap.value = newMap
@@ -560,7 +560,7 @@ async function doUpdateMod(mod: ModItem, info: ModUpdateInfo) {
   }
 }
 
-// 检查所有 mod 依赖
+// * 检查所有 mod 依赖
 async function checkAllDependencies() {
   if (checkingDependencies.value || installedMods.value.length === 0) return
   checkingDependencies.value = true
@@ -582,7 +582,7 @@ async function checkAllDependencies() {
   }
 }
 
-// 安装选中 mod 的缺失依赖
+// * 安装选中 mod 的缺失依赖
 async function installSelectedDeps() {
   if (!selectedMod.value || installingDeps.value) return
   const mod = installedMods.value.find((m) => m.filePath === selectedMod.value)
@@ -598,7 +598,7 @@ async function installSelectedDeps() {
       })
       return
     }
-    // 重新获取 mod，确保类型正确
+    // * 重新获取 mod，确保类型正确
     const currentMod = installedMods.value.find((m) => m.filePath === selectedMod.value)
     if (currentMod) {
       await doInstallDeps(currentMod, newDepCheck)
@@ -686,13 +686,13 @@ async function removeSelectedMod() {
 async function openModFolder() {
   const api = window.electronAPI
   if (!api?.shell) return
-  // 优先版本隔离目录
+  // * 优先版本隔离目录
   const isolated = `${props.gameDir}/mods`
   const exists = await api.path?.exists(isolated)
   if (exists) {
     await api.shell.openPath(isolated)
   } else {
-    // 回退全局 .minecraft/mods
+    // * 回退全局 .minecraft/mods
     const parts = props.gameDir.split(/[\\/]/)
     const idx = parts.indexOf('.minecraft')
     const mcRoot = idx >= 0 ? parts.slice(0, idx + 1).join('/') : props.gameDir
@@ -735,7 +735,7 @@ function showModDetails(mod: ModItem) {
   showDetailModal.value = true
 }
 
-// 打开文件位置
+// * 打开文件位置
 async function openModFile(mod: ModItem) {
   const dir = mod.filePath.replace(/[\\/][^\\/]+$/, '')
   await window.electronAPI?.shell.openPath(dir)
@@ -753,7 +753,7 @@ async function toggleModEnable(mod: ModItem) {
   } catch (e) {}
 }
 
-// 删除单个 Mod
+// * 删除单个 Mod
 async function removeMod(mod: ModItem) {
   if (!confirm(`确定要删除 ${mod.name}」吗？`)) return
   try {
@@ -969,7 +969,7 @@ onMounted(() => {
   text-overflow: ellipsis;
 }
 
-/* 悬浮操作按钮 */
+/* * 悬浮操作按钮 */
 .mod-actions {
   display: flex;
   gap: 4px;
@@ -1158,7 +1158,7 @@ onMounted(() => {
   }
 }
 
-  /* 空状态 */
+  /* * 空状态 */
  .empty-state {
   display: flex;
   flex-direction: column;
@@ -1191,7 +1191,7 @@ onMounted(() => {
   opacity: 0;
 }
 
-/* ── Mod 更新相关 ── */
+/* * ── Mod 更新相关 ── */
 .spin-icon-sm {
   animation: spin 1s linear infinite;
   display: inline-block;
@@ -1204,7 +1204,7 @@ onMounted(() => {
   border-right: 3px solid #f59e0b;
 }
 
-/* 有更新角标 */
+/* * 有更新角标 */
 .mod-update-badge {
   display: inline-flex;
   align-items: center;
@@ -1237,7 +1237,7 @@ onMounted(() => {
   border-left: 3px solid #ef4444;
 }
 
-/* 更新中进度条（覆盖在卡片顶部） */
+/* * 更新中进度条（覆盖在卡片顶部） */
 .mod-update-progress-bar {
   position: absolute;
   top: 0;
@@ -1255,7 +1255,7 @@ onMounted(() => {
   }
 }
 
-/* 底部操作栏「更新」按钮有更新时变橙色高亮 */
+/* * 底部操作栏「更新」按钮有更新时变橙色高亮 */
 .mod-bottom-btn.has-update {
   background: rgb(245 158 11 / 0.12);
   color: #f59e0b;
@@ -1266,7 +1266,7 @@ onMounted(() => {
   }
 }
 
-/* 底部操作栏「安装依赖」按钮有缺失时变红色高亮 */
+/* * 底部操作栏「安装依赖」按钮有缺失时变红色高亮 */
 .mod-bottom-btn.missing-deps {
   background: rgb(239 68 68 / 0.12);
   color: #ef4444;
@@ -1277,7 +1277,7 @@ onMounted(() => {
   }
 }
 
-/* 工具栏检查更新按钮检查中状态 */
+/* * 工具栏检查更新按钮检查中状态 */
 .form-action-btn.checking {
   opacity: 0.7;
   cursor: wait;

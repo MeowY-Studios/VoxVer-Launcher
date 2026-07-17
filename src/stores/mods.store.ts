@@ -7,7 +7,7 @@ import { ref, computed } from 'vue'
 import type { LocalMod, LocalModStatus } from '../types/mod'
 
 export const useModsStore = defineStore('mods', () => {
-  // ====== 状态 ======
+  // * ====== 状态 ======
   const mods = ref<LocalMod[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -15,21 +15,21 @@ export const useModsStore = defineStore('mods', () => {
   const searchQuery = ref('')
   const filterStatus = ref<LocalModStatus | 'all'>('all')
 
-  // ====== 计算属性 ======
+  // * ====== 计算属性 ======
 
   /** 过滤后的 Mod 列表 */
   const filteredMods = computed(() => {
     let result = mods.value
 
-    // 状态筛选
+    // * 状态筛选
     if (filterStatus.value !== 'all') {
       result = result.filter((m) => m.status === filterStatus.value)
     }
 
-    // 搜索关键词
+    // * 搜索关键词
     if (searchQuery.value.trim()) {
       const q = searchQuery.value.toLowerCase()
-      // 处理 fileName 可选性，确保搜索时包含 fileName 也包含 displayName
+      // * 处理 fileName 可选性，确保搜索时包含 fileName 也包含 displayName
       result = result.filter(
         (m) =>
           m.displayName.toLowerCase().includes(q) ||
@@ -49,7 +49,7 @@ export const useModsStore = defineStore('mods', () => {
     incompatible: mods.value.filter((m) => m.status === 'incompatible').length
   }))
 
-  // ====== 操作 ======
+  // * ====== 操作 ======
 
   /** 加载指定实例的 Mod 列表 */
   async function fetchMods(gameDir: string) {

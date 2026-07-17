@@ -130,7 +130,7 @@ const btnClass = computed(() => ({
     text-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
   }
 
-  /* 字号按尺 */
+  /* * 字号按尺 */
   &.small {
     .btn-label {
       font-size: 13px;
@@ -166,7 +166,7 @@ const btnClass = computed(() => ({
     transform: scale(0.98);
   }
 
-  /* 启动中 */
+  /* * 启动中 */
   &.launching {
     background: linear-gradient(135deg, var(--voxver-primary), #0ea5e9);
     cursor: not-allowed;
@@ -206,7 +206,7 @@ const btnClass = computed(() => ({
     }
   }
 
-  /* 禁用 */
+  /* * 禁用 */
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;

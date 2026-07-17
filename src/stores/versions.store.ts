@@ -36,18 +36,18 @@ export interface ModLoaderVersion {
 }
 
 export const useVersionsStore = defineStore('versions', () => {
-  // ====== 状态 ======
+  // * ====== 状态 ======
   const versions = ref<MCVersion[]>([])
   const currentVersionId = ref<string | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
   const cacheTime = ref<number | null>(null)
 
-  // ModLoader 版本
+  // * ModLoader 版本
   const fabricVersions = ref<ModLoaderVersion[]>([])
   const forgeVersions = ref<ModLoaderVersion[]>([])
 
-  // ====== 计算属性 ======
+  // * ====== 计算属性 ======
 
   /** 最新正式版 */
   const latestRelease = computed(() => versions.value.find((v) => v.type === 'release'))
@@ -64,11 +64,11 @@ export const useVersionsStore = defineStore('versions', () => {
   /** 筛选正式版 */
   const releaseVersions = computed(() => versions.value.filter((v) => v.type === 'release'))
 
-  // ====== 操作 ======
+  // * ====== 操作 ======
 
   /** 获取版本列表（双层缓存：前端 localStorage + 主进程内存/DB 缓存） */
   async function fetchVersions(forceRefresh = false) {
-    // 1. 尝试前端持久化缓存（离线 / 弱网络场景）
+    // * 1. 尝试前端持久化缓存（离线 / 弱网络场景）
     if (!forceRefresh) {
       try {
         const raw = localStorage.getItem(CACHE_KEY)
@@ -81,11 +81,11 @@ export const useVersionsStore = defineStore('versions', () => {
           }
         }
       } catch {
-        // 解析失败，忽略
+        // * 解析失败，忽略
       }
     }
 
-    // 2. 通过 ipc 向主进程请求（主进程本身也有内存 + DB + 网络三级缓存）
+    // * 2. 通过 ipc 向主进程请求（主进程本身也有内存 + DB + 网络三级缓存）
     loading.value = true
     error.value = null
     try {
@@ -99,14 +99,14 @@ export const useVersionsStore = defineStore('versions', () => {
       }))
       cacheTime.value = Date.now()
 
-      // 3. 写入前端持久化缓存（下次进入页面即使离线也有数据）
+      // * 3. 写入前端持久化缓存（下次进入页面即使离线也有数据）
       try {
         localStorage.setItem(
           CACHE_KEY,
           JSON.stringify({ data: versions.value, timestamp: cacheTime.value })
         )
       } catch {
-        // 忽略（例如隐私模式 / 配额超限）
+        // * 忽略（例如隐私模式 / 配额超限）
       }
 
       return versions.value
@@ -123,7 +123,7 @@ export const useVersionsStore = defineStore('versions', () => {
   async function fetchModLoaderVersions(mcVersion: string) {
     loading.value = true
     try {
-      // 获取 Fabric 版本列表
+      // * 获取 Fabric 版本列表
       const fabricRes = await window.electronAPI?.modloader?.getVersions?.(mcVersion, 'fabric')
       if (fabricRes?.ok && Array.isArray(fabricRes.data)) {
         fabricVersions.value = fabricRes.data.map((v: string) => ({
@@ -134,7 +134,7 @@ export const useVersionsStore = defineStore('versions', () => {
         }))
       }
 
-      // 获取 Forge 版本列表
+      // * 获取 Forge 版本列表
       const forgeRes = await window.electronAPI?.modloader?.getVersions?.(mcVersion, 'forge')
       if (forgeRes?.ok && Array.isArray(forgeRes.data)) {
         forgeVersions.value = forgeRes.data.map((v: string) => ({
@@ -145,7 +145,7 @@ export const useVersionsStore = defineStore('versions', () => {
         }))
       }
     } catch {
-      // 静默处理
+      // * 静默处理
     } finally {
       loading.value = false
     }
@@ -163,7 +163,7 @@ export const useVersionsStore = defineStore('versions', () => {
     try {
       localStorage.removeItem(CACHE_KEY)
     } catch {
-      // 忽略
+      // * 忽略
     }
   }
 
@@ -173,7 +173,7 @@ export const useVersionsStore = defineStore('versions', () => {
   }
 
   return {
-    // 状态
+    // * 状态
     versions,
     currentVersionId,
     loading,
@@ -181,12 +181,12 @@ export const useVersionsStore = defineStore('versions', () => {
     fabricVersions,
     forgeVersions,
 
-    // 计算属性
+    // * 计算属性
     latestRelease,
     versionOptions,
     releaseVersions,
 
-    // 操作
+    // * 操作
     fetchVersions,
     fetchModLoaderVersions,
     getVersionById,

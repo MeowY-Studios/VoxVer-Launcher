@@ -172,7 +172,7 @@ function onInstanceImported() {
 onMounted(() => {
   instancesStore.fetchInstances()
 
-  // 监听协议唤起（voxver://share:CODE）
+  // * 监听协议唤起（voxver://share:CODE）
   protocolCleanup = window.electronAPI?.share?.onProtocolInvoke((code: string) => {
     initialShareCode.value = code
     showReceiveModal.value = true
@@ -190,7 +190,7 @@ onUnmounted(() => {
   min-height: 100%;
 }
 
-/* ===== Hero 卡片 ===== */
+/* * ===== Hero 卡片 ===== */
 .bento-card--hero {
   background: var(--voxver-bg-tertiary);
 }
@@ -230,7 +230,7 @@ onUnmounted(() => {
   line-height: 1.5;
 }
 
-/* ===== 操作卡片（全宽） ===== */
+/* * ===== 操作卡片（全宽） ===== */
 .bento-card--actions {
   padding: 16px 24px;
 }
@@ -277,7 +277,7 @@ onUnmounted(() => {
   }
 }
 
-/* ===== 最近实例 ===== */
+/* * ===== 最近实例 ===== */
 .recent-section {
   margin-top: 32px;
 }
@@ -397,7 +397,7 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-/* ===== 响应式 ===== */
+/* * ===== 响应式 ===== */
 @media (max-width: 768px) {
   .home-page { padding: 16px 20px; }
 

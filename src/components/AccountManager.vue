@@ -563,7 +563,7 @@ function generateUUID(): string {
   box-shadow: -8px 0 32px rgba(0, 0, 0, 0.3);
 }
 
-/* ===== 标题栏 ===== */
+/* * ===== 标题栏 ===== */
 .acc-header {
   height: 44px;
   background: var(--voxver-gradient-primary);
@@ -689,7 +689,7 @@ function generateUUID(): string {
   }
 }
 
-/* ===== 资料行 ===== */
+/* * ===== 资料行 ===== */
 .acc-profile {
   display: flex;
   align-items: center;
@@ -802,7 +802,7 @@ function generateUUID(): string {
   color: var(--voxver-error);
 }
 
-/* ===== 按钮 ===== */
+/* * ===== 按钮 ===== */
 .acc-btn {
   display: inline-flex;
   align-items: center;
@@ -921,7 +921,7 @@ function generateUUID(): string {
   }
 }
 
-/* ===== OAuth 弹窗（复用 AccountPage 样式） ===== */
+/* * ===== OAuth 弹窗（复用 AccountPage 样式） ===== */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -980,7 +980,7 @@ function generateUUID(): string {
   gap: 8px;
 }
 
-/* Device Flow */
+/* * Device Flow */
 .device-flow {
   text-align: center;
 }
@@ -1069,7 +1069,7 @@ function generateUUID(): string {
   }
 }
 
-/* Loader */
+/* * Loader */
 .loader {
   display: inline-block;
   width: 16px;

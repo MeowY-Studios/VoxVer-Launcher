@@ -269,7 +269,7 @@ import type { ModSearchResult, ProjectFile } from '../../types/download'
 import type { GameInstance } from '../../types/instance'
 import { formatNumber } from '../../utils/format'
 
-// ====== Props & Emits ======
+// * ====== Props & Emits ======
 
 interface Props {
   modelValue: boolean
@@ -283,12 +283,12 @@ const emit = defineEmits<{
   (e: 'update:modelValue', v: boolean): void
 }>()
 
-// ====== Stores ======
+// * ====== Stores ======
 
 const instancesStore = useInstancesStore()
 const dlStore = useDownloadStore()
 
-// ====== 状态 ======
+// * ====== 状态 ======
 
 const panelRef = ref<HTMLElement | null>(null)
 const loading = ref(false)
@@ -302,7 +302,7 @@ const pendingFile = ref<ProjectFile | null>(null)
 const selectedMcVersion = ref('')
 const expandedVersions = ref<string[]>([])
 
-// ====== 计算属性 ======
+// * ====== 计算属性 ======
 
 /** 当前选中的实例（props 传入优先，否则用下拉选择） */
 const currentInstance = computed(() => {
@@ -467,12 +467,12 @@ watch(
   }
 )
 
-// 当切换选择实例时刷新目标路径提示
+// * 当切换选择实例时刷新目标路径提示
 watch(selectedInstanceId, async () => {
   await instancesStore.fetchInstances()
 })
 
-// ====== 加载数据 ======
+// * ====== 加载数据 ======
 
 async function loadAll() {
   loading.value = true
@@ -556,7 +556,7 @@ function selectMcVersion(version: string) {
   }
 }
 
-// ====== 兼容性判断 ======
+// * ====== 兼容性判断 ======
 
 /**
  * 判断文件是否与当前实例兼容
@@ -600,7 +600,7 @@ async function downloadFile(file: ProjectFile) {
     return
   }
 
-  // 先弹出安装确认弹窗
+  // * 先弹出安装确认弹窗
   pendingFile.value = file
   showInstallConfirm.value = true
 }
@@ -650,7 +650,7 @@ async function confirmDownload() {
   }
 }
 
-// ====== 工具 ======
+// * ====== 工具 ======
 
 function getInstanceModsPath(instanceId: string): string {
   const inst = instancesStore.instances.find((i) => i.id === instanceId)
@@ -720,7 +720,7 @@ function formatDate(dateStr: string): string {
 </script>
 
 <style scoped lang="scss">
-/* ====== 遮罩 + 面板 ====== */
+/* * ====== 遮罩 + 面板 ====== */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -853,7 +853,7 @@ function formatDate(dateStr: string): string {
   }
 }
 
-/* ====== 基本信息卡片 ====== */
+/* * ====== 基本信息卡片 ====== */
 .info-card {
   background: var(--voxver-surface);
   border: 1px solid var(--voxver-border-color);
@@ -985,7 +985,7 @@ function formatDate(dateStr: string): string {
   }
 }
 
-/* ====== 安装目标选择 ====== */
+/* * ====== 安装目标选择 ====== */
 .target-section {
   background: var(--voxver-bg-secondary);
   border: 1px solid var(--voxver-border-color);
@@ -1097,7 +1097,7 @@ function formatDate(dateStr: string): string {
   }
 }
 
-/* 版本分组列表 */
+/* * 版本分组列表 */
 .versions-list {
   display: flex;
   flex-direction: column;
@@ -1328,7 +1328,7 @@ function formatDate(dateStr: string): string {
   color: var(--voxver-text-muted);
 }
 
-/* ====== 兼容性标签 ====== */
+/* * ====== 兼容性标签 ====== */
 .compat-info {
   display: flex;
   flex-direction: column;
@@ -1384,7 +1384,7 @@ function formatDate(dateStr: string): string {
   }
 }
 
-/* ====== 下载按钮 ====== */
+/* * ====== 下载按钮 ====== */
 .file-action {
   flex-shrink: 0;
   padding-top: 2px;
@@ -1439,7 +1439,7 @@ function formatDate(dateStr: string): string {
   }
 }
 
-/* ====== 安装确认弹窗 ====== */
+/* * ====== 安装确认弹窗 ====== */
 .confirm-overlay {
   position: fixed;
   inset: 0;

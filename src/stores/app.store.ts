@@ -9,14 +9,14 @@ export type ThemeMode = 'dark' | 'light' | 'auto'
 export type Language = 'zh-CN' | 'en-US'
 
 export const useAppStore = defineStore('app', () => {
-  // ====== 状态 ======
+  // * ====== 状态 ======
   const theme = ref<ThemeMode>('dark')
   const language = ref<Language>('zh-CN')
   const sidebarCollapsed = ref(false)
   const sidebarWidth = ref(220)
   const isElectron = ref(false)
 
-  // 背景设置
+  // * 背景设置
   const bgImageMode = ref<'none' | 'custom'>('none')
   const bgImagePath = ref('')
   const bgColorOverlay = ref(false)
@@ -25,13 +25,13 @@ export const useAppStore = defineStore('app', () => {
   const themeBgBlur = ref(0)
   const bgParallax = ref(false)
 
-  // ====== 计算属性 ======
+  // * ====== 计算属性 ======
   const isDark = computed(() => {
     const t = resolveTheme()
     return t === 'dark'
   })
 
-  // ====== 操作 ======
+  // * ====== 操作 ======
 
   /** 解析 auto 主题为实际深浅色 */
   function resolveTheme(): 'dark' | 'light' {
@@ -111,7 +111,7 @@ export const useAppStore = defineStore('app', () => {
   function applyTheme() {
     const resolved = resolveTheme()
     document.documentElement.setAttribute('data-theme', resolved)
-    // 持久化（保存用户选择，包括 auto）
+    // * 持久化（保存用户选择，包括 auto）
     localStorage.setItem('voxver_theme', theme.value)
   }
 
@@ -119,7 +119,7 @@ export const useAppStore = defineStore('app', () => {
   function init() {
     isElectron.value = !!window.electronAPI
     let saved = localStorage.getItem('voxver_theme') as ThemeMode | 'koring' | null
-    // 迁移已废弃的 koring 主题为 dark
+    // ! 迁移已废弃的 koring 主题为 dark
     if (saved === 'koring') {
       saved = 'dark'
       localStorage.setItem('voxver_theme', 'dark')
@@ -130,7 +130,7 @@ export const useAppStore = defineStore('app', () => {
     }
     applyTheme()
 
-    // 恢复背景设置
+    // * 恢复背景设置
     const savedBgMode = localStorage.getItem('voxver_bgImageMode')
     if (savedBgMode === 'none' || savedBgMode === 'custom') bgImageMode.value = savedBgMode
     const savedBgPath = localStorage.getItem('voxver_bgImagePath')
@@ -146,7 +146,7 @@ export const useAppStore = defineStore('app', () => {
     const savedParallax = localStorage.getItem('voxver_bgParallax')
     if (savedParallax !== null) bgParallax.value = savedParallax === 'true'
 
-    // 监听系统主题变化（auto 模式下自动跟随）
+    // * 监听系统主题变化（auto 模式下自动跟随）
     if (window.matchMedia) {
       const mql = window.matchMedia('(prefers-color-scheme: dark)')
       const handler = () => {

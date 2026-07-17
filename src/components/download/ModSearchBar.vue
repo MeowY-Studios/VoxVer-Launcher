@@ -123,7 +123,7 @@ function clearQuery() {
 }
 
 onMounted(() => {
-  // 自动聚焦搜索输入框
+  // * 自动聚焦搜索输入框
   searchInput.value?.focus()
 })
 </script>

@@ -291,14 +291,14 @@ import { useAccountsStore } from '../stores/accounts.store'
 
 const accountsStore = useAccountsStore()
 
-// ====== 微软账户状态 ======
+// * ====== 微软账户状态 ======
 const msAccount = ref(
   accountsStore.activeAccount?.type === 'microsoft' ? accountsStore.activeAccount : null
 )
 const skinDataUrl = ref<string | null>(null)
 const skinError = ref<string | null>(null)
 
-// ====== 登录流程状态 ======
+// * ====== 登录流程状态 ======
 type LoginState = 'idle' | 'waiting_user' | 'processing' | 'done' | 'error'
 const loginState = ref<LoginState>('idle')
 const loginProgressText = ref('')
@@ -307,20 +307,20 @@ const newAccountName = ref('')
 const deviceCodeInfo = ref({ userCode: '', verificationUri: '', message: '' })
 const codeCopied = ref(false)
 
-// ====== 离线账户状态 ======
+// * ====== 离线账户状态 ======
 const offlineName = ref('Steve')
 const offlineUuid = ref('')
 const savingOffline = ref(false)
 const offlineError = ref('')
 
-// ====== 监听登录进度推送 ======
+// * ====== 监听登录进度推送 ======
 let progressUnlisten: (() => void) | null = null
 
 onMounted(async () => {
   await accountsStore.fetchAccounts()
   await syncMsAccount()
 
-  // 监听来自主进程的登录进度
+  // * 监听来自主进程的登录进度
   progressUnlisten = window.electronAPI?.account.onLoginProgress((payload) => {
     handleLoginProgress(payload.stage, payload.detail)
   }) as any
@@ -338,7 +338,7 @@ async function syncMsAccount() {
   if (msAccount.value?.uuid) {
     const result = await window.electronAPI?.account.getSkinDataUrl(msAccount.value.uuid)
     if (result?.ok) {
-      // 裁剪出皮肤头部，放大皮肤头部，放大显示
+      // * 裁剪出皮肤头部，放大皮肤头部，放大显示
       skinDataUrl.value = await cropSkinHead(result.data || '')
     } else if (result?.error) {
       skinError.value = result.error || ''  
@@ -358,7 +358,7 @@ async function cropSkinHead(skinDataUrl: string): Promise<string> {
       canvas.height = canvasSize
       const ctx = canvas.getContext('2d')!
       ctx.imageSmoothingEnabled = false
-      // Minecraft 皮肤脸部在 (8, 8) 位置，8x8 像素
+      // * Minecraft 皮肤脸部在 (8, 8) 位置，8x8 像素
       ctx.drawImage(img, 8, 8, SIZE, SIZE, 0, 0, canvasSize, canvasSize)
       const result = canvas.toDataURL('image/png')
       resolve(result)
@@ -370,7 +370,7 @@ async function cropSkinHead(skinDataUrl: string): Promise<string> {
   })
 }
 
-// ====== 处理进度事件 ======
+// * ====== 处理进度事件 ======
 function handleLoginProgress(stage: string, detail?: string) {
   switch (stage) {
     case 'device_code':
@@ -427,7 +427,7 @@ function handleLoginProgress(stage: string, detail?: string) {
   }
 }
 
-// ====== 开始 Microsoft 登录 ======
+// * ====== 开始 Microsoft 登录 ======
 async function startMicrosoftLogin() {
   loginState.value = 'processing'
   loginProgressText.value = '正在初始化...'
@@ -450,7 +450,7 @@ async function startMicrosoftLogin() {
   }
 }
 
-// ====== 取消登录 ======
+// * ====== 取消登录 ======
 async function cancelLogin() {
   await window.electronAPI?.account.cancelLogin()
   loginState.value = 'idle'
@@ -460,14 +460,14 @@ function closeModal() {
   loginState.value = 'idle'
 }
 
-// ====== 退出微软账户 ======
+// * ====== 退出微软账户 ======
 async function logoutMicrosoft() {
   if (!msAccount.value) return
   await accountsStore.deleteAccount(msAccount.value.id)
   msAccount.value = null
 }
 
-// ====== 复制设备码并打开浏览器 ======
+// * ====== 复制设备码并打开浏览器 ======
 async function copyCode() {
   try {
     await navigator.clipboard.writeText(deviceCodeInfo.value.userCode)
@@ -476,13 +476,13 @@ async function copyCode() {
       codeCopied.value = false
     }, 2000)
   } catch {
-    // 不支持 clipboard，继续打开浏览器
+    // ! 不支持 clipboard，继续打开浏览器
   }
-  // 直接用 window.open 打开浏览器，不依赖主进程
+  // * 直接用 window.open 打开浏览器，不依赖主进程
   window.open(deviceCodeInfo.value.verificationUri, '_blank')
 }
 
-// ====== 保存离线账户 ======
+// * ====== 保存离线账户 ======
 async function saveOffline() {
   offlineError.value = ''
   const name = offlineName.value.trim()
@@ -506,7 +506,7 @@ async function saveOffline() {
   }
 }
 
-// ====== 生成 UUID ======
+// * ====== 生成 UUID ======
 function generateUUID(): string {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0
@@ -526,7 +526,7 @@ function generateUUID(): string {
   margin-bottom: 20px;
 }
 
-/* ====== 账户区块（视觉样式由 .vox-card 提供） ====== */
+/* * ====== 账户区块（视觉样式由 .vox-card 提供） ====== */
 .account-section {
   margin-bottom: 16px;
   overflow: hidden;
@@ -581,7 +581,7 @@ function generateUUID(): string {
   }
 }
 
-/* ====== 资料行 ====== */
+/* * ====== 资料行 ====== */
 .profile-row {
   display: flex;
   align-items: center;
@@ -651,7 +651,7 @@ img.profile-avatar {
   }
 }
 
-/* ====== 表单 ====== */
+/* * ====== 表单 ====== */
 .form-group {
   margin-bottom: 14px;
 
@@ -686,7 +686,7 @@ img.profile-avatar {
   color: var(--voxver-error);
 }
 
-/* ====== 提示框 ====== */
+/* * ====== 提示框 ====== */
 .hint-box {
   display: flex;
   align-items: flex-start;
@@ -705,7 +705,7 @@ img.profile-avatar {
   }
 }
 
-/* ====== OAuth 弹窗 ====== */
+/* * ====== OAuth 弹窗 ====== */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -765,7 +765,7 @@ img.profile-avatar {
   gap: 8px;
 }
 
-/* ====== Device Flow 内容 ====== */
+/* * ====== Device Flow 内容 ====== */
 .device-flow {
   text-align: center;
 
@@ -811,7 +811,7 @@ img.profile-avatar {
   }
 }
 
-/* ====== 处理中 ====== */
+/* * ====== 处理中 ====== */
 .processing {
   display: flex;
   flex-direction: column;
@@ -826,7 +826,7 @@ img.profile-avatar {
   }
 }
 
-/* ====== 结果 ====== */
+/* * ====== 结果 ====== */
 .result-box {
   display: flex;
   flex-direction: column;
@@ -851,7 +851,7 @@ img.profile-avatar {
   }
 }
 
-/* ====== 外链入口 ====== */
+/* * ====== 外链入口 ====== */
 .external-links {
   display: flex;
   gap: 10px;
@@ -874,7 +874,7 @@ img.profile-avatar {
   }
 }
 
-/* ====== Loading Spinner ====== */
+/* * ====== Loading Spinner ====== */
 .loader {
   display: inline-block;
   width: 16px;

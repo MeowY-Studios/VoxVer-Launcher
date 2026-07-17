@@ -6,13 +6,13 @@ import { ref, computed } from 'vue'
 import type { GameInstance, CreateInstanceParams, LoaderType } from '../types/instance'
 
 export const useInstancesStore = defineStore('instances', () => {
-  // ====== 状态 ======
+  // * ====== 状态 ======
   const instances = ref<GameInstance[]>([])
   const currentInstanceId = ref<string | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  // ====== 计算属性 ======
+  // * ====== 计算属性 ======
 
   /** 当前选中的实例 */
   const currentInstance = computed(
@@ -30,7 +30,7 @@ export const useInstancesStore = defineStore('instances', () => {
   /** 收藏的实例 */
   const favoritedInstances = computed(() => instances.value.filter((i) => i.isFavorited === 1))
 
-  // ====== 操作 ======
+  // * ====== 操作 ======
 
   /** 从主进程加载实例列表 */
   async function fetchInstances() {
@@ -38,7 +38,7 @@ export const useInstancesStore = defineStore('instances', () => {
     error.value = null
     try {
       const rawList = await window.electronAPI?.instance.list()
-      // 映射 snake_case -> camelCase
+      // * 映射 snake_case -> camelCase
       instances.value = (rawList || []).map(mapRawToInstance)
     } catch (e: any) {
       error.value = e.message || '加载实例失败'
@@ -60,7 +60,7 @@ export const useInstancesStore = defineStore('instances', () => {
   /** 更新实例 */
   async function updateInstance(id: string, data: Partial<GameInstance>) {
     await window.electronAPI?.instance.update(id, data as any)
-    await fetchInstances() // 刷新列表
+    await fetchInstances() // * 刷新列表
   }
 
   /** 删除实例 */
@@ -102,7 +102,7 @@ export const useInstancesStore = defineStore('instances', () => {
   }
 })
 
-// ====== 工具函数 ======
+// * ====== 工具函数 ======
 
 /** 主进程返回的 snake_case 数据转前端 camelCase */
 function mapRawToInstance(raw: any): GameInstance {

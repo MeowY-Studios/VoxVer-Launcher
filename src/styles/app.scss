@@ -1,7 +1,5 @@
 /* ============================================================
-   VoxVer App Layout — UI UX Pro Max 设计体系
-   基于 tokens.scss + pixel-ui.css 的 --voxver-* 变量系统
-   OLED Dark + Neubrutalism + Bento Grid
+   VoxVer App Layout — Apple Design System
    ============================================================ */
 
 .voxver-app {
@@ -14,7 +12,7 @@
   color: var(--voxver-text-primary);
 }
 
-/* ====== 全局导航标题栏 ====== */
+/* * 全局导航标题栏 */
 .titlebar {
   height: 44px;
   background: var(--voxver-titlebar-bg);
@@ -31,6 +29,10 @@
 .electron .titlebar,
 .titlebar {
   -webkit-app-region: drag;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
 }
 
 .brand {
@@ -40,9 +42,18 @@
   letter-spacing: -0.12px;
   -webkit-app-region: no-drag;
   pointer-events: auto;
-  padding-left: 4px;
   position: relative;
   z-index: 1;
+}
+
+.platform-macos .brand {
+  padding-right: 4px;
+}
+
+.platform-windows .brand,
+.platform-linux .brand,
+.platform-unknown .brand {
+  padding-left: 4px;
 }
 
 .tab-nav {
@@ -107,38 +118,116 @@
   }
 }
 
-/* 窗口控制 */
+/* * 窗口控制按钮 — 跨平台自适应 */
 .wc {
   display: flex;
-  position: absolute;
-  right: 0;
-  top: 0;
-  height: 100%;
+  align-items: center;
+  gap: 8px;
   -webkit-app-region: no-drag;
   z-index: 1;
+  flex-shrink: 0;
+}
+
+.wc-btn {
+  cursor: pointer;
+  transition: all 0.12s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+}
+
+/* * macOS 平台 — Apple HIG 红绿灯按钮（左侧） */
+.platform-macos {
+  .titlebar {
+    flex-direction: row-reverse;
+  }
+  .wc {
+    gap: 8px;
+  }
 
   .wc-btn {
-    width: 44px;
-    height: 44px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgb(255 255 255 / 0.82);
-    transition: all 0.12s;
-    &:hover {
-      background: rgb(255 255 255 / 0.12);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+
+    &.wc-close {
+      background: #ff5f57;
+      &:hover { background: #ff3b30; }
     }
-    &.wc-close:hover {
-      background: var(--voxver-error);
-      color: #fff;
+
+    &.wc-minimize {
+      background: #ffbd2e;
+      &:hover { background: #ff9500; }
     }
+
+    &.wc-maximize {
+      background: #28ca42;
+      &:hover { background: #34c759; }
+    }
+
+    svg {
+      width: 6px;
+      height: 6px;
+      opacity: 0;
+      transition: opacity 0.12s;
+      stroke-width: 1.5;
+    }
+
+    &:hover svg { opacity: 0.8; }
   }
 }
 
-/* ====== 主体布局 ====== */
+/* * Windows 平台 — Windows 风格矩形按钮（右侧） */
+.platform-windows,
+.platform-linux {
+  .wc {
+    gap: 0;
+  }
+
+  .wc-btn {
+    width: 46px;
+    height: 32px;
+    border-radius: 0;
+    color: var(--voxver-text-secondary);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--voxver-text-primary);
+    }
+
+    &.wc-close:hover {
+      background: #e81123;
+      color: #ffffff;
+    }
+
+    svg {
+      width: 14px;
+      height: 14px;
+      opacity: 1;
+      stroke-width: 1.5;
+      color: inherit;
+    }
+
+    &:hover svg { opacity: 1; }
+  }
+}
+
+/* * 未知平台 — 默认使用 macOS 样式 */
+.platform-unknown {
+  .wc { right: 10px; }
+  .wc-btn {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    &.wc-close { background: #ff5f57; }
+    &.wc-minimize { background: #ffbd2e; }
+    &.wc-maximize { background: #28ca42; }
+  }
+}
+
+/* * 主体布局 */
 .app-body {
   display: flex;
   flex: 1;
@@ -147,7 +236,7 @@
   background: var(--voxver-bg-secondary);
 }
 
-/* 背景图层 */
+/* * 背景图层 */
 .app-body-bg {
   position: absolute;
   top: 0;
@@ -171,7 +260,7 @@
   z-index: 1;
 }
 
-/* ====== 左侧边栏 ====== */
+/* * 左侧边栏 */
 .sidebar {
   width: 220px;
   min-width: 200px;
@@ -195,7 +284,7 @@
   }
 }
 
-/* ---------- 首页侧栏 ---------- */
+/* * 首页侧栏 */
 .sb-home {
   padding: 16px 16px 0;
   display: flex;
@@ -205,7 +294,7 @@
   overflow: hidden;
 }
 
-/* 账户管理按钮 */
+/* * 账户管理按钮 */
 .btn-account-manage {
   width: 100%;
   padding: 8px 12px;
@@ -278,7 +367,7 @@
   }
 }
 
-/* ---- 正版模式 ---- */
+/* * 正版模式 */
 .auth-online {
   display: flex;
   flex-direction: column;
@@ -335,25 +424,102 @@
   gap: 8px;
   width: 100%;
 
-  .account-select {
+  .account-select-wrapper {
     flex: 1;
+    position: relative;
+  }
+
+  .account-select {
+    width: 100%;
     padding: 8px 10px;
+    padding-right: 28px;
     border: 1px solid var(--voxver-border-color);
     border-radius: var(--voxver-radius-md);
     font-size: 12.5px;
     color: var(--voxver-text-secondary);
-    background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent)
-      url("data:image/svg+xml,%3Csvg width='8' height='5' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23555880' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")
-      no-repeat right 8px center;
+    background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
     outline: none;
     cursor: pointer;
-    appearance: none;
     transition: all var(--voxver-transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &:hover {
+      border-color: var(--voxver-border-strong);
+      color: var(--voxver-text-primary);
+    }
 
     &:focus {
       border-color: var(--voxver-primary-400);
       box-shadow: var(--voxver-input-focus-shadow);
     }
+
+    .select-arrow {
+      color: var(--voxver-text-muted);
+      transition: transform var(--voxver-transition-fast);
+    }
+
+    &:hover .select-arrow {
+      color: var(--voxver-text-secondary);
+    }
+  }
+
+  .account-select-popup {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    max-height: 240px;
+    overflow-y: auto;
+    background: var(--voxver-bg-elevated);
+    border: 1px solid var(--voxver-border-color);
+    border-radius: var(--voxver-radius-md);
+    box-shadow: 0 8px 32px rgb(0 0 0 / 0.3);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity var(--voxver-transition-fast), visibility var(--voxver-transition-fast), transform var(--voxver-transition-fast);
+
+    &.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  }
+
+  .account-select-option {
+    padding: 8px 12px;
+    font-size: 12.5px;
+    color: var(--voxver-text-secondary);
+    cursor: pointer;
+    transition: background var(--voxver-transition-fast), color var(--voxver-transition-fast);
+
+    &:hover {
+      background: color-mix(in oklab, var(--voxver-text) 3%, transparent);
+      color: var(--voxver-text-primary);
+    }
+
+    &.selected {
+      background: var(--voxver-accent-soft);
+      color: var(--voxver-accent);
+      font-weight: 500;
+    }
+
+    &.add-option {
+      color: var(--voxver-accent);
+
+      &:hover {
+        background: var(--voxver-accent-soft);
+      }
+    }
+  }
+
+  .account-select-divider {
+    height: 1px;
+    background: var(--voxver-border-color);
+    margin: 4px 0;
   }
 
   .btn-login {
@@ -428,7 +594,7 @@
   }
 }
 
-/* ---- 离线模式 ---- */
+/* * 离线模式 */
 .auth-offline {
   display: flex;
   flex-direction: column;
@@ -617,7 +783,7 @@
   }
 }
 
-/* ---------- 通用侧栏导航 ---------- */
+/* * 通用侧栏导航 */
 .sb-nav {
   padding: 12px 0;
   display: flex;
@@ -692,7 +858,7 @@
     }
 
     &.active {
-      color: var(--apple-primary);
+      color: var(--voxver-accent);
       font-weight: 600;
       background: transparent;
 
@@ -703,18 +869,18 @@
         top: 4px;
         bottom: 4px;
         width: 2px;
-        background: var(--apple-primary);
-        border-radius: 0 var(--apple-radius-xs) var(--apple-radius-xs) 0;
+        background: var(--voxver-accent);
+        border-radius: 0 var(--voxver-radius-xs) var(--voxver-radius-xs) 0;
       }
 
       > span {
-        color: var(--apple-primary);
+        color: var(--voxver-accent);
       }
     }
   }
 }
 
-/* ====== 主内容区 ====== */
+/* * 主内容区 */
 .main-content {
   position: relative;
   flex: 1;
@@ -751,14 +917,21 @@
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity var(--voxver-transition-fast);
+  transition:
+    opacity var(--voxver-transition-normal) ease,
+    transform var(--voxver-transition-normal) ease;
+  transform-origin: center top;
 }
-.fade-enter-from,
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
 .fade-leave-to {
   opacity: 0;
+  transform: translateY(-4px);
 }
 
-/* ====== 侧栏底部版本信息 ====== */
+/* * 侧栏底部版本信息 */
 .sidebar-version {
   margin-top: auto;
   padding: 8px 16px;
@@ -771,7 +944,7 @@
   user-select: none;
 }
 
-/* ====== 性能监控浮动面板 ====== */
+/* * 性能监控浮动面板 */
 .perf-panel {
   position: fixed;
   bottom: 16px;
@@ -836,7 +1009,7 @@
   font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
 }
 
-/* 缺失文件下载确认弹窗 */
+/* * 缺失文件下载确认弹窗 */
 .missing-files-modal {
   display: flex;
   flex-direction: column;

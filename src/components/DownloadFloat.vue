@@ -498,7 +498,7 @@ async function cancelDownload(id: string) {
   color: #ef4444;
 }
 
-/* 动画 */
+/* * 动画 */
 .float-enter-active,
 .float-leave-active {
   transition: all 0.25s ease;

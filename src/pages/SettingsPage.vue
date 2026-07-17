@@ -676,18 +676,16 @@
           </svg>
           {{ $t('more.fontLicense') }}
         </h3>
-        <div class="copyright-card" style="text-align: left; padding: 20px 24px">
-          <p class="copyright-text" style="text-align: left">{{ $t('more.fontLicenseText') }}</p>
-          <div class="btn-row" style="margin-top: 12px">
-            <a class="action-btn outline" href="https://scripts.sil.org/OFL" target="_blank">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-                <polyline points="15 3 21 3 21 9" />
-                <line x1="10" y1="14" x2="21" y2="3" />
-              </svg>
-              SIL Open Font License 1.1
-            </a>
-          </div>
+        <div class="copyright-card copyright-card--row">
+          <p class="copyright-text">{{ $t('more.fontLicenseText') }}</p>
+          <a class="action-btn outline" href="https://scripts.sil.org/OFL" target="_blank">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
+            {{ $t('more.viewSilLicense') }}
+          </a>
         </div>
       </section>
 
@@ -702,8 +700,8 @@
           </svg>
           {{ $t('more.voxverAttribution') }}
         </h3>
-        <div class="copyright-card" style="text-align: left; padding: 20px 24px">
-          <p class="copyright-text" style="text-align: left">{{ $t('more.attributionText') }}</p>
+        <div class="copyright-card">
+          <p class="copyright-text">{{ $t('more.attributionText') }}</p>
         </div>
       </section>
     </template>
@@ -1246,8 +1244,8 @@
 
         <!-- 导入/导出主题 -->
         <div style="margin-top:14px;display:flex;gap:8px">
-          <button class="btn vox-btn vox-btn--secondary btn-sm" @click="exportCurrentTheme">导出自定义主题</button>
-          <button class="btn vox-btn vox-btn--secondary btn-sm" @click="importThemeFile">导入主题</button>
+          <button class="btn vox-btn vox-btn--secondary btn-sm" @click="exportCurrentTheme">{{ $t('settings.exportTheme') }}</button>
+          <button class="btn vox-btn vox-btn--secondary btn-sm" @click="importThemeFile">{{ $t('settings.importTheme') }}</button>
         </div>
 
         <!-- 字号 -->
@@ -2503,7 +2501,7 @@
             </div>
             <div class="feedback-card-title">{{ $t('more.otherContact') }}</div>
             <p class="feedback-card-desc">{{ $t('more.otherContactDesc') }}</p>
-            <button class="action-btn outline" @click="copyEmail">
+            <button class="action-btn outline" @click="showEmailModal = true">
               {{ $t('more.sendEmail') }}
             </button>
           </div>
@@ -2788,6 +2786,26 @@
         </div>
       </section>
     </template>
+
+    <!-- 邮箱联系弹窗（全局） -->
+    <div v-if="showEmailModal" class="modal-overlay" @click.self="showEmailModal = false">
+      <div class="modal-box email-modal">
+        <div class="modal-header">
+          <h4>{{ $t('more.sendEmail') }}</h4>
+          <button class="modal-close" @click="showEmailModal = false">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="email-modal-desc">{{ $t('more.emailModalDesc') }}</p>
+          <div class="email-display">
+            <span class="email-address">sksadfg@163.com</span>
+            <button class="btn vox-btn vox-btn--secondary btn-sm" @click="handleEmailCopy">
+              {{ $t('more.copyEmailAddress') }}
+            </button>
+          </div>
+          <div v-if="showCopyToast" class="copy-toast">{{ $t('more.emailCopied') }}</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -3112,6 +3130,8 @@ const updateChannel = ref('stable')
 const autoCheckUpdate = ref(true)
 const showUpdateErrModal = ref(false)
 const showUpdateAvailableModal = ref(false)
+const showEmailModal = ref(false)
+const showCopyToast = ref(false)
 
 // 权限检测
 const permInfo = ref<{ inProtectedDir: boolean; canWriteToUserData: boolean; exePath: string; userDataPath: string; isAdmin: boolean } | null>(null)
@@ -4193,14 +4213,13 @@ async function resetSettings() {
   }
 }
 
-function copyEmail() {
-  const email = 'voxver@example.com'
+function handleEmailCopy() {
+  const email = 'sksadfg@163.com'
   navigator.clipboard.writeText(email).then(() => {
-    window.electronAPI?.notification?.send({
-      title: '已复制',
-      body: '邮箱已复制到剪贴板',
-      type: 'info'
-    })
+    showCopyToast.value = true
+    setTimeout(() => {
+      showCopyToast.value = false
+    }, 2000)
   })
 }
 
@@ -5716,6 +5735,48 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   justify-content: flex-end;
 }
 
+/* ---- 邮箱弹窗 ---- */
+.email-modal-desc {
+  font-size: 13px;
+  color: var(--voxver-text-secondary);
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+.email-display {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--voxver-bg-secondary);
+  border: 1px solid var(--voxver-border-color-light);
+  border-radius: var(--voxver-radius-sm);
+  padding: 10px 14px;
+}
+
+.email-address {
+  font-size: 14px;
+  color: var(--voxver-text-primary);
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  flex: 1;
+  user-select: all;
+}
+
+.copy-toast {
+  margin-top: 10px;
+  padding: 6px 14px;
+  background: rgba(0, 200, 83, 0.12);
+  border: 1px solid rgba(0, 200, 83, 0.25);
+  border-radius: var(--voxver-radius-sm);
+  font-size: 12px;
+  color: var(--voxver-success-color, #4caf50);
+  animation: toastIn 0.25s ease;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .about-redirect-desc {
   font-size: 13px;
   color: var(--voxver-text-muted);
@@ -5820,8 +5881,8 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 
 /* ---- 版权声明卡片 ---- */
 .copyright-card {
-  text-align: center;
-  padding: 32px 24px;
+  text-align: left;
+  padding: 20px 24px;
   background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
   border-radius: var(--voxver-radius-sm);
   border: 1px solid var(--voxver-border-color-light);
@@ -5845,12 +5906,30 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
     color: var(--voxver-text-secondary);
     margin: 0 0 8px;
     max-width: 520px;
-    margin-left: auto;
-    margin-right: auto;
 
     &:last-of-type {
       margin-bottom: 0;
     }
+  }
+}
+
+.copyright-card--row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  .copyright-text {
+    flex: 1;
+    margin: 0;
+    max-width: 600px;
+  }
+
+  .action-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+    margin-left: auto;
   }
 }
 

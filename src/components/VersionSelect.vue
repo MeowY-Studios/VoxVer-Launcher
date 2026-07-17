@@ -164,12 +164,12 @@ const emit = defineEmits<{
   (e: 'select', version: { id: string; name: string; loader?: string }): void
 }>()
 
-// 界面状态
+// * 界面状态
 const showInstalled = ref(true)
 const currentFolderPath = ref(t('component.detecting'))
 const currentFolderName = ref(t('component.currentFolder'))
 
-// 文件夹列表
+// * 文件夹列表
 interface FolderItem {
   path: string
   name: string
@@ -177,7 +177,7 @@ interface FolderItem {
 }
 const folders = ref<FolderItem[]>([])
 
-// 弹窗打开时加载 .minecraft 路径
+// * 弹窗打开时加载 .minecraft 路径
 watch(
   () => props.visible,
   async (val) => {
@@ -193,41 +193,41 @@ async function loadMinecraftPath() {
     return
   }
 
-  // 1. 加载已保存的文件夹列表  
+  // * 1. 加载已保存的文件夹列表  
   const savedPaths: string[] = api.folders ? await api.folders.list() : []
 
-  // 2. 检查每个保存的路径是否存在
+  // * 2. 检查每个保存的路径是否存在
   const validPaths: string[] = []
   for (const path of savedPaths) {
     const exists = await api.path.exists(path)
     if (exists) validPaths.push(path)
   }
 
-  // 3. 优先使用上次选中的文件夹（如果仍然有效）
+  // * 3. 优先使用上次选中的文件夹（如果仍然有效）
   const lastFolder = await api.folders.getLast()
   let effectivePath: string | null = null
 
   if (lastFolder && validPaths.includes(lastFolder)) {
     effectivePath = lastFolder
   } else if (validPaths.length > 0) {
-    // 上次选中的无效了，使用第一个有效路径    
+    // * 上次选中的无效了，使用第一个有效路径    
     effectivePath = validPaths[0]
   }
 
-  // 4. 构建文件夹列表（只包含有效的路径）  
+  // * 4. 构建文件夹列表（只包含有效的路径）
   folders.value = validPaths.map((path) => ({
     path,
     name: path.split(/[\\/]/).pop() || path,
     isActive: path === effectivePath
   }))
 
-  // 5. 设置当前显示
+  // * 5. 设置当前显示
   if (effectivePath) {
     currentFolderPath.value = effectivePath
     currentFolderName.value = effectivePath.split(/[\\/]/).pop() || '.minecraft'
     await loadVersionsFromFolder(effectivePath)
   } else {
-    // 没有有效的 .minecraft 文件夹     
+    // * 没有有效的 .minecraft 文件夹     
     currentFolderPath.value = t('component.notFoundFolder')
     currentFolderName.value = ''
     installedVersions.value = []
@@ -250,14 +250,14 @@ async function addFolder() {
     const selectedPath = await api.dialog.selectFolder()
     if (!selectedPath) return
 
-    // 避免重复添加
+    // * 避免重复添加
     if (folders.value.find((f) => f.path === selectedPath)) {
-      // 切换到已存在的文件夹
+      // * 切换到已存在的文件夹
       switchFolder(selectedPath)
       return
     }
 
-    // 持久化到数据库    
+    // * 持久化到数据库    
     if (api.folders) {
       await api.folders.add(selectedPath)
     }
@@ -269,7 +269,7 @@ async function addFolder() {
       isActive: false
     })
 
-    // 自动切换到新添加的文件夹
+    // * 自动切换到新添加的文件夹
     await switchFolder(selectedPath)
   } catch (err) { }
 }
@@ -293,7 +293,7 @@ async function switchFolder(path: string) {
   currentFolderPath.value = path
   folders.value.forEach((f) => (f.isActive = f.path === path))
   await loadVersionsFromFolder(path)
-  // 记住选中的文件夹
+  // * 记住选中的文件夹
   if (api?.folders) {
     await api.folders.setLast(path)
   }
@@ -301,7 +301,7 @@ async function switchFolder(path: string) {
 
 async function removeFolder(path: string) {
   folders.value = folders.value.filter((f) => f.path !== path)
-  // 从数据库移除
+  // * 从数据库移除
   if (api?.folders) {
     await api.folders.remove(path)
   }
@@ -310,18 +310,18 @@ async function removeFolder(path: string) {
 async function createMinecraftFolder() {
   if (!api?.dialog) return
   try {
-    // 让用户选择一个父目录
+    // * 让用户选择一个父目录
     const parentPath = await api.dialog.selectFolder()
     if (!parentPath) return
 
     const minecraftPath = parentPath.replace(/[\\/]+$/, '') + '/.minecraft'
 
-    // 调用主进程创建目录    
+    // * 调用主进程创建目录    
     if (api.path) {
       await api.path.createDir(minecraftPath)
     }
 
-    // 添加到列表并切换
+    // * 添加到列表并切换
     if (api.folders) {
       await api.folders.add(minecraftPath)
     }
@@ -336,19 +336,19 @@ async function createMinecraftFolder() {
   } catch (err) { }
 }
 
-// 在 VoxVer 安装目录下新建 .minecraft（无文件夹状态使用）
+// * 在 VoxVer 安装目录下新建 .minecraft（无文件夹状态使用）
 async function createMinecraftFolderHere() {
   try {
-    // 获取 VoxVer 安装目录，直接在安装目录下创建 .minecraft
+    // * 获取 VoxVer 安装目录，直接在安装目录下创建 .minecraft
     const appPath = await api.path.getAppPath()
     const minecraftPath = appPath.replace(/[\\/]+$/, '') + '/.minecraft'
 
-    // 调用主进程创建目录
+    // * 调用主进程创建目录
     if (api.path) {
       await api.path.createDir(minecraftPath)
     }
 
-    // 添加到列表并切换
+    // * 添加到列表并切换
     await api.folders.add(minecraftPath)
 
     folders.value.push({
@@ -361,7 +361,7 @@ async function createMinecraftFolderHere() {
   } catch (err) { }
 }
 
-// 已安装版本列表
+// * 已安装版本列表
 interface InstalledVer {
   id: string
   name: string
@@ -378,7 +378,7 @@ async function loadVersionsFromFolder(gameDir: string) {
   if (!api?.versions) {
     return
   }
-  // 恢复上次选中的版本（精确匹配 + 前缀模糊匹配）
+  // * 恢复上次选中的版本（精确匹配 + 前缀模糊匹配）
   const lastId = localStorage.getItem('voxver_last_version') || ''
   const savedName = localStorage.getItem('voxver_last_version_name') || ''
   try {
@@ -395,9 +395,9 @@ async function loadVersionsFromFolder(gameDir: string) {
           isActive?: boolean
         }[]) || []
       installedVersions.value = data.map((v) => {
-        // 精确匹配：id 完全相等
+        // * 精确匹配：id 完全相等
         const exactMatch = v.id === lastId
-        // 模糊匹配：保存的显示名包含在版本 name 里（处理 loader 的完整名称）
+        // * 模糊匹配：保存的显示名包含在版本 name 里（处理 loader 的完整名称）
         const fuzzyMatch = savedName && v.name && v.name.includes(savedName)
         return {
           id: v.id,
@@ -421,7 +421,7 @@ function selectActive(ver: InstalledVer) {
 
 async function removeVersion(id: string) {
   installedVersions.value = installedVersions.value.filter((v) => v.id !== id)
-  // 从文件系统删除版本  if (api?.versions) {
+  // * 从文件系统删除版本  if (api?.versions) {
   const mcPath = await api.path?.getMinecraft()
   if (mcPath) {
     await api.versions.delete(id, mcPath)
@@ -431,9 +431,9 @@ async function removeVersion(id: string) {
 </script>
 
 <style scoped lang="scss">
-/* ====== VoxVer Design System ====== */
+/* * ====== VoxVer Design System ====== */
 .vs-overlay {
-  /* 遮罩层 */
+  /* * 遮罩层 */
   position: fixed;
   inset: 0;
   background: rgb(0 0 0 / 0.6);
@@ -444,7 +444,7 @@ async function removeVersion(id: string) {
   z-index: 9999;
 }
 
-/* ---- 弹窗容器 ---- */
+/* * ---- 弹窗容器 ---- */
 .vs-window {
   width: 800px;
   max-width: 92vw;
@@ -461,7 +461,7 @@ async function removeVersion(id: string) {
     0 0 0 1px color-mix(in oklab, var(--voxver-primary) 10%, transparent);
 }
 
-/* ---- 标题栏 ---- */
+/* * ---- 标题栏 ---- */
 .vs-header {
   height: 42px;
   background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
@@ -529,14 +529,14 @@ async function removeVersion(id: string) {
   }
 }
 
-/* ---- 主体左右分栏 ---- */
+/* * ---- 主体左右分栏 ---- */
 .vs-body {
   display: flex;
   flex: 1;
   overflow: hidden;
 }
 
-/* ====== 左侧边栏 ====== */
+/* * ====== 左侧边栏 ====== */
 .vs-sidebar {
   width: 220px;
   min-width: 180px;
@@ -567,7 +567,7 @@ async function removeVersion(id: string) {
   text-transform: uppercase;
 }
 
-/* 未找到文件夹提示 */
+/* * 未找到文件夹提示 */
 .no-folder-hint {
   display: flex;
   flex-direction: column;
@@ -600,7 +600,7 @@ async function removeVersion(id: string) {
   }
 }
 
-/* 当前文件夹 */
+/* * 当前文件夹 */
 .current-folder {
   padding: 10px 12px;
   background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
@@ -640,14 +640,14 @@ async function removeVersion(id: string) {
   }
 }
 
-/* 分隔线 */
+/* * 分隔线 */
 .sidebar-divider {
   height: 1px;
   background: var(--voxver-border-color);
   margin: 14px 0 10px;
 }
 
-/* 文件夹列表 */
+/* * 文件夹列表 */
 .folder-list {
   margin-top: 10px;
   display: flex;
@@ -716,7 +716,7 @@ async function removeVersion(id: string) {
   }
 }
 
-/* 子标题 */
+/* * 子标题 */
 .sidebar-subtitle {
   margin: 0 0 8px;
   font-size: 11px;
@@ -724,7 +724,7 @@ async function removeVersion(id: string) {
   color: var(--voxver-text-muted);
 }
 
-/* 操作按钮列表 */
+/* * 操作按钮列表 */
 .action-list {
   display: flex;
   flex-direction: column;
@@ -772,7 +772,7 @@ async function removeVersion(id: string) {
   }
 }
 
-/* ====== 右侧内容 ===== */
+/* * ====== 右侧内容 ===== */
 .vs-main {
   flex: 1;
   overflow-y: auto;
@@ -796,7 +796,7 @@ async function removeVersion(id: string) {
   }
 }
 
-/* 内容区块 */
+/* * 内容区块 */
 .content-section {
   background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border-radius: var(--voxver-radius-lg);
@@ -853,7 +853,7 @@ async function removeVersion(id: string) {
   }
 }
 
-/* ----- 已安装版本项 ----- */
+/* * ----- 已安装版本项 ----- */
 .installed-ver-item {
   display: flex;
   align-items: center;
@@ -920,7 +920,7 @@ async function removeVersion(id: string) {
   }
 }
 
-/* 空状态提示 */
+/* * 空状态提示 */
 .empty-hint {
   text-align: center;
   padding: 30px 0 16px;
@@ -936,7 +936,7 @@ async function removeVersion(id: string) {
   }
 }
 
-/* 动画 */
+/* * 动画 */
 .modal-fade-enter-active {
   transition: opacity 0.18s ease;
 }

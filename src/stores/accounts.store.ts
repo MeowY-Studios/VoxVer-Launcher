@@ -6,12 +6,12 @@ import { ref, computed } from 'vue'
 import type { Account } from '../types/account'
 
 export const useAccountsStore = defineStore('accounts', () => {
-  // ====== 状态 ======
+  // * ====== 状态 ======
   const accounts = ref<Account[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  // ====== 计算属性 ======
+  // * ====== 计算属性 ======
 
   /** 当前活跃账户 */
   const activeAccount = computed(() => accounts.value.find((a) => a.isActive === 1) ?? null)
@@ -25,7 +25,7 @@ export const useAccountsStore = defineStore('accounts', () => {
     return activeAccount.value.name || '未知用户'
   })
 
-  // ====== 操作 ======
+  // * ====== 操作 ======
 
   /** 加载账户列表 */
   async function fetchAccounts() {
@@ -101,7 +101,7 @@ export const useAccountsStore = defineStore('accounts', () => {
   }
 })
 
-// snake_case -> camelCase 映射
+// * snake_case -> camelCase 映射
 function mapRawToAccount(raw: any): Account {
   return {
     id: raw.id,

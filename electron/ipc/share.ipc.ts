@@ -10,7 +10,8 @@
  * - share:close-session - 关闭会话
  */
 
-import { ipcMain, type BrowserWindow } from 'electron'
+import { app, ipcMain, type BrowserWindow } from 'electron'
+import { join } from 'path'
 import { logger } from '../utils/logger'
 import {
   packInstanceForShare,
@@ -187,10 +188,8 @@ export function registerShareHandlers(): void {
         return { ok: false, error: '传输未完成' }
       }
 
-      const { app } = await import('electron')
       const targetDir = app.getPath('userData')
-      const path = await import('path')
-      const instancesDir = path.join(targetDir, 'instances')
+      const instancesDir = join(targetDir, 'instances')
 
       const result = await unpackSharedInstance(
         fileInfo.filePath,

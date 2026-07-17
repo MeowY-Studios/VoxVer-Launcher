@@ -130,26 +130,26 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 
-// ── 类型 ────────────────────────────────────────────────────────────────────
+// * ── 类型 ────────────────────────────────────────────────────────────────────
 interface DownloadItem {
   id: string
   name: string
   status: 'downloading' | 'completed' | 'error' | 'cancelled'
-  progress: number // 0-100
-  downloaded: number // bytes
-  total: number // bytes
-  speed: number // bytes/sec
+  progress: number // * 0-100
+  downloaded: number // * bytes
+  total: number // * bytes
+  speed: number // * bytes/sec
   error?: string
 }
 
-// ── 状态 ─────────────────────────────────────────────────────────────────────
+// * ── 状态 ─────────────────────────────────────────────────────────────────────
 const expanded = ref(false)
 const items = ref<DownloadItem[]>([])
 
-// 进行中的下载数量
+// * 进行中的下载数量
 const activeCount = computed(() => items.value.filter((i) => i.status === 'downloading').length)
 
-// ── 格式化大小 ───────────────────────────────────────────────────────────────────
+// * ── 格式化大小 ───────────────────────────────────────────────────────────────────
 function formatSize(bytes: number): string {
   if (bytes < 1024) return bytes + ' B'
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
@@ -167,13 +167,13 @@ function findOrCreate(id: string, name: string): DownloadItem {
   if (!item) {
     item = { id, name, status: 'downloading', progress: 0, downloaded: 0, total: 0, speed: 0 }
     items.value.push(item)
-    // 有下载开始时自动展开
+    // * 有下载开始时自动展开
     if (items.value.length === 1) expanded.value = true
   }
   return item
 }
 
-// ── 内容下载进度（download:progress）────────────────────────────────────
+// * ── 内容下载进度（download:progress）────────────────────────────────────
 let contentCleanup: (() => void) | null = null
 
 function onContentProgress(progress: any) {
@@ -199,7 +199,7 @@ function onContentProgress(progress: any) {
   }
 }
 
-// ── 版本下载进度（version:download-progress）────────────────────────────
+// * ── 版本下载进度（version:download-progress）────────────────────────────
 let versionCleanup: (() => void) | null = null
 
 function onVersionProgress(data: any) {
@@ -233,7 +233,7 @@ function onVersionError(data: any) {
   }
 }
 
-// ── ModLoader 安装进度（modloader:progress）─────────────────────────────
+// * ── ModLoader 安装进度（modloader:progress）─────────────────────────────
 let modloaderCleanup: (() => void) | null = null
 
 function onModLoaderProgress(data: any) {
@@ -252,7 +252,7 @@ function onModLoaderProgress(data: any) {
   }
 }
 
-// ── 取消下载 ──────────────────────────────────────────────────────────────
+// * ── 取消下载 ──────────────────────────────────────────────────────────────
 async function cancelDownload(item: DownloadItem) {
   try {
     await window.electronAPI?.download?.cancelDownload?.(item.id)
@@ -266,14 +266,14 @@ function removeItem(id: string) {
   if (idx !== -1) items.value.splice(idx, 1)
 }
 
-// ── 生命周期 ──────────────────────────────────────────────────────────────
+// * ── 生命周期 ──────────────────────────────────────────────────────────────
 onMounted(() => {
-  // 监听内容下载进度
+  // * 监听内容下载进度
   if (window.electronAPI?.download?.onProgress) {
     contentCleanup = window.electronAPI.download.onProgress(onContentProgress)
   }
 
-  // 监听版本下载进度
+  // * 监听版本下载进度
   if (window.electronAPI?.versions?.onDownloadProgress) {
     versionCleanup = window.electronAPI.versions.onDownloadProgress(onVersionProgress)
   }
@@ -284,7 +284,7 @@ onMounted(() => {
     const cl = window.electronAPI.versions.onDownloadError(onVersionError)
   }
 
-  // 监听 ModLoader 安装进度
+  // * 监听 ModLoader 安装进度
   if (window.electronAPI?.modloader?.onProgress) {
     modloaderCleanup = window.electronAPI.modloader.onProgress(onModLoaderProgress)
   }
@@ -298,7 +298,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
-/* ── 折叠按钮 ─────────────────────────────────────────────────────────── */
+/* * ── 折叠按钮 ─────────────────────────────────────────────────────────── */
 .dm-collapsed {
   position: fixed;
   bottom: 20px;
@@ -342,7 +342,7 @@ onUnmounted(() => {
   line-height: 1;
 }
 
-/* ── 展开面板 ─────────────────────────────────────────────────────────── */
+/* * ── 展开面板 ─────────────────────────────────────────────────────────── */
 .dm-panel {
   position: fixed;
   bottom: 20px;
@@ -530,7 +530,7 @@ onUnmounted(() => {
   }
 }
 
-/* ── 过渡动画 ─────────────────────────────────────────────────────────── */
+/* * ── 过渡动画 ─────────────────────────────────────────────────────────── */
 .dm-fade-enter-active,
 .dm-fade-leave-active {
   transition: all 0.2s ease;

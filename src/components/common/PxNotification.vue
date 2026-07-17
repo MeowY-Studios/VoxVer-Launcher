@@ -464,7 +464,7 @@ onUnmounted(() => {
   }
 }
 
-/* 面板动画 */
+/* * 面板动画 */
 .pxn-panel-enter-active {
   transition: all 0.15s ease-out;
 }

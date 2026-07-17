@@ -325,7 +325,7 @@ const tasks = computed(() => Array.from(downloadStore.versionTasks.values()))
 const filteredTasks = computed(() => {
   let result = tasks.value
 
-  // 按标签筛选
+  // * 按标签筛选
   if (activeTab.value !== 'all') {
     if (activeTab.value === 'downloading') {
       result = result.filter(
@@ -336,7 +336,7 @@ const filteredTasks = computed(() => {
     }
   }
 
-  // 搜索筛选
+  // * 搜索筛选
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase()
     result = result.filter((task) => task.name.toLowerCase().includes(query))
@@ -460,7 +460,7 @@ function deleteSelected() {
   overflow: hidden;
 }
 
-/* 顶部导航 */
+/* * 顶部导航 */
 .dm-header {
   display: flex;
   align-items: center;
@@ -502,7 +502,7 @@ function deleteSelected() {
   gap: 10px;
 }
 
-/* 工具栏 */
+/* * 工具栏 */
 .dm-toolbar {
   display: flex;
   align-items: center;
@@ -577,7 +577,7 @@ function deleteSelected() {
   background: color-mix(in oklab, var(--voxver-primary) 30%, transparent);
 }
 
-/* 统计卡片 */
+/* * 统计卡片 */
 .dm-stats {
   display: flex;
   gap: 12px;
@@ -615,7 +615,7 @@ function deleteSelected() {
   color: var(--voxver-error);
 }
 
-/* 内容区域 */
+/* * 内容区域 */
 .dm-content {
   flex: 1;
   overflow-y: auto;
@@ -902,7 +902,7 @@ function deleteSelected() {
   opacity: 0.9;
 }
 
-/* 空状态 */
+/* * 空状态 */
 .dm-empty {
   height: 100%;
   display: flex;
@@ -934,7 +934,7 @@ function deleteSelected() {
   margin-top: 10px;
 }
 
-/* 选择栏 */
+/* * 选择栏 */
 .dm-selection-bar {
   display: flex;
   align-items: center;
@@ -955,7 +955,7 @@ function deleteSelected() {
   gap: 10px;
 }
 
-/* 底部 */
+/* * 底部 */
 .dm-footer {
   flex-shrink: 0;
   padding: 18px 20px;

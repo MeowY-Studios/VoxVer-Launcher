@@ -1,14 +1,18 @@
 import { resolve } from 'path'
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
+import { defineConfig } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
 import dotenv from 'dotenv'
 import pkg from './package.json'
 
 dotenv.config()
 
+const depKeys = Object.keys(pkg.dependencies || {})
+const externalDeps = [...depKeys, 'electron', '@aws-sdk/client-s3']
+const isExternal = (id: string): boolean =>
+  externalDeps.some((dep) => id === dep || id.startsWith(dep + '/'))
+
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()],
     build: {
       outDir: 'out/main',
       minify: false,
@@ -16,17 +20,29 @@ export default defineConfig({
         input: {
           index: resolve(__dirname, 'electron/main.ts')
         },
-        external: ['@aws-sdk/client-s3']
+        external: isExternal,
+        output: {
+          format: 'cjs',
+          entryFileNames: '[name].js',
+          chunkFileNames: 'chunks/[name]-[hash].js',
+          assetFileNames: 'assets/[name][extname]'
+        }
       }
     }
   },
   preload: {
-    plugins: [externalizeDepsPlugin()],
     build: {
       outDir: 'out/preload',
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'electron/preload.ts')
+        },
+        external: isExternal,
+        output: {
+          format: 'cjs',
+          entryFileNames: '[name].js',
+          chunkFileNames: 'chunks/[name]-[hash].js',
+          assetFileNames: 'assets/[name][extname]'
         }
       }
     }

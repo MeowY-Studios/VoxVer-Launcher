@@ -599,12 +599,12 @@ const detectedLoader = computed(() => {
   return ''
 })
 
-// 示例数据
+// * 示例数据
 const playerName = ref('Steve')
 const playerUuid = ref('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx')
 const isFavorited = ref(false)
 
-// 输入弹窗状态
+// * 输入弹窗状态
 const showInputModal = ref(false)
 const inputModalTitle = ref('')
 const inputModalValue = ref('')
@@ -638,24 +638,24 @@ function cancelInputModal() {
   showInputModal.value = false
 }
 
-// ====== 快捷方式：打开文件夹 ======
+// * ====== 快捷方式：打开文件夹 ======
 async function openFolder(subPath: string) {
   const api = window.electronAPI
   if (!api?.shell) return
 
   if (!subPath) {
-    // 版本文件夹：直接打开 props.gameDir
+    // * 版本文件夹：直接打开 props.gameDir
     await api.shell.openPath(props.gameDir)
     return
   }
 
-  // saves / mods：在当前版本目录下查找
+  // * saves / mods：在当前版本目录下查找
   const target = `${props.gameDir}/${subPath}`
   await api.shell.openPath(target)
   return
 }
 
-// ====== 个性化 ======
+// * ====== 个性化 ======
 async function editVersionName() {
   const newName = await openInputModal('修改版本名称', props.versionName, '输入新名称')
   if (!newName || newName === props.versionName) return
@@ -675,7 +675,7 @@ async function toggleFavorite() {
   await window.electronAPI?.instance.toggleFavorite(props.instanceId)
 }
 
-// ====== 导出启动脚本 ======
+// * ====== 导出启动脚本 ======
 async function exportScript() {
   const name = props.versionName.replace(/[^a-zA-Z0-9_\-]/g, '_')
   const script = [
@@ -694,7 +694,7 @@ async function exportScript() {
   URL.revokeObjectURL(url)
 }
 
-// ====== 删除版本 ======
+// * ====== 删除版本 ======
 async function deleteVersion() {
   if (!props.instanceId) return
   if (
@@ -708,7 +708,7 @@ async function deleteVersion() {
   emit('version-deleted')
 }
 
-// 设置页状态
+// * 设置页状态
 const showTip = ref(true)
 const showAdvanced = ref(false)
 const memMode = ref<'global' | 'auto' | 'custom'>('global')
@@ -718,7 +718,7 @@ const totalMem = ref('15.4')
 const gameMem = ref('2.8')
 const useHighPerformanceGPU = ref(false)
 
-// 导出页状态
+// * 导出页状态
 const showExportAdvanced = ref(false)
 const exportLoading = ref(false)
 const exportLoaded = ref(false)
@@ -834,7 +834,7 @@ async function doExport() {
   }
 }
 
-// ===== 补全文件 =====
+// * ===== 补全文件 =====
 type CompleteState = 'idle' | 'checking' | 'complete' | 'missing' | 'downloading' | 'done' | 'error'
 
 const showCompleteModal = ref(false)
@@ -850,11 +850,11 @@ const dlCurrentFile = ref('')
 let dlProgressUnsubscribe: (() => void) | null = null
 
 async function completeFiles() {
-  // 从 gameDir 提取版本 ID（gameDir 格式: .../.minecraft/versions/1.20.1-Fabric）
+  // * 从 gameDir 提取版本 ID（gameDir 格式: .../.minecraft/versions/1.20.1-Fabric）
   const parts = props.gameDir.split(/[/\\]/)
   const versionsIdx = parts.findIndex((p) => p === 'versions')
   const versionId = versionsIdx >= 0 ? parts[versionsIdx + 1] : props.versionName
-  // 找到 .minecraft 目录
+  // * 找到 .minecraft 目录
   const mcIdx = parts.findIndex((p) => p === '.minecraft')
   const gameDir =
     mcIdx >= 0 ? parts.slice(0, mcIdx + 1).join('/') : props.gameDir.replace(/[/\\][^/\\]+$/, '')
@@ -865,7 +865,7 @@ async function completeFiles() {
   completeTarget.value = versionId
   missingFiles.value = []
 
-  // 监听下载进度
+  // * 监听下载进度
   dlProgressUnsubscribe = window.electronAPI?.versions.onDownloadProgress?.((data) => {
     if (data.versionId !== versionId) return
     dlCurrent.value = data.downloaded
@@ -950,9 +950,9 @@ const navItems = [
 </script>
 
 <style scoped lang="scss">
-/* ====== VoxVer Design System ====== */
+/* * ====== VoxVer Design System ====== */
 
-/* ---- 遮罩层 ---- */
+/* * ---- 遮罩层 ---- */
 .ver-settings-overlay {
   position: fixed;
   inset: 0;
@@ -964,7 +964,7 @@ const navItems = [
   z-index: 9999;
 }
 
-/* ---- 窗口容器 ---- */
+/* * ---- 窗口容器 ---- */
 .ver-settings-window {
   width: 800px;
   max-width: 90vw;
@@ -979,7 +979,7 @@ const navItems = [
   box-shadow: var(--voxver-shadow-xl);
 }
 
-/* ---- 标题栏 ---- */
+/* * ---- 标题栏 ---- */
 .vs-header {
   height: 42px;
   background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
@@ -1050,14 +1050,14 @@ const navItems = [
   }
 }
 
-/* ---- 主体布局 ---- */
+/* * ---- 主体布局 ---- */
 .vs-body {
   display: flex;
   flex: 1;
   overflow: hidden;
 }
 
-/* ---- 左侧导航 ---- */
+/* * ---- 左侧导航 ---- */
 .vs-nav {
   width: 160px;
   background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
@@ -1121,7 +1121,7 @@ const navItems = [
   }
 }
 
-/* ---- 右侧内容 ---- */
+/* * ---- 右侧内容 ---- */
 .vs-content {
   flex: 1;
   overflow-y: auto;
@@ -1142,7 +1142,7 @@ const navItems = [
   }
 }
 
-/* ---- 版本信息卡片 ---- */
+/* * ---- 版本信息卡片 ---- */
 .ver-info-card {
   display: flex;
   align-items: center;
@@ -1180,7 +1180,7 @@ const navItems = [
   }
 }
 
-/* ---- 区块 ---- */
+/* * ---- 区块 ---- */
 .vs-section {
   background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border-radius: var(--voxver-radius-lg);
@@ -1202,13 +1202,13 @@ const navItems = [
     margin: 0 0 12px;
   }
 
-  /* 区块内的按钮组不需要额外上边距 */
+  /* * 区块内的按钮组不需要额外上边距 */
   .form-btns {
     margin-top: 4px;
   }
 }
 
-/* ---- 表单行 ---- */
+/* * ---- 表单行 ---- */
 .form-row {
   display: flex;
   align-items: center;
@@ -1312,7 +1312,7 @@ const navItems = [
   }
 }
 
-/* ---- 复选框标签 ---- */
+/* * ---- 复选框标签 ---- */
 .checkbox-label {
   display: inline-flex !important;
   align-items: center;
@@ -1339,7 +1339,7 @@ const navItems = [
   margin-bottom: 16px;
 }
 
-/* ---- 操作按钮组 ---- */
+/* * ---- 操作按钮组 ---- */
 .form-btns {
   display: flex;
   gap: 8px;
@@ -1347,7 +1347,7 @@ const navItems = [
   margin-top: 4px;
 }
 
-/* 独立按钮组 */
+/* * 独立按钮组 */
 .vs-content>.form-btns {
   background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border-radius: var(--voxver-radius-lg);
@@ -1420,7 +1420,7 @@ const navItems = [
   user-select: none;
 }
 
-/* ---- Mod 列表 ---- */
+/* * ---- Mod 列表 ---- */
 .mod-list {
   display: flex;
   flex-direction: column;
@@ -1490,7 +1490,7 @@ const navItems = [
   }
 }
 
-/* ---- 动画 ---- */
+/* * ---- 动画 ---- */
 .modal-fade-enter-active {
   transition: opacity 0.18s ease;
 }
@@ -1642,9 +1642,9 @@ const navItems = [
   opacity: 0;
 }
 
-/* ====== 设置页专用样式 ===== */
+/* * ====== 设置页专用样式 ===== */
 
-/* 提示栏 */
+/* * 提示栏 */
 .vs-tip-bar {
   display: flex;
   align-items: center;
@@ -1702,7 +1702,7 @@ const navItems = [
   }
 }
 
-/* 滑块 */
+/* * 滑块 */
 .slider-area {
   padding: 8px 4px;
 }
@@ -1714,7 +1714,7 @@ const navItems = [
   cursor: pointer;
 }
 
-/* 内存统计 */
+/* * 内存统计 */
 .mem-stats {
   display: flex;
   justify-content: space-between;
@@ -1740,7 +1740,7 @@ const navItems = [
   }
 }
 
-/* 可折叠区域 */
+/* * 可折叠区域 */
 .collapsed {
   .sec-title.clickable {
     margin-bottom: 0;
@@ -1804,7 +1804,7 @@ const navItems = [
   min-width: 160px;
 }
 
-/* 全局设置按钮 */
+/* * 全局设置按钮 */
 .btn-global-settings {
   display: flex;
   align-items: center;
@@ -1827,9 +1827,9 @@ const navItems = [
   }
 }
 
-/* ====== Mod 管理页专用样式 ===== */
+/* * ====== Mod 管理页专用样式 ===== */
 
-/* 搜索卡片 */
+/* * 搜索卡片 */
 .mod-search-card {
   display: flex;
   align-items: center;
@@ -1858,7 +1858,7 @@ const navItems = [
   }
 }
 
-/* 工具栏 */
+/* * 工具栏 */
 .mod-toolbar {
   display: flex;
   gap: 8px;
@@ -1909,7 +1909,7 @@ const navItems = [
   }
 }
 
-/* 新版 Mod 列表 */
+/* * 新版 Mod 列表 */
 .mod-list-section {
   padding: 12px 16px !important;
 }
@@ -2060,7 +2060,7 @@ const navItems = [
   }
 }
 
-/* 输入弹窗尺寸（名称单行为窄窗，描述多行自动撑高） */
+/* * 输入弹窗尺寸（名称单行为窄窗，描述多行自动撑高） */
 .input-modal-win {
   width: 420px;
   max-width: 90vw;
@@ -2094,7 +2094,7 @@ const navItems = [
   padding: 16px 18px !important;
 }
 
-/* 导出选项树 */
+/* * 导出选项树 */
 .export-tree {
   display: flex;
   flex-direction: column;
@@ -2222,7 +2222,7 @@ const navItems = [
   flex-shrink: 0;
 }
 
-/* 导出操作按钮 */
+/* * 导出操作按钮 */
 .export-actions {
   display: flex;
   gap: 8px;
@@ -2240,7 +2240,7 @@ const navItems = [
   line-height: 1.55;
 }
 
-/* 底部大按钮 */
+/* * 底部大按钮 */
 .export-bottom-btn-wrap {
   display: flex;
   justify-content: center;

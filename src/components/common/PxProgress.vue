@@ -27,7 +27,7 @@ export interface PxProgressProps {
   showPercent?: boolean
   size?: 'sm' | 'md' | 'lg'
   animated?: boolean
-  gradient?: string // 自定义渐变，如 'var(--voxver-gradient-success)'
+  gradient?: string // * 自定义渐变，如 'var(--voxver-gradient-success)'
   indeterminate?: boolean
 }
 

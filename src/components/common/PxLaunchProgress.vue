@@ -112,7 +112,7 @@ const phases = ref<PhaseDef[]>([
 
 
 
-// 清理函数引用
+// * 清理函数引用
 let cleanupProgress: (() => void) | null = null
 let cleanupLog: (() => void) | null = null
 let cleanupExit: (() => void) | null = null
@@ -127,7 +127,7 @@ onMounted(() => {
   const api = window.electronAPI
   if (!api?.game) return
 
-  // 监听进度
+  // * 监听进度
   if (api.game.onProgress) {
     cleanupProgress = api.game.onProgress(
       (data: unknown) => {
@@ -178,7 +178,7 @@ onMounted(() => {
     )
   }
 
-  // 监听日志
+  // * 监听日志
   if (api.game.onLog) {
     cleanupLog = api.game.onLog((data: { text: string; level: string }) => {
       logBuffer.value += data.text
@@ -440,7 +440,7 @@ defineExpose({
   color: #fff;
 }
 
-/* Transition */
+/* * Transition */
 .px-modal-enter-active,
 .px-modal-leave-active {
   transition: opacity 0.2s;

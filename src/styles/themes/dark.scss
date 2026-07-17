@@ -1,53 +1,5 @@
 /**
- * VoxVer 暗色主题 — UI UX Pro Max OLED 增强
- *
- * 基础 OLED 色值由 tokens.scss 提供。
- * 此处仅覆盖暗色面组件特定变量：主色、hover、focus、导航等。
+ * VoxVer 暗色主题 — Apple Design System
+ * * 暗色主题默认值已在 tokens.scss [data-theme='dark'] 中定义
+ * * 此文件保留用于未来暗色主题扩展覆盖
  */
-
-[data-theme='dark'] {
-  /* ====== 主色（暗色面用 Sky Link Blue）====== */
-  --voxver-primary: var(--apple-primary-on-dark);
-  --voxver-primary-hover: #40a9ff;
-  --voxver-primary-active: var(--apple-primary-on-dark);
-  --voxver-primary-light: rgb(41 151 255 / 0.12);
-  --voxver-primary-muted: var(--apple-primary-on-dark);
-
-  /* ====== 主色色阶 ====== */
-  --voxver-primary-50: #2997ff;
-  --voxver-primary-100: #2997ff;
-  --voxver-primary-200: #2997ff;
-  --voxver-primary-300: #2997ff;
-  --voxver-primary-400: #2997ff;
-  --voxver-primary-500: #2997ff;
-  --voxver-primary-600: #40a9ff;
-  --voxver-primary-700: #40a9ff;
-  --voxver-primary-800: #40a9ff;
-  --voxver-primary-900: #40a9ff;
-
-  /* ====== 背景 hover/active ====== */
-  --voxver-bg-hover: rgb(255 255 255 / 0.05);
-  --voxver-bg-active: rgb(255 255 255 / 0.08);
-
-  /* ====== 组件特定 ====== */
-  --voxver-input-focus-border: var(--apple-primary-on-dark);
-  --voxver-input-focus-shadow: 0 0 0 3px rgb(41 151 255 / 0.25);
-  --voxver-btn-primary-bg: var(--apple-primary-on-dark);
-  --voxver-btn-primary-hover: #40a9ff;
-  --voxver-tab-active-color: var(--apple-primary-on-dark);
-  --voxver-tab-active-border: var(--apple-primary-on-dark);
-  --voxver-nav-active-color: var(--apple-primary-on-dark);
-  --voxver-nav-active-indicator: var(--apple-primary-on-dark);
-  --voxver-progress-bg: var(--apple-primary-on-dark);
-
-  /* ====== 暗色面链接色 ====== */
-  --voxver-link-on-dark: var(--apple-primary-on-dark);
-
-  /* ====== 滚动条 ====== */
-  --voxver-scrollbar-track: transparent;
-  --voxver-scrollbar-thumb: rgb(255 255 255 / 0.1);
-  --voxver-scrollbar-thumb-hover: rgb(255 255 255 / 0.2);
-
-  /* ====== 覆盖层 ====== */
-  --voxver-bg-overlay: rgb(0 0 0 / 0.85);
-}

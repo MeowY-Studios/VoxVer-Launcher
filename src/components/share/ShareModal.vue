@@ -179,7 +179,7 @@ async function copyShareCode() {
       copied.value = false
     }, 2000)
   } catch {
-    // ignore
+    // * ignore
   }
 }
 
@@ -187,7 +187,7 @@ async function copyShareLink() {
   try {
     await navigator.clipboard.writeText(shareLink.value)
   } catch {
-    // ignore
+    // * ignore
   }
 }
 

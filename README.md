@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.6.3-14b8a6?style=flat-square&labelColor=1e1e2e)
+![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.6.4-14b8a6?style=flat-square&labelColor=1e1e2e)
 ![Electron](https://img.shields.io/badge/Electron-33-478cbf?style=flat-square&logo=electron&logoColor=white)
 ![Vue](https://img.shields.io/badge/Vue-3.5-4db08b?style=flat-square&logo=vuedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6?style=flat-square&logo=typescript&logoColor=white)
@@ -30,7 +30,19 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 ## 📥 下载
 
-**[👉 前往 GitHub Releases 下载 v0.6.3](https://github.com/nnkmn/VoxVer-Launcher/releases)**
+**[👉 前往 GitHub Releases 下载 v0.6.4](https://github.com/nnkmn/VoxVer-Launcher/releases)**
+
+---
+
+## 🆕 v0.6.4 最近更新
+
+### 账户管理优化
+- 点击"添加账户"按钮直接跳转到设置页面的"游戏账户与档案"标签页，不再弹出独立的账户管理弹窗，操作更直观流畅
+
+### macOS 系统适配
+- 新增 macOS 双架构构建支持（ARM64 / x64）
+- CI/CD 管道升级，GitHub Actions 自动构建 macOS DMG 安装包
+- Node.js 24 LTS 运行时适配 macOS 26
 
 ---
 

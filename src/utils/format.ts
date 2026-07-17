@@ -3,7 +3,7 @@
  * 文件大小、时间、数字等格式化
  */
 
-// ========== 文件大小 ==========
+// * ========== 文件大小 ==========
 
 /** 字节数转人类可读大小 */
 export function formatFileSize(bytes: number): string {
@@ -15,11 +15,11 @@ export function formatFileSize(bytes: number): string {
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   const size = bytes / Math.pow(k, i)
 
-  // < 10 保留1位小数，否则整数
+  // * < 10 保留1位小数，否则整数
   return size < 10 ? `${size.toFixed(1)} ${units[i]}` : `${Math.round(size)} ${units[i]}`
 }
 
-// ========== 时间/日期 ==========
+// * ========== 时间/日期 ==========
 
 /** ISO 时间字符串转为相对时间（如 "3分钟前"） */
 export function formatRelativeTime(dateStr: string): string {
@@ -80,7 +80,7 @@ export function formatDuration(seconds: number): string {
   return parts.join(' ')
 }
 
-// ========== 数字 ==========
+// * ========== 数字 ==========
 
 /** 数字千分位 + 简写（如 1.2M, 3.5K） */
 export function formatNumber(num: number): string {
@@ -101,7 +101,7 @@ export function formatSpeed(bytesPerSec: number): string {
   return `${formatFileSize(bytesPerSec)}/s`
 }
 
-// ========== 游戏相关 ==========
+// * ========== 游戏相关 ==========
 
 /** MC 版本号展示 */
 export function formatVersion(mcVersion: string, loaderType?: string, loaderVer?: string): string {

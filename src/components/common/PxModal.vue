@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <Teleport :to="teleportTo">
     <Transition :name="transitionName">
       <div
@@ -100,7 +100,7 @@ function onEsc(e: KeyboardEvent) {
   }
 }
 
-// 弹开时聚焦到对话框
+// * 弹开时聚焦到对话框
 watch(
   () => props.modelValue,
   async (val) => {
@@ -108,12 +108,12 @@ watch(
       await nextTick()
       dialogRef.value?.focus()
     }
-    // 滚动锁定
+    // * 滚动锁定
     document.body.style.overflow = val ? 'hidden' : ''
   }
 )
 
-// 清理
+// * 清理
 watch(
   () => props.modelValue,
   (val) => {
@@ -163,7 +163,7 @@ watch(
   max-width: 800px;
 }
 
-/* ===== Header ===== */
+/* * ===== Header ===== */
 .px-modal__header {
   display: flex;
   align-items: center;
@@ -205,7 +205,7 @@ watch(
   flex: 1;
 }
 
-/* ===== Footer ===== */
+/* * ===== Footer ===== */
 .px-modal__footer {
   padding: 0 20px 16px;
   display: flex;
@@ -214,7 +214,7 @@ watch(
   flex-shrink: 0;
 }
 
-/* ===== Transitions ===== */
+/* * ===== Transitions ===== */
 .px-modal-enter-active,
 .px-modal-leave-active {
   transition: opacity 0.2s ease;

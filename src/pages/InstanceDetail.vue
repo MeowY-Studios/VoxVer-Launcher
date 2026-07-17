@@ -452,12 +452,12 @@ const router = useRouter()
 const instancesStore = useInstancesStore()
 const modsStore = useModsStore()
 
-// ====== 状态 ======
+// * ====== 状态 ======
 const instance = ref<GameInstance | null>(null)
 const error = ref<string | null>(null)
 const saving = ref(false)
 
-// 编辑表单
+// * 编辑表单
 const editForm = ref({
   javaPath: '',
   minMemory: 1024,
@@ -465,7 +465,7 @@ const editForm = ref({
   jvmArgs: ''
 })
 
-// 本地 Mod 列表（直接从 IPC 获取，不用 store）
+// * 本地 Mod 列表（直接从 IPC 获取，不用 store）
 const localMods = ref<
   Array<{
     filePath: string

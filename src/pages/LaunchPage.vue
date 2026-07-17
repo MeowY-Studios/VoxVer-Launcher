@@ -567,7 +567,7 @@ onUnmounted(() => {
   height: 48px;
   padding: 0 28px;
   border: none;
-  border-radius: var(--apple-radius-pill);
+  border-radius: var(--voxver-radius-full);
   background: var(--voxver-primary);
   color: #fff;
   font-size: 17px;

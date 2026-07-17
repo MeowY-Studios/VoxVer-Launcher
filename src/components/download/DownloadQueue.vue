@@ -252,7 +252,7 @@ function formatSpeed(bytesPerSec: number): string {
   }
 }
 
-/* 总进度条 */
+/* * 总进度条 */
 .overall-progress {
   display: flex;
   align-items: center;

@@ -13,10 +13,10 @@ export interface PxBadgeProps {
   variant?: 'primary' | 'success' | 'warning' | 'error' | 'info' | 'gradient'
   size?: 'sm' | 'md'
   text?: string
-  dot?: boolean // 仅显示圆点
-  pulse?: boolean // 圆点呼吸动画
-  outline?: boolean // 边框风格
-  gradient?: boolean // 渐变背景
+  dot?: boolean // * 仅显示圆点
+  pulse?: boolean // * 圆点呼吸动画
+  outline?: boolean // * 边框风格
+  gradient?: boolean // * 渐变背景
 }
 
 const props = withDefaults(defineProps<PxBadgeProps>(), {
@@ -64,7 +64,7 @@ const badgeClasses = computed(() => [
   font-size: 11px;
 }
 
-/* Dot */
+/* * Dot */
 .px-badge__dot {
   width: 7px;
   height: 7px;
@@ -101,7 +101,7 @@ const badgeClasses = computed(() => [
   background: #fff;
 }
 
-/* Variants */
+/* * Variants */
 .px-badge--primary {
   background: var(--voxver-primary-100, color-mix(in oklab, var(--voxver-primary) 12%, transparent));
   color: var(--voxver-primary-700);
@@ -127,7 +127,7 @@ const badgeClasses = computed(() => [
   color: var(--voxver-text-inverse);
 }
 
-/* Outline variant */
+/* * Outline variant */
 .px-badge--outline.px-badge--primary {
   background: transparent;
   color: var(--voxver-primary-600);

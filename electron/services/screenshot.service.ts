@@ -4,7 +4,7 @@
  */
 import { existsSync, readdirSync, statSync, renameSync, unlinkSync, mkdirSync } from 'fs'
 import { join, basename, extname } from 'path'
-import { app, nativeImage, clipboard, dialog } from 'electron'
+import { app, nativeImage, clipboard, dialog, shell } from 'electron'
 import sharp from 'sharp'
 import { logger } from '../utils/logger'
 
@@ -164,6 +164,5 @@ export function copyScreenshotToClipboard(filePath: string): boolean {
  * 在默认应用中打开截图
  */
 export async function openScreenshot(filePath: string): Promise<void> {
-  const { shell } = await import('electron')
   await shell.openPath(filePath)
 }

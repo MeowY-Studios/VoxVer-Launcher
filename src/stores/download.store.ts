@@ -12,7 +12,7 @@ import type {
 } from '../types/download'
 
 export const useDownloadStore = defineStore('download', () => {
-  // ====== 搜索状态 ======
+  // * ====== 搜索状态 ======
   const searchQuery = ref('')
   const searchSource = ref<ContentPlatform>('modrinth')
   const searchResults = ref<ModSearchResult[]>([])
@@ -34,29 +34,29 @@ export const useDownloadStore = defineStore('download', () => {
     projectType?: string
   }>({})
 
-  // ====== 搜索软缓存 ======
+  // * ====== 搜索软缓存 ======
   /** 缓存结构: key -> { results, offset, hasMore, timestamp } */
   const searchCache = ref<
     Map<string, { results: ModSearchResult[]; offset: number; hasMore: boolean; timestamp: number }>
   >(new Map())
-  const CACHE_TTL = 5 * 60 * 1000 // 5分钟过期
+  const CACHE_TTL = 5 * 60 * 1000 // * 5分钟过期
 
-  // ====== 下载队列状态 ======
+  // * ====== 下载队列状态 ======
   const activeDownloads = ref<DownloadTask[]>([])
   const queuedDownloads = ref<DownloadTask[]>([])
   const completedDownloads = ref<DownloadTask[]>([])
 
-  // ====== 分类筛选 ======
+  // * ====== 分类筛选 ======
   const activeCategory = ref<string>('vanilla')
 
-  // ====== MC 版本下载任务 ======
+  // * ====== MC 版本下载任务 ======
   const versionTasks = ref<Map<string, VersionDownloadTask>>(new Map())
   /** 是否显示后台悬浮窗 */
   const showFloatPanel = ref(false)
   /** 下载管理器页面是否打开 */
   const showDownloadManager = ref(false)
 
-  // ====== 计算属性 ======
+  // * ====== 计算属性 ======
 
   /** 是否有正在进行的下载 */
   const isDownloading = computed(() =>
@@ -85,7 +85,7 @@ export const useDownloadStore = defineStore('download', () => {
     )
   )
 
-  // ====== 操作 ======
+  // * ====== 操作 ======
 
   /** 开始下载 MC 版本（后台流式） */
   async function startVersionDownload(
@@ -232,7 +232,7 @@ export const useDownloadStore = defineStore('download', () => {
       if (offset === 0) {
         searchResults.value = mapped
       } else {
-        // 追加，跳过已存在的（双源可能有重复 id+source）
+        // * 追加，跳过已存在的（双源可能有重复 id+source）
         const existingKeys = new Set(searchResults.value.map((m) => m.id + '|' + m.source))
         for (const item of mapped) {
           const key = item.id + '|' + item.source
@@ -243,7 +243,7 @@ export const useDownloadStore = defineStore('download', () => {
         }
       }
 
-      // 判断是否还有更多：本次有返回数据就假设还有，返回为空才确定耗尽
+      // * 判断是否还有更多：本次有返回数据就假设还有，返回为空才确定耗尽
       const sourceHasMore = data.length > 0
       if (srcVal === 'modrinth') {
         hasMoreMr.value = sourceHasMore
@@ -254,7 +254,7 @@ export const useDownloadStore = defineStore('download', () => {
       }
       hasMore.value = sourceHasMore
 
-      // 保存搜索参数供 loadMore 使用
+      // * 保存搜索参数供 loadMore 使用
       if (offset === 0) {
         lastSearchParams.value = {
           query: params?.query,
@@ -264,7 +264,7 @@ export const useDownloadStore = defineStore('download', () => {
         }
       }
 
-      // 重新按下载量排序
+      // * 重新按下载量排序
       searchResults.value.sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
 
       searchOffset.value = offset + data.length
@@ -339,7 +339,7 @@ export const useDownloadStore = defineStore('download', () => {
   }
 
   return {
-    // 状态
+    // * 状态
     searchQuery,
     searchSource,
     searchResults,
@@ -356,13 +356,13 @@ export const useDownloadStore = defineStore('download', () => {
     showFloatPanel,
     showDownloadManager,
 
-    // 计算属性
+    // * 计算属性
     isDownloading,
     totalSpeed,
     overallProgress,
     hasActiveVersionDownload,
 
-    // 操作
+    // * 操作
     startVersionDownload,
     updateVersionProgress,
     onVersionComplete,
@@ -378,7 +378,7 @@ export const useDownloadStore = defineStore('download', () => {
   }
 })
 
-// ====== 映射函数 ======
+// * ====== 映射函数 ======
 
 function mapRawToModResult(raw: any): ModSearchResult {
   return {

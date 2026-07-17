@@ -64,7 +64,7 @@
           >
             <span class="acc-title">{{ $t('download.release') }}</span>
             <span class="acc-count"
-              >{{ allVersions.filter((v) => v.type === 'release').length }} $t('download.versions')</span
+              >{{ allVersions.filter((v) => v.type === 'release').length }} {{ $t('download.versions') }}</span
             >
             <svg
               class="acc-arrow"
@@ -173,7 +173,7 @@
             @click="accOpen.snapshot = !accOpen.snapshot"
           >
             <span class="acc-title">{{ $t('download.snapshotVersion') }}</span>
-            <span class="acc-count">{{ snapshotVersions.length }} $t('download.versions')</span>
+            <span class="acc-count">{{ snapshotVersions.length }} {{ $t('download.versions') }}</span>
             <svg
               class="acc-arrow"
               width="14"
@@ -281,7 +281,7 @@
             @click="accOpen.old = !accOpen.old"
           >
             <span class="acc-title">{{ $t('download.oldVersion') }}</span>
-            <span class="acc-count">{{ oldVersions.length }} $t('download.versions')</span>
+            <span class="acc-count">{{ oldVersions.length }} {{ $t('download.versions') }}</span>
             <svg
               class="acc-arrow"
               width="14"
@@ -388,7 +388,7 @@
             @click="accOpen.april = !accOpen.april"
           >
             <span class="acc-title">{{ $t('download.aprilVersion') }}</span>
-            <span class="acc-count">{{ aprilVersions.length }} $t('download.versions')</span>
+            <span class="acc-count">{{ aprilVersions.length }} {{ $t('download.versions') }}</span>
             <svg
               class="acc-arrow"
               width="14"
@@ -729,6 +729,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useDownloadStore } from '../stores/download.store'
 import { useInstancesStore } from '../stores/instances.store'
 import type { ModSearchResult } from '../types/download'
+import type { ContentPlatform } from '../types/download'
 import type { GameInstance } from '../types/instance'
 import { isFeaturedVersion, getVersionDesc, getVersionTypeColor } from '../config/version.config'
 
@@ -737,7 +738,7 @@ const activeCategory = computed(() => dlActiveCat.value)
 
 const route = useRoute()
 
-// 回到顶部
+// * 回到顶部
 const pageRef = ref<HTMLElement | null>(null)
 const showBackToTop = ref(false)
 
@@ -765,7 +766,7 @@ async function handleLoadMore() {
   el?.scrollTo({ top: scrollTop })
 }
 
-// 从 URL query 读取分类、版本、加载器（从版本设置页跳转时传入）
+// * 从 URL query 读取分类、版本、加载器（从版本设置页跳转时传入）
 watch(
   () => route.query,
   (q) => {
@@ -777,7 +778,7 @@ watch(
   { immediate: true }
 )
 
-// 自动填充版本和加载器（只在组件挂载时执行一次，避免覆盖用户手动选择）
+// * 自动填充版本和加载器（只在组件挂载时执行一次，避免覆盖用户手动选择）
 let autoFillDone = false
 watch(
   () => route.query.mcVersion,
@@ -807,24 +808,24 @@ const categoryMap: Record<string, string> = {
 }
 const categoryLabel = computed(() => categoryMap[activeCategory.value] || '资源')
 
-// ====== Stores ======
+// * ====== Stores ======
 const dlStore = useDownloadStore()
 const instancesStore = useInstancesStore()
 
-// ---- 原版游戏 ----
+// * ---- 原版游戏 ----
 const verSearch = ref('')
 const hasMoreVersions = ref(true)
 const isLoadingVersions = ref(false)
 
-// 折叠面板状态
+// * 折叠面板状态
 const accOpen = reactive({
-  release: true, // 正式版默认展开
+  release: true, // * 正式版默认展开
   snapshot: false,
   old: false,
   april: false
 })
 
-// 已安装版本缓存（用于判断是否已下载）
+// * 已安装版本缓存（用于判断是否已下载）
 const installedVersionIds = ref<Set<string>>(new Set())
 
 interface VerItem {
@@ -841,12 +842,12 @@ interface VerItem {
   downloaded: boolean
 }
 
-// 所有版本（扁平，分类显示）
+// * 所有版本（扁平，分类显示）
 const allVersions = ref<VerItem[]>([])
 const PAGE_SIZE = 20
 const displayedCount = ref(PAGE_SIZE)
 
-// 分类版本（计算属性，从 allVersions 过滤）
+// * 分类版本（计算属性，从 allVersions 过滤）
 const releaseVersions = computed(() =>
   allVersions.value.filter((v) => v.type === 'release').slice(0, displayedCount.value)
 )
@@ -856,7 +857,7 @@ const snapshotVersions = computed(() =>
 const oldVersions = computed(() => allVersions.value.filter((v) => v.type === 'old').slice(0, 20))
 const aprilVersions = computed(() => allVersions.value.filter((v) => v.type === 'april'))
 
-// 加载更多
+// * 加载更多
 const hasMoreReleases = computed(
   () => allVersions.value.filter((v) => v.type === 'release').length > displayedCount.value
 )
@@ -892,7 +893,7 @@ function toVerItem(raw: any, isInstalled: boolean): VerItem {
 }
 
 function isAprilFools(id: string): boolean {
-  // 愚人节版本命名规律：含 craftmine/potato/or_b|oneblockatatime 或日期在4月1日
+  // * 愚人节版本命名规律：含 craftmine/potato/or_b|oneblockatatime 或日期在4月1日
   return /craftmine|potato|or_b|oneblockatatime/i.test(id)
 }
 
@@ -906,7 +907,7 @@ function typeLabelOf(type: VerItem['type']): string {
   return map[type] || '正式版'
 }
 
-// 加载版本列表
+// * 加载版本列表
 async function refreshVersions() {
   isLoadingVersions.value = true
   try {
@@ -916,13 +917,13 @@ async function refreshVersions() {
       return
     }
 
-    // 获取已安装版本
+    // * 获取已安装版本
     let mcDir = ''
     if (api.path) {
       mcDir = await api.path.getMinecraft()
     }
 
-    // 扫描已安装版本
+    // * 扫描已安装版本
     let installed: Set<string> = new Set()
     if (mcDir && api.versions.scanFolder) {
       try {
@@ -938,7 +939,7 @@ async function refreshVersions() {
     }
     installedVersionIds.value = installed
 
-    // 从 BMCLAPI 获取版本列表
+    // * 从 BMCLAPI 获取版本列表
     const rawVersions = await api.versions.list()
     allVersions.value = Array.isArray(rawVersions) ? rawVersions.map((raw: any) => toVerItem(raw, installed.has(raw.id))) : []
   } catch (err) {
@@ -947,13 +948,13 @@ async function refreshVersions() {
   }
 }
 
-// 跳转到版本详情页
+// * 跳转到版本详情页
 const router = useRouter()
 function goToDetail(ver: VerItem) {
   router.push(`/download/version/${ver.id}`)
 }
 
-// 下载版本（下载到当前选中的 .minecraft 文件夹 + 创建实例）
+// * 下载版本（下载到当前选中的 .minecraft 文件夹 + 创建实例）
 async function downloadVersion(ver: VerItem) {
   if (ver.downloading || ver.downloaded) return
   const api = window.electronAPI
@@ -961,7 +962,7 @@ async function downloadVersion(ver: VerItem) {
     return
   }
 
-  // 优先使用 VersionSelect 当前选中的文件夹，否则用默认路径
+  // * 优先使用 VersionSelect 当前选中的文件夹，否则用默认路径
   let mcDir = ''
   if (api?.folders) {
     mcDir = (await api.folders.getLast()) ?? ''
@@ -979,7 +980,7 @@ async function downloadVersion(ver: VerItem) {
     if (res?.ok) {
       ver.downloaded = true
       installedVersionIds.value.add(ver.id)
-      // 创建实例
+      // * 创建实例
       await api.instance.create({
         name: ver.id,
         mcVersion: ver.id,
@@ -1031,26 +1032,26 @@ async function downloadServer(ver: VerItem) {
   }
 }
 
-// 搜索过滤（各分类独立）
+// * 搜索过滤（各分类独立）
 function filteredBySearch(list: VerItem[]): VerItem[] {
   if (!verSearch.value) return list
   const q = verSearch.value.toLowerCase()
   return list.filter((v) => v.name.toLowerCase().includes(q))
 }
 
-// 初始加载
+// * 初始加载
 refreshVersions()
 
-// ---- 搜索筛选 ----
+// * ---- 搜索筛选 ----
 const searchName = ref('')
-const searchSource = ref('all')
+const searchSource = ref<ContentPlatform | 'all'>('all')
 const searchVersion = ref('')
 const searchType = ref('')
-const searchLoader = ref('') // Mod 加载器（选了版本后才出现）
+const searchLoader = ref('') // * Mod 加载器（选了版本后才出现）
 const isLoading = ref(false)
 const loadProgress = ref(55)
 
-// 分页
+// * 分页
 const currentPage = ref(1)
 const ITEMS_PER_PAGE = 20
 
@@ -1071,11 +1072,11 @@ const paginatedResources = computed(() => {
 function goPage(page: number) {
   if (page < 1 || page > totalPages.value) return
   currentPage.value = page
-  // 滚动到页面最顶部
+  // * 滚动到页面最顶部
   pageRef.value?.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-// 切换分类时重置页码
+// * 切换分类时重置页码
 watch(
   () => activeCategory.value,
   () => {
@@ -1083,7 +1084,7 @@ watch(
   }
 )
 
-// MC 版本选项（常用版本）
+// * MC 版本选项（常用版本）
 const mcVersionOptions = [
   '1.21.4',
   '1.21.3',
@@ -1247,7 +1248,7 @@ const allResources: Record<string, ResourceItem[]> = {
 
 const filteredResources = computed(() => {
   if (dlStore.searchResults.length > 0) {
-    // 已按下载量排好序，这里只需做 map，不再按来源排序
+    // * 已按下载量排好序，这里只需做 map，不再按来源排序
     return [...dlStore.searchResults].map((r) => ({
       id: r.id,
       name: r.name,
@@ -1262,7 +1263,7 @@ const filteredResources = computed(() => {
     }))
   }
   const items = [...(allResources[activeCategory.value] || [])]
-    // 只按下载量排序，不按来源分离（让两个来源自然混合）
+    // * 只按下载量排序，不按来源分离（让两个来源自然混合）
     .sort((a, b) => {
       const dlA = parseFloat(a.downloads.replace(/[^\d.]/g, '')) || 0
       const dlB = parseFloat(b.downloads.replace(/[^\d.]/g, '')) || 0
@@ -1289,9 +1290,9 @@ async function doSearch() {
 
   const projectType = activeCategory.value
   try {
-    // 统一走单源或串行双源（searchMods 会覆盖 store 结果，串行避免竞争）
+    // * 统一走单源或串行双源（searchMods 会覆盖 store 结果，串行避免竞争）
     if (searchSource.value === 'all') {
-      // 先拉 Modrinth
+      // * 先拉 Modrinth
       await dlStore.searchMods({
         query: searchName.value,
         source: 'modrinth',
@@ -1303,7 +1304,7 @@ async function doSearch() {
       })
       const mrResults = [...dlStore.searchResults]
 
-      // 再拉 CurseForge
+      // * 再拉 CurseForge
       await dlStore.searchMods({
         query: searchName.value,
         source: 'curseforge',
@@ -1315,16 +1316,16 @@ async function doSearch() {
       })
       const cfResults = [...dlStore.searchResults]
 
-      // 双源结果直接拼接，不去重；按下载量混合排序（不优先任何来源）
+      // * 双源结果直接拼接，不去重；按下载量混合排序（不优先任何来源）
       const merged = [...mrResults, ...cfResults]
       dlStore.searchResults = merged.sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
-      // 双源合并后 hasMore 取任一源有更多
+      // * 双源合并后 hasMore 取任一源有更多
       dlStore.hasMore = dlStore.hasMoreMr || dlStore.hasMoreCf
       console.log('[doSearch] 双源完成: mr=' + mrResults.length, 'cf=' + cfResults.length, 'merged=' + merged.length, 'hasMore=' + dlStore.hasMore)
     } else {
       await dlStore.searchMods({
         query: searchName.value,
-        source: searchSource.value as any,
+        source: searchSource.value,
         gameVersion: searchVersion.value || undefined,
         loaderType: searchLoader.value || undefined,
         projectType,
@@ -1355,22 +1356,22 @@ function handleCardClick(r: any) {
   })
 }
 
-// 需要从 API 拉取数据的社区分类
+// * 需要从 API 拉取数据的社区分类
 const COMMUNITY_CATEGORIES = ['mod', 'modpack', 'shader', 'resourcepack', 'datapack']
 
-// 进入社区分类页时，如果没有搜索结果，自动拉取双源热门内容
+// * 进入社区分类页时，如果没有搜索结果，自动拉取双源热门内容
 onMounted(() => {
   if (
     COMMUNITY_CATEGORIES.includes(activeCategory.value) &&
     dlStore.searchResults.length === 0 &&
     !searchName.value
   ) {
-    // 延迟一点让路由参数先填充
+    // * 延迟一点让路由参数先填充
     setTimeout(() => {
       doSearch()
     }, 100)
   }
-  // 滚动监听
+  // * 滚动监听
   const el = pageRef.value
   if (el) {
     el.addEventListener('scroll', handleScroll)
@@ -1385,12 +1386,12 @@ onUnmounted(() => {
   }
 })
 
-// 切换社区分类时，清空旧结果并自动拉取新分类数据
+// * 切换社区分类时，清空旧结果并自动拉取新分类数据
 watch(
   () => activeCategory.value,
   (cat) => {
     if (!COMMUNITY_CATEGORIES.includes(cat)) return
-    // 切换分类时清空旧结果，重置分页与搜索词
+    // * 切换分类时清空旧结果，重置分页与搜索词
     dlStore.searchResults = []
     dlStore.hasMore = true
     searchName.value = ''
@@ -1418,7 +1419,7 @@ watch(
   }
 }
 
-/* ---- 顶部头 ---- */
+/* * ---- 顶部头 ---- */
 .dl-header {
   display: flex;
   align-items: center;
@@ -1450,7 +1451,7 @@ watch(
   }
 }
 
-/* ---- 版本分类 Tab ---- */
+/* * ---- 版本分类 Tab ---- */
 .ver-tabs {
   display: flex;
   gap: 4px;
@@ -1487,7 +1488,7 @@ watch(
   }
 }
 
-/* ---- 搜索栏 ---- */
+/* * ---- 搜索栏 ---- */
 .dl-search {
   display: flex;
   align-items: center;
@@ -1534,7 +1535,7 @@ watch(
   }
 }
 
-/* ---- 版本列表（Accordion） ---- */
+/* * ---- 版本列表（Accordion） ---- */
 .ver-accordion {
   display: flex;
   flex-direction: column;
@@ -1781,7 +1782,7 @@ watch(
   }
 }
 
-/* ====== 社区资源 ====== */
+/* * ====== 社区资源 ====== */
 .filter-section {
   padding: 18px 20px;
   margin-bottom: 16px;
@@ -1870,7 +1871,7 @@ watch(
   }
 }
 
-/* 加载 */
+/* * 加载 */
 .loading-section {
   text-align: center;
   padding: 56px 20px;
@@ -1895,7 +1896,7 @@ watch(
   }
 }
 
-/* 结果 */
+/* * 结果 */
 .result-list {
   display: flex;
   flex-direction: column;
@@ -2044,7 +2045,7 @@ watch(
   font-size: 14px;
 }
 
-/* 分页 */
+/* * 分页 */
 .pagination-bar {
   display: flex;
   align-items: center;
@@ -2094,7 +2095,7 @@ watch(
   flex-shrink: 0;
 }
 
-/* 搜索错误提示 */
+/* * 搜索错误提示 */
 .search-error-bar {
   display: flex;
   align-items: center;
@@ -2130,7 +2131,7 @@ watch(
   }
 }
 
-/* 加载更多 */
+/* * 加载更多 */
 .load-more-bar {
   display: flex;
   justify-content: center;

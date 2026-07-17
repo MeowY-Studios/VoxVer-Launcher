@@ -75,7 +75,7 @@ const router = createRouter({
   ]
 })
 
-// 路由守卫：更新窗口标题
+// * 路由守卫：更新窗口标题
 router.beforeEach((to) => {
   const title = to.meta.title as string
   if (title) {
