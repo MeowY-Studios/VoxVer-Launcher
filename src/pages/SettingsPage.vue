@@ -4019,6 +4019,10 @@ async function startDownloadFromModal() {
 /** 简单 Markdown → HTML 转换 */
 function renderMd(md: string): string {
   if (!md) return ''
+  // 如果已经是 HTML，直接返回（移除多余空白）
+  if (/<[a-zA-Z][\s\S]*?>/.test(md)) {
+    return md.trim()
+  }
   let html = md
     // 转义 HTML
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
