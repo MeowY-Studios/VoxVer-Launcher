@@ -154,178 +154,55 @@
         </h3>
         <span class="detected-count">{{ detectedVersions.length }}</span>
       </div>
-      <div class="detected-list">
-        <div v-for="dv in filteredDetectedVersions" :key="dv.id" class="detected-item">
-          <div class="dv-icon" :style="{ background: getVersionColor(dv.id) }">
-            <span>{{ dv.baseVersion.slice(0, 2) }}</span>
-          </div>
-          <div class="dv-info">
-            <div class="dv-name">{{ dv.id }}</div>
-            <div class="dv-meta">
-              <span class="dv-tag" v-if="dv.loaderInfo">{{ dv.loaderInfo }}</span>
-              <span class="dv-type">{{ dv.type }}</span>
+      <div class="detected-grid">
+        <div
+          v-for="dv in filteredDetectedVersions"
+          :key="dv.id"
+          class="instance-card vox-card"
+        >
+          <div class="card-cover" :style="{ background: getVersionColor(dv.id) }">
+            <div class="cover-loader-tag" v-if="dv.loaderInfo">
+              {{ dv.loaderInfo }}
+            </div>
+            <div class="cover-version-tag">
+              {{ dv.baseVersion }}
             </div>
           </div>
-          <button class="dv-launch" @click="launchDetectedVersion(dv)" :title="$t('instance.launch')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-            {{ $t('instance.launch') }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== 网格视图 ====== -->
-    <div v-if="viewMode === 'grid' && filteredInstances.length" class="instance-grid">
-      <div
-        v-for="inst in filteredInstances"
-        :key="inst.id"
-        class="instance-card vox-card"
-        @click="selectInstance(inst)"
-        :class="{ selected: selectedId === inst.id }"
-      >
-        <!-- 封面图区域 -->
-        <div class="card-cover" :style="{ background: getCoverGradient(inst) }">
-          <div class="cover-loader-tag" v-if="getLoaderLabel(inst)">
-            {{ getLoaderLabel(inst) }}
+          <div class="card-body">
+            <h3 class="card-name">{{ dv.id }}</h3>
+            <p class="card-meta">
+              <span class="meta-item">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                {{ dv.lastPlayed ? formatTime(dv.lastPlayed) : $t('instance.neverPlayed') }}
+              </span>
+            </p>
           </div>
-          <div class="cover-version-tag">
-            {{ inst.mc_version }}
+          <div class="card-actions">
+            <button class="action-btn launch" @click="launchDetectedVersion(dv)" :title="$t('instance.launch')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </button>
+            <button class="action-btn" @click="openDetectedFolder(dv)" :title="$t('instance.openFolder')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+              </svg>
+            </button>
+            <button class="action-btn" @click="createInstanceFromDetected(dv)" :title="$t('instance.newInstance')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
           </div>
-        </div>
-
-        <!-- 信息区域 -->
-        <div class="card-body">
-          <h3 class="card-name">{{ inst.name }}</h3>
-          <p class="card-meta">
-            <span class="meta-item" v-if="getLoaderLabel(inst)">
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"
-                />
-              </svg>
-              {{ getLoaderLabel(inst) }}
-            </span>
-            <span class="meta-item">
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
-              {{ inst.last_played ? formatTime(inst.last_played) : $t('instance.neverPlayed') }}
-            </span>
-          </p>
-        </div>
-
-        <!-- 操作按钮区 -->
-        <div class="card-actions">
-          <button class="action-btn launch" @click.stop="launchInstance(inst)" :title="$t('instance.launch')">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          </button>
-          <button class="action-btn" @click.stop="openFolder(inst)" :title="$t('instance.openFolder')">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
-            </svg>
-          </button>
-          <button class="action-btn" @click.stop="editInstance(inst)" :title="$t('instance.settings')">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <circle cx="12" cy="12" r="3" />
-              <path
-                d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"
-              />
-            </svg>
-          </button>
-          <button class="action-btn danger" @click.stop="confirmDeleteInstance(inst)" :title="$t('common.delete')">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <polyline points="3,6 5,6 21,6" />
-              <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== 列表视图 ====== -->
-    <div v-if="viewMode === 'list' && filteredInstances.length" class="instance-list">
-      <div
-        v-for="inst in filteredInstances"
-        :key="inst.id"
-        class="list-item vox-list-card"
-        @click="selectInstance(inst)"
-        :class="{ selected: selectedId === inst.id }"
-      >
-        <div class="list-icon" :style="{ background: getCoverGradient(inst) }">
-          <span class="list-icon-ver">{{ inst.mc_version }}</span>
-        </div>
-        <div class="list-info">
-          <p class="list-name">{{ inst.name }}</p>
-          <p class="list-meta">
-            {{ inst.mc_version }} · {{ getLoaderLabel(inst) || $t('game.vanilla') }} ·
-            {{ inst.last_played ? formatTime(inst.last_played) : $t('instance.neverPlayed') }}
-          </p>
-        </div>
-        <div class="list-actions">
-          <button class="action-btn launch" @click.stop="launchInstance(inst)" :title="$t('instance.launch')">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          </button>
-          <button class="action-btn danger" @click.stop="confirmDeleteInstance(inst)" :title="$t('common.delete')">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <polyline points="3,6 5,6 21,6" />
-              <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-            </svg>
-          </button>
         </div>
       </div>
     </div>
 
     <!-- 空状态 -->
-    <div v-if="!filteredInstances.length" class="empty-state">
+    <div v-if="!detectedVersions.length" class="empty-state">
       <svg
         width="48"
         height="48"
@@ -339,7 +216,7 @@
         <line x1="9" y1="9" x2="15" y2="15" />
         <line x1="15" y1="9" x2="9" y2="15" />
       </svg>
-      <p>{{ searchQuery ? $t('instance.noMatchingInstances') : $t('instance.noInstancesYet') }}</p>
+      <p>{{ searchQuery ? $t('instance.noMatchingInstances') : $t('instance.noDetectedVersions') }}</p>
       <span class="hint" v-if="!searchQuery">{{ $t('instance.createFirstHint') }}</span>
     </div>
 
@@ -554,10 +431,27 @@ interface DetectedVersion {
   loaderInfo: string
   jarPath: string
   jsonPath: string
+  lastPlayed?: number
 }
 const detectedVersions = ref<DetectedVersion[]>([])
 const scanning = ref(false)
 const currentMcPath = ref('')
+const launchHistory = ref<Record<string, number>>({})
+
+async function loadLaunchHistory() {
+  try {
+    const saved = await window.electronAPI?.config?.getConfig?.('launch_history')
+    if (saved) {
+      launchHistory.value = typeof saved === 'object' ? saved : {}
+    }
+  } catch {}
+}
+
+async function saveLaunchHistory() {
+  try {
+    await window.electronAPI?.config?.setConfig?.('launch_history', launchHistory.value)
+  } catch {}
+}
 
 const filteredDetectedVersions = computed(() => {
   if (!searchQuery.value) return detectedVersions.value
@@ -604,6 +498,7 @@ function getCoverGradient(inst: Instance): string {
   }
   return gradients[Math.abs(hash) % gradients.length]
 }
+ 
 
 function getLoaderLabel(inst: Instance): string {
   if (!inst.loader_type || inst.loader_type === 'vanilla') return ''
@@ -650,7 +545,10 @@ async function rescanVersions() {
     }
     const res = await window.electronAPI?.versions?.scanFolder(mcPath)
     if (res?.ok && res.data) {
-      detectedVersions.value = res.data as DetectedVersion[]
+      detectedVersions.value = (res.data as DetectedVersion[]).map((v) => ({
+        ...v,
+        lastPlayed: launchHistory.value[v.id]
+      }))
     } else {
       detectedVersions.value = []
     }
@@ -673,7 +571,53 @@ function getVersionColor(id: string): string {
 
 // 一键启动检测到的版本
 function launchDetectedVersion(dv: DetectedVersion) {
+  launchHistory.value[dv.id] = Date.now()
+  saveLaunchHistory()
   window.electronAPI?.game?.launch?.('', '', dv.id)
+}
+
+async function openDetectedFolder(dv: DetectedVersion) {
+  try {
+    const mcPath = currentMcPath.value || (await window.electronAPI?.path?.getMinecraft?.()) || ''
+    if (mcPath) {
+      const versionPath = `${mcPath.replace(/[\\/]+$/, '')}${mcPath.includes('/') ? '/' : '\\'}versions${mcPath.includes('/') ? '/' : '\\'}${dv.id}`
+      window.electronAPI?.shell?.openPath?.(versionPath)
+    }
+  } catch {}
+}
+
+async function createInstanceFromDetected(dv: DetectedVersion) {
+  try {
+    let customPath = ''
+    try {
+      const api = window.electronAPI
+      if (api?.path) {
+        const custom = await api.path.getCustom()
+        if (custom) {
+          customPath = custom
+        } else {
+          customPath = await api.path.getMinecraft()
+        }
+      }
+    } catch (e) {}
+
+    await window.electronAPI?.instance?.create({
+      name: dv.id,
+      mcVersion: dv.baseVersion,
+      loaderType: dv.loaderInfo?.toLowerCase().includes('forge')
+        ? 'forge'
+        : dv.loaderInfo?.toLowerCase().includes('fabric')
+          ? 'fabric'
+          : 'vanilla',
+      customPath,
+      loaderVersion: '',
+      javaPath: '',
+      minMemory: 512,
+      maxMemory: 2048
+    })
+
+    await loadInstances()
+  } catch {}
 }
 
 const filteredInstances = computed(() => {
@@ -852,7 +796,8 @@ function formatTime(dateStr: string | null | undefined): string {
   return (t('instance.monthsAgo') as string).replace('{n}', String(Math.floor(days / 30)))
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await loadLaunchHistory()
   loadInstances()
   rescanVersions()
 })
@@ -984,19 +929,22 @@ onMounted(() => {
 
 /* ====== 自动检测版本 ====== */
 .detected-section {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   flex-shrink: 0;
   background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
-  border: 1px solid var(--voxver-border-color-light);
   border-radius: var(--voxver-radius-md);
-  padding: 12px 14px;
+  border: 1px solid var(--voxver-border-color-light);
+  padding: 14px;
 }
 
 .detected-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--voxver-border-color-light);
 }
 
 .detected-title {
@@ -1022,99 +970,10 @@ onMounted(() => {
   border-radius: 10px;
 }
 
-.detected-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-height: 240px;
-  overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: rgb(0 0 0 / 0.1);
-    border-radius: 2px;
-  }
-}
-
-.detected-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: var(--voxver-radius-sm);
-  transition: background 0.12s;
-
-  &:hover {
-    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
-  }
-}
-
-.dv-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--voxver-radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 11px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.dv-info {
-  flex: 1;
-  min-width: 0;
-
-  .dv-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--voxver-text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .dv-meta {
-    display: flex;
-    gap: 6px;
-    margin-top: 2px;
-  }
-
-  .dv-tag {
-    font-size: 10px;
-    color: var(--voxver-primary);
-    background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
-    padding: 1px 6px;
-    border-radius: 3px;
-  }
-
-  .dv-type {
-    font-size: 10px;
-    color: var(--voxver-text-muted);
-  }
-}
-
-.dv-launch {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  border: none;
-  border-radius: var(--voxver-radius-sm);
-  background: var(--voxver-primary);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.12s;
-  flex-shrink: 0;
-
-  &:hover {
-    background: var(--voxver-primary-600);
-  }
+.detected-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
 }
 
 /* 刷新按钮旋转动画 */

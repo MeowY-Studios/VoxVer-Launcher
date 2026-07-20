@@ -4,6 +4,7 @@
 import { ipcMain } from 'electron'
 import * as gameLauncher from '../services/game.launcher.service'
 import { defaultMcDir, getLauncherInstance } from '../services/game.launcher.service'
+import { launchByVersionWithXMCL, getXMCLStatus, terminateXMCLGame, getXMCLProcess } from '../services/xmcl.launcher.service'
 import { getInstanceById } from '../services/instances'
 import { getDatabase } from '../services/database'
 import type { BrowserWindow } from 'electron'
@@ -181,12 +182,16 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
         versionId?: string
       }
     ) => {
-      // 优先用 versionId 直接启动（绕过数据库实例依赖）
+      const db = getDatabase()
+      const lastFolder = db
+        .prepare("SELECT value FROM configs WHERE key = 'last_selected_folder'")
+        .get() as { value: string } | undefined
+      const gameDir = lastFolder?.value || defaultMcDir()
+
       if (versionId) {
-        return gameLauncher.launchByVersion(mainWindow, { versionId, accountId })
+        return launchByVersionWithXMCL(mainWindow, { versionId, accountId, gameDir })
       }
 
-      // 兜底：尝试从数据库找实例
       if (!instanceId) {
         return { success: false, error: '未指定版本或实例' }
       }
@@ -196,14 +201,28 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
         return { success: false, error: `实例不存在: ${instanceId}` }
       }
 
-      return gameLauncher.launchGame(mainWindow, { instanceId: inst.id, accountId })
+      return launchByVersionWithXMCL(mainWindow, {
+        versionId: inst.version_id,
+        accountId,
+        gameDir,
+        instancePath: inst.path || undefined,
+        javaPath: inst.java_path || undefined,
+        maxMemory: inst.max_memory || undefined,
+        minMemory: inst.min_memory || undefined,
+        width: inst.width || undefined,
+        height: inst.height || undefined,
+        jvmArgs: inst.jvm_args || undefined
+      })
     }
   )
 
-  ipcMain.handle('game:terminate', () => gameLauncher.terminateGame())
-  ipcMain.handle('game:is-running', () => gameLauncher.isRunning())
-  ipcMain.handle('game:status', () => gameLauncher.getGameStatus())
-  ipcMain.handle('game:get-log', () => gameLauncher.getCurrentLog())
+  ipcMain.handle('game:terminate', () => terminateXMCLGame())
+  ipcMain.handle('game:is-running', () => getXMCLStatus() === 'running')
+  ipcMain.handle('game:status', () => getXMCLStatus())
+  ipcMain.handle('game:get-log', () => {
+    const proc = getXMCLProcess()
+    return proc ? '' : ''
+  })
 
   // ===== 缺失文件检测与下载 =====
   ipcMain.handle(
