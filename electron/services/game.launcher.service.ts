@@ -15,7 +15,8 @@ import {
   getDefaultJava,
   validateJava,
   recommendedJavaMajor,
-  probeJava
+  probeJava,
+  detectAllJava
 } from './java.management.service'
 import { updateLastPlayed } from './instances'
 import { getDatabase } from './database'
@@ -368,6 +369,99 @@ class MinecraftLauncher {
   }
 
   /**
+   * 直接启动游戏（跳过文件检测，用于下载完成后继续启动）
+   */
+  async launchDirect(config: LaunchConfig): Promise<LaunchResult> {
+    if (this.gameStatus === 'running' || this.gameStatus === 'launching') {
+      return { success: false, error: '已有游戏在运行中，请先关闭' }
+    }
+
+    const launchStartTime = Date.now()
+    this.setStatus('launching')
+    this.sendProgress('building-config', '正在构建启动参数...')
+    this.logBuffer = ''
+
+    try {
+      const { account, gameWindowConfig, gameCoreConfig, javaConfig } = config
+
+      // 1. 验证 Java
+      this.sendProgress('validating-java', '正在检测 Java 环境...')
+      const javaValidation = await this.validateJava(javaConfig, gameCoreConfig.version)
+      if (!javaValidation.success) {
+        this.sendProgress('error', 'Java 验证失败', javaValidation.error)
+        this.setStatus('idle')
+        return { success: false, error: javaValidation.error }
+      }
+      const javaPath = javaValidation.javaPath
+
+      // 2. 解析版本信息
+      this.sendProgress('checking-files', '正在检查版本信息...')
+      const versionJson = await this.resolveVersionJson(gameCoreConfig)
+      if (!versionJson) {
+        this.sendProgress('error', '版本文件缺失', `找不到 ${gameCoreConfig.version} 的版本 JSON`)
+        this.setStatus('idle')
+        return { success: false, error: `版本文件不存在: ${gameCoreConfig.version}` }
+      }
+
+      // 3. 处理继承版本
+      const finalVersionJson = await this.resolveInheritedVersion(gameCoreConfig, versionJson)
+
+      // 跳过文件检测（下载完成后直接启动）
+
+      // 4. 构建类路径
+      const classpath = await this.buildClasspath(gameCoreConfig, finalVersionJson)
+      const classpathStr = classpath.join(process.platform === 'win32' ? ';' : ':')
+
+      // 5. 验证并修复 options.txt
+      this.validateOptionsFile(gameCoreConfig.gameDir || gameCoreConfig.root)
+
+      // 6. 构建启动参数
+      const jvmArgs = this.buildJvmArguments(
+        finalVersionJson,
+        gameCoreConfig,
+        javaConfig,
+        classpathStr
+      )
+      const mcArgs = this.buildGameArguments(
+        finalVersionJson,
+        gameCoreConfig,
+        account,
+        gameWindowConfig
+      )
+
+      // 7. 启动进程
+      log.info(
+        `[GameLauncher] [launchDirect] 准备启动游戏: version=${gameCoreConfig.version}, java=${javaPath}, account=${account.name}`
+      )
+
+      const result = await this.spawnProcess(
+        javaPath,
+        jvmArgs,
+        mcArgs,
+        finalVersionJson.mainClass,
+        gameCoreConfig.root,
+        classpathStr,
+        gameCoreConfig.version
+      )
+
+      if (result.success) {
+        this.setStatus('running')
+        this.sendProgress('running', '游戏运行中')
+        log.info(`[GameLauncher] [launchDirect] 启动准备完成，总耗时 ${Date.now() - launchStartTime}ms`)
+      } else {
+        log.error(`[GameLauncher] [launchDirect] 启动失败: ${result.error}`)
+        this.sendProgress('error', '启动失败', result.error)
+      }
+      return result
+    } catch (e: any) {
+      log.error(`[GameLauncher] [launchDirect] 异常: ${e.stack || e.message}`)
+      this.sendProgress('error', '启动失败', e.message)
+      this.setStatus('idle')
+      return { success: false, error: e.message }
+    }
+  }
+
+  /**
    * 验证 Java 环境（PCL2风格：智能版本匹配 + 兼容性检查）
    */
   private async validateJava(
@@ -384,8 +478,11 @@ class MinecraftLauncher {
     // 提取纯版本号用于 Java 选择
     const baseVersion = extractBaseVersion(versionId)
     const recommendedMajor = recommendedJavaMajor(baseVersion)
+    const isForge = versionId.toLowerCase().includes('forge')
+    const isNeoForge = versionId.toLowerCase().includes('neoforge')
 
     log.info(`[validateJava] 游戏版本: ${baseVersion}, 推荐 Java 主版本: ${recommendedMajor}`)
+    log.info(`[validateJava] 是否 Forge: ${isForge}, 是否 NeoForge: ${isNeoForge}`)
 
     let selectedJava: {
       path: string
@@ -394,36 +491,65 @@ class MinecraftLauncher {
       majorVersion: number
     } | null = null
 
+    // 检查 Java 版本是否兼容
+    const isCompatible = (java: { majorVersion: number }): boolean => {
+      if (java.majorVersion < recommendedMajor) return false
+      // Forge/NeoForge 严格限制：不允许高于推荐版本
+      if ((isForge || isNeoForge) && java.majorVersion > recommendedMajor) return false
+      return true
+    }
+
     // 如果配置了路径，验证后使用
     if (configJavaPath && fs.existsSync(configJavaPath)) {
       const javaInfo = await getJavaInfoFromPath(configJavaPath)
       if (javaInfo) {
-        selectedJava = javaInfo
-        log.info(`[validateJava] 使用配置的 Java: ${javaInfo.vendor} ${javaInfo.version}`)
+        if (isCompatible(javaInfo)) {
+          selectedJava = javaInfo
+          log.info(`[validateJava] 使用配置的 Java: ${javaInfo.vendor} ${javaInfo.version}`)
+        } else {
+          log.warn(
+            `[validateJava] 配置的 Java ${javaInfo.majorVersion} 与版本不兼容，尝试自动选择`
+          )
+        }
       } else {
         log.warn(`[validateJava] 配置的 Java 路径无效，尝试自动选择`)
       }
     }
 
-    // 自动选择 Java
+    // 自动选择 Java（配置不兼容或未配置时调用）
     if (!selectedJava) {
-      const defaultJava = await getDefaultJava(baseVersion)
-      if (!defaultJava) {
-        return {
-          success: false,
-          javaPath: '',
-          error: `未找到兼容的 Java 环境。Minecraft ${baseVersion} 需要 Java ${recommendedMajor} 或更高版本，请在设置中配置 Java`
+      const allJava = await detectAllJava()
+      if (allJava.length > 0) {
+        // 筛选兼容的 Java
+        let compatible = allJava.filter((j) => isCompatible(j))
+        if (compatible.length === 0) {
+          // 没有完全兼容的，尝试找接近的（Forge/NeoForge 降级到所有版本）
+          log.warn(`[validateJava] 未找到完全兼容的 Java，尝试选择最近似版本`)
+          compatible = [...allJava]
         }
+        // 优先选择推荐主版本，其次更高版本
+        compatible.sort((a, b) => {
+          if (a.majorVersion === recommendedMajor && b.majorVersion !== recommendedMajor) return -1
+          if (b.majorVersion === recommendedMajor && a.majorVersion !== recommendedMajor) return 1
+          return b.majorVersion - a.majorVersion
+        })
+        selectedJava = compatible[0]
+        log.info(
+          `[validateJava] 自动选择 Java: ${selectedJava.vendor} ${selectedJava.version} (主版本: ${selectedJava.majorVersion})`
+        )
       }
-      selectedJava = defaultJava
-      log.info(`[validateJava] 自动选择 Java: ${defaultJava.vendor} ${defaultJava.version}`)
     }
 
-    // 兼容性警告
-    if (selectedJava.majorVersion < recommendedMajor) {
-      log.warn(
-        `[validateJava] Java 版本可能不兼容：当前=${selectedJava.majorVersion}, 推荐>=${recommendedMajor}`
-      )
+    if (!selectedJava) {
+      return {
+        success: false,
+        javaPath: '',
+        error: `未找到兼容的 Java 环境。Minecraft ${baseVersion} 需要 Java ${recommendedMajor}${isForge || isNeoForge ? '（Forge/NeoForge 仅限此版本）' : ' 或更高版本'}，请在设置中配置 Java`
+      }
+    }
+
+    // 显示最终选择
+    if (selectedJava.majorVersion !== recommendedMajor) {
       this.sendProgress(
         'validating-java',
         `警告: Java ${selectedJava.majorVersion} 可能与 Minecraft ${baseVersion} 不兼容`
@@ -548,7 +674,8 @@ class MinecraftLauncher {
       }
     }
 
-    // 3. 检查 assets
+    // 3. 检查 assets（只检查资源索引是否存在，不逐个检查资源文件）
+    // 资源文件数量庞大，且部分可由游戏运行时按需下载，逐个校验会导致误报和死循环
     const assetIndexId = versionJson.assetIndex?.id
     if (assetIndexId && versionJson.assetIndex) {
       const indexPath = join(assetsPath, 'indexes', `${assetIndexId}.json`)
@@ -559,31 +686,6 @@ class MinecraftLauncher {
           name: `资源索引 ${assetIndexId}.json`,
           path: indexPath
         })
-      } else {
-        try {
-          const indexData = JSON.parse(fs.readFileSync(indexPath, 'utf-8'))
-          const objects: Array<{ hash: string; size: number }> = Object.values(
-            indexData.objects || {}
-          )
-
-          // 只检查前 100 个资源文件作为预览
-          const previewObjects = objects.slice(0, 100)
-          for (const obj of previewObjects) {
-            const objPath = join(assetsPath, 'objects', obj.hash.substring(0, 2), obj.hash)
-            const fileSize = fs.existsSync(objPath) ? fs.statSync(objPath).size : 0
-            if (fileSize === 0 || (obj.size > 0 && fileSize !== obj.size)) {
-              missingFiles.push({
-                type: 'asset',
-                name: obj.hash.substring(0, 8) + '...',
-                path: objPath,
-                size: obj.size
-              })
-              break // 只添加一个作为示例
-            }
-          }
-        } catch {
-          // 忽略解析错误
-        }
       }
     }
 
@@ -663,6 +765,30 @@ class MinecraftLauncher {
     // 3. 下载 assets
     this.sendProgress('downloading-files', '正在下载资源文件...')
     await this.downloadAssets(root, versionJson)
+
+    // 4. 下载版本核心 JAR 文件
+    const versionJarPath = join(root, 'versions', versionId, `${versionId}.jar`)
+    if (!fs.existsSync(versionJarPath)) {
+      const clientDownload = versionJson.downloads?.client
+      if (clientDownload) {
+        this.sendProgress('downloading-files', `正在下载版本核心文件 ${versionId}.jar...`)
+        const bmclUrl = `${BMCLAPI}/versions/${versionId}/${versionId}.jar`
+        try {
+          const dir = dirname(versionJarPath)
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true })
+          }
+          await this.downloadFile(bmclUrl, versionJarPath)
+          log.info(`[downloadMissingFiles] 版本核心文件下载完成: ${versionJarPath}`)
+        } catch (e: any) {
+          log.error(`[downloadMissingFiles] 版本核心文件下载失败: ${e.message}`)
+          return { success: false, error: `版本核心文件下载失败: ${versionId}.jar` }
+        }
+      } else {
+        log.error(`[downloadMissingFiles] 版本 JSON 中没有 client 下载信息`)
+        return { success: false, error: `版本核心文件下载信息缺失` }
+      }
+    }
 
     log.info(`[downloadMissingFiles] 缺失文件下载完成`)
     return { success: true }
@@ -890,7 +1016,8 @@ class MinecraftLauncher {
       '-Duser.language=zh',
       '-Duser.country=CN',
       '-Dminecraft.launcher.brand=VoxVer',
-      '-Dminecraft.launcher.version=2.0.0'
+      '-Dminecraft.launcher.version=2.0.0',
+      '-Dorg.lwjgl.system.allocator=system'
     )
 
     // 处理版本自带 JVM 参数
@@ -982,8 +1109,13 @@ class MinecraftLauncher {
         )
 
         // 根据最大内存动态调整 G1 预留区域
+        // 注意：G1NewSizePercent/G1MaxNewSizePercent/G1ReservePercent 是实验性选项
+        // 必须确保 -XX:+UnlockExperimentalVMOptions 在这些参数之前
         if (maxMemory >= 4096) {
           // 4GB+ 优化
+          if (!args.includes('-XX:+UnlockExperimentalVMOptions')) {
+            args.push('-XX:+UnlockExperimentalVMOptions')
+          }
           args.push(
             '-XX:G1NewSizePercent=30',
             '-XX:G1MaxNewSizePercent=50',
@@ -991,6 +1123,9 @@ class MinecraftLauncher {
           )
         } else if (maxMemory >= 2048) {
           // 2-4GB 默认优化
+          if (!args.includes('-XX:+UnlockExperimentalVMOptions')) {
+            args.push('-XX:+UnlockExperimentalVMOptions')
+          }
           args.push(
             '-XX:G1NewSizePercent=20',
             '-XX:G1MaxNewSizePercent=40',
@@ -1988,8 +2123,8 @@ export async function continueLaunchAfterDownload(
     return { success: false, error: downloadResult.error || '下载缺失文件失败' }
   }
 
-  // 4. 继续启动游戏
-  return launcher.launch(config)
+  // 4. 继续启动游戏（跳过文件检测，避免死循环）
+  return launcher.launchDirect(config)
 }
 
 export function defaultMcDir(): string {
