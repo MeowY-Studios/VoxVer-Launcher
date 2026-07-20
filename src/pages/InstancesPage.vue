@@ -52,6 +52,21 @@
             </svg>
           </button>
         </div>
+        <button class="vox-btn" @click="rescanVersions" :disabled="scanning" :title="$t('instance.refresh')">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            :class="{ spinning: scanning }"
+          >
+            <polyline points="23 4 23 10 17 10" />
+            <polyline points="1 20 1 14 7 14" />
+            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+          </svg>
+        </button>
         <button class="vox-btn vox-btn--primary" @click="showNewInstance = true">
           <svg
             width="14"
@@ -103,6 +118,14 @@
       </div>
     </div>
 
+    <!-- 当前 .minecraft 路径提示 -->
+    <div class="current-mc-path" v-if="currentMcPath">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+      </svg>
+      <span>{{ currentMcPath }}</span>
+    </div>
+
     <!-- 搜索栏 -->
     <div class="search-bar">
       <svg
@@ -117,6 +140,40 @@
         <path d="M21 21l-4.35-4.35" />
       </svg>
       <input type="text" v-model="searchQuery" :placeholder="$t('instance.searchInstance')" />
+    </div>
+
+    <!-- ===== 自动检测到的版本 ====== -->
+    <div v-if="detectedVersions.length" class="detected-section">
+      <div class="detected-header">
+        <h3 class="detected-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          {{ $t('instance.detectedVersions') }}
+        </h3>
+        <span class="detected-count">{{ detectedVersions.length }}</span>
+      </div>
+      <div class="detected-list">
+        <div v-for="dv in filteredDetectedVersions" :key="dv.id" class="detected-item">
+          <div class="dv-icon" :style="{ background: getVersionColor(dv.id) }">
+            <span>{{ dv.baseVersion.slice(0, 2) }}</span>
+          </div>
+          <div class="dv-info">
+            <div class="dv-name">{{ dv.id }}</div>
+            <div class="dv-meta">
+              <span class="dv-tag" v-if="dv.loaderInfo">{{ dv.loaderInfo }}</span>
+              <span class="dv-type">{{ dv.type }}</span>
+            </div>
+          </div>
+          <button class="dv-launch" @click="launchDetectedVersion(dv)" :title="$t('instance.launch')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            {{ $t('instance.launch') }}
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- ===== 网格视图 ====== -->
@@ -488,6 +545,28 @@ const selectedId = ref('')
 const viewMode = ref<'grid' | 'list'>('grid')
 const instances = ref<Instance[]>([])
 
+// 自动检测到的版本
+interface DetectedVersion {
+  id: string
+  name: string
+  type: string
+  baseVersion: string
+  loaderInfo: string
+  jarPath: string
+  jsonPath: string
+}
+const detectedVersions = ref<DetectedVersion[]>([])
+const scanning = ref(false)
+const currentMcPath = ref('')
+
+const filteredDetectedVersions = computed(() => {
+  if (!searchQuery.value) return detectedVersions.value
+  const q = searchQuery.value.toLowerCase()
+  return detectedVersions.value.filter(
+    (v) => v.id.toLowerCase().includes(q) || v.baseVersion.includes(q)
+  )
+})
+
 // $t('instance.import')/$t('instance.export')状态
 const showImport = ref(false)
 const showExport = ref(false)
@@ -544,6 +623,57 @@ async function loadInstances() {
   } catch (e) {
     instances.value = []
   }
+}
+
+// 获取当前 .minecraft 路径（优先使用设置中选择的文件夹）
+async function getCurrentMcPath(): Promise<string> {
+  try {
+    const last = await window.electronAPI?.folders?.getLast?.()
+    if (last) return last
+    const custom = await window.electronAPI?.path?.getCustom?.()
+    if (custom) return custom
+    return (await window.electronAPI?.path?.getMinecraft?.()) || ''
+  } catch {
+    return ''
+  }
+}
+
+// 扫描当前 .minecraft 目录下的版本
+async function rescanVersions() {
+  scanning.value = true
+  try {
+    const mcPath = await getCurrentMcPath()
+    currentMcPath.value = mcPath
+    if (!mcPath) {
+      detectedVersions.value = []
+      return
+    }
+    const res = await window.electronAPI?.versions?.scanFolder(mcPath)
+    if (res?.ok && res.data) {
+      detectedVersions.value = res.data as DetectedVersion[]
+    } else {
+      detectedVersions.value = []
+    }
+  } catch {
+    detectedVersions.value = []
+  } finally {
+    scanning.value = false
+  }
+}
+
+// 版本颜色（基于 id 哈希）
+function getVersionColor(id: string): string {
+  let hash = 0
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash << 5) - hash + id.charCodeAt(i)
+    hash |= 0
+  }
+  return gradients[Math.abs(hash) % gradients.length]
+}
+
+// 一键启动检测到的版本
+function launchDetectedVersion(dv: DetectedVersion) {
+  window.electronAPI?.game?.launch?.('', '', dv.id)
 }
 
 const filteredInstances = computed(() => {
@@ -724,6 +854,7 @@ function formatTime(dateStr: string | null | undefined): string {
 
 onMounted(() => {
   loadInstances()
+  rescanVersions()
 })
 </script>
 
@@ -827,6 +958,168 @@ onMounted(() => {
       color: var(--voxver-text-muted);
     }
   }
+}
+
+/* ====== 当前路径提示 ====== */
+.current-mc-path {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--voxver-text-muted);
+  margin-bottom: 12px;
+  flex-shrink: 0;
+  padding: 0 2px;
+
+  svg {
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* ====== 自动检测版本 ====== */
+.detected-section {
+  margin-bottom: 16px;
+  flex-shrink: 0;
+  background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  border: 1px solid var(--voxver-border-color-light);
+  border-radius: var(--voxver-radius-md);
+  padding: 12px 14px;
+}
+
+.detected-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.detected-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--voxver-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  svg {
+    color: var(--voxver-primary);
+    flex-shrink: 0;
+  }
+}
+
+.detected-count {
+  font-size: 11px;
+  color: var(--voxver-text-muted);
+  background: color-mix(in oklab, var(--voxver-text) 8%, transparent);
+  padding: 1px 8px;
+  border-radius: 10px;
+}
+
+.detected-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgb(0 0 0 / 0.1);
+    border-radius: 2px;
+  }
+}
+
+.detected-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--voxver-radius-sm);
+  transition: background 0.12s;
+
+  &:hover {
+    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
+  }
+}
+
+.dv-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--voxver-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.dv-info {
+  flex: 1;
+  min-width: 0;
+
+  .dv-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--voxver-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dv-meta {
+    display: flex;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  .dv-tag {
+    font-size: 10px;
+    color: var(--voxver-primary);
+    background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  .dv-type {
+    font-size: 10px;
+    color: var(--voxver-text-muted);
+  }
+}
+
+.dv-launch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: var(--voxver-radius-sm);
+  background: var(--voxver-primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--voxver-primary-600);
+  }
+}
+
+/* 刷新按钮旋转动画 */
+.spinning {
+  animation: spin 0.8s linear infinite;
 }
 
 /* ====== 网格视图 ====== */

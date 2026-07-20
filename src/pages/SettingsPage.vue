@@ -855,6 +855,76 @@
 
     <!-- ========== 游戏目录 ========== -->
     <template v-if="activeCategory === 'game-dir'">
+      <!-- 文件夹列表 -->
+      <section class="sec">
+        <h3 class="sec-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+          </svg>
+          {{ $t('component.folderList') }}
+        </h3>
+        <div class="sec-body">
+          <div class="folder-list-container">
+            <!-- 标题行：左边是文件夹列表标题，右边是操作按钮 -->
+            <div class="folder-list-header">
+              <h4 class="sidebar-subtitle">{{ $t('component.addOrImport') }}</h4>
+              <div class="action-list">
+                <button class="action-item" @click="addGameFolder">
+                  <span class="action-icon add">＋</span>
+                  <span>{{ $t('component.addExistingFolder') }}</span>
+                </button>
+                <button class="action-item" @click="importModpackFromSettings">
+                  <span class="action-icon import">⬇</span>
+                  <span>{{ $t('component.importModpack') }}</span>
+                </button>
+                <button v-if="!folderItems.some((f) => f.name === '.minecraft')" class="action-item"
+                  @click="createMinecraftFolderHere">
+                  <span class="action-icon create">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                    </svg>
+                  </span>
+                  <span>{{ $t('component.createMinecraft') }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 有文件夹时：显示当前选中 + 列表 -->
+            <template v-if="folderItems.length > 0">
+              <div class="folder-content">
+                <div class="current-folder">
+                  <div class="cf-label">{{ $t('component.currentFolder') }}</div>
+                  <div class="cf-top">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                    </svg>
+                    <span class="cf-name">{{ currentFolderName || '/' }}</span>
+                  </div>
+                  <div class="cf-path">{{ currentFolderPath }}</div>
+                  <span class="folder-remove cf-remove" @click.stop="removeFolder(currentFolderPath)"
+                    :title="$t('component.remove')">✕</span>
+                </div>
+
+                <div v-for="folder in folderItems.filter((f) => !f.isActive)" :key="folder.path" class="folder-item"
+                  @click="switchFolder(folder.path)">
+                  <div class="fi-top">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                    </svg>
+                    <span class="fi-name">{{ folder.name }}</span>
+                  </div>
+                  <div class="fi-path">{{ folder.path }}</div>
+                  <span class="folder-remove" @click.stop="removeFolder(folder.path)"
+                    :title="$t('component.remove')">✕</span>
+                </div>
+              </div>
+
+              <div class="sidebar-divider"></div>
+            </template>
+          </div>
+        </div>
+      </section>
+
       <!-- 版本隔离 -->
       <section class="sec">
         <h3 class="sec-title">
@@ -2831,8 +2901,115 @@ function onSearchInput() {
   // 搜索过滤 - 后续可扩展为全局设置搜索
 }
 
+// ===== 游戏文件夹列表管理 =====
+interface FolderItem {
+  path: string
+  name: string
+  isActive: boolean
+}
+const folderItems = ref<FolderItem[]>([])
+const currentFolderPath = ref('')
+const currentFolderName = ref('')
+
+async function loadFolderList() {
+  const api = window.electronAPI
+  if (!api?.path) return
+
+  const savedPaths: string[] = api.folders ? await api.folders.list() : []
+  const validPaths: string[] = []
+  for (const p of savedPaths) {
+    const exists = await api.path.exists(p)
+    if (exists) validPaths.push(p)
+  }
+
+  const lastFolder = await api.folders.getLast()
+  let effectivePath: string | null = null
+  if (lastFolder && validPaths.includes(lastFolder)) {
+    effectivePath = lastFolder
+  } else if (validPaths.length > 0) {
+    effectivePath = validPaths[0]
+  }
+
+  folderItems.value = validPaths.map((p) => ({
+    path: p,
+    name: p.split(/[\\/]/).pop() || p,
+    isActive: p === effectivePath
+  }))
+
+  if (effectivePath) {
+    currentFolderPath.value = effectivePath
+    currentFolderName.value = effectivePath.split(/[\\/]/).pop() || '.minecraft'
+  }
+}
+
+async function addGameFolder() {
+  const api = window.electronAPI
+  if (!api?.dialog) return
+  const selectedPath = await api.dialog.selectFolder()
+  if (!selectedPath) return
+  if (folderItems.value.find((f) => f.path === selectedPath)) {
+    await switchFolder(selectedPath)
+    return
+  }
+  if (api.folders) await api.folders.add(selectedPath)
+  folderItems.value.push({
+    path: selectedPath,
+    name: selectedPath.split(/[\\/]/).pop() || selectedPath,
+    isActive: false
+  })
+  await switchFolder(selectedPath)
+}
+
+async function switchFolder(path: string) {
+  currentFolderPath.value = path
+  currentFolderName.value = path.split(/[\\/]/).pop() || '.minecraft'
+  folderItems.value.forEach((f) => (f.isActive = f.path === path))
+  const api = window.electronAPI
+  if (api?.folders) await api.folders.setLast(path)
+  // 保存为最后选中的游戏目录
+  if (api?.config) await api.config.set('last_selected_folder', path)
+}
+
+async function removeFolder(path: string) {
+  folderItems.value = folderItems.value.filter((f) => f.path !== path)
+  const api = window.electronAPI
+  if (api?.folders) await api.folders.remove(path)
+  if (currentFolderPath.value === path) {
+    if (folderItems.value.length > 0) {
+      await switchFolder(folderItems.value[0].path)
+    } else {
+      currentFolderPath.value = ''
+      currentFolderName.value = ''
+    }
+  }
+}
+
+async function createMinecraftFolderHere() {
+  try {
+    const api = window.electronAPI
+    const appPath = await api.path.getAppPath()
+    const minecraftPath = appPath.replace(/[\\/]+$/, '') + '/.minecraft'
+    if (api.path) await api.path.createDir(minecraftPath)
+    await api.folders.add(minecraftPath)
+    folderItems.value.push({ path: minecraftPath, name: '.minecraft', isActive: false })
+    await switchFolder(minecraftPath)
+  } catch (_) {}
+}
+
+async function importModpackFromSettings() {
+  const api = window.electronAPI
+  if (!api?.dialog) return
+  const filePath = await api.dialog.selectFile({
+    title: t('component.selectModpackFile'),
+    filters: [{ name: t('component.modpackFileFilter'), extensions: ['mrpack', 'zip'] }]
+  })
+  if (!filePath) return
+  api.instance?.scanMinecraft?.(filePath)
+}
+
 // 加载保存的 Java 设置
 onMounted(async () => {
+  await loadFolderList()
   await loadJavaSettings()
 })
 
@@ -4446,6 +4623,10 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 /* ---- 区块 ---- */
 .sec {
   margin-bottom: 28px;
+  background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  border-radius: var(--voxver-radius-md);
+  border: 1px solid var(--voxver-border-color-light);
+  padding: 16px;
 
   .sec-title {
     margin: 0 0 14px;
@@ -4472,6 +4653,14 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
       }
     }
   }
+
+  .memory-alloc-card {
+    margin-bottom: 12px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
 }
 
 /* ---- 表单行 ---- */
@@ -4479,7 +4668,15 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--voxver-radius-sm);
+  border: 1px solid var(--voxver-border-color-light);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 
   .row-main {
     flex: 0 0 200px;
@@ -6052,6 +6249,9 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   text-align: center;
   min-height: 300px;
   padding: 48px 24px;
+  background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  border-radius: var(--voxver-radius-md);
+  border: 1px solid var(--voxver-border-color-light);
 }
 
 .coming-soon-icon {
@@ -7172,5 +7372,218 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 /* toggle chip 继承 vox-chip 样式 */
 .vox-chip--toggle {
   padding: 6px 20px;
+}
+
+/* ========== 文件夹列表样式 ========== */
+.folder-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.folder-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+
+  .action-list {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+  }
+
+  .action-item {
+    padding: 6px 10px;
+  }
+}
+
+.folder-content {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--voxver-radius-md);
+  padding: 8px;
+}
+
+.current-folder {
+  padding: 10px 12px;
+  background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
+  border-radius: var(--voxver-radius-md);
+  border-left: 3px solid var(--voxver-primary);
+  margin-bottom: 6px;
+  position: relative;
+
+  .cf-remove {
+    position: absolute;
+    right: 8px;
+    top: 10px;
+    font-size: 10px;
+    color: var(--voxver-text-muted);
+    opacity: 0;
+    transition: opacity 0.12s;
+    padding: 2px 4px;
+    border-radius: 3px;
+
+    &:hover {
+      color: var(--voxver-error);
+      background: rgb(239 68 68 / 0.08);
+    }
+  }
+
+  &:hover .cf-remove {
+    opacity: 1;
+  }
+
+  .cf-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--voxver-primary-muted);
+    margin-bottom: 4px;
+  }
+
+  .cf-top {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 2px;
+  }
+
+  .cf-name {
+    font-size: 12px;
+    color: var(--voxver-text-primary);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cf-path {
+    font-size: 10px;
+    color: var(--voxver-text-muted);
+    word-break: break-all;
+    line-height: 1.4;
+    font-family: var(--voxver-font-mono);
+    padding-left: 18px;
+  }
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--voxver-border-color);
+  margin: 10px 0;
+}
+
+.folder-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 7px 28px 7px 10px;
+  border-radius: var(--voxver-radius-sm);
+  cursor: pointer;
+  transition: background 0.12s;
+  gap: 2px;
+  position: relative;
+
+  &:hover {
+    background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
+  }
+
+  .fi-top {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .fi-name {
+    font-size: 12px;
+    color: var(--voxver-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .fi-path {
+    font-size: 10px;
+    color: var(--voxver-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-left: 17px;
+  }
+
+  .folder-remove {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    color: var(--voxver-text-muted);
+    opacity: 0;
+    transition: opacity 0.12s;
+    padding: 2px 4px;
+    border-radius: 3px;
+
+    &:hover {
+      color: var(--voxver-error);
+      background: rgb(239 68 68 / 0.08);
+    }
+  }
+
+  &:hover .folder-remove {
+    opacity: 1;
+  }
+}
+
+.sidebar-subtitle {
+  margin: 4px 0 6px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--voxver-text-muted);
+}
+
+.action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.action-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: var(--voxver-radius-md);
+  font-size: 12px;
+  color: var(--voxver-text-secondary);
+  cursor: pointer;
+  transition: all 0.13s;
+  text-align: left;
+
+  &:hover {
+    background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
+    color: var(--voxver-primary-muted);
+
+    .action-icon.add {
+      color: var(--voxver-success);
+    }
+
+    .action-icon.import {
+      color: var(--voxver-primary-muted);
+    }
+  }
+}
+
+.action-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+
+  &.add { color: var(--voxver-text-muted); }
+  &.import { color: var(--voxver-text-muted); }
 }
 </style>

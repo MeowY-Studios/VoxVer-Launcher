@@ -13,7 +13,7 @@ const i18n = createI18n({
     'zh-CN': zhCN,
     'en-US': enUS
   }
-})
+} as any)
 
 export function setLocale(locale: LocaleKey): void {
   i18n.global.locale.value = locale

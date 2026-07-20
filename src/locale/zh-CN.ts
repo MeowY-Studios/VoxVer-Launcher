@@ -960,6 +960,8 @@ export default {
     noMatchingInstances: '没有匹配的实例',
     noInstancesYet: '暂无游戏实例',
     createFirstHint: '点击右上角按钮创建你的第一个实例',
+    detectedVersions: '检测到的版本',
+    noDetectedVersions: '未检测到任何版本',
     // 基本信息
     basicInfo: '基本信息',
     mcVersionLabel: 'MC 版本',

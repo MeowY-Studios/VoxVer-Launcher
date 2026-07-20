@@ -928,6 +928,8 @@ export default {
     noMatchingInstances: 'No matching instances',
     noInstancesYet: 'No game instances yet',
     createFirstHint: 'Click the button above to create your first instance',
+    detectedVersions: 'Detected Versions',
+    noDetectedVersions: 'No versions detected',
     // Basic info
     basicInfo: 'Basic Info',
     mcVersionLabel: 'MC Version',

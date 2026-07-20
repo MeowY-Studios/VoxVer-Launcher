@@ -7,6 +7,7 @@ import { spawn, ChildProcess } from 'child_process'
 import { BrowserWindow, app } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
+import * as os from 'os'
 import * as https from 'https'
 import * as http from 'http'
 const { join } = path
@@ -329,7 +330,8 @@ class MinecraftLauncher {
         mcArgs,
         finalVersionJson.mainClass,
         gameCoreConfig.root,
-        classpathStr
+        classpathStr,
+        gameCoreConfig.version
       )
 
       if (result.success) {
@@ -1260,7 +1262,8 @@ class MinecraftLauncher {
     mcArgs: string[],
     mainClass: string,
     cwd: string,
-    classpathStr: string
+    classpathStr: string,
+    version: string
   ): Promise<LaunchResult> {
     const allArgs = [...jvmArgs, '-cp', classpathStr, mainClass, ...mcArgs]
 
@@ -1297,12 +1300,25 @@ class MinecraftLauncher {
 
     this.sendProgress('launching-process', '正在启动游戏进程...')
 
-    // Windows: 使用 javaw.exe（GUI 子系统，无控制台）避免 CREATE_NO_WINDOW 标志干扰 LWJGL 2 窗口创建
-    if (process.platform === 'win32' && javaPath.endsWith('java.exe')) {
-      const javawPath = javaPath.replace(/java\.exe$/, 'javaw.exe')
-      if (fs.existsSync(javawPath)) {
-        log.info(`[spawnProcess] 切换到 javaw.exe: ${javawPath}`)
-        javaPath = javawPath
+    // Windows: 根据 Minecraft 版本选择 java.exe 或 javaw.exe
+    // LWJGL 2（1.17及以下）必须使用 java.exe，否则窗口不可见
+    // LWJGL 3（1.18及以上）使用 javaw.exe（GUI 子系统，无控制台）
+    if (process.platform === 'win32') {
+      const baseVersion = extractBaseVersion(version)
+      const isLwjgl3 = this.compareVersions(baseVersion, '1.18') >= 0
+      
+      if (isLwjgl3 && javaPath.endsWith('java.exe')) {
+        const javawPath = javaPath.replace(/java\.exe$/, 'javaw.exe')
+        if (fs.existsSync(javawPath)) {
+          log.info(`[spawnProcess] LWJGL 3 版本，切换到 javaw.exe: ${javawPath}`)
+          javaPath = javawPath
+        }
+      } else if (!isLwjgl3 && javaPath.endsWith('javaw.exe')) {
+        const javaExePath = javaPath.replace(/javaw\.exe$/, 'java.exe')
+        if (fs.existsSync(javaExePath)) {
+          log.info(`[spawnProcess] LWJGL 2 版本，切换到 java.exe: ${javaExePath}`)
+          javaPath = javaExePath
+        }
       }
     }
 
@@ -1324,7 +1340,8 @@ class MinecraftLauncher {
         this.currentProcess = spawn(javaPath, cleanArgs, {
           cwd,
           env: spawnEnv,
-          stdio: ['ignore', 'pipe', 'pipe']
+          stdio: ['ignore', 'pipe', 'pipe'],
+          windowsHide: false
         })
       } catch (e: any) {
         log.error('[spawnProcess] spawn 异常:', e.message)
@@ -1759,8 +1776,16 @@ export function createLaunchConfig(
   const memRow = db.prepare("SELECT value FROM configs WHERE key = 'global_max_memory'").get() as
     | { value: string }
     | undefined
-  const maxMem = options.maxMemory || parseInt(memRow?.value || '2048')
+  let maxMem = options.maxMemory || parseInt(memRow?.value || '2048')
   const minMem = options.minMemory || Math.min(512, Math.floor(maxMem / 4))
+
+  // 限制最大内存不超过系统可用内存的 60%（防止 JVM 创建失败）
+  const totalMem = os.totalmem() / (1024 * 1024)
+  const availableMem = Math.floor(totalMem * 0.6)
+  if (maxMem > availableMem) {
+    maxMem = Math.max(512, availableMem)
+    log.warn(`[createLaunchConfig] 内存配置 ${options.maxMemory || memRow?.value}MB 超过系统可用，限制为 ${maxMem}MB`)
+  }
 
   // 获取 Java 路径（实例配置优先）
   const presetRow = db.prepare("SELECT value FROM configs WHERE key = 'java_preset'").get() as
