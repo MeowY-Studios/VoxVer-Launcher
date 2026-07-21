@@ -230,13 +230,15 @@ export async function restoreBackup(
           }
 
           if (tbl.rows.length === 0) continue
-          const cols = Object.keys(tbl.rows[0])
+          const firstRow = tbl.rows[0] as Record<string, unknown>
+          const cols = Object.keys(firstRow)
           const placeholders = cols.map(() => '?').join(', ')
           const stmt = db.prepare(
             `INSERT INTO "${tbl.name}" (${cols.map((c) => `"${c}"`).join(', ')}) VALUES (${placeholders})`
           )
           for (const row of tbl.rows) {
-            stmt.run(...cols.map((c) => row[c]))
+            const r = row as Record<string, unknown>
+            stmt.run(...cols.map((c) => r[c]))
           }
           restored.push(tbl.name)
         } catch (e: unknown) {

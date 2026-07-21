@@ -99,9 +99,9 @@ export class VersionsService {
     const cacheKey = `versionList_${this.source}`
 
     // 1. 先检查内存缓存
-    const cached = this.cache.get(cacheKey)
+    const cached = this.cache.get(cacheKey) as { data: unknown; timestamp: number } | undefined
     if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
-      return cached.data
+      return cached.data as BMCLVersionList
     }
 
     // 2. 检查数据库持久化缓存
@@ -199,9 +199,9 @@ export class VersionsService {
   // 获取版本详细信息（复用 getVersionList 缓存，不重复下载 manifest）
   async getVersionInfo(versionId: string): Promise<MojangVersion | null> {
     const cacheKey = `versionInfo_${versionId}`
-    const cached = this.cache.get(cacheKey)
+    const cached = this.cache.get(cacheKey) as { data: unknown; timestamp: number } | undefined
     if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
-      return cached.data
+      return cached.data as MojangVersion
     }
 
     try {
@@ -232,7 +232,7 @@ export class VersionsService {
     if (!versionInfo) return null
 
     const baseUrl = this.getBaseUrl()
-    const urls: Record<string, string> = {}
+    const urls: { client: string; server?: string; windows_server?: string } = { client: '' }
 
     // client.jar — 优先 version.json 里的 Mojang URL，兜底 BMCLAPI
     urls.client = versionInfo.downloads?.client?.url ?? `${baseUrl}/mc/version/${versionId}/client`

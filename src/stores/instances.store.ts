@@ -40,7 +40,9 @@ export const useInstancesStore = defineStore('instances', () => {
     try {
       const rawList = await window.electronAPI?.instance.list()
       // * 映射 snake_case -> camelCase
-      instances.value = (rawList || []).map(mapRawToInstance)
+      instances.value = ((rawList as unknown[]) || []).map(
+        (raw) => mapRawToInstance(raw as unknown as Record<string, unknown>)
+      )
     } catch (e: unknown) {
       error.value = (e as Error).message || $t('instance.loadFailed')
     } finally {
@@ -50,9 +52,13 @@ export const useInstancesStore = defineStore('instances', () => {
 
   /** 创建新实例 */
   async function createInstance(params: CreateInstanceParams) {
-    const result = await window.electronAPI?.instance.create(params as Record<string, unknown>)
+    const result = await window.electronAPI?.instance.create(
+      params as unknown as Record<string, unknown>
+    )
     if (result) {
-      instances.value.unshift(mapRawToInstance(result))
+      instances.value.unshift(
+        mapRawToInstance(result as unknown as Record<string, unknown>)
+      )
       return result
     }
     return null
@@ -107,25 +113,26 @@ export const useInstancesStore = defineStore('instances', () => {
 
 /** 主进程返回的 snake_case 数据转前端 camelCase */
 function mapRawToInstance(raw: Record<string, unknown>): GameInstance {
+  const d = raw as unknown as Record<string, unknown>
   return {
-    id: raw.id,
-    name: raw.name,
-    path: raw.path,
-    mcVersion: raw.mc_version,
-    loaderType: raw.loader_type || 'vanilla',
-    loaderVersion: raw.loader_version || '',
-    icon: raw.icon || '',
-    javaPath: raw.java_path || '',
-    jvmArgs: raw.jvm_args || '',
-    minMemory: raw.min_memory || 1024,
-    maxMemory: raw.max_memory || 4096,
-    width: raw.width || 854,
-    height: raw.height || 480,
-    fullscreen: raw.fullscreen || 0,
-    isFavorited: raw.is_favorited || 0,
-    lastPlayed: raw.last_played || null,
-    playTime: raw.play_time || 0,
-    createdAt: raw.created_at,
-    updatedAt: raw.updated_at
+    id: d.id as string,
+    name: d.name as string,
+    path: d.path as string,
+    mcVersion: d.mc_version as string,
+    loaderType: (d.loader_type as LoaderType) || 'vanilla',
+    loaderVersion: (d.loader_version as string) || '',
+    icon: (d.icon as string) || '',
+    javaPath: (d.java_path as string) || '',
+    jvmArgs: (d.jvm_args as string) || '',
+    minMemory: (d.min_memory as number) || 1024,
+    maxMemory: (d.max_memory as number) || 4096,
+    width: (d.width as number) || 854,
+    height: (d.height as number) || 480,
+    fullscreen: ((d.fullscreen as number) || 0) as 0 | 1,
+    isFavorited: ((d.is_favorited as number) || 0) as 0 | 1,
+    lastPlayed: (d.last_played as string) || (null as string | null),
+    playTime: (d.play_time as number) || 0,
+    createdAt: d.created_at as string,
+    updatedAt: d.updated_at as string
   }
 }

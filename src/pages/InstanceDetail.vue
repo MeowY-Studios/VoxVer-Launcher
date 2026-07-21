@@ -582,7 +582,7 @@ async function loadMods() {
   try {
     const res = await window.electronAPI?.mod.list(instance.value.path)
     if (res?.ok) {
-      localMods.value = (res.data || []).map((m: IpcModInfo) => ({
+      localMods.value = (res.data as IpcModInfo[] || []).map((m) => ({
         filePath: m.filePath,
         fileName: m.fileName,
         displayName: m.name || m.fileName.replace('.jar', ''),

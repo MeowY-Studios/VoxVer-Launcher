@@ -210,7 +210,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
       }
 
       return launchByVersionWithXMCL(mainWindow, {
-        versionId: inst.version_id,
+        versionId: inst.mc_version,
         accountId,
         gameDir,
         instancePath: inst.path || undefined,

@@ -10,7 +10,7 @@ import * as path from 'path'
 import * as os from 'os'
 import * as https from 'https'
 import * as http from 'http'
-const { join } = path
+const { join, dirname } = path
 import {
   getDefaultJava,
   validateJava,
@@ -771,7 +771,7 @@ class MinecraftLauncher {
     // 4. 下载版本核心 JAR 文件
     const versionJarPath = join(root, 'versions', versionId, `${versionId}.jar`)
     if (!fs.existsSync(versionJarPath)) {
-      const clientDownload = versionJson.downloads?.client
+      const clientDownload = ((versionJson as unknown as Record<string, unknown>).downloads as Record<string, unknown>)?.client
       if (clientDownload) {
         this.sendProgress('downloading-files', `正在下载版本核心文件 ${versionId}.jar...`)
         const bmclUrl = `${BMCLAPI}/versions/${versionId}/${versionId}.jar`
@@ -2073,7 +2073,7 @@ export function isRunning(): boolean {
  * 获取当前日志
  */
 export function getCurrentLog(): string {
-  return launcherInstance ? (launcherInstance as { logBuffer?: string }).logBuffer || '' : ''
+  return launcherInstance ? (launcherInstance as unknown as { logBuffer?: string }).logBuffer || '' : ''
 }
 
 // ===== 工具函数 =====

@@ -176,7 +176,7 @@
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
-                {{ dv.lastPlayed ? formatTime(dv.lastPlayed) : $t('instance.neverPlayed') }}
+                {{ dv.lastPlayed != null ? formatTime(String(dv.lastPlayed)) : $t('instance.neverPlayed') }}
               </span>
             </p>
           </div>
@@ -389,6 +389,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import type { ScanMinecraftResult } from '../env'
 
 const { t } = useI18n()
 
@@ -440,16 +441,16 @@ const launchHistory = ref<Record<string, number>>({})
 
 async function loadLaunchHistory() {
   try {
-    const saved = await window.electronAPI?.config?.getConfig?.('launch_history')
+    const saved = await window.electronAPI?.config?.get?.('launch_history')
     if (saved) {
-      launchHistory.value = typeof saved === 'object' ? saved : {}
+      launchHistory.value = (typeof saved === 'object' ? saved : {}) as Record<string, number>
     }
   } catch {}
 }
 
 async function saveLaunchHistory() {
   try {
-    await window.electronAPI?.config?.setConfig?.('launch_history', launchHistory.value)
+    await window.electronAPI?.config?.set?.('launch_history', launchHistory.value)
   } catch {}
 }
 

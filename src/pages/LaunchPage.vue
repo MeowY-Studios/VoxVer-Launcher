@@ -398,7 +398,7 @@ async function restoreDefaultPath() {
 
 /** 跳转到设置页面的游戏账户与档案 */
 function goAccountSettings() {
-  settingsActive.value = 'profile'
+  settingsActive!.value = 'profile'
   router.push('/settings')
 }
 
@@ -436,8 +436,11 @@ onMounted(async () => {
 
   // 注册日志监听
   if (window.electronAPI?.game.onLog) {
-    logListener = (line: string) => addLog(line)
-    window.electronAPI.game.onLog(logListener)
+    logListener = (...args: unknown[]) => {
+      const log = args[0] as { text: string; level: string }
+      addLog(log.text)
+    }
+    window.electronAPI.game.onLog(logListener as (log: { text: string; level: string }) => void)
   }
 
   // 注册退出监听
@@ -458,7 +461,8 @@ onMounted(async () => {
 
   // 注册进度监听
   if (window.electronAPI?.game.onProgress) {
-    progressListener = (progress: { phase: string; message: string; detail?: string }) => {
+    progressListener = (...args: unknown[]) => {
+      const progress = args[0] as { phase: string; message: string; detail?: string }
       statusMessage.value = progress.message
       if (progress.detail) addLog(`[进度] ${progress.message} → ${progress.detail}`)
       else addLog(`[进度] ${progress.message}`)
@@ -468,7 +472,7 @@ onMounted(async () => {
       }
       if (progress.phase === 'error') hasError.value = true
     }
-    window.electronAPI.game.onProgress(progressListener)
+    window.electronAPI.game.onProgress(progressListener as (progress: unknown) => void)
   }
 
   // 检查是否已有运行中的游戏

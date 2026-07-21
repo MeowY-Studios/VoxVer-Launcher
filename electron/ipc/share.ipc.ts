@@ -109,7 +109,7 @@ export function registerShareHandlers(): void {
       }
     } catch (e: unknown) {
       log.error('Failed to start share', e)
-      throw new Error(e.message || '启动分享失败')
+      throw new Error((e as Error).message || '启动分享失败')
     }
   })
 

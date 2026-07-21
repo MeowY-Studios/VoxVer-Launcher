@@ -859,7 +859,7 @@ async function loadLocalInstalledVersions() {
     try {
       const result = await window.electronAPI.versions.scanFolder(minecraftPath.value)
       if (result?.ok && result.data?.length) {
-        versions.value = result.data.map((v: { id: string; baseVersion?: string; loaderInfo?: string }) => ({
+        versions.value = (result.data as { id: string; baseVersion?: string; loaderInfo?: string }[]).map((v) => ({
           id: v.id,
           name: v.baseVersion || v.id,
           loader: v.loaderInfo || ''

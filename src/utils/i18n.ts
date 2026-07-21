@@ -4,9 +4,9 @@
  */
 import type { Composer } from 'vue-i18n'
 
-let i18n: Composer<{ message: Record<string, string> }> | null = null
+let i18n: Composer | null = null
 
-export function setI18n(instance: Composer<{ message: Record<string, string> }>): void {
+export function setI18n(instance: Composer): void {
   i18n = instance
 }
 

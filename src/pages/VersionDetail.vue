@@ -516,7 +516,7 @@ async function loadVersionInfo() {
   loading.value = true
   const api = window.electronAPI
   if (api?.versions) {
-    versionInfo.value = await api.versions.getInfo(versionId.value)
+    versionInfo.value = await api.versions.getInfo(versionId.value) as VersionDetailInfo
   }
   if (api?.folders) {
     const last = await api.folders.getLast()

@@ -3,6 +3,7 @@
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 /** 本地存储缓存 Key（版本列表持久化，离线可用） */
 const CACHE_KEY = 'voxver_versions_cache'
@@ -36,6 +37,7 @@ export interface ModLoaderVersion {
 }
 
 export const useVersionsStore = defineStore('versions', () => {
+  const { t } = useI18n()
   // * ====== 状态 ======
   const versions = ref<MCVersion[]>([])
   const currentVersionId = ref<string | null>(null)
@@ -111,7 +113,7 @@ export const useVersionsStore = defineStore('versions', () => {
 
       return versions.value
     } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : $t('version.fetchFailed')
+      const message = e instanceof Error ? e.message : t('version.fetchFailed')
       error.value = message
       return []
     } finally {

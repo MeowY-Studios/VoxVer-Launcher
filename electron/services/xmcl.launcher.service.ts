@@ -464,6 +464,8 @@ export async function launchWithXMCL(
     } catch (e: unknown) {
       return { success: false, error: (e as Error).message }
     }
+
+    let resolvedVersion: ResolvedVersion
     try {
       resolvedVersion = await Version.parse(gamePath, versionId)
       log.info(`[launchWithXMCL] 版本解析成功: ${resolvedVersion.id}`)
@@ -552,7 +554,13 @@ export async function launchWithXMCL(
       ? (majorVersion >= 18 ? javaPath.replace('java.exe', 'javaw.exe') : javaPath)
       : javaPath
 
-    const launchOptions: Record<string, unknown> = {
+    const launchOptions: Record<string, unknown> & {
+      gameProfile?: { name: string; id: string }
+      accessToken?: string
+      server?: { ip: string; port?: number }
+      resolution?: { width: number; height: number }
+      extraExecOption?: Record<string, unknown>
+    } = {
       gamePath,
       javaPath: javaExe || javaPath,
       version: resolvedVersion,
@@ -590,11 +598,11 @@ export async function launchWithXMCL(
     }
 
     if (isWin && majorVersion < 18) {
-      launchOptions.extraExecOption.windowsHide = false
+      launchOptions.extraExecOption!['windowsHide'] = false
     }
 
     log.info(`[launchWithXMCL] 正在启动游戏...`)
-    const proc = await launch(launchOptions)
+    const proc = await launch(launchOptions as unknown as Parameters<typeof launch>[0])
 
     currentProcess = proc
     gameStatus = 'running'

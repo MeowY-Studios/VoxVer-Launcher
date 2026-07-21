@@ -1352,7 +1352,7 @@ function resetSearch() {
   dlStore.searchResults = []
 }
 
-function handleCardClick(r: ModSearchResult) {
+function handleCardClick(r: ResourceItem) {
   const source = r.source === 'CurseForge' ? 'curseforge' : 'modrinth'
   router.push({
     path: `/download/mod/${r.id}`,

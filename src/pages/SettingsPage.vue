@@ -2508,7 +2508,7 @@
                 <div class="backup-name">{{ f.name }}</div>
                 <div class="backup-meta">
                   <span v-if="f.size">{{ (f.size / 1024).toFixed(1) }} KB</span>
-                  <span v-if="f.created">{{ new Date(f.created).toLocaleString() }}</span>
+                  <span v-if="f.date">{{ new Date(f.date).toLocaleString() }}</span>
                 </div>
               </div>
               <button class="btn-sm danger-btn" @click="deleteBackup(f.name)">{{ $t('settings.modpackTools.delete') }}</button>
@@ -2909,6 +2909,8 @@ interface JavaInfo {
   id: string
   path: string
   version: string
+  vendor?: string
+  arch?: string
   isDefault?: boolean
 }
 
@@ -3438,11 +3440,11 @@ async function detectJava() {
 
     const javas = await window.electronAPI?.java?.detect()
     if (javas) {
-      detectedJava.value = javas
+      detectedJava.value = javas as JavaInfo[]
 
       // 如果有检测到Java，自动选择第一个或标记为默认的Java
       if (javas.length > 0) {
-        const defaultJava = javas.find((j: JavaInfo) => j.isDefault) || javas[0]
+        const defaultJava = (javas as JavaInfo[]).find((j: JavaInfo) => j.isDefault) || javas[0] as JavaInfo
         if (defaultJava) {
           selectJava(defaultJava)
         }
@@ -3645,8 +3647,8 @@ async function loadHotkeys() {
   try {
     const list = await window.electronAPI?.hotkey?.list()
     if (list) {
-      hotkeyList.value = list
-      list.forEach((h: HotkeyInfo) => {
+      hotkeyList.value = list as HotkeyInfo[]
+      (list as HotkeyInfo[]).forEach((h: HotkeyInfo) => {
         if (h.action === 'launch-game') s.hotkeyLaunch = h.accelerator || 'Ctrl+Shift+L'
         else if (h.action === 'toggle-window')
           s.hotkeyToggleWindow = h.accelerator || 'Ctrl+Shift+H'
@@ -3962,7 +3964,7 @@ async function restoreBackup() {
 async function listBackups() {
   try {
     const list = await window.electronAPI?.backup?.list()
-    backupFiles.value = list || []
+    backupFiles.value = (list as BackupFileInfo[]) || []
   } catch (e: unknown) {
     console.warn('列出备份失败:', e)
   }
@@ -4210,25 +4212,27 @@ interface UpdateStatusPayload {
   downloading: boolean
   downloaded: boolean
   downloadProgress: number
+  error?: string | null
   version?: string
   releaseNotes?: string
 }
 
 function setupUpdateListener() {
-  const unsub = window.electronAPI?.updater?.onStatusChange((status: UpdateStatusPayload) => {
+  const unsub = window.electronAPI?.updater?.onStatusChange((status: unknown) => {
+    const s = status as UpdateStatusPayload
     updateStatus.value = {
-      checking: status.checking,
-      checked: !status.checking,
-      available: status.available,
-      downloading: status.downloading,
-      downloadProgress: status.downloadProgress,
-      downloaded: status.downloaded,
-      error: status.error,
-      version: status.version,
-      releaseNotes: status.releaseNotes
+      checking: s.checking,
+      checked: !s.checking,
+      available: s.available,
+      downloading: s.downloading,
+      downloadProgress: s.downloadProgress,
+      downloaded: s.downloaded,
+      error: s.error ?? null,
+      version: s.version ?? null,
+      releaseNotes: s.releaseNotes ?? null
     }
     // 新版本可用时自动弹出弹窗（下载失败时不自动重开）
-    if (status.available && !status.downloading && !status.downloaded && !status.error) {
+    if (s.available && !s.downloading && !s.downloaded && !s.error) {
       showUpdateAvailableModal.value = true
     }
   })

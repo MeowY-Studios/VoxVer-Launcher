@@ -136,9 +136,9 @@ const recentInstances = computed(() => {
   return instancesStore.recentInstances.map((inst: GameInstance) => ({
     id: inst.id,
     name: inst.name,
-    mcVersion: inst.mcVersion || inst.mc_version || t('home.unknown'),
-    loaderType: inst.loaderType || inst.loader_type || '',
-    lastPlayed: inst.lastPlayed || inst.last_played
+    mcVersion: inst.mcVersion || t('home.unknown'),
+    loaderType: inst.loaderType || '',
+    lastPlayed: inst.lastPlayed ?? undefined
   }))
 })
 
@@ -155,7 +155,7 @@ function formatTime(dateStr?: string | null): string {
   return t('home.daysAgo', { n: Math.floor(hours / 24) })
 }
 
-function getLoaderLabel(inst: Instance): string {
+function getLoaderLabel(inst: { loaderType: string }): string {
   if (!inst.loaderType || inst.loaderType === 'vanilla') return t('game.vanilla') as string
   return inst.loaderType.charAt(0).toUpperCase() + inst.loaderType.slice(1)
 }

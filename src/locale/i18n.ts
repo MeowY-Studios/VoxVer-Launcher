@@ -13,15 +13,15 @@ const i18n = createI18n({
     'zh-CN': zhCN,
     'en-US': enUS
   }
-} as unknown as Parameters<typeof createI18n>[0])
+})
 
 export function setLocale(locale: LocaleKey): void {
-  i18n.global.locale.value = locale
+  ;(i18n.global.locale as unknown as { value: string }).value = locale
   localStorage.setItem('voxver-language', locale)
 }
 
 export function getCurrentLocale(): LocaleKey {
-  return i18n.global.locale.value as LocaleKey
+  return (i18n.global.locale as unknown as { value: string }).value as LocaleKey
 }
 
 export function getLocaleName(locale: LocaleKey): string {

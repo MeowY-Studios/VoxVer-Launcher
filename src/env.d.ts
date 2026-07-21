@@ -32,7 +32,7 @@ interface DownloadError {
   error: string
 }
 
-interface ScanMinecraftResult {
+export interface ScanMinecraftResult {
   valid: boolean
   suggestions?: string[]
   mcVersion?: string
@@ -60,17 +60,6 @@ interface DownloadResult<T = unknown> {
   success: boolean
   data?: T
   error?: string
-}
-
-/** 实例扫描结果 */
-interface ScanMinecraftResult {
-  valid: boolean
-  suggestions?: string[]
-  mcVersion?: string
-  loaderType?: string
-  loaderVersion?: string
-  modsCount?: number
-  configCount?: number
 }
 
 /** 导出选项 */

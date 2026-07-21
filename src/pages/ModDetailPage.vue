@@ -509,7 +509,7 @@ async function loadFiles() {
   try {
     const res = await window.electronAPI?.download.getFiles(modId.value, modSource.value as ContentPlatform, {})
     const data = (res as { data?: ProjectFile[] })?.data || []
-    files.value = data.map((f: ProjectFile) => ({
+    files.value = data.map((f: any) => ({
       id: String(f.id),
       filename: f.fileName || f.filename || '',
       displayName: f.displayName || f.fileName || f.filename || '',

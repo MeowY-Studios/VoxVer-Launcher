@@ -68,7 +68,7 @@ export function loadTheme(): ThemeSettings {
 }
 
 export function saveTheme(settings: ThemeSettings): void {
-  setConfig(THEME_CONFIG_KEY, settings)
+  setConfig(THEME_CONFIG_KEY, settings as unknown as Record<string, unknown>)
 }
 
 // ========== 背景图片 ==========

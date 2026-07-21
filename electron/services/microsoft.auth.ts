@@ -121,7 +121,7 @@ export async function requestDeviceCode(): Promise<DeviceCodeResponse> {
     client_id: CLIENT_ID,
     scope: 'XboxLive.signin offline_access openid profile email'
   })
-  return data as DeviceCodeResponse
+  return data as unknown as DeviceCodeResponse
 }
 
 /**
@@ -172,7 +172,7 @@ export async function pollForToken(
         return {
           access_token: data.access_token,
           refresh_token: data.refresh_token,
-          expires_in: data.expires_in
+          expires_in: Number(data.expires_in)
         }
       }
     } catch (e: unknown) {
@@ -200,7 +200,7 @@ export async function refreshMicrosoftToken(refreshToken: string): Promise<Micro
   return {
     access_token: data.access_token,
     refresh_token: data.refresh_token ?? refreshToken,
-    expires_in: data.expires_in
+    expires_in: Number(data.expires_in)
   }
 }
 

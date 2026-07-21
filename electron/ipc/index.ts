@@ -30,6 +30,10 @@ import { registerPerfMonitorHandlers } from './perf-monitor.ipc'
 import { registerUpdaterHandlers } from './updater.ipc'
 import { registerLoggerHandlers } from './logger.ipc'
 import { logger } from '../utils/logger'
+import type { VersionsService } from '../services/versions'
+import type { ModService } from '../services/mod.service'
+import type { CrashService } from '../services/crash.service'
+import type { ModLoaderService } from '../services/modloader.service'
 const log = logger.child('IPC')
 
 /**
@@ -40,15 +44,15 @@ const log = logger.child('IPC')
 export function registerAllIpcHandlers(
   mainWindow: BrowserWindow,
   deps?: {
-    versionsService?: unknown
-    modLoaderService?: unknown
-    crashService?: unknown
-    modService?: unknown
+    versionsService?: VersionsService
+    modLoaderService?: ModLoaderService
+    crashService?: CrashService
+    modService?: ModService
   }
 ): void {
   // 注入游戏依赖
   if (deps) {
-    setGameDependencies(deps.versionsService, deps.modLoaderService)
+    setGameDependencies(deps.versionsService as unknown as Parameters<typeof setGameDependencies>[0], deps.modLoaderService as unknown as Record<string, unknown>)
   }
 
   // 按模块注册（每个单独 try-catch，一个失败不影响后面的）
@@ -128,11 +132,13 @@ export function registerAllIpcHandlers(
   }
 
   // ModLoader 安装（进度推送）
-  try {
-    registerModLoaderHandlers(mainWindow, deps?.modLoaderService)
-    log.info('[IPC] modloader handlers registered')
-  } catch (e: unknown) {
-    log.error('[IPC] modloader handlers FAILED:', (e as Error).message)
+  if (deps?.modLoaderService) {
+    try {
+      registerModLoaderHandlers(mainWindow, deps.modLoaderService)
+      log.info('[IPC] modloader handlers registered')
+    } catch (e: unknown) {
+      log.error('[IPC] modloader handlers FAILED:', (e as Error).message)
+    }
   }
 
   // 通知系统（关键：必须注册上）

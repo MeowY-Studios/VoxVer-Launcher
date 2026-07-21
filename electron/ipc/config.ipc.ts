@@ -6,7 +6,7 @@ import * as configService from '../services/config'
 
 export function registerConfigHandlers(): void {
   ipcMain.handle('config:get', (_event, key: string) => configService.getConfig(key))
-  ipcMain.handle('config:set', (_event, key: string, value: unknown) =>
+  ipcMain.handle('config:set', (_event, key: string, value: string | number | boolean | Record<string, unknown> | unknown[]) =>
     configService.setConfig(key, value)
   )
 

@@ -3,7 +3,7 @@
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Account } from '../types/account'
+import type { Account, AccountType } from '../types/account'
 import { $t } from '../utils/i18n'
 
 export const useAccountsStore = defineStore('accounts', () => {
@@ -104,18 +104,19 @@ export const useAccountsStore = defineStore('accounts', () => {
 
 // * snake_case -> camelCase 映射
 function mapRawToAccount(raw: Record<string, unknown>): Account {
+  const d = raw as unknown as Record<string, unknown>
   return {
-    id: raw.id,
-    type: raw.type,
-    name: raw.name,
-    uuid: raw.uuid,
-    accessToken: raw.access_token ?? null,
-    refreshToken: raw.refresh_token ?? null,
-    expiresAt: raw.expires_at ?? null,
-    isActive: raw.is_active,
-    skin_url: raw.skin_url ?? null,
-    createdAt: raw.created_at,
-    updatedAt: raw.updated_at,
-    xuid: raw.xuid ?? null
+    id: d.id as string,
+    type: d.type as AccountType,
+    name: d.name as string,
+    uuid: d.uuid as string,
+    accessToken: (d.access_token ?? null) as string | null,
+    refreshToken: (d.refresh_token ?? null) as string | null,
+    expiresAt: (d.expires_at ?? null) as string | null,
+    isActive: d.is_active as number,
+    skin_url: (d.skin_url ?? null) as string | null,
+    createdAt: d.created_at as string,
+    updatedAt: d.updated_at as string,
+    xuid: (d.xuid ?? null) as string | null
   }
 }

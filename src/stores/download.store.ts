@@ -7,6 +7,7 @@ import type {
   ModSearchParams,
   ModSearchResult,
   DownloadTask,
+  DownloadStatus,
   ContentPlatform,
   VersionDownloadTask
 } from '../types/download'
@@ -135,7 +136,7 @@ export const useDownloadStore = defineStore('download', () => {
   }) {
     const task = versionTasks.value.get(data.versionId)
     if (!task) return
-    ;(task as DownloadTask).phase = data.phase
+    ;(task as unknown as DownloadTask).phase = data.phase
     task.phaseLabel = data.phaseLabel
     task.progress = data.progress
     task.downloadedSize = data.downloaded
@@ -229,7 +230,9 @@ export const useDownloadStore = defineStore('download', () => {
       }
       const data = (response as { data?: unknown[]; success?: boolean; error?: string })?.data || []
       console.log('[searchMods] 数据条数:', data.length, 'srcVal:', srcVal)
-      const mapped = data.map(mapRawToModResult)
+      const mapped = data.map((raw) =>
+        mapRawToModResult(raw as unknown as Record<string, unknown>)
+      )
 
       if (offset === 0) {
         searchResults.value = mapped
@@ -318,8 +321,12 @@ export const useDownloadStore = defineStore('download', () => {
     try {
       const activeRes = await window.electronAPI?.download.getActive()
       const queueRes = await window.electronAPI?.download.getQueue()
-      activeDownloads.value = ((activeRes as { data?: unknown[]; success?: boolean; error?: string })?.data || []).map(mapRawToTask)
-      queuedDownloads.value = ((queueRes as { data?: unknown[]; success?: boolean; error?: string })?.data || []).map(mapRawToTask)
+      activeDownloads.value = (
+        (activeRes as { data?: unknown[]; success?: boolean; error?: string })?.data || []
+      ).map((raw) => mapRawToTask(raw as unknown as Record<string, unknown>))
+      queuedDownloads.value = (
+        (queueRes as { data?: unknown[]; success?: boolean; error?: string })?.data || []
+      ).map((raw) => mapRawToTask(raw as unknown as Record<string, unknown>))
     } catch (e) {}
   }
 
@@ -383,33 +390,36 @@ export const useDownloadStore = defineStore('download', () => {
 // * ====== 映射函数 ======
 
 function mapRawToModResult(raw: Record<string, unknown>): ModSearchResult {
+  const d = raw as unknown as Record<string, unknown>
   return {
-    id: String(raw.id),
-    name: raw.name || raw.title || '',
-    author: raw.author || '',
-    description: raw.description || '',
-    iconUrl: raw.iconUrl || raw.icon_url || raw.logo?.url || '',
-    downloads: raw.downloads ?? 0,
-    follows: raw.follows ?? raw.likes ?? 0,
-    source: raw.platform === 'curseforge' ? 'curseforge' : 'modrinth',
-    categories: raw.categories || [],
-    gameVersions: raw.gameVersions || raw.game_versions || [],
-    loaders: raw.loaders || []
+    id: String(d.id),
+    name: (d.name as string) || (d.title as string) || '',
+    author: (d.author as string) || '',
+    description: (d.description as string) || '',
+    iconUrl:
+      (d.iconUrl as string) || (d.icon_url as string) || ((d.logo as Record<string, unknown>)?.url as string) || '',
+    downloads: (d.downloads as number) ?? 0,
+    follows: (d.follows as number) ?? (d.likes as number) ?? 0,
+    source: (d.platform as string) === 'curseforge' ? 'curseforge' : 'modrinth',
+    categories: (d.categories as string[]) || [],
+    gameVersions: (d.gameVersions as string[]) || (d.game_versions as string[]) || [],
+    loaders: (d.loaders as string[]) || []
   }
 }
 
 function mapRawToTask(raw: Record<string, unknown>): DownloadTask {
+  const d = raw as unknown as Record<string, unknown>
   return {
-    id: raw.id || '',
-    fileName: raw.file_name || raw.fileName || '',
-    url: raw.url || '',
-    destination: raw.destination || '',
-    status: raw.status || 'pending',
-    progress: raw.progress ?? 0,
-    speed: raw.speed ?? 0,
-    downloadedSize: raw.downloaded_size ?? raw.downloadedSize ?? 0,
-    totalSize: raw.total_size ?? raw.totalSize ?? 0,
-    error: raw.error,
-    createdAt: raw.created_at || new Date().toISOString()
+    id: (d.id as string) || '',
+    fileName: (d.file_name as string) || (d.fileName as string) || '',
+    url: (d.url as string) || '',
+    destination: (d.destination as string) || '',
+    status: (d.status as DownloadStatus) || 'pending',
+    progress: (d.progress as number) ?? 0,
+    speed: (d.speed as number) ?? 0,
+    downloadedSize: (d.downloaded_size as number) ?? (d.downloadedSize as number) ?? 0,
+    totalSize: (d.total_size as number) ?? (d.totalSize as number) ?? 0,
+    error: d.error as string | undefined,
+    createdAt: (d.created_at as string) || new Date().toISOString()
   }
 }
