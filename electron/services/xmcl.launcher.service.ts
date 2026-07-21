@@ -374,6 +374,72 @@ function calculateMaxMemory(requested?: number): number {
   return maxMem
 }
 
+/**
+ * 为实例目录创建到共享目录的链接（versions / libraries / assets）
+ * 使实例目录成为独立的 Minecraft 数据目录，mods/saves 等实例数据与共享核心文件分离
+ */
+function prepareInstanceDir(sharedGamePath: string, instancePath: string): void {
+  const sharedDirs = ['versions', 'libraries', 'assets']
+  const createdLinks: string[] = []
+
+  for (const dir of sharedDirs) {
+    const sharedDir = join(sharedGamePath, dir)
+    const instanceDir = join(instancePath, dir)
+
+    if (!fs.existsSync(sharedDir)) continue
+
+    // 目录已存在（可能是之前的链接或实际目录），跳过
+    if (fs.existsSync(instanceDir)) {
+      try {
+        const stat = fs.lstatSync(instanceDir)
+        if (stat.isSymbolicLink()) {
+          log.info(`[prepareInstanceDir] 链接已存在，跳过: ${instanceDir}`)
+        } else {
+          log.info(`[prepareInstanceDir] 目录已存在（非链接），跳过: ${instanceDir}`)
+        }
+      } catch {
+        log.info(`[prepareInstanceDir] 目录已存在，跳过: ${instanceDir}`)
+      }
+      continue
+    }
+
+    // 创建目录连接（Windows Junction，无需管理员权限）
+    try {
+      if (process.platform === 'win32') {
+        fs.symlinkSync(sharedDir, instanceDir, 'junction')
+      } else {
+        fs.symlinkSync(sharedDir, instanceDir, 'dir')
+      }
+      createdLinks.push(dir)
+      log.info(`[prepareInstanceDir] 已创建目录链接: ${instanceDir} -> ${sharedDir}`)
+    } catch (e: any) {
+      log.warn(`[prepareInstanceDir] 创建链接失败 ${dir}: ${e.message}，尝试 cmd fallback`)
+      // Windows 回退：使用 mklink /J
+      try {
+        const { execSync } = require('child_process')
+        execSync(`cmd /c mklink /J "${instanceDir}" "${sharedDir}"`, {
+          encoding: 'utf-8',
+          windowsHide: true
+        })
+        createdLinks.push(dir)
+        log.info(`[prepareInstanceDir] mklink 成功: ${instanceDir} -> ${sharedDir}`)
+      } catch (e2: any) {
+        log.warn(`[prepareInstanceDir] mklink 也失败 ${dir}: ${e2.message}`)
+        // 如果链接创建失败，清理已创建的链接
+        for (const linked of createdLinks) {
+          try {
+            const linkPath = join(instancePath, linked)
+            if (fs.existsSync(linkPath)) {
+              fs.rmSync(linkPath, { recursive: true, force: true })
+            }
+          } catch { /* ignore */ }
+        }
+        throw e
+      }
+    }
+  }
+}
+
 export async function launchWithXMCL(
   mainWindow: BrowserWindow,
   options: XMCLLaunchOptions
@@ -382,7 +448,9 @@ export async function launchWithXMCL(
     gameStatus = 'launching'
     log.info(`[launchWithXMCL] 开始启动版本: ${options.versionId}`)
     
-    const gamePath = options.gamePath
+    const sharedGamePath = options.gamePath
+    const instancePath = options.gameDir
+    let gamePath = sharedGamePath
     const versionId = options.versionId
     
     if (!fs.existsSync(gamePath)) {
@@ -441,6 +509,22 @@ export async function launchWithXMCL(
         }
       } catch (e: any) {
         log.warn(`[launchWithXMCL] 创建版本 JAR 失败: ${e.message}`)
+      }
+    }
+
+    // 如果指定了实例路径，准备实例目录并使用它作为游戏数据目录
+    // 这样 mods/saves/resourcepacks 等实例数据会存储到实例路径下
+    if (instancePath && instancePath !== sharedGamePath) {
+      try {
+        // 确保实例目录存在
+        if (!fs.existsSync(instancePath)) {
+          fs.mkdirSync(instancePath, { recursive: true })
+        }
+        prepareInstanceDir(sharedGamePath, instancePath)
+        gamePath = instancePath
+        log.info(`[launchWithXMCL] 实例目录准备完成，使用实例目录作为游戏目录: ${gamePath}`)
+      } catch (e: any) {
+        log.warn(`[launchWithXMCL] 准备实例目录失败，回退到共享目录: ${e.message}`)
       }
     }
 

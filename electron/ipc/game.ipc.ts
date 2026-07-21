@@ -189,7 +189,15 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
       const gameDir = lastFolder?.value || defaultMcDir()
 
       if (versionId) {
-        return launchByVersionWithXMCL(mainWindow, { versionId, accountId, gameDir })
+        // 如果有 instanceId，获取实例路径作为游戏数据目录
+        let instancePath: string | undefined
+        if (instanceId) {
+          const inst = getInstanceById(instanceId)
+          if (inst?.path) {
+            instancePath = inst.path
+          }
+        }
+        return launchByVersionWithXMCL(mainWindow, { versionId, accountId, gameDir, instancePath })
       }
 
       if (!instanceId) {

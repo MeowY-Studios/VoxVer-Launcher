@@ -1122,7 +1122,7 @@ async function handleLaunch() {
   }
 
   try {
-    const result = await window.electronAPI?.game.launch('', accountId, versionId)
+    const result = await window.electronAPI?.game.launch(currentInstanceId.value, accountId, versionId)
     if (result?.needsFileDownload) {
       const count = result.missingFiles?.length || 0
       const confirmed = await confirmMissingFilesDownload(count)
