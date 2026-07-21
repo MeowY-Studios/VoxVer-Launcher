@@ -93,14 +93,15 @@ export const useDownloadStore = defineStore('download', () => {
     versionId: string,
     targetFolder: string,
     loader?: string,
-    loaderVersion?: string
+    loaderVersion?: string,
+    displayName?: string
   ) {
     const api = window.electronAPI
     if (!api?.versions) return
 
     const task: VersionDownloadTask = {
       id: versionId,
-      name: versionId,
+      name: displayName || versionId,
       phase: 'resolving',
       progress: 5,
       phaseLabel: $t('download.resolvingManifest'),

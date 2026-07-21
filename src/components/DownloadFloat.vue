@@ -175,14 +175,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDownloadStore } from '../stores/download.store'
 
 const { t } = useI18n()
 
 const router = useRouter()
+const route = useRoute()
 const store = useDownloadStore()
 
 const allTasks = computed(() => Array.from(store.versionTasks.values()))
@@ -209,6 +210,7 @@ function formatSpeed(bytesPerSec: number): string {
 }
 
 function openManager() {
+  store.showFloatPanel = false
   router.push('/download/manage')
 }
 
@@ -229,6 +231,16 @@ async function cancelDownload(id: string) {
   await window.electronAPI?.download?.cancelDownload?.(id)
   store.removeVersionTask(id)
 }
+
+// 进入下载管理页面时自动隐藏浮动面板
+watch(
+  () => route.path,
+  (path) => {
+    if (path === '/download/manage') {
+      store.showFloatPanel = false
+    }
+  }
+)
 </script>
 
 <style scoped>

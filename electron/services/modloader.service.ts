@@ -12,9 +12,11 @@ const FABRIC_META_BASE = 'https://meta.fabricmc.net/v2'
 const FABRIC_DOWNLOAD_BASE = 'https://maven.fabricmc.net'
 const FORGE_PROMO_URL =
   'https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json'
+const FORGE_MAVEN_META =
+  'https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml'
 const FORGE_MAVEN = 'https://maven.minecraftforge.net'
 const NEOFORGE_MAVEN = 'https://maven.neoforged.net/releases'
-const NEOFORGE_META = 'https://meta.neoforged.net'
+const NEOFORGE_META = 'https://maven.neoforged.net'
 const QUILT_META_BASE = 'https://meta.quiltmc.org/v3'
 const QUILT_MAVEN = 'https://maven.quiltmc.org/repository/release'
 
@@ -59,21 +61,71 @@ export class ModLoaderService {
           return data.map((v: { loader: { version: string } }) => v.loader?.version).filter(Boolean)
         }
       } else if (loaderType === 'forge') {
-        const response = await axios.get(FORGE_PROMO_URL)
-        const promos = response.data.promos
+        const prefix = `${mcVersion}-`
         const versions: string[] = []
-        for (const key of Object.keys(promos)) {
-          if (key.startsWith(`${mcVersion}-`)) {
-            versions.push(`${mcVersion}-${promos[key]}`)
+        
+        try {
+          // 使用 Maven metadata 获取全部 Forge 版本
+          const response = await axios.get(FORGE_MAVEN_META, { responseType: 'text' })
+          const xml = response.data as string
+          const versionRegex = /<version>(\d+\.\d+\.\d+-[^<]+)<\/version>/g
+          let match
+          while ((match = versionRegex.exec(xml)) !== null) {
+            const ver = match[1]
+            if (ver.startsWith(prefix)) {
+              versions.push(ver)
+            }
           }
+        } catch (e) {
+          console.warn('Failed to get Forge versions from Maven:', e)
         }
-        return [...new Set(versions)]
+        
+        // 如果没有找到版本，返回默认版本（Forge 版本格式: <mcVersion>-<buildNumber>）
+        if (versions.length === 0) {
+          versions.push(`${mcVersion}-47.3.0`)
+        }
+        
+        // 倒序（最新在前）
+        versions.sort((a, b) => {
+          const aNum = parseInt(a.split('-')[1].replace(/\./g, '')) || 0
+          const bNum = parseInt(b.split('-')[1].replace(/\./g, '')) || 0
+          return bNum - aNum
+        })
+        return versions
       } else if (loaderType === 'neoforge') {
-        const response = await axios.get(`${NEOFORGE_META}/v3/versions/neoforge/${mcVersion}`)
-        const data = response.data
-        if (Array.isArray(data)) {
-          return data.map((v: { version: string }) => v.version).filter(Boolean)
+        // 使用 Maven API 获取 NeoForge 版本列表，按 MC 版本前缀过滤
+        // MC 版本 1.20.1 → NeoForge 前缀 20.1.
+        const mcPrefix = mcVersion.replace(/^1\./, '') + '.'
+        const versions: string[] = []
+        try {
+          const response = await axios.get(
+            `${NEOFORGE_META}/api/maven/versions/releases/net/neoforged/neoforge?filter=${mcVersion}`
+          )
+          const data = response.data
+          if (data?.versions && Array.isArray(data.versions)) {
+            const filtered = data.versions.filter((v: string) => v.startsWith(mcPrefix))
+            versions.push(...filtered)
+          }
+          if (versions.length === 0) {
+            // 如果 filter 没生效，尝试不带 filter 获取全量再过滤
+            log.info('NeoForge Maven filter 未返回结果，尝试全量获取')
+            const fullResponse = await axios.get(
+              `${NEOFORGE_META}/api/maven/versions/releases/net/neoforged/neoforge`
+            )
+            if (fullResponse.data?.versions && Array.isArray(fullResponse.data.versions)) {
+              versions.push(
+                ...fullResponse.data.versions.filter((v: string) => v.startsWith(mcPrefix))
+              )
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to get NeoForge versions:', e)
         }
+        // 如果没有找到版本，返回默认版本（NeoForge 版本格式: <shortMc>.<build>-beta）
+        if (versions.length === 0) {
+          versions.push(`${mcPrefix}55-beta`)
+        }
+        return versions
       } else if (loaderType === 'quilt') {
         const response = await axios.get(`${QUILT_META_BASE}/versions/loader/${mcVersion}`)
         const data = response.data
@@ -169,7 +221,10 @@ export class ModLoaderService {
     // NeoForge 加载器
     this.modLoaders.set('neoforge', {
       name: 'NeoForge',
-      supportedVersions: ['1.20.1', '1.20.2', '1.20.4', '1.20.5', '1.20.6']
+      supportedVersions: [
+        '1.20.1', '1.20.2', '1.20.4', '1.20.5', '1.20.6',
+        '1.21', '1.21.1', '1.21.3', '1.21.4'
+      ]
     })
   }
 

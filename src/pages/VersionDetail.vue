@@ -43,7 +43,7 @@
           </svg>
         </div>
         <div class="vd-info">
-          <h2 class="vd-name">{{ versionId }}</h2>
+          <h2 class="vd-name">{{ versionDisplayName }}</h2>
           <div class="vd-meta">
             <span class="vd-type-badge" :class="versionInfo.type">
               {{ typeLabel }}
@@ -117,6 +117,108 @@
           </button>
         </div>
       </div>
+
+      <!-- 加载器附加内容（选择加载器后立即显示） -->
+      <div v-if="selectedLoader" class="vd-section addons-section">
+        <h3 class="section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+              <path d="M2 17l10 5 10-5" />
+              <path d="M2 12l10 5 10-5" />
+            </svg>
+            {{ currentLoaderName }} {{ $t('version.addonsTitle') }}
+          </h3>
+
+          <!-- ====== Forge / NeoForge：OptiFine ====== -->
+          <template v-if="selectedLoader === 'forge' || selectedLoader === 'neoforge'">
+            <div class="addon-card">
+              <div class="addon-header">
+                <div class="addon-info">
+                  <span class="addon-icon">OF</span>
+                  <div>
+                    <span class="addon-name">OptiFine ({{ $t('version.highDefinition') }})</span>
+                    <span class="addon-desc">{{ $t('version.optifineHint') }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="addon-body">
+                <template v-if="availableOptiFineVersions.length > 0">
+                  <div class="optifine-chips">
+                    <div
+                      v-for="ver in availableOptiFineVersions"
+                      :key="ver"
+                      class="optifine-chip"
+                      :class="{ active: selectedOptiFineVersion === ver }"
+                      @click="selectedOptiFineVersion = ver"
+                    >{{ ver }}</div>
+                  </div>
+                </template>
+                <div class="optifine-custom">
+                  <input
+                    type="text"
+                    class="optifine-input"
+                    :value="availableOptiFineVersions.includes(selectedOptiFineVersion) ? '' : selectedOptiFineVersion"
+                    :placeholder="$t('version.optifineCustom')"
+                    @input="selectedOptiFineVersion = ($event.target as HTMLInputElement).value"
+                  />
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- ====== Fabric：Fabric API（必须安装）====== -->
+          <template v-if="selectedLoader === 'fabric'">
+            <div class="addon-card">
+              <div class="addon-header">
+                <div class="addon-info">
+                  <span class="addon-icon fabric-api-icon">FA</span>
+                  <div>
+                    <span class="addon-name">Fabric API</span>
+                    <span class="addon-desc">{{ $t('version.fabricApiHint') }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="addon-body">
+                <div v-if="fabricApiLoading" class="fabric-api-loading">
+                  <div class="spinner-sm"></div>
+                  <span>{{ $t('modloader.loading') }}</span>
+                </div>
+                <template v-else-if="fabricApiVersions.length > 0">
+                  <div class="optifine-chips">
+                    <div
+                      v-for="ver in fabricApiVersions"
+                      :key="ver"
+                      class="optifine-chip"
+                      :class="{ active: selectedFabricApiVersion === ver }"
+                      @click="selectedFabricApiVersion = ver"
+                    >{{ ver }}</div>
+                  </div>
+                  <p class="fabric-api-auto" v-if="selectedFabricApiVersion">
+                    {{ $t('version.fabricApiAutoSelected') }}
+                  </p>
+                </template>
+                <p v-else class="no-versions">{{ $t('version.fabricApiLoadFailed') }}</p>
+              </div>
+            </div>
+          </template>
+
+          <!-- ====== Quilt：预留 ====== -->
+          <template v-if="selectedLoader === 'quilt'">
+            <div class="addon-card addon-card--disabled">
+              <div class="addon-header">
+                <div class="addon-info">
+                  <span class="addon-icon quilt-api-icon">QS</span>
+                  <div>
+                    <span class="addon-name">QSL / QFAPI</span>
+                    <span class="addon-desc">{{ $t('version.quiltApiHint') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
 
       <!-- 加载器版本选择弹窗 -->
       <div
@@ -210,7 +312,8 @@
         </div>
 
         <div class="selected-info" v-if="selectedLoader && selectedLoaderVersion">
-          <span>{{ $t('version.selectedPrefix') }} {{ currentLoaderName }} {{ selectedLoaderVersion }}</span>
+          <span class="selected-label">{{ $t('version.versionNameLabel') }}</span>
+          <span class="selected-name">{{ versionDisplayName }}</span>
         </div>
 
         <button class="btn-download" @click="handleDownload" :disabled="downloading">
@@ -270,10 +373,70 @@ const loading = ref(true)
 const downloading = ref(false)
 const selectedLoader = ref('')
 const selectedLoaderVersion = ref('')
+const selectedOptiFine = ref(false)
+const selectedOptiFineVersion = ref('')
+const selectedFabricApi = ref(false)
+const selectedFabricApiVersion = ref('')
+const fabricApiVersions = ref<string[]>([])
+const fabricApiLoading = ref(false)
 const targetFolder = ref('')
 const showLoaderVersions = ref(false)
 const loaderVersions = ref<any[]>([])
 const loaderVersionsLoading = ref(false)
+
+// 加载器互斥组：Forge / NeoForge / Fabric 互不兼容
+const incompatibleLoaders = ['forge', 'neoforge', 'fabric']
+
+// OptiFine 已知版本（按 MC 版本映射）
+const optiFineVersions: Record<string, string[]> = {
+  '1.21.4': ['HD_U_J2'],
+  '1.21.3': ['HD_U_J1'],
+  '1.21.1': ['HD_U_J1'],
+  '1.21':   ['HD_U_J1'],
+  '1.20.6': ['HD_U_I6'],
+  '1.20.4': ['HD_U_I6'],
+  '1.20.2': ['HD_U_I6'],
+  '1.20.1': ['HD_U_I5', 'HD_U_I3', 'HD_U_I2'],
+  '1.20':   ['HD_U_I5', 'HD_U_I3', 'HD_U_I2'],
+  '1.19.4': ['HD_U_I5'],
+  '1.19.3': ['HD_U_I4'],
+  '1.19.2': ['HD_U_I2'],
+  '1.18.2': ['HD_U_H9'],
+  '1.17.1': ['HD_U_G9'],
+  '1.16.5': ['HD_U_G8'],
+  '1.16.4': ['HD_U_G7'],
+  '1.15.2': ['HD_U_G6'],
+  '1.14.4': ['HD_U_F6'],
+  '1.12.2': ['HD_U_G5'],
+  '1.8.9':  ['HD_U_L5']
+}
+
+const availableOptiFineVersions = computed(() => {
+  // 如果找不到对应版本，返回默认版本（最新 OptiFine）
+  return optiFineVersions[versionId.value] || ['HD_U_J2']
+})
+
+const optiFineDisplayName = computed(() => {
+  if (!selectedOptiFine.value || !selectedOptiFineVersion.value) return ''
+  return `OptiFine_${selectedOptiFineVersion.value}`
+})
+
+// 动态版本显示名称：[游戏版本]-[加载器]_[加载器版本]-[OptiFine]_[版本]
+const versionDisplayName = computed(() => {
+  const parts: string[] = [versionId.value]
+
+  if (selectedLoader.value && selectedLoaderVersion.value) {
+    const loader = modLoaders.find((l) => l.type === selectedLoader.value)
+    const loaderName = loader?.name || selectedLoader.value
+    parts.push(`${loaderName}_${selectedLoaderVersion.value}`)
+  }
+
+  if (selectedOptiFineVersion.value) {
+    parts.push(`OptiFine_${selectedOptiFineVersion.value}`)
+  }
+
+  return parts.join('-')
+})
 
 const modLoaders = [
   { type: 'fabric', icon: 'F', name: 'Fabric', desc: '轻量级 ModLoader', minVersion: '1.14.4' },
@@ -283,7 +446,7 @@ const modLoaders = [
     icon: 'NF',
     name: 'NeoForge',
     desc: 'Forge 的现代分支',
-    minVersion: '1.18.2'
+    minVersion: '1.20.1'
   },
   { type: 'quilt', icon: 'Q', name: 'Quilt', desc: 'Fabric 的继任者', minVersion: '1.18.2' }
 ]
@@ -312,19 +475,14 @@ function goBack() {
 }
 
 function compareVersions(v1: string, v2: string): number {
-  const parts1 = v1.split('.').map((p) => {
+  const parsePart = (p: string) => {
     const match = p.match(/(\d+)([a-zA-Z]*)/)
     const num = match ? parseInt(match[1]) : 0
     const suffix = match ? match[2] : ''
     return { num, suffix }
-  })
-  const parts2 = v2.split('.').map((p) => {
-    const match = p.match(/(\d+)([a-zA-Z]*)/)
-    const num = match ? parseInt(match[1]) : 0
-    const suffix = match ? match[2] : ''
-    return { num, suffix }
-  })
-
+  }
+  const parts1 = v1.split('.').map(parsePart)
+  const parts2 = v2.split('.').map(parsePart)
   for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
     const p1 = parts1[i] || { num: 0, suffix: '' }
     const p2 = parts2[i] || { num: 0, suffix: '' }
@@ -365,8 +523,13 @@ async function browseFolder() {
 
 async function selectLoader(loaderType: string) {
   if (selectedLoader.value === loaderType) {
+    // 取消选择
     selectedLoader.value = ''
     selectedLoaderVersion.value = ''
+    selectedOptiFine.value = false
+    selectedOptiFineVersion.value = ''
+    selectedFabricApi.value = false
+    selectedFabricApiVersion.value = ''
     return
   }
 
@@ -374,16 +537,45 @@ async function selectLoader(loaderType: string) {
 
   if (loaderType === '') {
     selectedLoaderVersion.value = ''
+    selectedOptiFineVersion.value = ''
+    selectedFabricApiVersion.value = ''
+    fabricApiVersions.value = []
     return
   }
 
+  // Fabric：自动获取 Fabric API 版本
+  if (loaderType === 'fabric') {
+    fetchFabricApiVersions()
+  }
+
+  // 加载版本列表
   loaderVersionsLoading.value = true
   showLoaderVersions.value = true
+  selectedLoaderVersion.value = ''
   try {
     const api = window.electronAPI
     if (api?.modloader) {
-      const loaders = await api.modloader.getLoaders(versionId.value)
-      loaderVersions.value = (loaders[loaderType as keyof typeof loaders] as any[]) || []
+      const res = await api.modloader.getVersions(versionId.value, loaderType)
+      if (res?.ok && Array.isArray(res.data)) {
+        // 服务返回 string[]，映射为 UI 需要的对象格式
+        const versions: string[] = res.data
+        loaderVersions.value = versions.map((v) => ({
+          id: v,
+          releaseTime: '',
+          recommended: false,
+          latest: false
+        }))
+        // 标记最新版本（数组第一个通常是推荐版本）
+        if (loaderVersions.value.length > 0) {
+          loaderVersions.value[0].recommended = true
+          if (loaderVersions.value.length > 1) {
+            loaderVersions.value[loaderVersions.value.length - 1].latest = true
+          }
+        }
+      } else {
+        console.warn('modloader:get-versions 返回空或失败:', res)
+        loaderVersions.value = []
+      }
     }
   } catch (e) {
     console.error('Failed to load loader versions:', e)
@@ -401,6 +593,67 @@ function confirmLoaderVersion() {
   showLoaderVersions.value = false
 }
 
+// Fabric API 已知版本（按 MC 版本映射，优先使用本地）
+const fabricApiVersionsFallback: Record<string, string[]> = {
+  '1.21.4': ['0.108.0+1.21.4'],
+  '1.21.3': ['0.107.0+1.21.3'],
+  '1.21.1': ['0.105.0+1.21.1'],
+  '1.21': ['0.104.0+1.21'],
+  '1.20.6': ['0.100.0+1.20.6'],
+  '1.20.4': ['0.97.2+1.20.4'],
+  '1.20.2': ['0.92.2+1.20.2'],
+  '1.20.1': ['0.92.2+1.20.1', '0.91.2+1.20.1', '0.90.0+1.20.1'],
+  '1.20': ['0.83.0+1.20'],
+  '1.19.4': ['0.76.0+1.19.4'],
+  '1.19.2': ['0.58.0+1.19.2'],
+  '1.18.2': ['0.47.10+1.18.2'],
+  '1.16.5': ['0.42.0+1.16.5']
+}
+// 如果找不到对应版本，默认用最新的一个
+const defaultFabricApiVersion = '0.108.0+1.21.4'
+
+async function fetchFabricApiVersions() {
+  fabricApiLoading.value = true
+  selectedFabricApiVersion.value = ''
+  
+  // 1. 优先使用本地 fallback 版本
+  if (fabricApiVersionsFallback[versionId.value]) {
+    fabricApiVersions.value = fabricApiVersionsFallback[versionId.value]
+  } else {
+    // 找不到对应版本，用默认版本
+    fabricApiVersions.value = [defaultFabricApiVersion]
+  }
+  
+  // 自动选择版本
+  if (fabricApiVersions.value.length > 0) {
+    // 优先找匹配当前 MC 版本的
+    const exactMatch = fabricApiVersions.value.find(
+      (v) => v.includes(`+${versionId.value}`) || v.startsWith(versionId.value)
+    )
+    selectedFabricApiVersion.value = exactMatch || fabricApiVersions.value[0]
+  }
+  
+  fabricApiLoading.value = false
+}
+
+function toggleOptiFine() {
+  selectedOptiFine.value = !selectedOptiFine.value
+  if (!selectedOptiFine.value) {
+    selectedOptiFineVersion.value = ''
+  }
+}
+
+function toggleFabricApi() {
+  selectedFabricApi.value = !selectedFabricApi.value
+  if (selectedFabricApi.value) {
+    if (fabricApiVersions.value.length === 0) {
+      fetchFabricApiVersions()
+    }
+  } else {
+    selectedFabricApiVersion.value = ''
+  }
+}
+
 async function handleDownload() {
   if (downloading.value) return
   downloading.value = true
@@ -410,9 +663,10 @@ async function handleDownload() {
       versionId.value,
       targetFolder.value,
       selectedLoader.value,
-      selectedLoaderVersion.value
+      selectedLoaderVersion.value,
+      versionDisplayName.value
     )
-    router.push('/download/manage')
+    // 不自动跳转，通过右上角 DownloadFloat 提示查看进度
   } finally {
     downloading.value = false
   }
@@ -641,6 +895,219 @@ onMounted(() => {
   color: var(--voxver-error);
 }
 
+/* ========== 加载器附加内容 ========== */
+.addons-section {
+  /* 去掉 overflow: hidden，避免内容被截断 */
+}
+
+.addon-card {
+  background: var(--voxver-bg-hover);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
+  /* 去掉 overflow: hidden，避免内容被截断 */
+  transition: border-color 0.2s;
+}
+
+.addon-card:has(.optifine-toggle input:checked) {
+  border-color: color-mix(in oklab, var(--voxver-primary) 30%, transparent);
+}
+
+.addon-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  gap: 12px;
+}
+
+.addon-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.addon-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--voxver-radius-sm);
+  background: var(--voxver-gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.addon-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--voxver-text-primary);
+}
+
+.addon-desc {
+  display: block;
+  font-size: 11px;
+  color: var(--voxver-text-muted);
+  margin-top: 2px;
+}
+
+.addon-toggle {
+  flex-shrink: 0;
+}
+
+.addon-body {
+  padding: 0 16px 14px;
+}
+
+.optifine-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.optifine-chip {
+  padding: 5px 12px;
+  border-radius: var(--voxver-radius-sm);
+  background: var(--voxver-bg-base);
+  border: 1px solid var(--voxver-border-color);
+  font-size: 12px;
+  color: var(--voxver-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.optifine-chip:hover {
+  border-color: color-mix(in oklab, var(--voxver-primary) 40%, transparent);
+}
+
+.optifine-chip.active {
+  border-color: var(--voxver-primary);
+  background: color-mix(in oklab, var(--voxver-primary) 12%, transparent);
+  color: var(--voxver-primary);
+}
+
+.optifine-custom {
+  width: 100%;
+}
+
+.optifine-input {
+  width: 100%;
+  padding: 6px 12px;
+  border-radius: var(--voxver-radius-sm);
+  border: 1px solid var(--voxver-border-color);
+  background: var(--voxver-bg-base);
+  color: var(--voxver-text-primary);
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.optifine-input:focus {
+  border-color: var(--voxver-primary);
+}
+
+.optifine-input::placeholder {
+  color: var(--voxver-text-muted);
+}
+
+.optifine-toggle {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.optifine-toggle input[type='checkbox'] {
+  display: none;
+}
+
+.toggle-slider {
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--voxver-bg-base);
+  border: 1px solid var(--voxver-border-color);
+  transition: all 0.2s;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.toggle-slider::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--voxver-text-muted);
+  transition: all 0.2s;
+}
+
+.optifine-toggle input:checked + .toggle-slider {
+  background: var(--voxver-primary);
+  border-color: var(--voxver-primary);
+}
+
+.optifine-toggle input:checked + .toggle-slider::after {
+  left: 20px;
+  background: #fff;
+}
+
+.addons-more {
+  text-align: center;
+  font-size: 11px;
+  color: var(--voxver-text-muted);
+  margin-top: 10px;
+  opacity: 0.6;
+}
+
+.fabric-api-icon {
+  background: linear-gradient(135deg, #d4b28c, #8b6b4a) !important;
+}
+
+.quilt-api-icon {
+  background: linear-gradient(135deg, #a0c4ff, #5e60ce) !important;
+}
+
+.addon-card--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.fabric-api-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--voxver-text-muted);
+  font-size: 12px;
+}
+
+.spinner-sm {
+  width: 16px;
+  height: 16px;
+  border: 2px solid color-mix(in oklab, var(--voxver-primary) 20%, transparent);
+  border-top-color: var(--voxver-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.fabric-api-auto {
+  font-size: 11px;
+  color: var(--voxver-success);
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 /* 加载器版本选择弹窗 */
 .loader-version-modal {
   position: fixed;
@@ -809,12 +1276,29 @@ onMounted(() => {
 }
 
 .selected-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   font-size: 12px;
   color: var(--voxver-primary);
   margin-bottom: 12px;
-  padding: 8px 12px;
+  padding: 10px 14px;
   background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
   border-radius: var(--voxver-radius-md);
+  border: 1px solid color-mix(in oklab, var(--voxver-primary) 20%, transparent);
+}
+
+.selected-label {
+  font-size: 11px;
+  color: var(--voxver-text-muted);
+  font-weight: 500;
+}
+
+.selected-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--voxver-text-primary);
+  word-break: break-all;
 }
 
 .btn-download {
