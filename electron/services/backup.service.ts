@@ -17,6 +17,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { app } from 'electron'
+import type Database from 'better-sqlite3'
 import { getDatabase } from './database'
 import { logger } from '../utils/logger'
 
@@ -76,7 +77,7 @@ function getBackupDir(): string {
   return dir
 }
 
-function tableExists(db: any, table: string): boolean {
+function tableExists(db: Database.Database, table: string): boolean {
   try {
     const row = db
       .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ?")
@@ -97,7 +98,7 @@ export async function createBackup(
     const db = getDatabase()
     if (!db) return { ok: false, error: '数据库未初始化' }
 
-    const tables: { name: string; rows: any[] }[] = []
+    const tables: { name: string; rows: unknown[] }[] = []
 
     if (onProgress) onProgress({ stage: 'reading', currentItem: '读取配置...', progress: 10 })
 
@@ -178,9 +179,9 @@ export async function createBackup(
 
     log.info(`备份完成: ${filePath}`)
     return { ok: true, filePath }
-  } catch (e: any) {
+  } catch (e: unknown) {
     log.error('备份失败', e)
-    return { ok: false, error: e.message || '备份失败' }
+    return { ok: false, error: e instanceof Error ? e.message : '备份失败' }
   }
 }
 
@@ -210,7 +211,7 @@ export async function restoreBackup(
     const dataEntry = zip.file('data.json')
     if (!dataEntry) return { ok: false, error: '备份文件损坏（缺少 data.json）' }
 
-    const data: { tables: { name: string; rows: any[] }[] } = JSON.parse(
+    const data: { tables: { name: string; rows: unknown[] }[] } = JSON.parse(
       await dataEntry.async('string')
     )
 
@@ -238,9 +239,9 @@ export async function restoreBackup(
             stmt.run(...cols.map((c) => row[c]))
           }
           restored.push(tbl.name)
-        } catch (e: any) {
+        } catch (e: unknown) {
           // 某表失败不影响其他表
-          log.warn(`恢复表 ${tbl.name} 失败:`, e.message)
+          log.warn(`恢复表 ${tbl.name} 失败:`, e instanceof Error ? e.message : String(e))
         }
       }
     })
@@ -251,9 +252,9 @@ export async function restoreBackup(
 
     log.info(`备份恢复完成，表: ${restored.join(', ')}`)
     return { ok: true, restoredTables: restored }
-  } catch (e: any) {
+  } catch (e: unknown) {
     log.error('恢复备份失败', e)
-    return { ok: false, error: e.message || '恢复失败' }
+    return { ok: false, error: e instanceof Error ? e.message : '恢复失败' }
   }
 }
 

@@ -32,8 +32,8 @@ export function registerPerfMonitorHandlers(): void {
       try {
         startMonitor(pid, pushSnapshot)
         return { ok: true }
-      } catch (e: any) {
-        log.error('start error:', e.message)
+      } catch (e: unknown) {
+        log.error('start error:', (e as Error).message)
         return { ok: false }
       }
     }

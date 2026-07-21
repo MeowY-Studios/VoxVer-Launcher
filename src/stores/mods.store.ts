@@ -77,8 +77,8 @@ export const useModsStore = defineStore('mods', () => {
       } else {
         mods.value = []
       }
-    } catch (e: any) {
-      error.value = e.message || $t('mod.modLoadFailed')
+    } catch (e: unknown) {
+      error.value = (e as Error).message || $t('mod.modLoadFailed')
     } finally {
       loading.value = false
     }
@@ -96,8 +96,8 @@ export const useModsStore = defineStore('mods', () => {
         await window.electronAPI?.mod?.enable(mod.filePath)
       }
       mod.status = newStatus
-    } catch (e: any) {
-      error.value = e.message || $t('mod.modOperationFailed')
+    } catch (e: unknown) {
+      error.value = (e as Error).message || $t('mod.modOperationFailed')
     }
   }
 
@@ -108,8 +108,8 @@ export const useModsStore = defineStore('mods', () => {
     try {
       await window.electronAPI?.mod?.uninstall(mod.filePath)
       mods.value = mods.value.filter((m) => m.id !== modId)
-    } catch (e: any) {
-      error.value = e.message || $t('mod.modDeleteFailed')
+    } catch (e: unknown) {
+      error.value = (e as Error).message || $t('mod.modDeleteFailed')
     }
   }
 

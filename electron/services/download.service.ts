@@ -205,15 +205,15 @@ export class DownloadService extends EventEmitter {
       } else {
         throw new Error('Temp file not found')
       }
-    } catch (err: any) {
-      if (err.name === 'AbortError') {
+    } catch (err: unknown) {
+      if ((err as Error).name === 'AbortError') {
         task.status = 'cancelled'
         this.emit('task:cancelled', task)
       } else {
         task.status = 'error'
-        task.error = err.message
+        task.error = (err as Error).message
         this.emit('task:error', task)
-        log.error(`[Download] Error ${task.fileName}:`, err.message)
+        log.error(`[Download] Error ${task.fileName}:`, (err as Error).message)
       }
       this.updateTaskInDb(task)
     } finally {
@@ -258,8 +258,8 @@ export class DownloadService extends EventEmitter {
         task.chunks = []
         log.info(`[Download] Using single thread for ${task.fileName}`)
       }
-    } catch (err: any) {
-      log.warn(`[Download] Failed to get file info, using single thread:`, err.message)
+    } catch (err: unknown) {
+      log.warn(`[Download] Failed to get file info, using single thread:`, (err as Error).message)
       task.chunks = []
     }
   }
@@ -272,8 +272,8 @@ export class DownloadService extends EventEmitter {
       task.chunks = resume.chunks ?? []
       task.downloadedSize = resume.downloadedSize || 0
       log.info(`[Download] Resume data loaded: ${task.chunks.length} chunks`)
-    } catch (err: any) {
-      log.warn(`[Download] Failed to load resume data:`, err.message)
+    } catch (err: unknown) {
+      log.warn(`[Download] Failed to load resume data:`, (err as Error).message)
       task.chunks = []
     }
   }
@@ -286,8 +286,8 @@ export class DownloadService extends EventEmitter {
         downloadedSize: task.downloadedSize
       })
       require('fs').writeFileSync(resumeFile, data)
-    } catch (err: any) {
-      log.warn(`[Download] Failed to save resume data:`, err.message)
+    } catch (err: unknown) {
+      log.warn(`[Download] Failed to save resume data:`, (err as Error).message)
     }
   }
 
@@ -428,8 +428,8 @@ export class DownloadService extends EventEmitter {
 
         closeSync(fd)
         chunk.status = 'completed'
-      } catch (err: any) {
-        if (err.name === 'AbortError') {
+      } catch (err: unknown) {
+        if ((err as Error).name === 'AbortError') {
           chunk.status = 'pending'
           throw err
         }
@@ -440,7 +440,7 @@ export class DownloadService extends EventEmitter {
           const delay = Math.pow(2, chunk.retries) * 1000
           log.warn(
             `[Download] Chunk ${chunk.index} failed, retry ${chunk.retries} after ${delay}ms:`,
-            err.message
+            (err as Error).message
           )
           await new Promise((resolve) => setTimeout(resolve, delay))
           return downloadChunk(chunk)
@@ -448,7 +448,7 @@ export class DownloadService extends EventEmitter {
           chunk.status = 'error'
           log.error(
             `[Download] Chunk ${chunk.index} failed after ${this.maxRetries} retries:`,
-            err.message
+            (err as Error).message
           )
           throw err
         }
@@ -562,8 +562,8 @@ export class DownloadService extends EventEmitter {
         task.updatedAt.toISOString(),
         task.error || null
       )
-    } catch (err: any) {
-      log.warn('[Download] Failed to save task to DB:', err.message)
+    } catch (err: unknown) {
+      log.warn('[Download] Failed to save task to DB:', (err as Error).message)
     }
   }
 

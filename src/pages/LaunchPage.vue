@@ -177,7 +177,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, inject } from 'vue'
+import { ref, computed, onMounted, onUnmounted, inject, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useVersionsStore, useAccountsStore, useInstancesStore } from '../stores'
@@ -188,7 +188,7 @@ const { t, locale } = useI18n()
 const pxProgressRef = ref<InstanceType<typeof PxLaunchProgress> | null>(null)
 
 const router = useRouter()
-const settingsActive = inject('settingsActive') as any
+const settingsActive = inject<Ref<string>>('settingsActive')
 const accountsStore = useAccountsStore()
 
 // ====== 状态 ======
@@ -202,9 +202,9 @@ const autoScroll = ref(true)
 const mcPath = ref('')
 const mcPathExists = ref(true)
 const isCustomPath = ref(false)
-let logListener: ((...args: any[]) => void) | null = null
+let logListener: ((...args: unknown[]) => void) | null = null
 let exitListener: ((data: { code: number; signal: string | null; instanceId?: string }) => void) | null = null
-let progressListener: ((...args: any[]) => void) | null = null
+let progressListener: ((...args: unknown[]) => void) | null = null
 
 // 崩溃报告（简化版）
 interface CrashInfo {
@@ -274,10 +274,10 @@ async function handleLaunch() {
       versionId
     )
     addLog(`[VoxVer] launch IPC 返回: ${JSON.stringify(result)}`)
-  } catch (e: any) {
+  } catch (e: unknown) {
     hasError.value = true
-    statusMessage.value = e.message || t('launch.launchFailed')
-    addLog(`[VoxVer] 启动失败: ${e.message || e}`)
+    statusMessage.value = (e as Error).message || t('launch.launchFailed')
+    addLog(`[VoxVer] 启动失败: ${(e as Error).message || e}`)
   } finally {
     // 保持 isLaunching，progress 事件会在成功时设为 false
   }

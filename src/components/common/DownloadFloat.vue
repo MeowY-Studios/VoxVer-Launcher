@@ -176,7 +176,7 @@ function findOrCreate(id: string, name: string): DownloadItem {
 // * ── 内容下载进度（download:progress）────────────────────────────────────
 let contentCleanup: (() => void) | null = null
 
-function onContentProgress(progress: any) {
+function onContentProgress(progress: { id?: string; fileName?: string; name?: string; progress: number; downloaded?: number; total?: number; speed?: number; done?: boolean; error?: string }) {
   const id = progress.id || progress.fileName || 'unknown'
   const name = progress.fileName || progress.name || id
   const item = findOrCreate(id, name)
@@ -202,7 +202,7 @@ function onContentProgress(progress: any) {
 // * ── 版本下载进度（version:download-progress）────────────────────────────
 let versionCleanup: (() => void) | null = null
 
-function onVersionProgress(data: any) {
+function onVersionProgress(data: { taskId?: string; versionId?: string; progress?: number; downloaded?: number; total?: number; speed?: number; phase?: string }) {
   const id = data.taskId || data.versionId || 'version'
   const name = `版本 ${data.versionId || id}`
   const item = findOrCreate(id, name)
@@ -220,11 +220,11 @@ function onVersionProgress(data: any) {
   }
 }
 
-function onVersionComplete(_data: any) {
+function onVersionComplete(_data: Record<string, unknown>) {
   // 已完成由 onVersionProgress 处理
 }
 
-function onVersionError(data: any) {
+function onVersionError(data: { taskId?: string; error?: string }) {
   const id = data.taskId || 'unknown'
   const item = items.value.find((i) => i.id === id)
   if (item) {
@@ -236,7 +236,7 @@ function onVersionError(data: any) {
 // * ── ModLoader 安装进度（modloader:progress）─────────────────────────────
 let modloaderCleanup: (() => void) | null = null
 
-function onModLoaderProgress(data: any) {
+function onModLoaderProgress(data: { instanceId?: string; message?: string; stage?: string; progress?: number }) {
   const id = 'ml_' + (data.instanceId || 'install')
   const name = `ModLoader ${data.message || ''}`
   const item = findOrCreate(id, name)

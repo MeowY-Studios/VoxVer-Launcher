@@ -269,9 +269,9 @@ async function startShare() {
     sessionId.value = result.sessionId
     shareCode.value = result.shareCode
     stage.value = 'waiting'
-  } catch (e: any) {
+  } catch (e: unknown) {
     stage.value = 'error'
-    errorMessage.value = e.message || t('component.packFailed')
+    errorMessage.value = (e as { message?: string }).message || t('component.packFailed')
   }
 }
 

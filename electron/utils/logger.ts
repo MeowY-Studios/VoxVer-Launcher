@@ -200,7 +200,7 @@ export async function exportDiagnostics(): Promise<{ ok: boolean; path?: string;
     })
 
     return { ok: true, path: filePath }
-  } catch (error: any) {
-    return { ok: false, error: error.message || '导出失败' }
+  } catch (error: unknown) {
+    return { ok: false, error: (error as Error).message || '导出失败' }
   }
 }

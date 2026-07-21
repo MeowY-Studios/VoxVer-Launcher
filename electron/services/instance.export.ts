@@ -173,8 +173,8 @@ export async function scanMinecraftDir(dirPath: string): Promise<{
       configCount,
       suggestions
     }
-  } catch (e: any) {
-    return { valid: false, suggestions: [e.message || '扫描失败'] }
+  } catch (e: unknown) {
+    return { valid: false, suggestions: [(e as Error).message || '扫描失败'] }
   }
 }
 
@@ -341,8 +341,8 @@ export async function exportInstance(
       archive.pipe(output)
       archive.finalize()
     })
-  } catch (e: any) {
-    return { ok: false, error: e.message }
+  } catch (e: unknown) {
+    return { ok: false, error: (e as Error).message }
   }
 }
 
@@ -379,7 +379,7 @@ export async function importInstance(
     await fs.promises.mkdir(instancePath, { recursive: true })
 
     // 解压所有文件
-    const entries = zip.filter((_: any, file: any) => !file.dir && file.name !== 'manifest.json')
+    const entries = zip.filter((_: unknown, file: { dir: boolean; name: string }) => !file.dir && file.name !== 'manifest.json')
     for (const entry of entries) {
       const destPath = path.join(instancePath, entry.name)
       const destDir = path.dirname(destPath)
@@ -416,8 +416,8 @@ export async function importInstance(
     }
 
     return { ok: false, error: '创建实例失败' }
-  } catch (e: any) {
-    return { ok: false, error: e.message }
+  } catch (e: unknown) {
+    return { ok: false, error: (e as Error).message }
   }
 }
 

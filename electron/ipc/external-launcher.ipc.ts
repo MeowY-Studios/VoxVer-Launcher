@@ -13,9 +13,9 @@ export function registerExternalLauncherHandlers(): void {
       try {
         const launchers = detectExternalLaunchers()
         return { success: true, data: launchers }
-      } catch (e: any) {
-        log.error('[IPC] detect error:', e?.message || e)
-        return { success: false, data: [], error: e?.message }
+      } catch (e: unknown) {
+        log.error('[IPC] detect error:', (e as Error)?.message || String(e))
+        return { success: false, data: [], error: (e as Error)?.message }
       }
     }
   )
@@ -26,8 +26,8 @@ export function registerExternalLauncherHandlers(): void {
       try {
         const info = scanGameDir(gameDir)
         return { success: !!info, data: info }
-      } catch (e: any) {
-        return { success: false, error: e?.message }
+      } catch (e: unknown) {
+        return { success: false, error: (e as Error)?.message }
       }
     }
   )

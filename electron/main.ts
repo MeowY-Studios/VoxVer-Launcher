@@ -66,7 +66,7 @@ let modService: ModService
 
 // 文件日志用于调试（追加模式）
 let logFile: string
-function writeLog(...args: any[]) {
+function writeLog(...args: unknown[]) {
   if (!logFile) {
     log.error('[MAIN NO_LOG]', ...args)
     return
@@ -309,8 +309,8 @@ app.whenReady().then(() => {
         })
         registerAllEnabledHotkeys()
         log.info('[Init] Hotkey service initialized')
-      } catch (e: any) {
-        log.warn('[Init] Hotkey service init failed:', e.message)
+      } catch (e: unknown) {
+        log.warn('[Init] Hotkey service init failed:', (e as Error).message)
       }
     })(),
     (async () => {
@@ -327,8 +327,8 @@ app.whenReady().then(() => {
   try {
     registerIpcHandlers(win)
     writeLog('>>> Handlers registered successfully')
-  } catch (err: any) {
-    writeLog('[IPC] >>> Handlers registration FAILED:', err.message, err.stack)
+  } catch (err: unknown) {
+    writeLog('[IPC] >>> Handlers registration FAILED:', (err as Error).message, (err as Error).stack)
   }
 
   // ========== 延迟任务 ==========
@@ -350,8 +350,8 @@ app.whenReady().then(() => {
         `)
         writeLog('[startup] xuid 回填结果:', result)
       }
-    } catch (e: any) {
-      writeLog('[startup] xuid 回填失败:', e.message)
+    } catch (e: unknown) {
+      writeLog('[startup] xuid 回填失败:', (e as Error).message)
     }
   }, 3000)
 

@@ -27,20 +27,20 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 
 interface Props {
-  items: any[]
+  items: T[]
   itemHeight?: number
   overscan?: number
-  getItemKey?: (item: any, index: number) => string | number
+  getItemKey?: (item: T, index: number) => string | number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   itemHeight: 50,
   overscan: 5,
-  getItemKey: (item: any, index: number) => index
+  getItemKey: (_item: T, index: number) => index
 })
 
 const emit = defineEmits<{

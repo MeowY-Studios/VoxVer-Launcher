@@ -90,8 +90,8 @@ export function registerModLoaderHandlers(
     try {
       const loaders = service!.getModLoaders(opts.minecraftVersion)
       return { ok: true, data: loaders }
-    } catch (err: any) {
-      return { ok: false, error: err.message }
+    } catch (err: unknown) {
+      return { ok: false, error: (err as Error).message }
     }
   })
 
@@ -102,8 +102,8 @@ export function registerModLoaderHandlers(
       try {
         const versions = await service!.getLoaderVersionList(opts.minecraftVersion, opts.loaderType)
         return { ok: true, data: versions }
-      } catch (err: any) {
-        return { ok: false, error: err.message }
+      } catch (err: unknown) {
+        return { ok: false, error: (err as Error).message }
       }
     }
   )
@@ -145,14 +145,14 @@ export function registerModLoaderHandlers(
         }
 
         return { ok: true }
-      } catch (err: any) {
+      } catch (err: unknown) {
         broadcastProgress({
           instanceId,
           stage: 'error',
           progress: 0,
-          message: err.message
+          message: (err as Error).message
         })
-        return { ok: false, error: err.message }
+        return { ok: false, error: (err as Error).message }
       } finally {
         service!.setProgressCallback(undefined!)
       }
@@ -180,8 +180,8 @@ export function registerModLoaderHandlers(
           lastChecked: Date.now()
         }
       }
-    } catch (err: any) {
-      return { ok: false, error: err.message }
+    } catch (err: unknown) {
+      return { ok: false, error: (err as Error).message }
     }
   })
 

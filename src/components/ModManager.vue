@@ -110,7 +110,7 @@
           :items="filteredMods"
           :item-height="64"
           :overscan="6"
-          :get-item-key="(item: any) => item.filePath"
+          :get-item-key="(item: ModItem) => item.filePath"
           class="mod-virtual-list"
         >
           <template #item="{ item: mod }">
@@ -442,7 +442,7 @@ async function loadMods() {
   try {
     const result = await window.electronAPI?.mod.list(props.gameDir)
     const mods = Array.isArray(result) ? result : result?.data || []
-    installedMods.value = mods.map((m: any) => ({
+    installedMods.value = mods.map((m: { name?: string; version?: string; description?: string; fileName?: string; logoUrl?: string; enabled?: boolean; filePath: string; url?: string; authors?: string[]; dependencies?: string[] }) => ({
       name: m.name,
       version: m.version || t('mod.unknownVersion'),
       description: m.description || m.fileName || '',
@@ -528,7 +528,7 @@ async function doUpdateMod(mod: ModItem, info: ModUpdateInfo) {
 
     // * 监听更新进度
     const unsubProgress = api.mod?.onUpdateProgress?.(
-      (data: any) => {
+      (data: { filePath: string; progress: number }) => {
         if (data.filePath === mod.filePath) {
           updateProgressMap.value[data.filePath] = data.progress
         }
@@ -551,10 +551,10 @@ async function doUpdateMod(mod: ModItem, info: ModUpdateInfo) {
         type: 'error'
       })
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('mod.updateErrorMsg', { error: e.message }),
+      body: t('mod.updateErrorMsg', { error: (e as Error).message }),
       type: 'error'
     })
   } finally {
@@ -622,7 +622,7 @@ async function doInstallDeps(mod: ModItem, depCheck: ModDependencyCheckResult) {
     const api = window.electronAPI
 
     const unsubProgress = api.mod?.onDependencyProgress?.(
-      (data: any) => {
+      (data: { modPath: string; depName: string; progress: number }) => {
         if (data.modPath === mod.filePath) {
           depInstallProgress.value[data.depName] = data.progress
         }
@@ -633,7 +633,7 @@ async function doInstallDeps(mod: ModItem, depCheck: ModDependencyCheckResult) {
     unsubProgress?.()
 
     if (result?.ok) {
-      const data = (result as any).data || {}
+      const data = (result as { data?: { success?: string[]; failed?: string[] } }).data || {}
       window.electronAPI?.notification?.send({
         title: t('mod.depInstallComplete'),
         body: t('mod.depInstallResult', { success: data.success?.length || 0, failed: data.failed?.length || 0 }),
@@ -648,10 +648,10 @@ async function doInstallDeps(mod: ModItem, depCheck: ModDependencyCheckResult) {
         type: 'error'
       })
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('mod.installErrorMsg', { error: e.message }),
+      body: t('mod.installErrorMsg', { error: (e as Error).message }),
       type: 'error'
     })
   } finally {
@@ -724,7 +724,7 @@ async function installModFromFile() {
       dest = `${mcRoot}/mods`
     }
     await window.electronAPI?.mod.installBatch(
-      files.map((f) => (f as any).path),
+      files.map((f) => (f as File & { path: string }).path),
       dest
     )
     await loadMods()

@@ -33,9 +33,9 @@ export function registerBackupHandlers(): void {
       if (!res.ok) return { ok: false, error: res.error }
       log.info('备份完成', { filePath: res.filePath })
       return res
-    } catch (e: any) {
+    } catch (e: unknown) {
       log.error('备份失败', e)
-      return { ok: false, error: e.message || '备份失败' }
+      return { ok: false, error: (e as Error).message || '备份失败' }
     }
   })
 
@@ -54,9 +54,9 @@ export function registerBackupHandlers(): void {
       if (!res.ok) return { ok: false, error: res.error }
       log.info('备份恢复完成', { restoredTables: res.restoredTables })
       return res
-    } catch (e: any) {
+    } catch (e: unknown) {
       log.error('恢复备份失败', e)
-      return { ok: false, error: e.message || '恢复失败' }
+      return { ok: false, error: (e as Error).message || '恢复失败' }
     }
   })
 

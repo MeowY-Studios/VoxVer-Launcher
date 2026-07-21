@@ -193,19 +193,19 @@ class MinecraftLauncher {
       try {
         await this.downloadFile(task.url, task.path)
         success++
-      } catch (e: any) {
+      } catch (e: unknown) {
         const fallbackUrl = (task as { fallbackUrl?: string }).fallbackUrl
         if (fallbackUrl) {
           try {
             log.info(`[parallelDownload] 主源失败，尝试备用源: ${fallbackUrl}`)
             await this.downloadFile(fallbackUrl, task.path)
             success++
-          } catch (e2: any) {
-            log.warn(`[parallelDownload] 备用源也失败: ${fallbackUrl}: ${e2.message}`)
+          } catch (e2: unknown) {
+            log.warn(`[parallelDownload] 备用源也失败: ${fallbackUrl}: ${(e2 as Error).message}`)
             failed++
           }
         } else {
-          log.warn(`[parallelDownload] 下载失败: ${task.url}: ${e.message}`)
+          log.warn(`[parallelDownload] 下载失败: ${task.url}: ${(e as Error).message}`)
           failed++
         }
       }
@@ -344,11 +344,12 @@ class MinecraftLauncher {
         this.sendProgress('error', '启动失败', result.error)
       }
       return result
-    } catch (e: any) {
-      log.error(`[GameLauncher] [launch] 异常: ${e.stack || e.message}`)
-      this.sendProgress('error', '启动失败', e.message)
+    } catch (e: unknown) {
+      const err = e as Error
+      log.error(`[GameLauncher] [launch] 异常: ${err.stack || err.message}`)
+      this.sendProgress('error', '启动失败', err.message)
       this.setStatus('idle')
-      return { success: false, error: e.message }
+      return { success: false, error: err.message }
     }
   }
 
@@ -453,11 +454,12 @@ class MinecraftLauncher {
         this.sendProgress('error', '启动失败', result.error)
       }
       return result
-    } catch (e: any) {
-      log.error(`[GameLauncher] [launchDirect] 异常: ${e.stack || e.message}`)
-      this.sendProgress('error', '启动失败', e.message)
+    } catch (e: unknown) {
+      const err = e as Error
+      log.error(`[GameLauncher] [launchDirect] 异常: ${err.stack || err.message}`)
+      this.sendProgress('error', '启动失败', err.message)
       this.setStatus('idle')
-      return { success: false, error: e.message }
+      return { success: false, error: err.message }
     }
   }
 
@@ -780,8 +782,8 @@ class MinecraftLauncher {
           }
           await this.downloadFile(bmclUrl, versionJarPath)
           log.info(`[downloadMissingFiles] 版本核心文件下载完成: ${versionJarPath}`)
-        } catch (e: any) {
-          log.error(`[downloadMissingFiles] 版本核心文件下载失败: ${e.message}`)
+        } catch (e: unknown) {
+          log.error(`[downloadMissingFiles] 版本核心文件下载失败: ${(e as Error).message}`)
           return { success: false, error: `版本核心文件下载失败: ${versionId}.jar` }
         }
       } else {
@@ -848,8 +850,8 @@ class MinecraftLauncher {
         this.sendProgress('checking-files', `下载原生库: ${jarName}`)
         try {
           await this.downloadFile(nativeUrl, nativeJarPath)
-        } catch (e: any) {
-          log.warn(`[natives] 下载失败: ${nativeUrl}, ${e.message}`)
+        } catch (e: unknown) {
+          log.warn(`[natives] 下载失败: ${nativeUrl}, ${(e as Error).message}`)
           continue
         }
       }
@@ -857,8 +859,8 @@ class MinecraftLauncher {
       try {
         this.sendProgress('checking-files', `解压原生库: ${jarName}`)
         await this.extractJar(nativeJarPath, nativesDir)
-      } catch (e: any) {
-        log.warn(`[natives] 解压失败: ${nativeJarPath}, ${e.message}`)
+      } catch (e: unknown) {
+        log.warn(`[natives] 解压失败: ${nativeJarPath}, ${(e as Error).message}`)
       }
     }
   }
@@ -881,8 +883,8 @@ class MinecraftLauncher {
       )
       try {
         await this.downloadFile(indexUrl, indexPath)
-      } catch (e: any) {
-        log.warn(`[downloadAssets] asset index 下载失败: ${indexUrl}: ${e.message}`)
+      } catch (e: unknown) {
+        log.warn(`[downloadAssets] asset index 下载失败: ${indexUrl}: ${(e as Error).message}`)
         return
       }
     }
@@ -926,8 +928,8 @@ class MinecraftLauncher {
           )
           log.info(`[downloadAssets] 资源文件下载完成: 成功 ${result.success}, 失败 ${result.failed}`)
         }
-      } catch (e: any) {
-        log.warn(`[downloadAssets] asset index 解析失败: ${e.message}`)
+      } catch (e: unknown) {
+        log.warn(`[downloadAssets] asset index 解析失败: ${(e as Error).message}`)
       }
     }
   }
@@ -1305,8 +1307,8 @@ class MinecraftLauncher {
       if (modified) {
         fs.writeFileSync(optionsPath, content, 'utf-8')
       }
-    } catch (e: any) {
-      log.warn(`[validateOptions] 读取/修复 options.txt 失败: ${e.message}`)
+    } catch (e: unknown) {
+      log.warn(`[validateOptions] 读取/修复 options.txt 失败: ${(e as Error).message}`)
     }
   }
 
@@ -1314,7 +1316,7 @@ class MinecraftLauncher {
    * 解析游戏参数
    */
   private parseGameArguments(
-    gameArgArray: Array<string | { rules?: any[]; value?: string | string[] }>,
+    gameArgArray: Array<string | { rules?: unknown[]; value?: string | string[] }>,
     replaceMap: Record<string, string>,
     extraRules: { isOffline: boolean }
   ): string[] {
@@ -1328,13 +1330,14 @@ class MinecraftLauncher {
       return result
     }
 
-    const checkFeatureRules = (rules: any[]): boolean => {
+    const checkFeatureRules = (rules: unknown[]): boolean => {
       return rules.every((rule) => {
-        if (rule.action !== 'allow') return true
-        if (rule.os?.name && rule.os.name !== process.platform) return false
-        if (rule.os?.arch && process.arch !== rule.os.arch) return false
-        if (rule.features) {
-          if (rule.features['is_demo_user'] === true && !extraRules.isOffline) return false
+        const r = rule as { action: string; os?: { name?: string; arch?: string }; features?: Record<string, boolean> }
+        if (r.action !== 'allow') return true
+        if (r.os?.name && r.os.name !== process.platform) return false
+        if (r.os?.arch && process.arch !== r.os.arch) return false
+        if (r.features) {
+          if (r.features['is_demo_user'] === true && !extraRules.isOffline) return false
         }
         return true
       })
@@ -1478,11 +1481,12 @@ class MinecraftLauncher {
           stdio: ['ignore', 'pipe', 'pipe'],
           windowsHide: false
         })
-      } catch (e: any) {
-        log.error('[spawnProcess] spawn 异常:', e.message)
+      } catch (e: unknown) {
+        const err = e as Error
+        log.error('[spawnProcess] spawn 异常:', err.message)
         this.setStatus('idle')
-        this.sendProgress('error', '启动失败', e.message)
-        resolve({ success: false, error: e.message })
+        this.sendProgress('error', '启动失败', err.message)
+        resolve({ success: false, error: err.message })
         return
       }
 
@@ -2069,7 +2073,7 @@ export function isRunning(): boolean {
  * 获取当前日志
  */
 export function getCurrentLog(): string {
-  return launcherInstance ? (launcherInstance as any).logBuffer || '' : ''
+  return launcherInstance ? (launcherInstance as { logBuffer?: string }).logBuffer || '' : ''
 }
 
 // ===== 工具函数 =====

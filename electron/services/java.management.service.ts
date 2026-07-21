@@ -723,10 +723,10 @@ export async function probeJava(javaExe: string): Promise<JavaInfo | null> {
       log.info(`[JavaService] Java 探测成功: ${info.vendor} ${info.version} (${info.majorVersion})`)
     }
     return info
-  } catch (e: any) {
+  } catch (e: unknown) {
     // 某些Java实现可能会抛异常，尝试从stderr获取输出
-    log.warn(`[JavaService] Java 探测异常: ${javaExe}`, e.message)
-    const output = (e.stderr || '').toString()
+    log.warn(`[JavaService] Java 探测异常: ${javaExe}`, (e as Error).message)
+    const output = ((e as { stderr?: unknown }).stderr || '').toString()
     if (!output) {
       return null
     }

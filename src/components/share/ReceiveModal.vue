@@ -247,9 +247,9 @@ async function startReceive() {
   try {
     const result = await window.electronAPI.share.receiveInstance(code)
     sessionId.value = result.sessionId
-  } catch (e: any) {
+  } catch (e: unknown) {
     stage.value = 'error'
-    errorMessage.value = e.message || t('component.connectionFailed')
+    errorMessage.value = (e as Error).message || t('component.connectionFailed')
   }
 }
 
@@ -265,8 +265,8 @@ async function importInstance() {
     } else {
       errorMessage.value = result.error || t('component.importFailed')
     }
-  } catch (e: any) {
-    errorMessage.value = e.message || t('component.importFailed')
+  } catch (e: unknown) {
+    errorMessage.value = (e as { message?: string }).message || t('component.importFailed')
   } finally {
     importing.value = false
   }

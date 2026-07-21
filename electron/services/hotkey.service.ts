@@ -121,8 +121,8 @@ function registerSingleHotkey(h: HotkeyConfig): boolean {
     })
     if (ok) registeredMap.set(h.accelerator, h.id)
     return ok
-  } catch (e: any) {
-    log.error(`注册快捷键失败: ${h.id}`, e.message)
+  } catch (e: unknown) {
+    log.error(`注册快捷键失败: ${h.id}`, (e as Error).message)
     return false
   }
 }

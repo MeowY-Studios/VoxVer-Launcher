@@ -14,8 +14,8 @@ export function registerModIpcHandlers(modService: ModService) {
     try {
       const mods = await modService.getInstalledMods(gameDir)
       return { ok: true, data: mods }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -29,8 +29,8 @@ export function registerModIpcHandlers(modService: ModService) {
         return { ok: false, error: '安装失败' }
       }
       return { ok: true, data: mod }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -52,8 +52,8 @@ export function registerModIpcHandlers(modService: ModService) {
       }
       const success = await modService.uninstallMod(modInfo)
       return { ok: success }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -74,8 +74,8 @@ export function registerModIpcHandlers(modService: ModService) {
       }
       const success = await modService.enableMod(modInfo)
       return { ok: success }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -96,8 +96,8 @@ export function registerModIpcHandlers(modService: ModService) {
       }
       const success = await modService.disableMod(modInfo)
       return { ok: success }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -108,8 +108,8 @@ export function registerModIpcHandlers(modService: ModService) {
     try {
       const result = await modService.installMods(sourcePaths, gameDir)
       return { ok: true, data: result }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -120,8 +120,8 @@ export function registerModIpcHandlers(modService: ModService) {
     try {
       const result = await modService.checkCompatibility(mods, targetVersion, loader)
       return { ok: true, data: result }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -132,8 +132,8 @@ export function registerModIpcHandlers(modService: ModService) {
     try {
       const modsDir = await modService.ensureModsDir(gameDir)
       return { ok: true, data: modsDir }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -160,10 +160,10 @@ export function registerModIpcHandlers(modService: ModService) {
       }
 
       return { ok: true, data: configFiles }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // config 目录不存在不算错，返回空列表
-      if (error.code === 'ENOENT') return { ok: true, data: [] }
-      return { ok: false, error: error.message }
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return { ok: true, data: [] }
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -174,8 +174,8 @@ export function registerModIpcHandlers(modService: ModService) {
     try {
       const content = await fs.readFile(filePath, 'utf-8')
       return { ok: true, data: content }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -186,8 +186,8 @@ export function registerModIpcHandlers(modService: ModService) {
     try {
       await fs.writeFile(filePath, content, 'utf-8')
       return { ok: true }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -199,8 +199,8 @@ export function registerModIpcHandlers(modService: ModService) {
       const configDir = path.join(gameDir, 'config')
       await fs.mkdir(configDir, { recursive: true })
       return { ok: true, data: configDir }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -214,8 +214,8 @@ export function registerModIpcHandlers(modService: ModService) {
     try {
       const results = await modService.checkModsUpdate(mods, mcVersion, loader)
       return { ok: true, data: results }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -236,8 +236,8 @@ export function registerModIpcHandlers(modService: ModService) {
         })
         if (!result) return { ok: false, error: '更新失败' }
         return { ok: true, data: result }
-      } catch (error: any) {
-        return { ok: false, error: error.message }
+      } catch (error: unknown) {
+        return { ok: false, error: (error as Error).message }
       }
     }
   )
@@ -252,8 +252,8 @@ export function registerModIpcHandlers(modService: ModService) {
     try {
       const results = await modService.checkModsDependencies(mods, mcVersion, loader)
       return { ok: true, data: results }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -282,8 +282,8 @@ export function registerModIpcHandlers(modService: ModService) {
           }
         )
         return { ok: true, data: result }
-      } catch (error: any) {
-        return { ok: false, error: error.message }
+      } catch (error: unknown) {
+        return { ok: false, error: (error as Error).message }
       }
     }
   )

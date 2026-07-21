@@ -107,7 +107,7 @@ export function registerShareHandlers(): void {
         status: 'waiting',
         progress: lastProgress
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       log.error('Failed to start share', e)
       throw new Error(e.message || '启动分享失败')
     }
@@ -123,7 +123,7 @@ export function registerShareHandlers(): void {
       }
 
       p2pShareService.closeSession(sessionId)
-    } catch (e: any) {
+    } catch (e: unknown) {
       log.error('Failed to stop share', e)
     }
   })
@@ -148,9 +148,9 @@ export function registerShareHandlers(): void {
       log.info('Receive session started', { sessionId, peerId })
 
       return { sessionId, peerId }
-    } catch (e: any) {
+    } catch (e: unknown) {
       log.error('Failed to start receive', e)
-      throw new Error(e.message || '开始接收失败')
+      throw new Error((e as Error).message || '开始接收失败')
     }
   })
 
@@ -227,9 +227,9 @@ export function registerShareHandlers(): void {
       }
 
       return { ok: false, error: '创建实例失败' }
-    } catch (e: any) {
+    } catch (e: unknown) {
       log.error('Failed to import received instance', e)
-      return { ok: false, error: e.message || '导入失败' }
+      return { ok: false, error: (e as Error).message || '导入失败' }
     }
   })
 
@@ -237,7 +237,7 @@ export function registerShareHandlers(): void {
     try {
       log.info('Closing session', { sessionId })
       p2pShareService.closeSession(sessionId)
-    } catch (e: any) {
+    } catch (e: unknown) {
       log.error('Failed to close session', e)
     }
   })

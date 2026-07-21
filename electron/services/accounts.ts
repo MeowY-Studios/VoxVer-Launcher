@@ -5,6 +5,7 @@
 
 import { getDatabase } from './database'
 import { encryptToHex, decryptFromHex } from '../utils/crypto'
+import { getOfflineUUID } from '@xmcl/user'
 
 export interface Account {
   id: string
@@ -68,7 +69,7 @@ export function createOfflineAccount(name: string, uuid?: string): Account {
   const db = getDatabase()
   const id = `acct_${Date.now()}`
   const now = new Date().toISOString()
-  const generatedUuid = uuid || generateUUID()
+  const generatedUuid = uuid || getOfflineUUID(name)
 
   // 设为活跃（如果还没有活跃账户）
   const active = getActiveAccount() ? 0 : 1
@@ -175,11 +176,3 @@ export function backfillXuid(id: string, xuid: string): void {
   db.prepare('UPDATE accounts SET xuid = ? WHERE id = ?').run(xuid, id)
 }
 
-// 生成 UUID v4
-function generateUUID(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0
-    const v = c === 'x' ? r : (r & 0x3) | 0x8
-    return v.toString(16)
-  })
-}

@@ -733,6 +733,7 @@ import type { ModSearchResult } from '../types/download'
 import type { ContentPlatform } from '../types/download'
 import type { GameInstance } from '../types/instance'
 import { isFeaturedVersion, getVersionDesc, getVersionTypeColor } from '../config/version.config'
+import type { VersionInfo } from '../types/versions'
 
 const { t } = useI18n()
 
@@ -862,7 +863,7 @@ function loadMoreVersions() {
   displayedCount.value += PAGE_SIZE
 }
 
-function toVerItem(raw: any, isInstalled: boolean): VerItem {
+function toVerItem(raw: VersionInfo, isInstalled: boolean): VerItem {
   const t = raw.type as string
   let type: VerItem['type'] = 'release'
   if (t === 'snapshot' || t.includes('snapshot')) type = 'snapshot'
@@ -924,7 +925,7 @@ async function refreshVersions() {
       try {
         const res = await api.versions.scanFolder(mcDir)
         if (res?.ok && res.data) {
-          for (const v of res.data as any[]) {
+          for (const v of res.data as VersionInfo[]) {
             installed.add(v.id)
           }
         }
@@ -936,7 +937,7 @@ async function refreshVersions() {
 
     // * 从 BMCLAPI 获取版本列表
     const rawVersions = await api.versions.list()
-    allVersions.value = Array.isArray(rawVersions) ? rawVersions.map((raw: any) => toVerItem(raw, installed.has(raw.id))) : []
+    allVersions.value = Array.isArray(rawVersions) ? (rawVersions as VersionInfo[]).map((raw: VersionInfo) => toVerItem(raw, installed.has(raw.id))) : []
   } catch (err) {
   } finally {
     isLoadingVersions.value = false
@@ -1000,7 +1001,15 @@ async function downloadServer(ver: VerItem) {
   const api = window.electronAPI
   if (!api?.dialog) return
 
-  const result = await (api.dialog as any).showSaveDialog({
+  const result = await (
+    api.dialog as unknown as {
+      showSaveDialog: (opts: {
+        title: string
+        defaultPath: string
+        filters: Array<{ name: string; extensions: string[] }>
+      }) => Promise<{ filePath?: string; canceled?: boolean }>
+    }
+  ).showSaveDialog({
     title: t('download.selectServerSaveLocation') as string,
     defaultPath: `minecraft_server.${ver.id.split('-')[0]}.jar`,
     filters: [
@@ -1010,7 +1019,7 @@ async function downloadServer(ver: VerItem) {
   })
 
   if (result.filePath) {
-    const res = await (api.versions as any).downloadServer(ver.id, result.filePath)
+    const res = await api.versions.downloadServer(ver.id, result.filePath)
     if (res?.ok) {
       window.electronAPI?.notification?.send({
         title: t('common.success'),
@@ -1343,7 +1352,7 @@ function resetSearch() {
   dlStore.searchResults = []
 }
 
-function handleCardClick(r: any) {
+function handleCardClick(r: ModSearchResult) {
   const source = r.source === 'CurseForge' ? 'curseforge' : 'modrinth'
   router.push({
     path: `/download/mod/${r.id}`,

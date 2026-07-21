@@ -156,8 +156,8 @@ export function registerDialogHandlers(mainWindow: BrowserWindow): void {
       }
       await shell.openPath(absPath)
       return { ok: true }
-    } catch (e: any) {
-      return { ok: false, error: e.message }
+    } catch (e: unknown) {
+      return { ok: false, error: (e as Error).message }
     }
   })
 
@@ -166,8 +166,8 @@ export function registerDialogHandlers(mainWindow: BrowserWindow): void {
     try {
       await shell.openExternal(url)
       return { ok: true }
-    } catch (e: any) {
-      return { ok: false, error: e.message }
+    } catch (e: unknown) {
+      return { ok: false, error: (e as Error).message }
     }
   })
 
@@ -179,8 +179,8 @@ export function registerDialogHandlers(mainWindow: BrowserWindow): void {
       const ext = extname(filePath).toLowerCase().slice(1)
       const mime = MIME_MAP[ext] || 'image/png'
       return `data:${mime};base64,${data.toString('base64')}`
-    } catch (e: any) {
-      log.error('[file:read-as-data-url] 读取失败:', e.message)
+    } catch (e: unknown) {
+      log.error('[file:read-as-data-url] 读取失败:', (e as Error).message)
       return null
     }
   })

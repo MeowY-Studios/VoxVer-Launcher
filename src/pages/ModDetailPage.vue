@@ -337,7 +337,7 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useInstancesStore } from '../stores/instances.store'
 import { useDownloadStore } from '../stores/download.store'
-import type { ModSearchResult, ProjectFile } from '../types/download'
+import type { ModSearchResult, ProjectFile, ContentPlatform } from '../types/download'
 import { formatNumber } from '../utils/format'
 
 const route = useRoute()
@@ -489,7 +489,7 @@ async function loadAll() {
         iconUrl: '',
         downloads: 0,
         follows: 0,
-        source: modSource.value as any,
+        source: modSource.value as ContentPlatform,
         categories: [],
         gameVersions: [],
         loaders: []
@@ -507,9 +507,9 @@ async function loadFiles() {
   if (!modId.value) return
   filesLoading.value = true
   try {
-    const res = await window.electronAPI?.download.getFiles(modId.value, modSource.value as any, {})
-    const data = (res as any)?.data || []
-    files.value = data.map((f: any) => ({
+    const res = await window.electronAPI?.download.getFiles(modId.value, modSource.value as ContentPlatform, {})
+    const data = (res as { data?: ProjectFile[] })?.data || []
+    files.value = data.map((f: ProjectFile) => ({
       id: String(f.id),
       filename: f.fileName || f.filename || '',
       displayName: f.displayName || f.fileName || f.filename || '',
@@ -586,19 +586,19 @@ async function confirmDownload() {
       })
     )
     const res = await window.electronAPI?.download.downloadFile(payload, dest)
-    if ((res as any)?.success) {
+    if ((res as { success?: boolean; error?: string })?.success) {
       await dlStore.refreshQueue()
     } else {
       window.electronAPI?.notification?.send({
         title: t('common.error'),
-        body: t('mod.downloadFailedBody', { error: (res as any)?.error || t('mod.unknownError') }),
+        body: t('mod.downloadFailedBody', { error: (res as { success?: boolean; error?: string })?.error || t('mod.unknownError') }),
         type: 'error'
       })
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('mod.downloadErrorBody', { error: e.message || t('mod.unknownError') }),
+      body: t('mod.downloadErrorBody', { error: (e as Error).message || t('mod.unknownError') }),
       type: 'error'
     })
   } finally {

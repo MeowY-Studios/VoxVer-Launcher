@@ -324,6 +324,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAccountsStore } from '../stores/accounts.store'
+import type { Account } from '../types/account'
 
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits<{ 'update:visible': [val: boolean] }>()
@@ -332,11 +333,11 @@ const accountsStore = useAccountsStore()
 const { t } = useI18n()
 
 // ====== 微软账户列表 ======
-const msAccounts = computed(() => accountsStore.accounts.filter((a: any) => a.type === 'microsoft'))
+const msAccounts = computed(() => accountsStore.accounts.filter((a: Account) => a.type === 'microsoft'))
 
 // ====== 离线账户列表 ======
 const offlineAccounts = computed(() =>
-  accountsStore.accounts.filter((a: any) => a.type === 'offline')
+  accountsStore.accounts.filter((a: Account) => a.type === 'offline')
 )
 
 // 切换微软账户
@@ -384,7 +385,7 @@ let progressUnlisten: (() => void) | null = null
 onMounted(async () => {
   await accountsStore.fetchAccounts()
 
-  progressUnlisten = window.electronAPI?.account.onLoginProgress((payload: any) => {
+  progressUnlisten = window.electronAPI?.account.onLoginProgress((payload: { stage: string; detail?: string }) => {
     handleLoginProgress(payload.stage, payload.detail)
   })
 })
@@ -523,8 +524,8 @@ async function saveOffline() {
     } else {
       offlineError.value = result?.error || t('auth.saveFailed')
     }
-  } catch (e: any) {
-    offlineError.value = e.message || t('auth.saveFailed')
+  } catch (e: unknown) {
+    offlineError.value = (e as Error).message || t('auth.saveFailed')
   } finally {
     savingOffline.value = false
   }

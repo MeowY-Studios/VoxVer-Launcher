@@ -35,8 +35,8 @@ export const useAccountsStore = defineStore('accounts', () => {
     try {
       const rawList = await window.electronAPI?.account.list()
       accounts.value = (rawList || []).map(mapRawToAccount)
-    } catch (e: any) {
-      error.value = e.message || $t('auth.loadFailed')
+    } catch (e: unknown) {
+      error.value = (e as Error).message || $t('auth.loadFailed')
     } finally {
       loading.value = false
     }
@@ -46,15 +46,15 @@ export const useAccountsStore = defineStore('accounts', () => {
   async function loginMicrosoft() {
     try {
       const result = await window.electronAPI?.account.loginMicrosoft()
-      if (!result || typeof result !== 'object' || !('ok' in result) || !(result as any).ok) {
-        if ((result as any).error === 'LOGIN_CANCELLED') return false
-        error.value = (result as any).error || $t('auth.microsoftLoginFailed')
+      if (!result || typeof result !== 'object' || !('ok' in result) || !(result as { ok?: boolean; error?: string }).ok) {
+        if ((result as { ok?: boolean; error?: string }).error === 'LOGIN_CANCELLED') return false
+        error.value = (result as { ok?: boolean; error?: string }).error || $t('auth.microsoftLoginFailed')
         return false
       }
       await fetchAccounts()
       return true
-    } catch (e: any) {
-      error.value = e.message || $t('auth.microsoftLoginFailed')
+    } catch (e: unknown) {
+      error.value = (e as Error).message || $t('auth.microsoftLoginFailed')
       return false
     }
   }
@@ -62,15 +62,15 @@ export const useAccountsStore = defineStore('accounts', () => {
   /** 离线登录（创建离线账户） */
   async function loginOffline(username: string) {
     try {
-      const result = await window.electronAPI?.account.loginOffline(username) as any
-      if (!result || typeof result !== 'object' || !('ok' in result) || !(result as any).ok) {
+      const result = await window.electronAPI?.account.loginOffline(username) as { ok?: boolean; error?: string }
+      if (!result || typeof result !== 'object' || !('ok' in result) || !(result as { ok?: boolean; error?: string }).ok) {
         await fetchAccounts()
         return true
       }
-      error.value = (result as any).error || $t('auth.offlineLoginFailed') 
+      error.value = (result as { ok?: boolean; error?: string }).error || $t('auth.offlineLoginFailed') 
       return false
-    } catch (e: any) {
-      error.value = e.message || $t('auth.offlineLoginFailed')
+    } catch (e: unknown) {
+      error.value = (e as Error).message || $t('auth.offlineLoginFailed')
       return false
     }
   }
@@ -103,7 +103,7 @@ export const useAccountsStore = defineStore('accounts', () => {
 })
 
 // * snake_case -> camelCase 映射
-function mapRawToAccount(raw: any): Account {
+function mapRawToAccount(raw: Record<string, unknown>): Account {
   return {
     id: raw.id,
     type: raw.type,

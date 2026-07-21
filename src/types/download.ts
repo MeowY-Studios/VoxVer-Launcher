@@ -77,6 +77,7 @@ export interface DownloadTask {
   speed: number // * bytes/sec
   downloadedSize: number // * 已下载字节
   totalSize: number // * 总大小
+  phase?: string // * 下载阶段
   error?: string
   createdAt: string
 }

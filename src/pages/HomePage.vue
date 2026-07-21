@@ -113,7 +113,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useInstancesStore } from '../stores'
-import ReceiveModal from '../components/share/ReceiveModal.vue'
+import type { GameInstance } from '../types/instance'
 
 const { t } = useI18n()
 
@@ -133,7 +133,7 @@ const initialShareCode = ref('')
 let protocolCleanup: (() => void) | undefined
 
 const recentInstances = computed(() => {
-  return instancesStore.recentInstances.map((inst: any) => ({
+  return instancesStore.recentInstances.map((inst: GameInstance) => ({
     id: inst.id,
     name: inst.name,
     mcVersion: inst.mcVersion || inst.mc_version || t('home.unknown'),

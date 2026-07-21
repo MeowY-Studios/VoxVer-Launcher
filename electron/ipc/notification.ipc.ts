@@ -18,8 +18,8 @@ export function registerNotificationHandlers(): void {
     try {
       const history = notification.getHistory(limit)
       return { ok: true, data: history }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -27,8 +27,8 @@ export function registerNotificationHandlers(): void {
     try {
       notification.markAsRead(id)
       return { ok: true }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -36,8 +36,8 @@ export function registerNotificationHandlers(): void {
     try {
       notification.markAllAsRead()
       return { ok: true }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -45,16 +45,16 @@ export function registerNotificationHandlers(): void {
     try {
       notification.clearHistory()
       return { ok: true }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
   ipcMain.handle('notification:get-unread-count', async () => {
     try {
       return { ok: true, data: notification.getUnreadCount() }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -74,8 +74,8 @@ export function registerNotificationHandlers(): void {
         const { title, body = '', type = 'info', route } = payload
         notification.notify({ title, body, type, route })
         return { ok: true }
-      } catch (error: any) {
-        return { ok: false, error: error.message }
+      } catch (error: unknown) {
+        return { ok: false, error: (error as Error).message }
       }
     }
   )

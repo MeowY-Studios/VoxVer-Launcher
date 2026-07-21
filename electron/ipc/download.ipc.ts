@@ -13,9 +13,9 @@ export function registerDownloadHandlers(): void {
       const service = await waitForContentService()
       const result = await service.searchMods(params)
       return { success: true, data: result }
-    } catch (e: any) {
-      console.error('[IPC] search-mods error:', e?.message || e)
-      return { success: false, data: [], error: e?.message || 'ContentService 未就绪' }
+    } catch (e: unknown) {
+      console.error('[IPC] search-mods error:', (e as Error)?.message || e)
+      return { success: false, data: [], error: (e as Error)?.message || 'ContentService 未就绪' }
     }
   })
 

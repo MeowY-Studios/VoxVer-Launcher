@@ -754,7 +754,7 @@ async function loadExportData() {
   try {
     const result = await window.electronAPI?.instance?.exportPreview(props.gameDir)
     if (result?.ok && result.data) {
-      exportMods.value = (result.data.mods || []).map((m: any) => ({
+      exportMods.value = (result.data.mods || []).map((m: { name?: string; fileName?: string; version?: string; logoUrl?: string; enabled?: boolean }) => ({
         name: m.name || m.fileName || t('version.settings.unknownMod'),
         version: m.version || t('version.settings.unknown'),
         logoUrl: m.logoUrl || '',
@@ -765,10 +765,10 @@ async function loadExportData() {
       exportShaderPacks.value = result.data.shaderPacks || []
       exportLoaded.value = true
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('version.settings.loadExportFailed'),
-      body: e?.message || t('version.settings.cannotReadExport'),
+      body: (e as Error)?.message || t('version.settings.cannotReadExport'),
       type: 'error'
     })
   }
@@ -828,10 +828,10 @@ async function doExport() {
         type: 'error'
       })
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('version.settings.exportFailedTitle'),
-      body: e?.message || t('version.settings.unknownError'),
+      body: (e as Error)?.message || t('version.settings.unknownError'),
       type: 'error'
     })
   }
@@ -881,7 +881,7 @@ async function completeFiles() {
     const result = await window.electronAPI?.versions.validate(versionId, gameDir)
     if (!result || typeof result !== 'object' || !('ok' in result) || !result.ok || !('data' in result) || !result.data) {
       completeState.value = 'error'
-      completeError.value = (result as any).error || t('version.settings.checkFailed')
+      completeError.value = (result as { error?: string }).error || t('version.settings.checkFailed')
       return
     }
 
@@ -894,9 +894,9 @@ async function completeFiles() {
     } else {
       completeState.value = 'missing'
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     completeState.value = 'error'
-    completeError.value = e.message
+    completeError.value = (e as Error).message
   }
 }
 
@@ -922,9 +922,9 @@ async function startDownloadMissing() {
       completeState.value = 'error'
       completeError.value = result?.error || t('version.settings.downloadFailed')
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     completeState.value = 'error'
-    completeError.value = e.message
+    completeError.value = (e as Error).message
   }
 }
 

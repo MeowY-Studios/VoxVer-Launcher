@@ -466,7 +466,7 @@ const showImport = ref(false)
 const showExport = ref(false)
 const importStep = ref<'select' | 'scanning' | 'preview' | 'importing' | 'done' | 'error'>('select')
 const importDir = ref('')
-const importScanResult = ref<any>(null)
+const importScanResult = ref<ScanMinecraftResult | null>(null)
 const importError = ref('')
 const exportLoading = ref(false)
 const exportOptions = ref({ includeMods: true, includeConfigs: true, includeSaves: false })
@@ -701,9 +701,9 @@ async function scanImportDir() {
       importStep.value = 'error'
       importError.value = res?.error || t('instance.scanFailed')
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     importStep.value = 'error'
-    importError.value = e.message
+    importError.value = (e as Error).message
   }
 }
 
@@ -725,9 +725,9 @@ async function doImport() {
       importStep.value = 'error'
       importError.value = res?.error || t('instance.importFailed')
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     importStep.value = 'error'
-    importError.value = e.message
+    importError.value = (e as Error).message
   }
 }
 

@@ -1542,6 +1542,8 @@ export default {
       ossCommunity: 'Open Source Community Contributors',
       koringUi: 'Koring Settings Page Design & Content',
       archReference: 'Modular Architecture Reference (Mohen Studio)',
+      xmcl: 'X Minecraft Launcher (XMCL)',
+      xmclRole: 'Launcher Core & Toolkits (@xmcl)',
       releases: 'Releases & Updates',
       docs: 'Documentation',
       gplv3: 'GPLv3 License'

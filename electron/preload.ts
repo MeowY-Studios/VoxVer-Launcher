@@ -764,7 +764,7 @@ const api = {
       ) => {
         const listener = packListeners.get(callback)
         if (listener) {
-          ipcRenderer.removeListener('share:pack-progress', listener as (...args: any[]) => void)
+          ipcRenderer.removeListener('share:pack-progress', listener as (...args: unknown[]) => void)
           packListeners.delete(callback)
         }
       },
@@ -776,7 +776,7 @@ const api = {
       ) => {
         const listener = sessionListeners.get(callback)
         if (listener) {
-          ipcRenderer.removeListener('share:session-update', listener as (...args: any[]) => void)
+          ipcRenderer.removeListener('share:session-update', listener as (...args: unknown[]) => void)
           sessionListeners.delete(callback)
         }
       },
@@ -788,7 +788,7 @@ const api = {
       ) => {
         const listener = progressListeners.get(callback)
         if (listener) {
-          ipcRenderer.removeListener('share:progress-update', listener as (...args: any[]) => void)
+          ipcRenderer.removeListener('share:progress-update', listener as (...args: unknown[]) => void)
           progressListeners.delete(callback)
         }
       }

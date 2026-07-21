@@ -202,7 +202,7 @@ function getMainClass(mcVersion: string, loaderType: string): string {
   }
 }
 
-function getConfigValue(db: any, key: string): string | null {
+function getConfigValue(db: import('better-sqlite3').Database, key: string): string | null {
   const row = db.prepare('SELECT value FROM configs WHERE key = ?').get(key) as
     | { value: string }
     | undefined

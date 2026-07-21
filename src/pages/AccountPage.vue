@@ -289,6 +289,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAccountsStore } from '../stores/accounts.store'
+import type { Account } from '../types/account'
 
 const { t } = useI18n()
 const accountsStore = useAccountsStore()
@@ -325,7 +326,7 @@ onMounted(async () => {
   // * 监听来自主进程的登录进度
   progressUnlisten = window.electronAPI?.account.onLoginProgress((payload) => {
     handleLoginProgress(payload.stage, payload.detail)
-  }) as any
+  })
 })
 
 onUnmounted(() => {
@@ -334,7 +335,7 @@ onUnmounted(() => {
 
 async function syncMsAccount() {
   const active = accountsStore.accounts.find((a) => a.isActive === 1)
-  msAccount.value = active?.type === 'microsoft' ? (active as any) : null
+  msAccount.value = active?.type === 'microsoft' ? (active as Account) : null
   skinDataUrl.value = null
   skinError.value = null
   if (msAccount.value?.uuid) {
@@ -501,8 +502,8 @@ async function saveOffline() {
     } else {
       offlineError.value = result?.error || t('auth.saveFailed') as string
     }
-  } catch (e: any) {
-    offlineError.value = e.message || t('auth.saveFailed') as string
+  } catch (e: unknown) {
+    offlineError.value = (e as Error).message || t('auth.saveFailed') as string
   } finally {
     savingOffline.value = false
   }

@@ -41,8 +41,8 @@ export const useInstancesStore = defineStore('instances', () => {
       const rawList = await window.electronAPI?.instance.list()
       // * 映射 snake_case -> camelCase
       instances.value = (rawList || []).map(mapRawToInstance)
-    } catch (e: any) {
-      error.value = e.message || $t('instance.loadFailed')
+    } catch (e: unknown) {
+      error.value = (e as Error).message || $t('instance.loadFailed')
     } finally {
       loading.value = false
     }
@@ -50,7 +50,7 @@ export const useInstancesStore = defineStore('instances', () => {
 
   /** 创建新实例 */
   async function createInstance(params: CreateInstanceParams) {
-    const result = await window.electronAPI?.instance.create(params as any)
+    const result = await window.electronAPI?.instance.create(params as Record<string, unknown>)
     if (result) {
       instances.value.unshift(mapRawToInstance(result))
       return result
@@ -60,7 +60,7 @@ export const useInstancesStore = defineStore('instances', () => {
 
   /** 更新实例 */
   async function updateInstance(id: string, data: Partial<GameInstance>) {
-    await window.electronAPI?.instance.update(id, data as any)
+    await window.electronAPI?.instance.update(id, data as Record<string, unknown>)
     await fetchInstances() // * 刷新列表
   }
 
@@ -106,7 +106,7 @@ export const useInstancesStore = defineStore('instances', () => {
 // * ====== 工具函数 ======
 
 /** 主进程返回的 snake_case 数据转前端 camelCase */
-function mapRawToInstance(raw: any): GameInstance {
+function mapRawToInstance(raw: Record<string, unknown>): GameInstance {
   return {
     id: raw.id,
     name: raw.name,

@@ -4,15 +4,15 @@
  */
 import type { Composer } from 'vue-i18n'
 
-let i18n: Composer<any> | null = null
+let i18n: Composer<{ message: Record<string, string> }> | null = null
 
-export function setI18n(instance: Composer<any>): void {
+export function setI18n(instance: Composer<{ message: Record<string, string> }>): void {
   i18n = instance
 }
 
-export function $t(key: string, ...args: any[]): string {
+export function $t(key: string, ...args: unknown[]): string {
   if (i18n) {
-    return (i18n.t as any)(key, ...args)
+    return (i18n.t as (...a: unknown[]) => string)(key, ...args)
   }
   return key
 }

@@ -31,8 +31,8 @@ export function registerAccountHandlers(): void {
     try {
       const deviceCode = await requestDeviceCode()
       return { ok: true, data: deviceCode }
-    } catch (e: any) {
-      return { ok: false, error: e.message || '请求 Device Code 失败' }
+    } catch (e: unknown) {
+      return { ok: false, error: (e as Error).message || '请求 Device Code 失败' }
     }
   })
 
@@ -94,8 +94,8 @@ export function registerAccountHandlers(): void {
       sendProgress('done', '登录成功')
       loginAbortController = null
       return { ok: true, data: account }
-    } catch (e: any) {
-      const msg = e.message || '登录失败'
+    } catch (e: unknown) {
+      const msg = (e as Error).message || '登录失败'
       if (msg === 'LOGIN_CANCELLED') {
         sendProgress('cancelled', '登录已取消')
         return { ok: false, error: 'LOGIN_CANCELLED' }
@@ -149,8 +149,8 @@ export function registerAccountHandlers(): void {
             skinUrl = data.skins?.[0]?.url
             log.info(`[getSkinDataUrl] fetched skinUrl from API: ${skinUrl}`)
           }
-        } catch (e: any) {
-          log.info(`[getSkinDataUrl] API fetch failed: ${e.message}`)
+        } catch (e: unknown) {
+          log.info(`[getSkinDataUrl] API fetch failed: ${(e as Error).message}`)
         }
       }
 
@@ -163,9 +163,9 @@ export function registerAccountHandlers(): void {
         log.info(`[getSkinDataUrl] download result: ${localPath}`)
         if (!localPath) return { ok: false, error: '皮肤下载失败' }
         skinPath = `file://${localPath.replace(/\\/g, '/')}`
-      } catch (e: any) {
-        log.info(`[getSkinDataUrl] download error: ${e.message}`)
-        return { ok: false, error: e.message }
+      } catch (e: unknown) {
+        log.info(`[getSkinDataUrl] download error: ${(e as Error).message}`)
+        return { ok: false, error: (e as Error).message }
       }
     }
 
@@ -177,9 +177,9 @@ export function registerAccountHandlers(): void {
       const base64 = data.toString('base64')
       const dataUrl = `data:image/png;base64,${base64}`
       return { ok: true, data: dataUrl }
-    } catch (e: any) {
-      log.info(`[getSkinDataUrl] read error: ${e.message}`)
-      return { ok: false, error: e.message }
+    } catch (e: unknown) {
+      log.info(`[getSkinDataUrl] read error: ${(e as Error).message}`)
+      return { ok: false, error: (e as Error).message }
     }
   })
 
@@ -189,9 +189,9 @@ export function registerAccountHandlers(): void {
     try {
       shell.openExternal(pendingDeviceCode.verification_uri)
       return { ok: true }
-    } catch (e: any) {
+    } catch (e: unknown) {
       log.error('[OAuth] openExternal failed:', e)
-      return { ok: false, error: e.message }
+      return { ok: false, error: (e as Error).message }
     }
   })
 
@@ -200,8 +200,8 @@ export function registerAccountHandlers(): void {
     try {
       const account = accountService.createOfflineAccount(username)
       return { ok: true, data: account }
-    } catch (e: any) {
-      return { ok: false, error: e.message || '创建离线账户失败' }
+    } catch (e: unknown) {
+      return { ok: false, error: (e as Error).message || '创建离线账户失败' }
     }
   })
 
@@ -234,8 +234,8 @@ export function registerAccountHandlers(): void {
           success++
           log.info(`[account:backfill-xuid] ${acc.id} 回填 xuid=${profile.xuid}`)
         }
-      } catch (e: any) {
-        log.warn(`[account:backfill-xuid] ${acc.id} 失败: ${e.message}`)
+      } catch (e: unknown) {
+        log.warn(`[account:backfill-xuid] ${acc.id} 失败: ${(e as Error).message}`)
       }
     }
     return { ok: true, count: success }
@@ -268,8 +268,8 @@ export function registerAccountHandlers(): void {
         profile.expiresIn
       )
       return { ok: true }
-    } catch (e: any) {
-      return { ok: false, error: e.message || '刷新令牌失败' }
+    } catch (e: unknown) {
+      return { ok: false, error: (e as Error).message || '刷新令牌失败' }
     }
   })
 }

@@ -164,7 +164,14 @@ import { useI18n } from 'vue-i18n'
 const { t, locale } = useI18n()
 const router = useRouter()
 const showPanel = ref(false)
-const history = ref<any[]>([])
+interface NotificationItem {
+  id: string
+  read: boolean
+  route?: string
+  timestamp: number
+}
+
+const history = ref<NotificationItem[]>([])
 const unreadCount = ref(0)
 
 const sortedHistory = computed(() => [...history.value].sort((a, b) => b.timestamp - a.timestamp))
@@ -224,7 +231,7 @@ async function clearAll() {
   unreadCount.value = 0
 }
 
-async function onClick(item: any) {
+async function onClick(item: NotificationItem) {
   if (!item.read) await markRead(item.id)
   if (item.route) {
     router.push(item.route)
@@ -243,7 +250,7 @@ onMounted(async () => {
   }
 
   if (window.electronAPI?.notification?.onClicked) {
-    removeOnClicked = window.electronAPI.notification.onClicked((data: any) => {
+    removeOnClicked = window.electronAPI.notification.onClicked((data: { route?: string }) => {
       if (data?.route) router.push(data.route)
     })
   }

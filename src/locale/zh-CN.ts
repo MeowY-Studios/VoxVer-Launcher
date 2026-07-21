@@ -1629,6 +1629,8 @@ export default {
       ossCommunity: '开源社区贡献者',
       koringUi: 'Koring 设置页面排版与内容',
       archReference: '模块化架构参考（墨痕工作室）',
+      xmcl: 'X Minecraft Launcher (XMCL)',
+      xmclRole: '启动核心与工具集（@xmcl）',
       releases: '发布与更新',
       docs: '文档站',
       gplv3: 'GPLv3 许可证'

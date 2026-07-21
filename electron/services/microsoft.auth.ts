@@ -1,3 +1,4 @@
+import { authenticateWithXmcl } from './xmcl.auth.service'
 import { logger } from '../utils/logger'
 const log = logger.child('OAuth')
 /**
@@ -5,34 +6,14 @@ const log = logger.child('OAuth')
  *
  * 认证链：
  *   1. MS Device Code  →  MS Access Token + Refresh Token
- *   2. MS Access Token →  Xbox Live Token (XBL)
- *   3. XBL Token       →  XSTS Token
- *   4. XSTS Token      →  Minecraft Access Token
- *   5. MC Access Token →  MC Profile (UUID + name)
+ *   2. MS Access Token →  Xbox Live + XSTS + Minecraft Token（由 @xmcl/user 处理）
  */
-
-// ======= JWT 解码工具（不验证签名，只取 payload） =======
-function decodeJwtPayload(token: string): Record<string, any> {
-  try {
-    const parts = token.split('.')
-    if (parts.length < 2) return {}
-    const payload = parts[1].replace(/-/g, '+').replace(/_/g, '/')
-    const padded = payload + '=='.slice((payload.length + 4) % 4)
-    return JSON.parse(Buffer.from(padded, 'base64').toString('utf8'))
-  } catch {
-    return {}
-  }
-}
 
 // ======= 常量 =======
 const CLIENT_ID = 'a12fb152-fc1f-412f-8512-fe4ed9f96511' //  VoxVer Launcher ClientId
 const DEVICE_CODE_URL = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode'
 const TOKEN_URL = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/token'
 const LIVE_TOKEN_URL = 'https://login.live.com/oauth20_token.srf' // 刷新 token 专用
-const XBL_URL = 'https://user.auth.xboxlive.com/user/authenticate'
-const XSTS_URL = 'https://xsts.auth.xboxlive.com/xsts/authorize'
-const MC_LOGIN_URL = 'https://api.minecraftservices.com/authentication/login_with_xbox'
-const MC_PROFILE_URL = 'https://api.minecraftservices.com/minecraft/profile'
 
 // ======= 类型 =======
 export interface DeviceCodeResponse {
@@ -70,7 +51,7 @@ async function httpPost(
   url: string,
   body: Record<string, string>,
   headers?: Record<string, string>
-): Promise<any> {
+): Promise<Record<string, unknown>> {
   const isFormEncoded =
     !headers?.['Content-Type'] || headers['Content-Type'].includes('x-www-form-urlencoded')
   const bodyStr = isFormEncoded
@@ -129,24 +110,7 @@ async function httpPost(
   return res.json()
 }
 
-async function httpGet(url: string, accessToken: string): Promise<any> {
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: 'application/json'
-    }
-  })
-
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`HTTP ${res.status}: ${text}`)
-  }
-
-  return res.json()
-}
-
-// ======= Device Flow 步骤 =======
+// ======= 请求 Device Code =======
 
 /**
  * Step 1: 请求 Device Code
@@ -186,11 +150,11 @@ export async function pollForToken(
     }
 
     try {
-      const data: any = await httpPost(TOKEN_URL, {
+      const data = await httpPost(TOKEN_URL, {
         client_id: CLIENT_ID,
         grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
         device_code: deviceCode
-      })
+      }) as Record<string, string>
 
       if (data.error) {
         // authorization_pending / slow_down = 用户还没操作，继续等
@@ -211,136 +175,12 @@ export async function pollForToken(
           expires_in: data.expires_in
         }
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       throw e
     }
   }
 
   throw new Error('LOGIN_TIMEOUT')
-}
-
-/**
- * Step 3: 用 MS Access Token 换 Xbox Live Token
- */
-async function authenticateXboxLive(
-  msAccessToken: string
-): Promise<{ token: string; userHash: string; xuid: string }> {
-  log.info('[OAuth] Step 3: Xbox Live authentication...')
-  const body = {
-    RelyingParty: 'http://auth.xboxlive.com',
-    TokenType: 'JWT',
-    Properties: {
-      AuthMethod: 'RPS',
-      SiteName: 'user.auth.xboxlive.com',
-      RpsTicket: `d=${msAccessToken}`
-    }
-  }
-  const res = await fetch(XBL_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-xbl-contract-version': '1'
-    },
-    body: JSON.stringify(body)
-  })
-  const data = await res.json()
-
-  const token: string = data.Token
-  const userHash: string = data.DisplayClaims?.xui?.[0]?.uhs ?? ''
-  // uhs 就是 XUID（十进制字符串表示）
-  const xuid: string = userHash
-
-  log.info('[OAuth] Step 3: XBL response received, uhs:', userHash, 'xuid:', xuid)
-  if (!token || !userHash) throw new Error('XBL_AUTH_FAILED')
-  return { token, userHash, xuid }
-}
-
-/**
- * Step 4: 用 XBL Token 换 XSTS Token
- */
-async function authenticateXSTS(
-  xblToken: string
-): Promise<{ token: string; userHash: string; xuid: string }> {
-  log.info('[OAuth] Step 4: XSTS authentication...')
-  const body = {
-    RelyingParty: 'rp://api.minecraftservices.com/',
-    TokenType: 'JWT',
-    Properties: {
-      SandboxId: 'RETAIL',
-      UserTokens: [xblToken]
-    }
-  }
-  const res = await fetch(XSTS_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  })
-  const data = await res.json()
-  log.info('[OAuth] Step 4: XSTS response (FULL):', JSON.stringify(data))
-  if (!res.ok) {
-    throw new Error(`XSTS_FAILED: HTTP ${res.status} ${JSON.stringify(data)}`)
-  }
-
-  if (data.XErr) {
-    const xerrMap: Record<number, string> = {
-      2148916233: '该微软账户未绑定 Xbox 账号，请先在 Xbox 官网创建',
-      2148916235: '您所在的地区不支持 Xbox Live',
-      2148916236: '需要验证大人身份',
-      2148916237: '需要验证大人身份',
-      2148916238: '未成年账户需要家长添加到家庭组'
-    }
-    throw new Error(xerrMap[data.XErr] || `XSTS 错误: ${data.XErr}`)
-  }
-
-  const token: string = data.Token
-  const userHash: string = data.DisplayClaims?.xui?.[0]?.uhs ?? ''
-  // uhs 就是 XUID（十进制字符串），XSTS 响应里没有单独的 xid 字段
-  const xuid: string = userHash
-
-  if (!token || !userHash) throw new Error('XSTS_AUTH_FAILED')
-
-  // ✅ 返回 xuid 给后面用
-  return { token, userHash, xuid }
-}
-
-/**
- * Step 5: 用 XSTS Token 换 Minecraft Access Token
- */
-async function authenticateMinecraft(
-  xstsToken: string,
-  userHash: string,
-  xuid: string
-): Promise<string> {
-  log.info('[OAuth] Step 5: Minecraft authentication...')
-  const res = await fetch(MC_LOGIN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ identityToken: `XBL3.0 x=${userHash};${xstsToken}` })
-  })
-  const data = await res.json()
-  log.info('[OAuth] Step 5: MC response keys:', Object.keys(data), 'status:', res.status)
-  if (!res.ok) {
-    throw new Error(`MC_AUTH_FAILED: HTTP ${res.status} ${JSON.stringify(data)}`)
-  }
-  if (!data.access_token) throw new Error('MC_AUTH_FAILED')
-  return data.access_token
-}
-
-/**
- * Step 6: 获取 Minecraft 游戏档案（UUID + 用户名）
- */
-async function fetchMinecraftProfile(
-  mcAccessToken: string
-): Promise<{ name: string; uuid: string; skinUrl?: string }> {
-  const data = await httpGet(MC_PROFILE_URL, mcAccessToken)
-  if (!data.id || !data.name)
-    throw new Error('MC_PROFILE_FAILED: 未找到 Minecraft 档案，该账户可能未购买游戏')
-  // id 格式为不带横杠的 UUID，转成标准格式
-  const rawId: string = data.id
-  const uuid = `${rawId.slice(0, 8)}-${rawId.slice(8, 12)}-${rawId.slice(12, 16)}-${rawId.slice(16, 20)}-${rawId.slice(20)}`
-  // 取第一个皮肤（如果有）
-  const skinUrl = data.skins?.[0]?.url as string | undefined
-  return { name: data.name as string, uuid, skinUrl }
 }
 
 // ======= 刷新 Token =======
@@ -354,7 +194,7 @@ export async function refreshMicrosoftToken(refreshToken: string): Promise<Micro
     grant_type: 'refresh_token',
     refresh_token: refreshToken,
     redirect_uri: 'https://login.live.com/oauth20_desktop.srf'
-  })
+  }) as Record<string, string>
 
   if (!data.access_token) throw new Error('TOKEN_REFRESH_FAILED')
   return {
@@ -364,37 +204,29 @@ export async function refreshMicrosoftToken(refreshToken: string): Promise<Micro
   }
 }
 
-// ======= 完整登录流程（第 3-6 步） =======
+// ======= 完整登录流程（第 3-6 步，由 @xmcl/user 处理） =======
 
 /**
  * 拿到 MS Access Token 后，走完整个认证链到 MC 档案
+ * 使用 @xmcl/user 替代原来的手动 HTTP 调用
  */
 export async function authenticateWithMicrosoftToken(
   msTokens: MicrosoftTokens,
   onProgress?: AuthProgressCallback
 ): Promise<MinecraftProfile> {
   onProgress?.('xbox_live', '正在连接 Xbox Live...')
-  const xbl = await authenticateXboxLive(msTokens.access_token)
-  log.info('[OAuth] xbl result:', JSON.stringify({ uhs: xbl.userHash, xuid: xbl.xuid }))
-
-  onProgress?.('xsts', '正在获取 XSTS 令牌...')
-  const xsts = await authenticateXSTS(xbl.token)
-  log.info('[OAuth] xsts result:', JSON.stringify({ uhs: xsts.userHash, xuid: xsts.xuid }))
-
-  onProgress?.('minecraft', '正在验证 Minecraft 账户...')
-  const mcToken = await authenticateMinecraft(xsts.token, xsts.userHash, xbl.xuid)
+  const result = await authenticateWithXmcl(msTokens.access_token)
 
   onProgress?.('profile', '正在获取游戏档案...')
-  const profile = await fetchMinecraftProfile(mcToken)
 
   return {
-    name: profile.name,
-    uuid: profile.uuid,
-    accessToken: mcToken,
+    name: result.name,
+    uuid: result.uuid,
+    accessToken: result.mcAccessToken,
     refreshToken: msTokens.refresh_token,
     expiresIn: msTokens.expires_in,
-    skinUrl: profile.skinUrl,
-    xuid: xbl.xuid // ← 从 XBL 取，XSTS 响应里没有 xid
+    skinUrl: result.skinUrl,
+    xuid: result.xuid
   }
 }
 

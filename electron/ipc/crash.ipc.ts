@@ -12,8 +12,8 @@ export function registerCrashIpcHandlers(crashService: CrashService) {
     try {
       const report = await crashService.parseCrashLog(logPath, instanceId)
       return { ok: true, data: report }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -28,8 +28,8 @@ export function registerCrashIpcHandlers(crashService: CrashService) {
       }
       const diagnosis = crashService.generateDiagnosisReport(report)
       return { ok: true, data: { report, diagnosis } }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -40,8 +40,8 @@ export function registerCrashIpcHandlers(crashService: CrashService) {
     try {
       const reports = await crashService.listCrashReports(gameDir)
       return { ok: true, data: reports }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -56,8 +56,8 @@ export function registerCrashIpcHandlers(crashService: CrashService) {
       }
       const diagnosis = crashService.generateDiagnosisReport(report)
       return { ok: true, data: { report, diagnosis } }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 }

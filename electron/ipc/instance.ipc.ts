@@ -59,8 +59,8 @@ export function registerInstanceHandlers(modService?: ModService): void {
         m.scanMinecraftDir(dirPath)
       )
       return { ok: true, data: result }
-    } catch (e: any) {
-      return { ok: false, error: e.message }
+    } catch (e: unknown) {
+      return { ok: false, error: (e as Error).message }
     }
   })
 
@@ -83,8 +83,8 @@ export function registerInstanceHandlers(modService?: ModService): void {
         const { exportInstance } = await import('../services/instance.export')
         const result = await exportInstance(instanceId, destPath, options)
         return result
-      } catch (e: any) {
-        return { ok: false, error: e.message }
+      } catch (e: unknown) {
+        return { ok: false, error: (e as Error).message }
       }
     }
   )
@@ -94,8 +94,8 @@ export function registerInstanceHandlers(modService?: ModService): void {
       const { importInstance } = await import('../services/instance.export')
       const result = await importInstance(mclaFilePath, targetDir)
       return result
-    } catch (e: any) {
-      return { ok: false, error: e.message }
+    } catch (e: unknown) {
+      return { ok: false, error: (e as Error).message }
     }
   })
 
@@ -104,8 +104,8 @@ export function registerInstanceHandlers(modService?: ModService): void {
       const { getExportPreview } = await import('../services/instance.export')
       const result = await getExportPreview(gameDir, modService)
       return { ok: true, data: result }
-    } catch (e: any) {
-      return { ok: false, error: e.message }
+    } catch (e: unknown) {
+      return { ok: false, error: (e as Error).message }
     }
   })
 }

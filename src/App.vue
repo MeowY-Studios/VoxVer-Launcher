@@ -859,7 +859,7 @@ async function loadLocalInstalledVersions() {
     try {
       const result = await window.electronAPI.versions.scanFolder(minecraftPath.value)
       if (result?.ok && result.data?.length) {
-        versions.value = result.data.map((v: any) => ({
+        versions.value = result.data.map((v: { id: string; baseVersion?: string; loaderInfo?: string }) => ({
           id: v.id,
           name: v.baseVersion || v.id,
           loader: v.loaderInfo || ''
@@ -1153,10 +1153,10 @@ async function handleLaunch() {
         type: 'error'
       })
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: '错误',
-      body: '启动异常: ' + e.message,
+      body: '启动异常: ' + (e as Error).message,
       type: 'error'
     })
   } finally {

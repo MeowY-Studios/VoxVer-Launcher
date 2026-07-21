@@ -135,7 +135,7 @@ export const useDownloadStore = defineStore('download', () => {
   }) {
     const task = versionTasks.value.get(data.versionId)
     if (!task) return
-    ;(task as any).phase = data.phase
+    ;(task as DownloadTask).phase = data.phase
     task.phaseLabel = data.phaseLabel
     task.progress = data.progress
     task.downloadedSize = data.downloaded
@@ -193,9 +193,9 @@ export const useDownloadStore = defineStore('download', () => {
       task.phase = 'completed'
       task.progress = 100
       task.phaseLabel = $t('download.downloadCompleted')
-    } catch (error: any) {
+    } catch (error: unknown) {
       task.phase = 'failed'
-      task.error = error.message || $t('download.downloadFailed')
+      task.error = (error as Error).message || $t('download.downloadFailed')
       task.phaseLabel = `失败: ${task.error}`
     }
   }
@@ -221,13 +221,13 @@ export const useDownloadStore = defineStore('download', () => {
       console.log('[searchMods] 请求参数:', { srcVal, ...queryParams })
       const response = await window.electronAPI?.download.searchMods(queryParams)
       console.log('[searchMods] 原始响应:', response)
-      if (response && (response as any).success === false) {
-        searchError.value = (response as any).error || $t('download.searchFailed')
+      if (response && (response as { data?: unknown[]; success?: boolean; error?: string }).success === false) {
+        searchError.value = (response as { data?: unknown[]; success?: boolean; error?: string }).error || $t('download.searchFailed')
         console.error('[searchMods] IPC 返回错误:', searchError.value)
       } else {
         searchError.value = ''
       }
-      const data = (response as any)?.data || []
+      const data = (response as { data?: unknown[]; success?: boolean; error?: string })?.data || []
       console.log('[searchMods] 数据条数:', data.length, 'srcVal:', srcVal)
       const mapped = data.map(mapRawToModResult)
 
@@ -271,7 +271,7 @@ export const useDownloadStore = defineStore('download', () => {
 
       searchOffset.value = offset + data.length
       console.log('[searchMods] 完成: results=', searchResults.value.length, 'hasMore=', hasMore.value, 'hasMoreMr=', hasMoreMr.value, 'hasMoreCf=', hasMoreCf.value)
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error('[searchMods] 搜索失败:', e)
     } finally {
       searching.value = false
@@ -318,8 +318,8 @@ export const useDownloadStore = defineStore('download', () => {
     try {
       const activeRes = await window.electronAPI?.download.getActive()
       const queueRes = await window.electronAPI?.download.getQueue()
-      activeDownloads.value = ((activeRes as any)?.data || []).map(mapRawToTask)
-      queuedDownloads.value = ((queueRes as any)?.data || []).map(mapRawToTask)
+      activeDownloads.value = ((activeRes as { data?: unknown[]; success?: boolean; error?: string })?.data || []).map(mapRawToTask)
+      queuedDownloads.value = ((queueRes as { data?: unknown[]; success?: boolean; error?: string })?.data || []).map(mapRawToTask)
     } catch (e) {}
   }
 
@@ -382,7 +382,7 @@ export const useDownloadStore = defineStore('download', () => {
 
 // * ====== 映射函数 ======
 
-function mapRawToModResult(raw: any): ModSearchResult {
+function mapRawToModResult(raw: Record<string, unknown>): ModSearchResult {
   return {
     id: String(raw.id),
     name: raw.name || raw.title || '',
@@ -398,7 +398,7 @@ function mapRawToModResult(raw: any): ModSearchResult {
   }
 }
 
-function mapRawToTask(raw: any): DownloadTask {
+function mapRawToTask(raw: Record<string, unknown>): DownloadTask {
   return {
     id: raw.id || '',
     fileName: raw.file_name || raw.fileName || '',

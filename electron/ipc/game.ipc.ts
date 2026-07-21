@@ -73,13 +73,13 @@ let versionsService: {
     Array<{ id: string; type: string; releaseTime: string; url: string; time: string }>
   >
   getLatestVersion: () => Promise<{ release: string; snapshot: string }>
-  getVersionInfo: (versionId: string) => Promise<any | null>
+  getVersionInfo: (versionId: string) => Promise<Record<string, unknown> | null>
   isVersionInstalled: (versionId: string, gameDir: string) => Promise<boolean>
   getBaseUrl?: () => string
 } | null = null
-let modLoaderService: any = null
+let modLoaderService: Record<string, unknown> | null = null
 
-export function setGameDependencies(versions: typeof versionsService, modloader: any) {
+export function setGameDependencies(versions: typeof versionsService, modloader: Record<string, unknown>) {
   versionsService = versions
   modLoaderService = modloader
 }
@@ -262,8 +262,8 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
           { root: gameDir, version: versionId, isVersionIsolation: false },
           finalVersionJson
         )
-      } catch (e: any) {
-        log.error('[game:check-missing-files] ERROR:', e.message)
+      } catch (e: unknown) {
+        log.error('[game:check-missing-files] ERROR:', (e as Error).message)
         return []
       }
     }
@@ -280,9 +280,9 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
           versionId,
           accountId
         })
-      } catch (e: any) {
-        log.error('[game:confirm-download-and-launch] ERROR:', e.message)
-        return { success: false, error: e.message }
+      } catch (e: unknown) {
+        log.error('[game:confirm-download-and-launch] ERROR:', (e as Error).message)
+        return { success: false, error: (e as Error).message }
       }
     }
   )
@@ -293,10 +293,10 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
     try {
       const result = await (versionsService?.getAllVersions() ?? [])
       return result
-    } catch (e: any) {
-      log.error('[versions:list] ERROR:', e.message, e.stack)
+    } catch (e: unknown) {
+      log.error('[versions:list] ERROR:', (e as Error).message, (e as Error).stack)
       // ✅ 不再吞掉错误，让前端可以显示错误信息
-      throw new Error(e.message || '加载版本列表失败')
+      throw new Error((e as Error).message || '加载版本列表失败')
     }
   })
 
@@ -356,9 +356,9 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
         log.error('[versions:download] Step3 jar 下载成功')
 
         return { ok: true, data: { jarPath, jsonPath } }
-      } catch (err: any) {
-        log.error('[versions:download] 失败:', err.message)
-        return { ok: false, error: err.message }
+      } catch (err: unknown) {
+        log.error('[versions:download] 失败:', (err as Error).message)
+        return { ok: false, error: (err as Error).message }
       }
     }
   )
@@ -477,13 +477,13 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
 
           sendProgress('completed', '下载完成', 100, 0, 1, 0)
           mainWindow.webContents.send('version:download-complete', { taskId, versionId, gameDir })
-        } catch (err: any) {
-          log.error('[versions:download-start] 失败:', err.message)
-          sendProgress('failed', `失败: ${err.message}`, 0, 0, 0, 0)
+        } catch (err: unknown) {
+          log.error('[versions:download-start] 失败:', (err as Error).message)
+          sendProgress('failed', `失败: ${(err as Error).message}`, 0, 0, 0, 0)
           mainWindow.webContents.send('version:download-error', {
             taskId,
             versionId,
-            error: err.message
+            error: (err as Error).message
           })
         }
       })()
@@ -529,9 +529,9 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
         } catch {}
 
         return { ok: true, data: { savePath } }
-      } catch (err: any) {
-        log.error('[versions:download-server] 失败:', err.message)
-        return { ok: false, error: err.message }
+      } catch (err: unknown) {
+        log.error('[versions:download-server] 失败:', (err as Error).message)
+        return { ok: false, error: (err as Error).message }
       }
     }
   )
@@ -546,8 +546,8 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
           rmSync(versionDir, { recursive: true, force: true })
         }
         return { ok: true }
-      } catch (err: any) {
-        return { ok: false, error: err.message }
+      } catch (err: unknown) {
+        return { ok: false, error: (err as Error).message }
       }
     }
   )
@@ -558,8 +558,8 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
     try {
       const versions = await scanInstalledVersions(gameDir)
       return { ok: true, data: versions }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -583,8 +583,8 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
         }
         const installed = await versionsService.isVersionInstalled(versionId, gameDir)
         return { ok: true, data: installed }
-      } catch (error: any) {
-        return { ok: false, error: error.message }
+      } catch (error: unknown) {
+        return { ok: false, error: (error as Error).message }
       }
     }
   )
@@ -646,8 +646,8 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
         }
 
         return { ok: true, data: { missing, total: libs.length, checked: true } }
-      } catch (err: any) {
-        return { ok: false, error: err.message }
+      } catch (err: unknown) {
+        return { ok: false, error: (err as Error).message }
       }
     }
   )
@@ -669,10 +669,10 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
         await downloadFile(url, destPath)
         log.info(`[补全] ${description} 成功`)
         return
-      } catch (e: any) {
-        log.warn(`[补全] ${description} 失败 [${i + 1}/${MIRRORS.length}]:`, e.message)
+      } catch (e: unknown) {
+        log.warn(`[补全] ${description} 失败 [${i + 1}/${MIRRORS.length}]:`, (e as Error).message)
         if (i === MIRRORS.length - 1) {
-          throw new Error(`${description} 失败，所有镜像都无法下载: ${e.message}`)
+          throw new Error(`${description} 失败，所有镜像都无法下载: ${(e as Error).message}`)
         }
       }
     }
@@ -763,8 +763,8 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
                 await downloadFile(url, libFilePath)
                 success = true
                 log.info(`[补全] 下载库成功: ${lib.path}`)
-              } catch (e: any) {
-                log.warn(`[补全] 下载库失败 [${i + 1}/${allUrls.length}]:`, e.message)
+              } catch (e: unknown) {
+                log.warn(`[补全] 下载库失败 [${i + 1}/${allUrls.length}]:`, (e as Error).message)
               }
             }
 
@@ -780,9 +780,9 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
               total: missing.length,
               file: lib.path
             })
-          } catch (e: any) {
-            log.warn(`[补全] 下载失败: ${lib.path}`, e.message)
-            throw new Error(`下载 ${lib.path} 失败: ${e.message}`)
+          } catch (e: unknown) {
+            log.warn(`[补全] 下载失败: ${lib.path}`, (e as Error).message)
+            throw new Error(`下载 ${lib.path} 失败: ${(e as Error).message}`)
           }
         }
 
@@ -816,8 +816,8 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
         }
 
         return { ok: true, data: { downloaded, total: missing.length } }
-      } catch (err: any) {
-        return { ok: false, error: err.message }
+      } catch (err: unknown) {
+        return { ok: false, error: (err as Error).message }
       }
     }
   )

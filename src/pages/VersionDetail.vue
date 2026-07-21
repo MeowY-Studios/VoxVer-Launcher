@@ -361,6 +361,20 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDownloadStore } from '../stores/download.store'
 
+interface VersionDetailInfo {
+  id: string
+  type: string
+  releaseTime: string
+  [key: string]: unknown
+}
+
+interface LoaderVersionOption {
+  id: string
+  releaseTime: string
+  recommended: boolean
+  latest: boolean
+}
+
 const { t: i18n } = useI18n()
 
 const router = useRouter()
@@ -368,7 +382,7 @@ const route = useRoute()
 const downloadStore = useDownloadStore()
 
 const versionId = computed(() => route.params.versionId as string)
-const versionInfo = ref<any>(null)
+const versionInfo = ref<VersionDetailInfo | null>(null)
 const loading = ref(true)
 const downloading = ref(false)
 const selectedLoader = ref('')
@@ -381,7 +395,7 @@ const fabricApiVersions = ref<string[]>([])
 const fabricApiLoading = ref(false)
 const targetFolder = ref('')
 const showLoaderVersions = ref(false)
-const loaderVersions = ref<any[]>([])
+const loaderVersions = ref<LoaderVersionOption[]>([])
 const loaderVersionsLoading = ref(false)
 
 // 加载器互斥组：Forge / NeoForge / Fabric 互不兼容
@@ -585,7 +599,7 @@ async function selectLoader(loaderType: string) {
   }
 }
 
-function selectLoaderVersion(version: any) {
+function selectLoaderVersion(version: LoaderVersionOption) {
   selectedLoaderVersion.value = version.id
 }
 

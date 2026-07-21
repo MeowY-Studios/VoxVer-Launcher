@@ -30,8 +30,8 @@ export function registerScreenshotHandlers(): void {
           })
         )
         return { ok: true, data: preview }
-      } catch (e: any) {
-        log.error('list error:', e.message)
+      } catch (e: unknown) {
+        log.error('list error:', (e as Error).message)
         return { ok: false, data: [] }
       }
     }
@@ -43,7 +43,7 @@ export function registerScreenshotHandlers(): void {
       try {
         const list = scanScreenshots(gameDir)
         return { ok: true, data: list }
-      } catch (e: any) {
+      } catch (e: unknown) {
         return { ok: false, data: [] }
       }
     }
@@ -126,8 +126,8 @@ export function registerScreenshotHandlers(): void {
     async (_event, filePath: string): Promise<void> => {
       try {
         await openScreenshot(filePath)
-      } catch (e: any) {
-        log.error('open error:', e.message)
+      } catch (e: unknown) {
+        log.error('open error:', (e as Error).message)
       }
     }
   )

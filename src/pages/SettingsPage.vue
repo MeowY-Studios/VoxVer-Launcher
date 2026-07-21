@@ -432,6 +432,15 @@
               </span>
             </div>
           </div>
+          <div class="credit-item">
+            <div class="credit-avatar" style="background:color-mix(in oklab,#10b981 14%,transparent);color:#10b981">X</div>
+            <div class="credit-info">
+              <span class="credit-name">{{ $t('settings.aboutSection.xmcl') }}</span>
+              <span class="credit-role">
+                <a href="https://www.xmcl.app/zh/" target="_blank" style="color:var(--voxver-primary);text-decoration:none;font-size:12px">{{ $t('settings.aboutSection.xmclRole') }}</a>
+              </span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -2869,7 +2878,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, inject, computed, onMounted, onUnmounted, watch, ref } from 'vue'
+import { reactive, inject, computed, onMounted, onUnmounted, watch, ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { setLocale } from '../locale/i18n'
 import { useI18n } from 'vue-i18n'
@@ -2890,10 +2899,33 @@ const themePreviewOptions = computed(() => [
   { value: 'dark' as const, label: t('settings.themeDark') }
 ])
 
-const settingsActive = inject('settingsActive') as any
+const settingsActive = inject<Ref<string>>('settingsActive')
 const activeCategory = computed(() => settingsActive?.value || 'home')
 
 const searchQuery = ref('')
+
+// Java 检测结果类型
+interface JavaInfo {
+  id: string
+  path: string
+  version: string
+  isDefault?: boolean
+}
+
+// 全局快捷键类型
+interface HotkeyInfo {
+  action: string
+  accelerator: string
+  enabled: boolean
+}
+
+// 备份文件类型
+interface BackupFileInfo {
+  name: string
+  size: number
+  date: string
+}
+
 function switchCategory(cat: string) {
   if (settingsActive) settingsActive.value = cat
 }
@@ -3041,7 +3073,7 @@ function toggleSec(key: string) {
 // Java 检测状态
 const isDetectingJava = ref(false)
 const detectionComplete = ref(false)
-const detectedJava = ref<any[]>([])
+const detectedJava = ref<JavaInfo[]>([])
 const currentStep = ref('')
 const progressText = ref('')
 const progressPercent = ref(0)
@@ -3268,7 +3300,7 @@ if (localStorage.getItem('voxver_keyboardNav') === 'true') s.accessibilityKeyboa
 applyKeyboardNav(s.accessibilityKeyboardNav)
 
 // P2 状态变量
-const hotkeyList = ref<any[]>([])
+const hotkeyList = ref<HotkeyInfo[]>([])
 const modpackProgress = ref({ stage: '', progress: 0, currentFile: '' })
 const backupProgress = ref({ stage: '', progress: 0, currentItem: '' })
 const isWorkingModpack = ref(false)
@@ -3277,7 +3309,7 @@ const isWorkingBackup = ref(false)
 // v0.5.3: 诊断日志导出状态
 const isExportingDiagnostics = ref(false)
 const systemTotalGB = ref(16)
-const backupFiles = ref<any[]>([])
+const backupFiles = ref<BackupFileInfo[]>([])
 
 // 更新检查状态
 const updateStatus = ref({
@@ -3410,7 +3442,7 @@ async function detectJava() {
 
       // 如果有检测到Java，自动选择第一个或标记为默认的Java
       if (javas.length > 0) {
-        const defaultJava = javas.find((j: any) => j.isDefault) || javas[0]
+        const defaultJava = javas.find((j: JavaInfo) => j.isDefault) || javas[0]
         if (defaultJava) {
           selectJava(defaultJava)
         }
@@ -3426,7 +3458,7 @@ async function detectJava() {
 }
 
 // 选择 Java 版本
-function selectJava(java: any) {
+function selectJava(java: JavaInfo) {
   // 更新下拉菜单选择
   selectedJavaId.value = java.id
   s.javaPath = java.path
@@ -3517,10 +3549,10 @@ async function openMcDir() {
         type: 'warning'
       })
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('settings.openDirFailedBody', { error: e.message }),
+      body: t('settings.openDirFailedBody', { error: (e as Error).message }),
       type: 'error'
     })
   }
@@ -3553,10 +3585,10 @@ async function saveSkin() {
   }
   try {
     window.electronAPI?.notification?.send({ title: t('common.success'), body: t('settings.skinSaved'), type: 'success' })
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('settings.skinSaveFailedBody', { error: e.message }),
+      body: t('settings.skinSaveFailedBody', { error: (e as Error).message }),
       type: 'error'
     })
   }
@@ -3573,10 +3605,10 @@ async function refreshSkin() {
   }
   try {
     window.electronAPI?.notification?.send({ title: t('common.success'), body: t('settings.skinRefreshed'), type: 'success' })
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('settings.skinRefreshFailedBody', { error: e.message }),
+      body: t('settings.skinRefreshFailedBody', { error: (e as Error).message }),
       type: 'error'
     })
   }
@@ -3614,7 +3646,7 @@ async function loadHotkeys() {
     const list = await window.electronAPI?.hotkey?.list()
     if (list) {
       hotkeyList.value = list
-      list.forEach((h: any) => {
+      list.forEach((h: HotkeyInfo) => {
         if (h.action === 'launch-game') s.hotkeyLaunch = h.accelerator || 'Ctrl+Shift+L'
         else if (h.action === 'toggle-window')
           s.hotkeyToggleWindow = h.accelerator || 'Ctrl+Shift+H'
@@ -3645,10 +3677,10 @@ async function updateHotkey(action: string, accelerator: string) {
     }
     window.electronAPI?.notification?.send({ title: t('common.success'), body: t('settings.hotkeyUpdated'), type: 'success' })
     await loadHotkeys()
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('settings.hotkeyUpdateFailedBody', { error: e.message }),
+      body: t('settings.hotkeyUpdateFailedBody', { error: (e as Error).message }),
       type: 'error'
     })
   }
@@ -3671,10 +3703,10 @@ async function reloadHotkeys() {
       body: t('settings.hotkeyReloaded'),
       type: 'success'
     })
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('settings.hotkeyReloadFailedBody', { error: e.message }),
+      body: t('settings.hotkeyReloadFailedBody', { error: (e as Error).message }),
       type: 'error'
     })
   }
@@ -3687,7 +3719,7 @@ async function browseModpackInstance() {
       title: t('settings.modpackInstanceTitle')
     })
     if (path) s.modpackInstancePath = path
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error('选择实例目录失败:', e)
   }
 }
@@ -3698,7 +3730,7 @@ async function browseModpackOutput() {
       title: t('settings.modpackOutputTitle')
     })
     if (path) s.modpackOutputDir = path
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error('选择输出目录失败:', e)
   }
 }
@@ -3751,10 +3783,10 @@ async function packAsMrpack() {
         type: 'error'
       })
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('settings.modpackCreateErrorBody', { error: e.message }),
+      body: t('settings.modpackCreateErrorBody', { error: (e as Error).message }),
       type: 'error'
     })
   } finally {
@@ -3800,10 +3832,10 @@ async function importMrpack() {
         type: 'error'
       })
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('settings.modpackImportErrorBody', { error: e.message }),
+      body: t('settings.modpackImportErrorBody', { error: (e as Error).message }),
       type: 'error'
     })
   } finally {
@@ -3823,7 +3855,7 @@ async function applyCustomThemeColor(hex: string) {
       s.themeColor = hex
       s.themeCustomColor = hex
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error('应用主题色失败:', e)
   }
 }
@@ -3845,10 +3877,10 @@ async function importBgImage() {
         type: 'success'
       })
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('settings.bgImportFailedBody', { error: e.message }),
+      body: t('settings.bgImportFailedBody', { error: (e as Error).message }),
       type: 'error'
     })
   }
@@ -3878,10 +3910,10 @@ async function createBackup() {
         type: 'error'
       })
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('settings.backupErrorBody', { error: e.message }),
+      body: t('settings.backupErrorBody', { error: (e as Error).message }),
       type: 'error'
     })
   } finally {
@@ -3916,10 +3948,10 @@ async function restoreBackup() {
         type: 'error'
       })
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('settings.backupRestoreErrorBody', { error: e.message }),
+      body: t('settings.backupRestoreErrorBody', { error: (e as Error).message }),
       type: 'error'
     })
   } finally {
@@ -3931,7 +3963,7 @@ async function listBackups() {
   try {
     const list = await window.electronAPI?.backup?.list()
     backupFiles.value = list || []
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.warn('列出备份失败:', e)
   }
 }
@@ -3941,10 +3973,10 @@ async function deleteBackup(fileName: string) {
   try {
     await window.electronAPI?.backup?.delete(fileName)
     await listBackups()
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('settings.deleteFailedBody', { error: e.message }),
+      body: t('settings.deleteFailedBody', { error: (e as Error).message }),
       type: 'error'
     })
   }
@@ -3960,10 +3992,10 @@ async function toggleDebugMode() {
       body: s.debugMode ? t('settings.debugModeOn') : t('settings.debugModeOff'),
       type: 'info'
     })
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('settings.setLogLevelFailedBody', { error: e.message }),
+      body: t('settings.setLogLevelFailedBody', { error: (e as Error).message }),
       type: 'error'
     })
   }
@@ -3987,10 +4019,10 @@ async function exportDiagnostics() {
         type: 'error'
       })
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('settings.diagExportFailedBody', { error: e.message }),
+      body: t('settings.diagExportFailedBody', { error: (e as Error).message }),
       type: 'error'
     })
   } finally {
@@ -4004,9 +4036,9 @@ async function checkForUpdate() {
     updateStatus.value.checking = true
     updateStatus.value.error = null
     await window.electronAPI?.updater?.check()
-  } catch (e: any) {
+  } catch (e: unknown) {
     updateStatus.value.checking = false
-    updateStatus.value.error = e.message
+    updateStatus.value.error = (e as Error).message
   }
 }
 
@@ -4131,10 +4163,10 @@ async function importExternalInstance(gameDir: string) {
       body: t('settings.instanceImported'),
       type: 'success'
     })
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('settings.importFailed'),
-      body: e?.message || t('settings.unknownError'),
+      body: (e as Error)?.message || t('settings.unknownError'),
       type: 'error'
     })
   }
@@ -4143,10 +4175,10 @@ async function importExternalInstance(gameDir: string) {
 async function checkForUpdateDownload() {
   try {
     await window.electronAPI?.updater?.download()
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('settings.downloadFailedBody', { error: e.message }),
+      body: t('settings.downloadFailedBody', { error: (e as Error).message }),
       type: 'error'
     })
   }
@@ -4155,10 +4187,10 @@ async function checkForUpdateDownload() {
 async function installUpdate() {
   try {
     await window.electronAPI?.updater?.install()
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('settings.installFailedBody', { error: e.message }),
+      body: t('settings.installFailedBody', { error: (e as Error).message }),
       type: 'error'
     })
   }
@@ -4171,8 +4203,19 @@ async function checkAppPermissions() {
   } catch { /* ignore */ }
 }
 
+// 更新状态负载类型
+interface UpdateStatusPayload {
+  checking: boolean
+  available: boolean
+  downloading: boolean
+  downloaded: boolean
+  downloadProgress: number
+  version?: string
+  releaseNotes?: string
+}
+
 function setupUpdateListener() {
-  const unsub = window.electronAPI?.updater?.onStatusChange((status: any) => {
+  const unsub = window.electronAPI?.updater?.onStatusChange((status: UpdateStatusPayload) => {
     updateStatus.value = {
       checking: status.checking,
       checked: !status.checking,
@@ -4320,10 +4363,10 @@ async function openDirectory(key: 'userData' | 'logs' | 'temp' | 'cache') {
   if (p) {
     try {
       await window.electronAPI?.shell?.openPath?.(p)
-    } catch (e: any) {
+    } catch (e: unknown) {
       window.electronAPI?.notification?.send({
         title: t('settings.openFailed'),
-        body: e?.message || t('settings.openDirFailed'),
+        body: (e as Error)?.message || t('settings.openDirFailed'),
         type: 'error'
       })
     }
@@ -4342,10 +4385,10 @@ async function clearCache() {
       body: t('settings.clearCacheDesc'),
       type: 'success'
     })
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: e?.message || t('settings.clearCacheFailed'),
+      body: (e as Error)?.message || t('settings.clearCacheFailed'),
       type: 'error'
     })
   } finally {
@@ -4377,10 +4420,10 @@ async function resetSettings() {
         type: 'error'
       })
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: e?.message || t('settings.resetFailedTitle'),
+      body: (e as Error)?.message || t('settings.resetFailedTitle'),
       type: 'error'
     })
   }
@@ -4461,10 +4504,10 @@ async function exportCurrentTheme() {
         })
       }
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('settings.exportFailed'),
-      body: e?.message || t('settings.unknownError'),
+      body: (e as Error)?.message || t('settings.unknownError'),
       type: 'error'
     })
   }
@@ -4481,7 +4524,7 @@ function importThemeFile() {
       const content = await file.text()
       const res = await window.electronAPI?.theme?.importTheme?.(content)
       if (res?.ok && res.settings) {
-        const s = res.settings as any
+        const s = res.settings as { themeColor?: string }
         applyThemeColor(s.themeColor || '#6366f1')
         window.electronAPI?.notification?.send({
           title: t('settings.themeImported'),
@@ -4495,10 +4538,10 @@ function importThemeFile() {
           type: 'error'
         })
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       window.electronAPI?.notification?.send({
         title: t('settings.importFailed'),
-        body: e?.message || t('settings.unknownError'),
+        body: (e as Error)?.message || t('settings.unknownError'),
         type: 'error'
       })
     }

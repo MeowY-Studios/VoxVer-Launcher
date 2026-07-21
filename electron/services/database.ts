@@ -30,8 +30,8 @@ function getDbPath(): string {
     try {
       renameSync(oldPath, newPath)
       log.info('[DB] 已迁移 mcla.db → voxver.db')
-    } catch (e: any) {
-      log.error('[DB] 迁移失败 mcla.db → voxver.db:', e.message)
+    } catch (e: unknown) {
+      log.error('[DB] 迁移失败 mcla.db → voxver.db:', (e as Error).message)
       return oldPath
     }
   }

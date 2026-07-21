@@ -59,9 +59,9 @@ export function registerModpackHandlers(): void {
         }
         log.info('整合包打包完成', { filePath: res.filePath, fileCount: res.fileCount })
         return { ok: true, filePath: res.filePath, fileCount: res.fileCount }
-      } catch (e: any) {
+      } catch (e: unknown) {
         log.error('整合包打包失败', e)
-        return { ok: false, error: e.message || '打包失败' }
+        return { ok: false, error: (e as Error).message || '打包失败' }
       }
     }
   )
@@ -98,9 +98,9 @@ export function registerModpackHandlers(): void {
         if (!res.ok) return { ok: false, error: res.error }
         log.info('整合包导入完成', { instancePath: res.instancePath })
         return res
-      } catch (e: any) {
+      } catch (e: unknown) {
         log.error('整合包导入失败', e)
-        return { ok: false, error: e.message || '导入失败' }
+        return { ok: false, error: (e as Error).message || '导入失败' }
       }
     }
   )

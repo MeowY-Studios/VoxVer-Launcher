@@ -447,6 +447,16 @@ import PxModal from '../components/common/PxModal.vue'
 import ShareModal from '../components/share/ShareModal.vue'
 import type { LocalModStatus } from '../types/mod'
 
+interface IpcModInfo {
+  filePath: string
+  fileName: string
+  name?: string
+  version?: string
+  authors?: string | string[]
+  size?: number
+  enabled?: boolean
+}
+
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
@@ -561,8 +571,8 @@ async function fetchDetail() {
 
     // 并行加载 Mod 列表和配置列表
     await Promise.all([loadMods(), loadConfigFiles()])
-  } catch (e: any) {
-    error.value = e.message || t('instance.loadFailed') as string
+  } catch (e: unknown) {
+    error.value = (e as Error).message || t('instance.loadFailed') as string
   }
 }
 
@@ -572,7 +582,7 @@ async function loadMods() {
   try {
     const res = await window.electronAPI?.mod.list(instance.value.path)
     if (res?.ok) {
-      localMods.value = (res.data || []).map((m: any) => ({
+      localMods.value = (res.data || []).map((m: IpcModInfo) => ({
         filePath: m.filePath,
         fileName: m.fileName,
         displayName: m.name || m.fileName.replace('.jar', ''),

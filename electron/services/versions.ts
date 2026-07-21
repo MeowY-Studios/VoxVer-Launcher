@@ -74,7 +74,7 @@ export type DownloadSource = 'bmclapi' | 'official'
 export class VersionsService {
   private db: Database.Database
   private source: DownloadSource = 'bmclapi'
-  private cache: Map<string, any> = new Map()
+  private cache: Map<string, unknown> = new Map()
   private cacheTimeout = 5 * 60 * 1000 // 5分钟缓存
 
   constructor(db: Database.Database) {
@@ -232,7 +232,7 @@ export class VersionsService {
     if (!versionInfo) return null
 
     const baseUrl = this.getBaseUrl()
-    const urls: any = {}
+    const urls: Record<string, string> = {}
 
     // client.jar — 优先 version.json 里的 Mojang URL，兜底 BMCLAPI
     urls.client = versionInfo.downloads?.client?.url ?? `${baseUrl}/mc/version/${versionId}/client`

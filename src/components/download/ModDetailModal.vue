@@ -525,8 +525,8 @@ async function loadFiles() {
   }
   try {
     const res = await window.electronAPI?.download.getFiles(props.mod.id, props.mod.source, {})
-    const data = (res as any)?.data || []
-    files.value = data.map((f: any) => ({
+    const data = (res as unknown as { data?: Record<string, unknown>[] })?.data || []
+    files.value = data.map((f: Record<string, unknown>) => ({
       id: String(f.id),
       filename: f.fileName || f.filename || '',
       displayName: f.displayName || f.fileName || f.filename || '',
@@ -618,7 +618,8 @@ async function confirmDownload() {
   const target = `${selectedTarget.value}${file.filename || file.displayName}`
   downloadingId.value = file.id
   try {
-    const res = await (window.electronAPI as any)?.download.file({
+    const download = window.electronAPI?.download as unknown as Record<string, (params: Record<string, unknown>) => Promise<{ success?: boolean; error?: string }>>
+    const res = await download?.file({
       id: file.id,
       fileName: file.filename || file.displayName,
       url: file.downloadUrl,
@@ -631,20 +632,19 @@ async function confirmDownload() {
       destination: target
     })
 
-    const result = res as any
-    if (result?.success) {
+    if (res?.success) {
       await dlStore.refreshQueue()
     } else {
       window.electronAPI?.notification?.send({
         title: t('common.error'),
-        body: t('mod.downloadFailedBody', { error: result?.error || t('mod.unknownError') }),
+        body: t('mod.downloadFailedBody', { error: res?.error || t('mod.unknownError') }),
         type: 'error'
       })
     }
-  } catch (e: any) {
+  } catch (e: unknown) {
     window.electronAPI?.notification?.send({
       title: t('common.error'),
-      body: t('mod.downloadErrorBody', { error: e.message || t('mod.unknownError') }),
+      body: t('mod.downloadErrorBody', { error: (e as Error).message || t('mod.unknownError') }),
       type: 'error'
     })
   } finally {
@@ -679,13 +679,13 @@ function openInBrowser() {
     detail.value.source === 'curseforge'
       ? `https://www.curseforge.com/minecraft/mc-mods/${detail.value.id}`
       : `https://modrinth.com/mod/${detail.value.id}`
-  ;(window.electronAPI as any)?.openExternal(url)
+  ;(window.electronAPI as unknown as { openExternal: (url: string) => Promise<void> })?.openExternal(url)
 }
 
 function openMcWiki() {
   if (!detail.value) return
   const name = encodeURIComponent(detail.value.name)
-  ;(window.electronAPI as any)?.openExternal(`https://minecraft.fandom.com/zh/wiki/${name}`)
+  ;(window.electronAPI as unknown as { openExternal: (url: string) => Promise<void> })?.openExternal(`https://minecraft.fandom.com/zh/wiki/${name}`)
 }
 
 async function copyName() {

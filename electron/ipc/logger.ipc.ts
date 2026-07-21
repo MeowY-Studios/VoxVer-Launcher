@@ -11,8 +11,8 @@ export function registerLoggerHandlers(): void {
     try {
       setLevel(level)
       return { ok: true }
-    } catch (error: any) {
-      return { ok: false, error: error.message }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
   })
 
@@ -21,8 +21,8 @@ export function registerLoggerHandlers(): void {
     try {
       const result = await exportDiagnostics()
       return result
-    } catch (error: any) {
-      return { ok: false, error: error.message || '导出诊断日志失败' }
+    } catch (error: unknown) {
+      return { ok: false, error: error instanceof Error ? error.message : '导出诊断日志失败' }
     }
   })
 }

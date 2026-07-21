@@ -40,7 +40,7 @@ export function getConfig<T = string>(key: string): T | null {
 }
 
 // 设置配置项
-export function setConfig(key: string, value: any, type?: ConfigEntry['type']): void {
+export function setConfig(key: string, value: string | number | boolean | Record<string, unknown> | unknown[], type?: ConfigEntry['type']): void {
   const db = getDatabase()
   log.info('[config.setConfig] key:', key, 'value:', value, 'db is null?', !db)
   const now = new Date().toISOString()
@@ -76,10 +76,10 @@ export function deleteConfig(key: string): boolean {
 }
 
 // 获取所有配置
-export function getAllConfigs(): Record<string, any> {
+export function getAllConfigs(): Record<string, unknown> {
   const db = getDatabase()
   const rows = db.prepare('SELECT * FROM configs').all() as ConfigEntry[]
-  const result: Record<string, any> = {}
+  const result: Record<string, unknown> = {}
 
   for (const row of rows) {
     result[row.key] = getConfig(row.key)

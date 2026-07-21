@@ -88,7 +88,7 @@
           :items="filteredVersions(activeFilter)"
           :item-height="56"
           :overscan="8"
-          :get-item-key="(item: any) => item.id"
+          :get-item-key="(item: MCVersion) => item.id"
           class="versions-virtual-list"
         >
           <template #item="{ item: version }">
@@ -193,6 +193,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useVersionsStore } from '../stores/versions.store'
+import type { MCVersion } from '../stores/versions.store'
 import { useInstancesStore } from '../stores/instances.store'
 import { getCurrentLocale } from '../locale/i18n'
 import VirtualScroll from '../components/common/VirtualScroll.vue'

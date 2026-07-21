@@ -3,6 +3,8 @@ import * as path from 'path'
 import * as crypto from 'crypto'
 import { logger } from '../utils/logger'
 import { ModrinthService, ModrinthProject } from './modrinth.service'
+import { readFabricMod, readForgeMod, readQuiltMod } from '@xmcl/mod-parser'
+import type { FabricModMetadata, QuiltModMetadata, ForgeModMetadata } from '@xmcl/mod-parser'
 const log = logger.child('ModService')
 
 const AdmZip = require('adm-zip')
@@ -97,23 +99,6 @@ export enum ModType {
   Jar = 'jar',
   Fabric = 'fabric-mod-json',
   Forge = 'mods.toml'
-}
-
-/** fabric.mod.json / quilt.mod.json 接口 */
-interface FabricModJson {
-  schemaVersion?: number
-  id?: string
-  name?: string
-  version?: string
-  description?: string
-  authors?: Array<{ name: string } | string>
-  contact?: { homepage?: string; sources?: string; issues?: string }
-  icon?: string
-  depends?: Record<string, string>
-  recommends?: Record<string, string>
-  suggests?: Record<string, string>
-  breaks?: Record<string, string>
-  conflicts?: Record<string, string>
 }
 
 /**
@@ -242,7 +227,7 @@ export class ModService {
 
   /**
    * 读取 Mod 信息（从 jar 文件）
-   * 尝试读取 fabric.mod.json / quilt.mod.json，提取元数据和图标
+   * 使用 @xmcl/mod-parser 解析 Fabric / Quilt / Forge 三种 Mod 格式
    */
   private async readModInfo(filePath: string): Promise<{
     name?: string
@@ -259,76 +244,136 @@ export class ModService {
     const result: any = {}
 
     try {
-      let zip: any
+      // 1. 尝试 Fabric Mod 解析（fabric.mod.json）
       try {
-        zip = new AdmZip(filePath)
-      } catch (zipErr) {
-        // 不是有效 zip（可能正在下载中）
-        throw zipErr
-      }
-
-      let manifest: FabricModJson | null = null
-      let iconPathInJar: string | undefined
-
-      // 尝试读取 fabric.mod.json
-      let entry = zip.getEntry('fabric.mod.json')
-      if (entry) {
-        const content = zip.readAsText(entry)
-        manifest = JSON.parse(content)
+        const fabMeta: FabricModMetadata = await readFabricMod(filePath)
         result.loader = 'fabric'
-        if (manifest?.icon) {
-          iconPathInJar = manifest.icon
-        }
-      } else {
-        // 尝试 quilt.mod.json
-        entry = zip.getEntry('quilt.mod.json')
-        if (entry) {
-          const content = zip.readAsText(entry)
-          manifest = JSON.parse(content)
-          result.loader = 'quilt'
-          if (manifest?.icon) {
-            iconPathInJar = manifest.icon
-          }
-        }
-      }
+        result.name = fabMeta.name || fabMeta.id
+        result.version = fabMeta.version
+        result.description = fabMeta.description
 
-      // 从 manifest 提取信息
-      if (manifest) {
-        result.name = manifest.name || manifest.id
-        result.version = manifest.version
-        result.description = manifest.description
-
-        if (manifest.authors) {
-          result.authors = manifest.authors
+        if (fabMeta.authors) {
+          result.authors = fabMeta.authors
             .map((a: any) => (typeof a === 'string' ? a : a.name))
             .filter(Boolean)
         }
 
-        if (manifest.contact?.homepage || manifest.contact?.sources) {
-          result.url = manifest.contact.homepage || manifest.contact.sources
+        if (fabMeta.contact?.homepage) {
+          result.url = fabMeta.contact.homepage
         }
 
-        if (manifest.depends) {
-          result.dependencies = Object.keys(manifest.depends)
+        if (fabMeta.depends) {
+          result.dependencies = Object.keys(fabMeta.depends)
         }
 
-        // 提取图标（复用已打开的 zip，避免重复打开）
-        if (iconPathInJar) {
-          result.logoUrl = await this.extractIconToCache(filePath, iconPathInJar, fileName, zip)
+        if (fabMeta.icon) {
+          result.logoUrl = await this.extractIconToCache(filePath, fabMeta.icon, fileName)
         }
+
+        return result
+      } catch {
+        // 不是 Fabric Mod，继续尝试其他格式
       }
 
-      // 没读到 manifest，尝试从文件名解析
-      if (!manifest) {
-        result.version = this.extractVersionFromFileName(fileName)
-        if (/fabric/i.test(fileName)) result.loader = 'fabric'
-        else if (/forge/i.test(fileName)) result.loader = 'forge'
-        else if (/quilt/i.test(fileName)) result.loader = 'quilt'
-        else if (/neoforge/i.test(fileName)) result.loader = 'neoforge'
+      // 2. 尝试 Quilt Mod 解析（quilt.mod.json）
+      try {
+        const quiltMeta: QuiltModMetadata = await readQuiltMod(filePath)
+        result.loader = 'quilt'
+        const loader = quiltMeta.quilt_loader
+        result.name = loader.metadata?.name || loader.id
+        result.version = loader.version
+        result.description = loader.metadata?.description
 
-        const mcMatch = fileName.match(/(1\.\d+(?:\.\d+)?)/)
-        if (mcMatch) result.mcVersion = mcMatch[1]
+        if (loader.metadata?.contributors) {
+          result.authors = Object.keys(loader.metadata.contributors)
+        }
+
+        if (loader.metadata?.contact?.homepage) {
+          result.url = loader.metadata.contact.homepage
+        }
+
+        if (loader.depends) {
+          result.dependencies = loader.depends.map((d: any) => d.id)
+        }
+
+        const iconValue = loader.metadata?.icon
+        if (iconValue) {
+          const iconPath = typeof iconValue === 'string' ? iconValue : Object.values(iconValue)[0]
+          if (iconPath) {
+            result.logoUrl = await this.extractIconToCache(filePath, iconPath, fileName)
+          }
+        }
+
+        return result
+      } catch {
+        // 不是 Quilt Mod，继续尝试其他格式
       }
+
+      // 3. 尝试 Forge Mod 解析（mods.toml / mcmod.info / ASM）
+      try {
+        const forgeMeta: ForgeModMetadata = await readForgeMod(filePath)
+        result.loader = 'forge'
+
+        // 优先使用 mods.toml（新版 Forge 格式）
+        const tomlEntry = forgeMeta.modsToml?.[0]
+        if (tomlEntry) {
+          result.name = tomlEntry.displayName || tomlEntry.modid
+          result.version = tomlEntry.version
+          result.description = tomlEntry.description
+          result.authors = tomlEntry.authors ? [tomlEntry.authors] : []
+          result.url = tomlEntry.displayURL
+
+          if (tomlEntry.dependencies) {
+            result.dependencies = tomlEntry.dependencies.map((d: any) => d.modId)
+          }
+
+          if (tomlEntry.logoFile) {
+            result.logoUrl = await this.extractIconToCache(filePath, tomlEntry.logoFile, fileName)
+          }
+
+          return result
+        }
+
+        // 回退到 mcmod.info（旧版 Forge 格式）
+        const mcmodInfo = forgeMeta.mcmodInfo?.[0]
+        if (mcmodInfo) {
+          result.name = mcmodInfo.name || mcmodInfo.modid
+          result.version = mcmodInfo.version
+          result.description = mcmodInfo.description
+          result.authors = mcmodInfo.authorList || []
+          result.url = mcmodInfo.url
+
+          if (mcmodInfo.logoFile) {
+            result.logoUrl = await this.extractIconToCache(filePath, mcmodInfo.logoFile, fileName)
+          }
+
+          return result
+        }
+
+        // 回退到 MANIFEST.MF 元数据
+        if (forgeMeta.manifestMetadata) {
+          result.name = forgeMeta.manifestMetadata.name
+          result.version = forgeMeta.manifestMetadata.version
+          result.description = forgeMeta.manifestMetadata.description
+          result.authors = forgeMeta.manifestMetadata.authors
+          result.url = forgeMeta.manifestMetadata.url
+          return result
+        }
+
+        return result
+      } catch {
+        // 不是 Forge Mod，回退到文件名解析
+      }
+
+      // 4. 文件名推测（无法识别为已知 Mod 格式时）
+      result.version = this.extractVersionFromFileName(fileName)
+      if (/fabric/i.test(fileName)) result.loader = 'fabric'
+      else if (/forge/i.test(fileName)) result.loader = 'forge'
+      else if (/quilt/i.test(fileName)) result.loader = 'quilt'
+      else if (/neoforge/i.test(fileName)) result.loader = 'neoforge'
+
+      const mcMatch = fileName.match(/(1\.\d+(?:\.\d+)?)/)
+      if (mcMatch) result.mcVersion = mcMatch[1]
 
       return result
     } catch (e: any) {
@@ -336,7 +381,13 @@ export class ModService {
       return {
         name: this.extractModName(fileName),
         version: this.extractVersionFromFileName(fileName),
-        loader: /fabric/i.test(fileName) ? 'fabric' : undefined
+        loader: /fabric/i.test(fileName)
+          ? 'fabric'
+          : /forge/i.test(fileName)
+            ? 'forge'
+            : /quilt/i.test(fileName)
+              ? 'quilt'
+              : undefined
       }
     }
   }

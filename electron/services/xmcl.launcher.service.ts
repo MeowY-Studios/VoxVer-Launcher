@@ -25,7 +25,7 @@ const BMCLAPI_VERSION = `${BMCLAPI_BASE}/version`
 const BMCLAPI_VERSION_MANIFEST = `${BMCLAPI_BASE}/mc/game/version_manifest.json`
 
 // BMCLAPI 库下载源替换
-function bmclapiLibraryHost(lib: any): string | string[] | undefined {
+function bmclapiLibraryHost(lib: { download?: { url?: string } }): string | string[] | undefined {
   if (lib.download?.url) {
     const originalUrl = lib.download.url
     if (originalUrl.includes('libraries.minecraft.net')) {
@@ -56,7 +56,7 @@ function bmclapiAssetsIndexUrl(version: ResolvedVersion): string | string[] {
 }
 
 // 统一的 BMCLAPI 安装选项
-function getBmclapiInstallOptions(): any {
+function getBmclapiInstallOptions(): Record<string, unknown> {
   return {
     libraryHost: bmclapiLibraryHost,
     mavenHost: [BMCLAPI_MAVEN, `${BMCLAPI_BASE}/maven`],
@@ -78,8 +78,8 @@ async function detectMissingFiles(
       log.info(`[detectMissingFiles] - [${issue.type}] ${issue.role}: ${issue.hint}`)
     })
     return report
-  } catch (e: any) {
-    log.warn(`[detectMissingFiles] 检测失败（跳过诊断直接安装）: ${e.message}`)
+  } catch (e: unknown) {
+    log.warn(`[detectMissingFiles] 检测失败（跳过诊断直接安装）: ${(e as Error).message}`)
     return null
   }
 }
@@ -146,8 +146,8 @@ async function downloadFromVersionList(folder: MinecraftFolder, versionId: strin
       client: `${BMCLAPI_VERSION}/${versionId}/client`
     })
     log.info(`[downloadFromVersionList] 版本 ${versionId} 安装完成`)
-  } catch (e: any) {
-    log.error(`[downloadFromVersionList] 下载版本 ${versionId} 失败: ${e.message}`)
+  } catch (e: unknown) {
+    log.error(`[downloadFromVersionList] 下载版本 ${versionId} 失败: ${(e as Error).message}`)
     throw e
   }
 }
@@ -183,8 +183,8 @@ async function downloadMissingDependencies(
     // 2. 下载版本 JSON 和 JAR（处理衍生版本）
     try {
       await downloadVersionFiles(folder, versionId, resolvedVersion)
-    } catch (e: any) {
-      log.warn(`[downloadMissingDependencies] 版本文件下载失败: ${e.message}`)
+    } catch (e: unknown) {
+      log.warn(`[downloadMissingDependencies] 版本文件下载失败: ${(e as Error).message}`)
     }
 
     // 3. 安装依赖（libraries + assets）— installDependencies 内部会跳过已存在的文件
@@ -194,8 +194,8 @@ async function downloadMissingDependencies(
       const refreshedVersion = await Version.parse(gamePath, versionId)
       await installDependencies(refreshedVersion, getBmclapiInstallOptions())
       log.info(`[downloadMissingDependencies] 依赖安装完成`)
-    } catch (e: any) {
-      log.warn(`[downloadMissingDependencies] installDependencies 失败，尝试分步安装: ${e.message}`)
+    } catch (e: unknown) {
+      log.warn(`[downloadMissingDependencies] installDependencies 失败，尝试分步安装: ${(e as Error).message}`)
       // 分步安装：先库后资源
       try {
         const refreshedVersion = await Version.parse(gamePath, versionId)
@@ -203,8 +203,8 @@ async function downloadMissingDependencies(
         log.info(`[downloadMissingDependencies] 库安装完成`)
         await installAssets(refreshedVersion, getBmclapiInstallOptions())
         log.info(`[downloadMissingDependencies] 资源安装完成`)
-      } catch (e2: any) {
-        log.error(`[downloadMissingDependencies] 分步安装也失败: ${e2.message}`)
+      } catch (e2: unknown) {
+        log.error(`[downloadMissingDependencies] 分步安装也失败: ${(e2 as Error).message}`)
       }
     }
 
@@ -216,8 +216,8 @@ async function downloadMissingDependencies(
 
     mainWindow.webContents.send('game:status', 'launching')
     return true
-  } catch (e: any) {
-    log.error(`[downloadMissingDependencies] 依赖下载失败: ${e.message}`)
+  } catch (e: unknown) {
+    log.error(`[downloadMissingDependencies] 依赖下载失败: ${(e as Error).message}`)
     mainWindow.webContents.send('game:status', 'launching')
     return false
   }
@@ -412,8 +412,8 @@ function prepareInstanceDir(sharedGamePath: string, instancePath: string): void 
       }
       createdLinks.push(dir)
       log.info(`[prepareInstanceDir] 已创建目录链接: ${instanceDir} -> ${sharedDir}`)
-    } catch (e: any) {
-      log.warn(`[prepareInstanceDir] 创建链接失败 ${dir}: ${e.message}，尝试 cmd fallback`)
+    } catch (e: unknown) {
+      log.warn(`[prepareInstanceDir] 创建链接失败 ${dir}: ${(e as Error).message}，尝试 cmd fallback`)
       // Windows 回退：使用 mklink /J
       try {
         const { execSync } = require('child_process')
@@ -423,8 +423,8 @@ function prepareInstanceDir(sharedGamePath: string, instancePath: string): void 
         })
         createdLinks.push(dir)
         log.info(`[prepareInstanceDir] mklink 成功: ${instanceDir} -> ${sharedDir}`)
-      } catch (e2: any) {
-        log.warn(`[prepareInstanceDir] mklink 也失败 ${dir}: ${e2.message}`)
+      } catch (e2: unknown) {
+        log.warn(`[prepareInstanceDir] mklink 也失败 ${dir}: ${(e2 as Error).message}`)
         // 如果链接创建失败，清理已创建的链接
         for (const linked of createdLinks) {
           try {
@@ -461,17 +461,15 @@ export async function launchWithXMCL(
     try {
       javaPath = await resolveJavaPath(versionId, options.javaPath)
       log.info(`[launchWithXMCL] 使用 Java: ${javaPath}`)
-    } catch (e: any) {
-      return { success: false, error: e.message }
+    } catch (e: unknown) {
+      return { success: false, error: (e as Error).message }
     }
-
-    let resolvedVersion: ResolvedVersion
     try {
       resolvedVersion = await Version.parse(gamePath, versionId)
       log.info(`[launchWithXMCL] 版本解析成功: ${resolvedVersion.id}`)
-    } catch (e: any) {
-      log.error(`[launchWithXMCL] 版本解析失败: ${e.message}`)
-      return { success: false, error: `版本解析失败: ${e.message}` }
+    } catch (e: unknown) {
+      log.error(`[launchWithXMCL] 版本解析失败: ${(e as Error).message}`)
+      return { success: false, error: `版本解析失败: ${(e as Error).message}` }
     }
 
     // 自动检测并下载缺失的依赖文件
@@ -480,8 +478,8 @@ export async function launchWithXMCL(
       await downloadMissingDependencies(mainWindow, gamePath, versionId, resolvedVersion)
       // 重新解析版本，确保依赖信息最新
       resolvedVersion = await Version.parse(gamePath, versionId)
-    } catch (e: any) {
-      log.warn(`[launchWithXMCL] 依赖下载失败，尝试直接启动: ${e.message}`)
+    } catch (e: unknown) {
+      log.warn(`[launchWithXMCL] 依赖下载失败，尝试直接启动: ${(e as Error).message}`)
     }
 
     // 修复自包含版本（无 inheritsFrom）的版本 JAR 路径问题
@@ -507,8 +505,8 @@ export async function launchWithXMCL(
           fs.copyFileSync(actualVersionJar, mcVersionJar)
           log.info(`[launchWithXMCL] 已复制版本 JAR: ${mcVersionJar}`)
         }
-      } catch (e: any) {
-        log.warn(`[launchWithXMCL] 创建版本 JAR 失败: ${e.message}`)
+      } catch (e: unknown) {
+        log.warn(`[launchWithXMCL] 创建版本 JAR 失败: ${(e as Error).message}`)
       }
     }
 
@@ -523,8 +521,8 @@ export async function launchWithXMCL(
         prepareInstanceDir(sharedGamePath, instancePath)
         gamePath = instancePath
         log.info(`[launchWithXMCL] 实例目录准备完成，使用实例目录作为游戏目录: ${gamePath}`)
-      } catch (e: any) {
-        log.warn(`[launchWithXMCL] 准备实例目录失败，回退到共享目录: ${e.message}`)
+      } catch (e: unknown) {
+        log.warn(`[launchWithXMCL] 准备实例目录失败，回退到共享目录: ${(e as Error).message}`)
       }
     }
 
@@ -554,7 +552,7 @@ export async function launchWithXMCL(
       ? (majorVersion >= 18 ? javaPath.replace('java.exe', 'javaw.exe') : javaPath)
       : javaPath
 
-    const launchOptions: any = {
+    const launchOptions: Record<string, unknown> = {
       gamePath,
       javaPath: javaExe || javaPath,
       version: resolvedVersion,
@@ -632,10 +630,10 @@ export async function launchWithXMCL(
       success: true,
       pid: proc.pid
     }
-  } catch (e: any) {
-    log.error(`[launchWithXMCL] 启动失败: ${e.message}`)
+  } catch (e: unknown) {
+    log.error(`[launchWithXMCL] 启动失败: ${(e as Error).message}`)
     gameStatus = 'idle'
-    return { success: false, error: e.message }
+    return { success: false, error: (e as Error).message }
   }
 }
 
