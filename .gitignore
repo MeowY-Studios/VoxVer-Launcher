@@ -63,6 +63,7 @@ coverage/
 
 # ========== Trae（IDE 数据）==========
 .trae/
+.agents/
 
 # ========== Electron 专属 ==========
 electron-builder.yml.bak      
@@ -86,6 +87,9 @@ RELEASE_NOTES_v*.md
 TASKS.md
 ANALYSIS_REPORT_*.md
 VoxVer_介绍.pptx
+design-analysis-report.md
+SECURITY_REVIEW.md
+skills-lock.json
 
 
 # ========== 备份目录（不上传）==========
