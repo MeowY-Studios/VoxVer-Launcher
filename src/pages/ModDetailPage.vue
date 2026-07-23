@@ -1102,11 +1102,7 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+
 
 /* ====== 安装确认弹窗 ====== */
 .confirm-overlay {

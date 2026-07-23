@@ -4,11 +4,16 @@
     ref="containerRef"
     @scroll="handleScroll"
   >
+    <!-- 空状态 -->
+    <div v-if="!items.length" class="virtual-scroll-empty">
+      {{ $t('common.noData') }}
+    </div>
+
     <!-- 顶部占位 -->
-    <div :style="{ height: topPadding + 'px' }"></div>
+    <div v-else :style="{ height: topPadding + 'px' }"></div>
 
     <!-- 可见区域的项目 -->
-    <div class="virtual-scroll-items">
+    <div v-if="items.length" class="virtual-scroll-items">
       <slot
         v-for="(item, index) in visibleItems"
         :item="item"
@@ -23,24 +28,24 @@
     </div>
 
     <!-- 底部占位 -->
-    <div :style="{ height: bottomPadding + 'px' }"></div>
+    <div v-if="items.length" :style="{ height: bottomPadding + 'px' }"></div>
   </div>
 </template>
 
-<script setup lang="ts" generic="T">
+<script setup lang="ts">
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 
 interface Props {
-  items: T[]
+  items: Record<string, unknown>[]
   itemHeight?: number
   overscan?: number
-  getItemKey?: (item: T, index: number) => string | number
+  getItemKey?: (item: Record<string, unknown>, index: number) => string | number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   itemHeight: 50,
   overscan: 5,
-  getItemKey: (_item: T, index: number) => index
+  getItemKey: (_item: Record<string, unknown>, index: number) => index
 })
 
 const emit = defineEmits<{
@@ -134,5 +139,14 @@ defineExpose({
   padding: 0 12px;
   border-bottom: 1px solid var(--voxver-border-color);
   box-sizing: border-box;
+}
+
+.virtual-scroll-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--voxver-text-muted);
+  font-size: 13px;
 }
 </style>

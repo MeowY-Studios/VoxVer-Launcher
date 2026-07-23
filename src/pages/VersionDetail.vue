@@ -749,11 +749,7 @@ onMounted(() => {
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+
 
 .vd-hero {
   display: flex;
@@ -910,10 +906,6 @@ onMounted(() => {
 }
 
 /* ========== 加载器附加内容 ========== */
-.addons-section {
-  /* 去掉 overflow: hidden，避免内容被截断 */
-}
-
 .addon-card {
   background: var(--voxver-bg-hover);
   border: 1px solid var(--voxver-border-color);

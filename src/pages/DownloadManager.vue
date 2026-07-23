@@ -663,15 +663,7 @@ function deleteSelected() {
   animation: pulse 2s ease-in-out infinite;
 }
 
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
-}
+
 
 .task-checkbox {
   position: relative;
@@ -733,15 +725,7 @@ function deleteSelected() {
 .download-icon {
   animation: bounce 1.5s ease-in-out infinite;
 }
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
-}
+
 
 .task-info {
   flex: 1;
@@ -822,16 +806,10 @@ function deleteSelected() {
   left: 0;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.3), transparent);
+  background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(200%);
-  }
-}
+
 .task-item.completed .task-bar {
   background: linear-gradient(90deg, var(--voxver-success), color-mix(in oklab, var(--voxver-success) 70%, #000));
 }

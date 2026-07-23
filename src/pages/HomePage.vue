@@ -59,7 +59,7 @@
     </div>
 
     <!-- 最近游玩的实例 -->
-    <div v-if="recentInstances.length" class="recent-section">
+    <div class="recent-section">
       <div class="section-header">
         <h3 class="section-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -77,7 +77,25 @@
           </svg>
         </button>
       </div>
-      <div class="recent-grid">
+
+      <!-- 加载中 -->
+      <div v-if="isLoadingInstances" class="recent-loading">
+        <span class="spin-loader" />
+        <span class="loading-text">{{ $t('common.loading') }}</span>
+      </div>
+
+      <!-- 空状态 -->
+      <div v-else-if="!recentInstances.length" class="recent-empty">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.2">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+        <p>{{ $t('home.noRecent') }}</p>
+      </div>
+
+      <!-- 有数据 -->
+      <div v-else class="recent-grid">
         <div
           v-for="inst in recentInstances"
           :key="inst.id"
@@ -130,6 +148,7 @@ const router = useRouter()
 
 const showReceiveModal = ref(false)
 const initialShareCode = ref('')
+const isLoadingInstances = ref(false)
 let protocolCleanup: (() => void) | undefined
 
 const recentInstances = computed(() => {
@@ -169,8 +188,10 @@ function onInstanceImported() {
   router.push('/instances')
 }
 
-onMounted(() => {
-  instancesStore.fetchInstances()
+onMounted(async () => {
+  isLoadingInstances.value = true
+  await instancesStore.fetchInstances()
+  isLoadingInstances.value = false
 
   // * 监听协议唤起（voxver://share:CODE）
   protocolCleanup = window.electronAPI?.share?.onProtocolInvoke((code: string) => {
@@ -280,6 +301,40 @@ onUnmounted(() => {
 /* * ===== 最近实例 ===== */
 .recent-section {
   margin-top: 32px;
+}
+
+.recent-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px 0;
+  color: var(--voxver-text-muted);
+  font-size: 13px;
+
+  .loading-text {
+    color: var(--voxver-text-muted);
+  }
+}
+
+.recent-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 0;
+  color: var(--voxver-text-muted);
+
+  svg {
+    opacity: 0.35;
+    margin-bottom: 8px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--voxver-text-muted);
+  }
 }
 
 .section-header {
@@ -412,5 +467,20 @@ onUnmounted(() => {
   .recent-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* * ===== 动画 ===== */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spin-loader {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--voxver-border-color);
+  border-top-color: var(--voxver-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
 }
 </style>

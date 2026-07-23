@@ -111,7 +111,7 @@ function formatSpeed(bytesPerSec: number): string {
 
   h3 {
     font-size: 14px;
-    font-weight: 650;
+    font-weight: 600;
     color: var(--voxver-text-primary);
   }
 
@@ -189,16 +189,6 @@ function formatSpeed(bytesPerSec: number): string {
     &.animating {
       animation: shimmer 1.5s ease-in-out infinite;
       background-size: 200% 100%;
-    }
-  }
-
-  @keyframes shimmer {
-    0% {
-      background-position: 200% 0;
-    }
-
-    100% {
-      background-position: -200% 0;
     }
   }
 

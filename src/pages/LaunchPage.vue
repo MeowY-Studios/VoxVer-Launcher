@@ -45,52 +45,60 @@
 
       <!-- .minecraft 路径显示 -->
       <div class="mc-path-bar" :title="mcPath">
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
-        </svg>
-        <span class="mc-path-text" :class="{ 'not-found': !mcPathExists }">{{
-          mcPathDisplay
-        }}</span>
-        <div class="mc-path-actions">
-          <button
-            v-if="isCustomPath"
-            class="mc-path-btn"
-            :title="$t('launch.restoreDefaultPath')"
-            @click.stop="restoreDefaultPath"
+        <!-- 加载中 -->
+        <template v-if="pathLoading">
+          <span class="spin-loader-sm" />
+          <span class="mc-path-text">{{ $t('launch.detecting') }}</span>
+        </template>
+        <!-- 已加载 -->
+        <template v-else>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
           >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
+            <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+          </svg>
+          <span class="mc-path-text" :class="{ 'not-found': !mcPathExists }">{{
+            mcPathDisplay
+          }}</span>
+          <div class="mc-path-actions">
+            <button
+              v-if="isCustomPath"
+              class="mc-path-btn"
+              :title="$t('launch.restoreDefaultPath')"
+              @click.stop="restoreDefaultPath"
             >
-              <path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" />
-              <path d="M3 3v5h5" />
-            </svg>
-          </button>
-          <button class="mc-path-btn" :title="$t('launch.changePath')" @click.stop="changePath">
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-            >
-              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-            </svg>
-          </button>
-        </div>
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
+            </button>
+            <button class="mc-path-btn" :title="$t('launch.changePath')" @click.stop="changePath">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </button>
+          </div>
+        </template>
       </div>
 
       <!-- 状态信息 -->
@@ -202,6 +210,7 @@ const autoScroll = ref(true)
 const mcPath = ref('')
 const mcPathExists = ref(true)
 const isCustomPath = ref(false)
+const pathLoading = ref(true)
 let logListener: ((...args: unknown[]) => void) | null = null
 let exitListener: ((data: { code: number; signal: string | null; instanceId?: string }) => void) | null = null
 let progressListener: ((...args: unknown[]) => void) | null = null
@@ -292,7 +301,9 @@ async function terminateGame() {
     isRunning.value = false
     statusMessage.value = t('launch.gameTerminated')
     addLog('[VoxVer] 游戏进程已手动终止')
-  } catch (e) {}
+  } catch (e) {
+    addLog(`[VoxVer] 终止游戏进程失败: ${(e as Error).message || e}`)
+  }
 }
 
 /** 检查游戏是否在运行 */
@@ -432,6 +443,8 @@ onMounted(async () => {
     }
   } catch (e) {
     mcPathExists.value = false
+  } finally {
+    pathLoading.value = false
   }
 
   // 注册日志监听
@@ -604,6 +617,10 @@ onUnmounted(() => {
     }
   }
 
+  &.error {
+    background: var(--voxver-error);
+  }
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -623,32 +640,6 @@ onUnmounted(() => {
 
   .btn-text {
     line-height: 1.47;
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.08);
-    opacity: 0.85;
-  }
-}
-@keyframes pulse-green {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgb(52 199 89 / 0.35);
-  }
-  50% {
-    box-shadow: 0 0 0 12px rgb(52 199 89 / 0);
   }
 }
 
@@ -843,5 +834,21 @@ onUnmounted(() => {
       color: var(--voxver-text-muted);
     }
   }
+}
+
+/* * ===== 动画 ===== */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spin-loader-sm {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--voxver-border-color);
+  border-top-color: var(--voxver-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
 }
 </style>

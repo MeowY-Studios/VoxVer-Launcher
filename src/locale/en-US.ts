@@ -559,7 +559,13 @@ export default {
       navOverview: 'Overview',
       navSettings: 'Settings',
       navMods: 'Mod Management',
-      navExport: 'Export'
+      navExport: 'Export',
+      saveSettings: 'Save Settings',
+      saving: 'Saving...',
+      saveSuccessTitle: 'Settings Saved',
+      saveSuccessBody: 'Settings for version "{name}" have been saved successfully.',
+      saveFailedTitle: 'Save Failed',
+      saveFailedBody: 'Failed to save settings. Please try again later.'
     }
   },
 
@@ -1081,6 +1087,7 @@ export default {
     source: 'Source',
     all: 'All',
     version: 'Version',
+    versionPlaceholder: 'All (or type your own)',
     loader: 'Loader',
     anyLoader: 'Any Mod Loader',
     type: 'Type',

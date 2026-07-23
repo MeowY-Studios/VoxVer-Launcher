@@ -176,12 +176,6 @@ const btnClass = computed(() => ({
     }
   }
 
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
   /* 运行中 */
   &.running {
     background: linear-gradient(135deg, #059669, #34d399);
@@ -193,16 +187,6 @@ const btnClass = computed(() => ({
 
     &:hover:not(:disabled) {
       filter: brightness(1.08);
-    }
-  }
-
-  @keyframes pulse-green {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 rgb(16 185 129 / 0.35);
-    }
-    50% {
-      box-shadow: 0 0 0 12px rgb(16 185 129 / 0);
     }
   }
 

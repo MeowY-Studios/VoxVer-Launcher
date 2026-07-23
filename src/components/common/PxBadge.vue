@@ -73,20 +73,8 @@ const badgeClasses = computed(() => [
   flex-shrink: 0;
 }
 .px-badge__dot--pulse {
-  animation: px-badge-pulse 1.5s ease-in-out infinite;
+  animation: badge-pulse 1.5s ease-in-out infinite;
 }
-@keyframes px-badge-pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(0.8);
-  }
-}
-
 /* Dot-only (no text, compact) */
 .px-badge--dot-only {
   padding: 0;

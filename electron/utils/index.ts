@@ -9,6 +9,8 @@ export { encrypt, decrypt, encryptToHex, decryptFromHex } from './crypto'
 
 export { hashFile, hashFileSync, hashString, verifyFileHash } from './hash'
 
+export { safeJoin, validateVersionId, validatePathSafe } from './path-validation'
+
 export {
   platform,
   detectJavaInstallations,

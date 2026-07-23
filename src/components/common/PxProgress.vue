@@ -102,15 +102,6 @@ const displayPercent = computed(() => {
     transparent
   );
   background-size: 1rem 1rem;
-  animation: px-progress-stripes 1s linear infinite;
-}
-
-@keyframes px-progress-stripes {
-  from {
-    background-position: 1rem 0;
-  }
-  to {
-    background-position: 0 0;
-  }
+  animation: progress-stripes 1s linear infinite;
 }
 </style>

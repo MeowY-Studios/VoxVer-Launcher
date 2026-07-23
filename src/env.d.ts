@@ -190,6 +190,7 @@ interface ElectronAPI {
   version: {
     listVersions: () => Promise<unknown[]>
     listLoaders: (mcVersion: string) => Promise<unknown[]>
+    saveSettings: (instanceId: string, settings: Record<string, unknown>) => Promise<void>
   }
   versions: {
     scanFolder: (gameDir: string) => Promise<IpcResult<unknown[]>>

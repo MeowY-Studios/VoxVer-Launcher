@@ -865,7 +865,9 @@ async function loadLocalInstalledVersions() {
           loader: v.loaderInfo || ''
         }))
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('扫描本地版本失败:', e)
+    }
   }
 }
 
@@ -960,7 +962,9 @@ onMounted(async () => {
           minecraftPath.value = await window.electronAPI.path.getMinecraft()
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('获取Minecraft路径失败:', e)
+    }
   }
 
   // * 加载本地已安装版本（优先于远程版本）
@@ -1080,7 +1084,9 @@ async function onVersionSelect(version: { id: string; name: string; loader?: str
       if (lastFolder) {
         minecraftPath.value = lastFolder
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('获取上次文件夹路径失败:', e)
+    }
   }
 
   selectedVersionId.value = version.id

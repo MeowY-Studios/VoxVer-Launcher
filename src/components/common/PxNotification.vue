@@ -166,6 +166,9 @@ const router = useRouter()
 const showPanel = ref(false)
 interface NotificationItem {
   id: string
+  type: 'success' | 'error' | 'warning' | 'info'
+  title: string
+  body: string
   read: boolean
   route?: string
   timestamp: number
@@ -183,7 +186,7 @@ async function loadHistory() {
   if (!window.electronAPI) return
   const result = await window.electronAPI.notification.getHistory(50)
   if (result?.ok) {
-    history.value = result.data || []
+    history.value = (result.data || []) as NotificationItem[]
   }
   const count = await window.electronAPI.notification.getUnreadCount()
   if (typeof count === 'number') {
@@ -250,7 +253,7 @@ onMounted(async () => {
   }
 
   if (window.electronAPI?.notification?.onClicked) {
-    removeOnClicked = window.electronAPI.notification.onClicked((data: { route?: string }) => {
+    removeOnClicked = window.electronAPI.notification.onClicked((data: any) => {
       if (data?.route) router.push(data.route)
     })
   }

@@ -116,6 +116,17 @@
   &:active {
     transform: scale(0.95);
   }
+
+  &:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: -2px;
+  }
+
+  &.disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 }
 
 /* * 窗口控制按钮 — 跨平台自适应 */
@@ -130,7 +141,7 @@
 
 .wc-btn {
   cursor: pointer;
-  transition: all 0.12s;
+  transition: background var(--voxver-transition-fast), opacity var(--voxver-transition-fast);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -305,13 +316,17 @@
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all var(--voxver-transition-fast);
+  transition: border-color var(--voxver-transition-fast), color var(--voxver-transition-fast), background var(--voxver-transition-fast);
   margin: 8px 0;
   text-align: center;
 
   &:hover {
     border-color: var(--voxver-primary-400);
     color: var(--voxver-primary-400);
+  }
+
+  &:active {
+    background: var(--voxver-bg-active);
   }
 }
 
@@ -346,7 +361,7 @@
     font-weight: 600;
     color: var(--voxver-text-secondary);
     cursor: pointer;
-    transition: all var(--voxver-transition-fast);
+    transition: border-color var(--voxver-transition-fast), color var(--voxver-transition-fast), background var(--voxver-transition-fast);
     white-space: nowrap;
     svg {
       flex-shrink: 0;
@@ -440,7 +455,7 @@
     background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
     outline: none;
     cursor: pointer;
-    transition: all var(--voxver-transition-fast);
+    transition: border-color var(--voxver-transition-fast), box-shadow var(--voxver-transition-fast), color var(--voxver-transition-fast), background var(--voxver-transition-fast);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -537,6 +552,15 @@
     &:hover {
       filter: brightness(1.08);
     }
+
+    &:active {
+      filter: brightness(0.95);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--voxver-accent);
+      outline-offset: 2px;
+    }
   }
 }
 
@@ -561,7 +585,7 @@
   color: var(--voxver-text-muted);
   text-decoration: none;
   background: var(--voxver-bg-elevated);
-  transition: all 0.15s;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 
   svg {
     flex-shrink: 0;
@@ -641,7 +665,7 @@
     color: var(--voxver-text-primary);
     background: var(--voxver-bg-elevated);
     outline: none;
-    transition: all var(--voxver-transition-fast);
+    transition: border-color var(--voxver-transition-fast), box-shadow var(--voxver-transition-fast);
 
     &::placeholder {
       color: var(--voxver-text-muted);
@@ -730,12 +754,15 @@
     font-size: 12px;
     color: var(--voxver-text-secondary);
     cursor: pointer;
-    transition: all var(--voxver-transition-fast);
-
+    transition: border-color var(--voxver-transition-fast), color var(--voxver-transition-fast), background var(--voxver-transition-fast);
     &:hover {
       border-color: var(--voxver-primary-400);
       color: var(--voxver-primary-600);
       background: var(--voxver-primary-light);
+    }
+
+    &:active {
+      background: var(--voxver-bg-active);
     }
   }
 }
@@ -766,7 +793,7 @@
   font-size: 13px;
   color: var(--voxver-text-primary);
   cursor: pointer;
-  transition: all 0.1s;
+  transition: background 0.1s, color 0.1s;
 
   &:hover {
     background: var(--voxver-primary-light);
@@ -806,7 +833,7 @@
 
   .nav-item.disabled,
   .nav-item:disabled {
-    opacity: 0.4;
+    opacity: 0.35;
     cursor: not-allowed;
     pointer-events: none;
   }

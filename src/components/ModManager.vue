@@ -479,6 +479,7 @@ async function checkAllUpdates() {
       updateInfoMap.value = map
     }
   } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.updateCheckFailed'), type: 'error' })
   } finally {
     checkingUpdates.value = false
   }
@@ -580,6 +581,7 @@ async function checkAllDependencies() {
       depCheckMap.value = map
     }
   } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.dependencyCheckFailed'), type: 'error' })
   } finally {
     checkingDependencies.value = false
   }
@@ -671,7 +673,9 @@ async function toggleSelectedModEnable() {
       await window.electronAPI?.mod.enable(mod.filePath)
     }
     await loadMods()
-  } catch (e) {}
+  } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.toggleModFailed'), type: 'error' })
+  }
 }
 
 async function removeSelectedMod() {
@@ -683,7 +687,9 @@ async function removeSelectedMod() {
     await window.electronAPI?.mod.uninstall(mod.filePath)
     await loadMods()
     selectedMod.value = null
-  } catch (e) {}
+  } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.deleteModFailed'), type: 'error' })
+  }
 }
 
 async function openModFolder() {
@@ -753,7 +759,9 @@ async function toggleModEnable(mod: ModItem) {
       await window.electronAPI?.mod.enable(mod.filePath)
     }
     await loadMods()
-  } catch (e) {}
+  } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.toggleModFailed'), type: 'error' })
+  }
 }
 
 // * 删除单个 Mod
@@ -762,7 +770,9 @@ async function removeMod(mod: ModItem) {
   try {
     await window.electronAPI?.mod.uninstall(mod.filePath)
     await loadMods()
-  } catch (e) {}
+  } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.deleteModFailed'), type: 'error' })
+  }
 }
 
 onMounted(() => {
@@ -1175,14 +1185,7 @@ onMounted(() => {
     animation: spin 1s linear infinite;
   }
 }
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+
 
 /* 弹窗过渡 */
 .modal-fade-enter-active,

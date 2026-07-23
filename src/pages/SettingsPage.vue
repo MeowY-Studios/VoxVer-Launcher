@@ -3027,7 +3027,9 @@ async function createMinecraftFolderHere() {
     await api.folders.add(minecraftPath)
     folderItems.value.push({ path: minecraftPath, name: '.minecraft', isActive: false })
     await switchFolder(minecraftPath)
-  } catch (_) {}
+  } catch (_) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('settings.createMinecraftFolderFailed'), type: 'error' })
+  }
 }
 
 async function importModpackFromSettings() {
@@ -4244,12 +4246,26 @@ async function startDownloadFromModal() {
   await downloadUpdate()
 }
 
+/** 清理 HTML 中的危险标签和属性 */
+function sanitizeHtml(html: string): string {
+  return html
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<iframe\b[^>]*>[\s\S]*?<\/iframe>/gi, '')
+    .replace(/<object\b[^>]*>[\s\S]*?<\/object>/gi, '')
+    .replace(/<embed\b[^>]*\/?>/gi, '')
+    .replace(/\son\w+\s*=\s*"[^"]*"/gi, '')
+    .replace(/\son\w+\s*=\s*'[^']*'/gi, '')
+    .replace(/\son\w+\s*=\s*[^\s>]+/gi, '')
+    .replace(/href\s*=\s*"javascript:[^"]*"/gi, 'href="#"')
+    .replace(/href\s*=\s*'javascript:[^']*'/gi, "href='#'")
+}
+
 /** 简单 Markdown → HTML 转换 */
 function renderMd(md: string): string {
   if (!md) return ''
-  // 如果已经是 HTML，直接返回（移除多余空白）
+  // 如果已经是 HTML，清理危险内容后返回
   if (/<[a-zA-Z][\s\S]*?>/.test(md)) {
-    return md.trim()
+    return sanitizeHtml(md.trim())
   }
   let html = md
     // 转义 HTML
@@ -4950,14 +4966,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   white-space: nowrap;
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+
 
 // Progress styles
 .java-progress {

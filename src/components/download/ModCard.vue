@@ -143,7 +143,7 @@ function formatNum(n: number): string {
 
 .mod-name {
   font-size: 14.5px;
-  font-weight: 650;
+  font-weight: 600;
   color: var(--voxver-text-primary);
   margin: 0 0 3px;
   overflow: hidden;

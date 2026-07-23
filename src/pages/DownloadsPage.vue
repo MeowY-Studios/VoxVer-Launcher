@@ -520,23 +520,15 @@
           </div>
           <div class="f-row">
             <label>{{ $t('download.version') }}</label>
-            <select class="f-select vox-input" v-model="searchVersion">
-              <option value="">{{ $t('download.all') }}</option>
-              <option v-for="v in mcVersionOptions" :key="v" :value="v">{{ v }}</option>
-            </select>
-          </div>
-          <!-- 选了版本后出现加载器选项（仅 Mod） -->
-          <div class="f-row" v-if="activeCategory === 'mod' && searchVersion">
-            <label>{{ $t('download.loader') }}</label>
-            <select class="f-select vox-input" v-model="searchLoader">
-              <option value="">{{ $t('download.anyLoader') }}</option>
-              <option value="fabric">Fabric</option>
-              <option value="forge">Forge</option>
-              <option value="neoforge">NeoForge</option>
-              <option value="quilt">Quilt</option>
-              <option value="liteLoader">LiteLoader</option>
-              <option value="optifine">OptiFine</option>
-            </select>
+            <input
+              class="f-input vox-input"
+              v-model="searchVersion"
+              :list="'mcVersionList'"
+              :placeholder="$t('download.versionPlaceholder')"
+            />
+            <datalist id="mcVersionList">
+              <option v-for="v in mcVersionOptions" :key="v" :value="v" />
+            </datalist>
           </div>
           <!-- Mod 分类 / 光影分类 -->
           <div
@@ -554,6 +546,19 @@
               <option v-for="t in availableTypes" :key="t" :value="t">{{ t }}</option>
             </select>
           </div>
+          <!-- 选了版本后出现加载器选项（仅 Mod） -->
+          <div class="f-row" v-if="activeCategory === 'mod' && searchVersion">
+            <label>{{ $t('download.loader') }}</label>
+            <select class="f-select vox-input" v-model="searchLoader">
+              <option value="">{{ $t('download.anyLoader') }}</option>
+              <option value="fabric">Fabric</option>
+              <option value="forge">Forge</option>
+              <option value="neoforge">NeoForge</option>
+              <option value="quilt">Quilt</option>
+              <option value="liteLoader">LiteLoader</option>
+              <option value="optifine">OptiFine</option>
+            </select>
+          </div>
         </div>
 
         <div class="filter-actions">
@@ -563,8 +568,8 @@
         </div>
       </section>
 
-      <!-- 加载状态 -->
-      <section v-if="isLoading" class="loading-section vox-card">
+      <!-- 加载状态（无旧结果时全屏加载） -->
+      <section v-if="isLoading && !paginatedResources.length" class="loading-section vox-card">
         <div class="load-icon">
           <svg
             width="48"
@@ -580,8 +585,14 @@
         <p class="load-text">{{ $t('download.loading') }} {{ categoryLabel }} {{ $t('download.list') }} - {{ loadProgress }}%</p>
       </section>
 
+      <!-- 加载中（保留旧结果，显示加载横幅） -->
+      <div v-if="isLoading && paginatedResources.length" class="loading-banner">
+        <span class="spin-loader" />
+        <span>{{ $t('download.loading') }}...</span>
+      </div>
+
       <!-- 结果列表 -->
-      <section v-else-if="paginatedResources.length" class="result-list">
+      <section v-if="paginatedResources.length" class="result-list">
         <div
           v-for="r in paginatedResources"
           :key="r.id + '-' + r.source"
@@ -1088,24 +1099,13 @@ watch(
   }
 )
 
-// * MC 版本选项（常用版本）
-const mcVersionOptions = [
-  '1.21.4',
-  '1.21.3',
-  '1.21.1',
-  '1.21',
-  '1.20.6',
-  '1.20.4',
-  '1.20.1',
-  '1.20',
-  '1.19.4',
-  '1.19.2',
-  '1.18.2',
-  '1.17.1',
-  '1.16.5',
-  '1.12.2',
-  '1.8.9'
-]
+// * MC 版本选项（从 BMCLAPI 版本列表动态获取 release 版本）
+const mcVersionOptions = computed(() => {
+  const releases = allVersions.value
+    .filter((v) => v.type === 'release')
+    .map((v) => v.id)
+  return releases
+})
 
 const availableTypes = computed(() => {
   if (activeCategory.value === 'mod')
@@ -1288,7 +1288,6 @@ function formatDownloads(n: number): string {
 async function doSearch() {
   isLoading.value = true
   loadProgress.value = 0
-  dlStore.searchResults = []
   dlStore.searchError = ''
   currentPage.value = 1
 
@@ -1350,6 +1349,7 @@ function resetSearch() {
   searchType.value = ''
   searchLoader.value = ''
   dlStore.searchResults = []
+  doSearch()
 }
 
 function handleCardClick(r: ResourceItem) {
@@ -1390,13 +1390,12 @@ onUnmounted(() => {
   }
 })
 
-// * 切换社区分类时，清空旧结果并自动拉取新分类数据
+// * 切换社区分类时，保留旧结果并自动拉取新分类数据
 watch(
   () => activeCategory.value,
   (cat) => {
     if (!COMMUNITY_CATEGORIES.includes(cat)) return
-    // * 切换分类时清空旧结果，重置分页与搜索词
-    dlStore.searchResults = []
+    // * 不清空旧结果，保留显示 + 顶部 loading 横幅
     dlStore.hasMore = true
     searchName.value = ''
     currentPage.value = 1
@@ -1744,14 +1743,7 @@ watch(
 .spin-icon {
   animation: spin 0.8s linear infinite;
 }
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+
 
 .ver-empty {
   text-align: center;
@@ -1890,15 +1882,20 @@ watch(
     font-weight: 400;
   }
 }
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
+
+.loading-banner {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 16px;
+  margin-bottom: 8px;
+  background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
+  border: 1px solid color-mix(in oklab, var(--voxver-primary) 20%, transparent);
+  border-radius: var(--voxver-radius-md);
+  font-size: 13px;
+  color: var(--voxver-primary);
 }
+
 
 /* * 结果 */
 .result-list {
@@ -2192,5 +2189,21 @@ watch(
   svg {
     flex-shrink: 0;
   }
+}
+
+/* * ===== 动画 ===== */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spin-loader {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--voxver-border-color);
+  border-top-color: var(--voxver-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
 }
 </style>

@@ -354,12 +354,16 @@ async function switchToAccount(id: string) {
 
 // 删除离线账户
 async function deleteOffline(id: string) {
+  const confirmMsg = t('account.confirmDelete') || '确认删除该账户？此操作不可撤销。'
+  if (!confirm(confirmMsg)) return
   await accountsStore.deleteAccount(id)
   await accountsStore.fetchAccounts()
 }
 
 // 删除微软账户
 async function removeMicrosoftAccount(id: string) {
+  const confirmMsg = t('account.confirmDelete') || '确认删除该账户？此操作不可撤销。'
+  if (!confirm(confirmMsg)) return
   await accountsStore.deleteAccount(id)
   await accountsStore.fetchAccounts()
 }
@@ -1088,9 +1092,5 @@ function generateUUID(): string {
     border-width: 3px;
   }
 }
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+
 </style>

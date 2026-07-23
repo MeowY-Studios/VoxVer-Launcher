@@ -208,6 +208,17 @@ onUnmounted(() => {
   cleanupProgress?.()
   cleanupLog?.()
   cleanupExit?.()
+  document.removeEventListener('keydown', handleKeydown)
+})
+
+function handleKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape' && (phase.value === 'error' || phase.value === 'idle')) {
+    visible.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeydown)
 })
 
 function handleOverlayClick() {
@@ -247,7 +258,6 @@ defineExpose({
   border: 2px solid var(--voxver-primary);
   border-radius: var(--voxver-radius-xs);
   box-shadow: 0 0 30px color-mix(in oklab, var(--voxver-primary) 25%, transparent);
-  box-shadow: 0 0 30px color-mix(in oklab, var(--voxver-primary) 25%, transparent);
   overflow: hidden;
   font-family: 'Courier New', monospace;
 }
@@ -266,16 +276,6 @@ defineExpose({
 .panel-icon {
   color: var(--voxver-primary);
   animation: pulse 1.2s infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
 }
 
 .panel-version {
@@ -369,15 +369,6 @@ defineExpose({
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 180px;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .log-area {

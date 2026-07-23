@@ -13,8 +13,8 @@ import {
 } from './java.management.service'
 import { getDatabase } from './database'
 import { logger } from '../utils/logger'
-
-const log = logger.child('XMCL-Launcher')
+import { safeJoin, validatePathSafe } from '../utils/path-validation'
+const log = logger.child('XMCL')
 
 // BMCLAPI 镜像配置
 const BMCLAPI_BASE = 'https://bmclapi2.bangbang93.com'
@@ -414,9 +414,11 @@ function prepareInstanceDir(sharedGamePath: string, instancePath: string): void 
       log.info(`[prepareInstanceDir] 已创建目录链接: ${instanceDir} -> ${sharedDir}`)
     } catch (e: unknown) {
       log.warn(`[prepareInstanceDir] 创建链接失败 ${dir}: ${(e as Error).message}，尝试 cmd fallback`)
-      // Windows 回退：使用 mklink /J
+      // Windows 回退：使用 mklink /J（路径已通过 validatePathSafe 校验）
       try {
         const { execSync } = require('child_process')
+        validatePathSafe(instanceDir)
+        validatePathSafe(sharedDir)
         execSync(`cmd /c mklink /J "${instanceDir}" "${sharedDir}"`, {
           encoding: 'utf-8',
           windowsHide: true

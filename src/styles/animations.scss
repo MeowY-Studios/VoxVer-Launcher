@@ -141,6 +141,60 @@
   }
 }
 
+/* * 弹跳 — 下载/分享反馈 */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+
+/* * 绿色脉冲 — 联网状态指示 */
+@keyframes pulse-green {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* * 微下滑入场 — 额外内容展开 */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* * 闪烁骨架 — 加载占位 */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* * 进度条条纹 — 下载进度 */
+@keyframes progress-stripes {
+  0%   { background-position: 0 0; }
+  100% { background-position: 40px 0; }
+}
+
+/* * 徽章脉冲 — 通知红点 */
+@keyframes badge-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.85);
+  }
+}
+
 /* * 动画工具类 */
 .animate-fade-in {
   animation: fade-in var(--voxver-transition-normal) ease-out forwards;
@@ -204,11 +258,43 @@
   animation: slide-out-right var(--voxver-transition-fast) cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+.animate-bounce {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+.animate-pulse-green {
+  animation: pulse-green 2s ease-in-out infinite;
+}
+
+.animate-slide-down-sm {
+  animation: slideDown 0.2s ease forwards;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, var(--voxver-bg-tertiary) 25%, var(--voxver-bg-elevated) 50%, var(--voxver-bg-tertiary) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.animate-progress-stripes {
+  animation: progress-stripes 1s linear infinite;
+}
+
+.animate-badge-pulse {
+  animation: badge-pulse 1.5s ease-in-out infinite;
+}
+
 /* * 动画延迟工具类 — 错开入场 */
 @for $i from 1 through 5 {
   .animate-delay-#{$i} {
     animation-delay: #{$i * 0.1}s;
   }
+}
+
+/* * GPU 加速 — 将动画提升到合成层 */
+.gpu-accelerated {
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }
 
 /* ! 无障碍：尊重用户减少动画偏好 */

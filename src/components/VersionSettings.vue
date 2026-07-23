@@ -43,7 +43,7 @@
                 <!-- 版本信息卡片 -->
                 <div class="ver-info-card">
                   <div class="ver-icon">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--pcl-blue)"
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-accent)"
                       stroke-width="1.5">
                       <path
                         d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
@@ -126,26 +126,26 @@
                   <h3 class="sec-title">{{ $t('version.settings.launchOptions') }}</h3>
                   <div class="form-row">
                     <label>{{ $t('version.settings.versionIsolationLabel') }}</label>
-                    <select class="form-select">
-                      <option>{{ $t('version.settings.enabledBtn') }}</option>
-                      <option>{{ $t('version.settings.disabledBtn') }}</option>
+                    <select class="form-select" v-model="settingsForm.versionIsolation">
+                      <option value="enabled">{{ $t('version.settings.enabledBtn') }}</option>
+                      <option value="disabled">{{ $t('version.settings.disabledBtn') }}</option>
                     </select>
                   </div>
                   <div class="form-row">
                     <label>{{ $t('version.settings.gameWindowTitle') }}</label>
-                    <input type="text" class="form-input" :placeholder="$t('version.settings.followGlobal')" />
+                    <input type="text" class="form-input" v-model="settingsForm.gameWindowTitle" :placeholder="$t('version.settings.followGlobal')" />
                   </div>
                   <div class="form-row">
                     <label>{{ $t('version.settings.customPath') }}</label>
-                    <input type="text" class="form-input" :placeholder="$t('version.settings.followGlobal')" />
+                    <input type="text" class="form-input" v-model="settingsForm.customPath" :placeholder="$t('version.settings.followGlobal')" />
                   </div>
                   <div class="form-row">
                     <label>{{ $t('version.settings.gameJavaLabel') }}</label>
-                    <select class="form-select">
-                      <option>{{ $t('version.settings.followGlobal') }}</option>
-                      <option>{{ $t('version.settings.java17') }}</option>
-                      <option>{{ $t('version.settings.java21') }}</option>
-                      <option>{{ $t('version.settings.customPath') }}</option>
+                    <select class="form-select" v-model="settingsForm.javaPath">
+                      <option value="follow-global">{{ $t('version.settings.followGlobal') }}</option>
+                      <option value="java17">{{ $t('version.settings.java17') }}</option>
+                      <option value="java21">{{ $t('version.settings.java21') }}</option>
+                      <option value="custom">{{ $t('version.settings.customPath') }}</option>
                     </select>
                   </div>
                 </section>
@@ -174,10 +174,10 @@
 
                   <div v-if="memMode !== 'global'" class="form-row" style="margin-top: 10px">
                     <label>{{ $t('version.settings.memOptimize') }}</label>
-                    <select class="form-select short-select">
-                      <option>{{ $t('version.settings.followGlobal') }}</option>
-                      <option>{{ $t('version.settings.enabledBtn') }}</option>
-                      <option>{{ $t('version.settings.disabledBtn') }}</option>
+                    <select class="form-select short-select" v-model="settingsForm.memOptimize">
+                      <option value="follow-global">{{ $t('version.settings.followGlobal') }}</option>
+                      <option value="enabled">{{ $t('version.settings.enabledBtn') }}</option>
+                      <option value="disabled">{{ $t('version.settings.disabledBtn') }}</option>
                     </select>
                   </div>
 
@@ -197,15 +197,15 @@
                   <h3 class="sec-title">{{ $t('version.settings.serviceLogin') }}</h3>
                   <div class="form-row">
                     <label>{{ $t('version.settings.loginMethod') }}</label>
-                    <select class="form-select">
-                      <option>{{ $t('version.settings.officialOrOffline') }}</option>
-                      <option>{{ $t('version.settings.officialOnly') }}</option>
-                      <option>{{ $t('version.settings.offlineOnly') }}</option>
+                    <select class="form-select" v-model="settingsForm.loginMethod">
+                      <option value="official-or-offline">{{ $t('version.settings.officialOrOffline') }}</option>
+                      <option value="official-only">{{ $t('version.settings.officialOnly') }}</option>
+                      <option value="offline-only">{{ $t('version.settings.offlineOnly') }}</option>
                     </select>
                   </div>
                   <div class="form-row">
                     <label>{{ $t('version.settings.autoJoinServer') }}</label>
-                      <input type="text" class="form-input" :placeholder="$t('version.settings.serverAddressOptional')" />
+                      <input type="text" class="form-input" v-model="settingsForm.autoJoinServer" :placeholder="$t('version.settings.serverAddressOptional')" />
                   </div>
                 </section>
 
@@ -220,36 +220,65 @@
                   <div v-show="showAdvanced" class="adv-content">
                     <div class="form-row">
                       <label>{{ $t('version.settings.jvmArgsLabel') }}</label>
-                        <textarea class="form-textarea" rows="2" :placeholder="$t('version.settings.followGlobal')"></textarea>
+                        <textarea class="form-textarea" rows="2" v-model="settingsForm.jvmArgs" :placeholder="$t('version.settings.followGlobal')"></textarea>
                     </div>
                     <div class="form-row">
                       <label>{{ $t('version.settings.gameArgsLabel') }}</label>
-                      <input type="text" class="form-input" :placeholder="$t('version.settings.followGlobal')" />
+                      <input type="text" class="form-input" v-model="settingsForm.gameArgs" :placeholder="$t('version.settings.followGlobal')" />
                     </div>
                     <div class="form-row">
                       <label>{{ $t('version.settings.memoryMgmtLabel') }}</label>
-                      <select class="form-select">
-                        <option>{{ $t('version.settings.followGlobal') }}</option>
-                        <option>G1GC</option>
-                        <option>ZGC</option>
-                        <option>Parallel GC</option>
+                      <select class="form-select" v-model="settingsForm.gcSelection">
+                        <option value="follow-global">{{ $t('version.settings.followGlobal') }}</option>
+                        <option value="g1gc">G1GC</option>
+                        <option value="zgc">ZGC</option>
+                        <option value="parallel">Parallel GC</option>
                       </select>
                     </div>
                     <div class="form-row">
                       <label>{{ $t('version.settings.preLaunchCmdLabel') }}</label>
-                        <input type="text" class="form-input" placeholder="" />
+                        <input type="text" class="form-input" v-model="settingsForm.preLaunchCmd" placeholder="" />
                     </div>
                     <div class="checkbox-group">
-                      <label class="checkbox-label"><input type="checkbox" /> {{ $t('version.settings.disableModUpdate') }}</label>
-                      <label class="checkbox-label"><input type="checkbox" /> {{ $t('version.settings.ignoreJavaWarning') }}</label>
-                        <label class="checkbox-label"><input type="checkbox" /> {{ $t('version.settings.disableFileCheck') }}</label>
-                        <label class="checkbox-label"><input type="checkbox" /> {{ $t('version.settings.disableJavaWrapper') }}</label>
-                        <label class="checkbox-label"><input type="checkbox" /> {{ $t('version.settings.disableLwjglAgent') }}</label>
+                      <label class="checkbox-label"><input type="checkbox" v-model="settingsForm.disableModUpdate" /> {{ $t('version.settings.disableModUpdate') }}</label>
+                      <label class="checkbox-label"><input type="checkbox" v-model="settingsForm.ignoreJavaWarning" /> {{ $t('version.settings.ignoreJavaWarning') }}</label>
+                        <label class="checkbox-label"><input type="checkbox" v-model="settingsForm.disableFileCheck" /> {{ $t('version.settings.disableFileCheck') }}</label>
+                        <label class="checkbox-label"><input type="checkbox" v-model="settingsForm.disableJavaWrapper" /> {{ $t('version.settings.disableJavaWrapper') }}</label>
+                        <label class="checkbox-label"><input type="checkbox" v-model="settingsForm.disableLwjglAgent" /> {{ $t('version.settings.disableLwjglAgent') }}</label>
                         <label class="checkbox-label"><input type="checkbox" v-model="useHighPerformanceGPU" />
                           {{ $t('version.settings.useHighPerfGPU') }}</label>
                     </div>
                   </div>
                 </section>
+
+                <!-- 保存按钮 -->
+                <button class="vox-btn vox-btn--primary btn-save-settings" @click="saveSettings" :disabled="settingsSaving">
+                  <template v-if="settingsSaving">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon">
+                      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                    </svg>
+                  </template>
+                  <template v-else-if="settingsSaveStatus === 'success'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  </template>
+                  <template v-else-if="settingsSaveStatus === 'error'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="15" y1="9" x2="9" y2="15" />
+                      <line x1="9" y1="9" x2="15" y2="15" />
+                    </svg>
+                  </template>
+                  <template v-else>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                      <polyline points="17,21 17,13 7,13 7,21" />
+                      <polyline points="7,3 7,8 15,8" />
+                    </svg>
+                  </template>
+                  {{ settingsSaving ? $t('version.settings.saving') : $t('version.settings.saveSettings') }}
+                </button>
 
                 <!-- 底部按钮 -->
                 <button class="btn-global-settings" @click="$router.push('/settings')">
@@ -558,7 +587,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ModManager from './ModManager.vue'
 
@@ -702,11 +731,10 @@ async function deleteVersion() {
   if (!props.instanceId) return
   if (
     !confirm(
-      t('version.settings.deleteConfirm', { name: props.versionName })
+      t('version.settings.deleteConfirm', { name: props.versionName }) + '\n\n' + t('version.settings.deleteConfirmAgain')
     )
   )
     return
-  if (!confirm(t('version.settings.deleteConfirmAgain'))) return
   await window.electronAPI?.instance.delete(props.instanceId)
   emit('version-deleted')
 }
@@ -720,6 +748,104 @@ const usedMem = ref('12.6')
 const totalMem = ref('15.4')
 const gameMem = ref('2.8')
 const useHighPerformanceGPU = ref(false)
+
+// * ====== 设置页表单数据 ======
+const settingsForm = reactive({
+  versionIsolation: 'enabled',
+  gameWindowTitle: '',
+  customPath: '',
+  javaPath: 'follow-global',
+  memOptimize: 'follow-global',
+  loginMethod: 'official-or-offline',
+  autoJoinServer: '',
+  jvmArgs: '',
+  gameArgs: '',
+  gcSelection: 'follow-global',
+  preLaunchCmd: '',
+  disableModUpdate: false,
+  ignoreJavaWarning: false,
+  disableFileCheck: false,
+  disableJavaWrapper: false,
+  disableLwjglAgent: false
+})
+
+const settingsSaving = ref(false)
+const settingsSaveStatus = ref<'idle' | 'success' | 'error'>('idle')
+
+// * 从 props 初始化设置表单
+function initSettingsForm() {
+  settingsForm.versionIsolation = 'enabled'
+  settingsForm.gameWindowTitle = ''
+  settingsForm.customPath = ''
+  settingsForm.javaPath = 'follow-global'
+  settingsForm.memOptimize = 'follow-global'
+  settingsForm.loginMethod = 'official-or-offline'
+  settingsForm.autoJoinServer = ''
+  settingsForm.jvmArgs = ''
+  settingsForm.gameArgs = ''
+  settingsForm.gcSelection = 'follow-global'
+  settingsForm.preLaunchCmd = ''
+  settingsForm.disableModUpdate = false
+  settingsForm.ignoreJavaWarning = false
+  settingsForm.disableFileCheck = false
+  settingsForm.disableJavaWrapper = false
+  settingsForm.disableLwjglAgent = false
+  memMode.value = 'global'
+  memCustom.value = '4096'
+  useHighPerformanceGPU.value = false
+}
+
+// * watch: modal 打开时重置表单
+watch(() => props.visible, (val) => {
+  if (val) {
+    initSettingsForm()
+  }
+})
+
+// * ====== 保存设置 ======
+async function saveSettings() {
+  settingsSaving.value = true
+  settingsSaveStatus.value = 'idle'
+  try {
+    const formData = {
+      versionIsolation: settingsForm.versionIsolation,
+      gameWindowTitle: settingsForm.gameWindowTitle,
+      customPath: settingsForm.customPath,
+      javaPath: settingsForm.javaPath,
+      memMode: memMode.value,
+      memCustom: memCustom.value,
+      memOptimize: settingsForm.memOptimize,
+      loginMethod: settingsForm.loginMethod,
+      autoJoinServer: settingsForm.autoJoinServer,
+      jvmArgs: settingsForm.jvmArgs,
+      gameArgs: settingsForm.gameArgs,
+      gcSelection: settingsForm.gcSelection,
+      preLaunchCmd: settingsForm.preLaunchCmd,
+      disableModUpdate: settingsForm.disableModUpdate,
+      ignoreJavaWarning: settingsForm.ignoreJavaWarning,
+      disableFileCheck: settingsForm.disableFileCheck,
+      disableJavaWrapper: settingsForm.disableJavaWrapper,
+      disableLwjglAgent: settingsForm.disableLwjglAgent,
+      useHighPerformanceGPU: useHighPerformanceGPU.value
+    }
+    await window.electronAPI?.version?.saveSettings?.(props.instanceId, formData)
+    settingsSaveStatus.value = 'success'
+    window.electronAPI?.notification?.send({
+      title: t('version.settings.saveSuccessTitle'),
+      body: t('version.settings.saveSuccessBody', { name: props.versionName }),
+      type: 'info'
+    })
+  } catch (e: unknown) {
+    settingsSaveStatus.value = 'error'
+    window.electronAPI?.notification?.send({
+      title: t('version.settings.saveFailedTitle'),
+      body: (e as Error)?.message || t('version.settings.saveFailedBody'),
+      type: 'error'
+    })
+  } finally {
+    settingsSaving.value = false
+  }
+}
 
 // * 导出页状态
 const showExportAdvanced = ref(false)
@@ -1546,12 +1672,6 @@ const navItems = [
   animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .missing-file-list {
   width: 100%;
   max-height: 200px;
@@ -1774,17 +1894,7 @@ const navItems = [
   animation: slideDown 0.2s ease;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 /* checkbox 组 */
 .checkbox-group {
@@ -1957,16 +2067,6 @@ const navItems = [
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .spin-icon {
@@ -2269,6 +2369,21 @@ const navItems = [
     filter: brightness(1.1);
     box-shadow: 0 4px 24px color-mix(in oklab, var(--voxver-primary) 50%, transparent);
     transform: translateY(-1px);
+  }
+}
+
+/* * 保存设置按钮 */
+.btn-save-settings {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 11px 0;
+  font-size: 13px;
+  font-weight: 600;
+  gap: 6px;
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 }
 </style>

@@ -21,6 +21,7 @@ import {
 import { updateLastPlayed } from './instances'
 import { getDatabase } from './database'
 import { logger } from '../utils/logger'
+import { validateVersionId, safeJoin } from '../utils/path-validation'
 const log = logger.child('GameLauncher')
 
 // ===== 配置类定义 =====
@@ -571,7 +572,9 @@ class MinecraftLauncher {
    */
   async resolveVersionJson(gameCoreConfig: GameCoreConfig): Promise<VersionJson | null> {
     const { root, version } = gameCoreConfig
-    const versionJsonPath = join(root, 'versions', version, `${version}.json`)
+    // 安全路径：校验 versionId 防止路径遍历
+    validateVersionId(version)
+    const versionJsonPath = safeJoin(root, 'versions', version, `${version}.json`)
 
     if (!fs.existsSync(versionJsonPath)) {
       log.error(`[resolveVersionJson] 版本 JSON 不存在: ${versionJsonPath}`)
@@ -1433,7 +1436,14 @@ class MinecraftLauncher {
       log.info(`[spawnProcess] 完整类路径: ${classpathStr}`)
     }
 
-    log.info(`[spawnProcess] 完整启动参数（已清理）: ${cleanArgs.length} 个`)
+    // 过滤敏感参数（--accessToken）后输出
+    const safeArgs = cleanArgs.map((arg, i) => {
+      if (arg === '--accessToken' && i + 1 < cleanArgs.length) {
+        cleanArgs[i + 1] = '[REDACTED]'
+      }
+      return arg
+    })
+    log.info(`[spawnProcess] 完整启动参数（已脱敏）: ${safeArgs.length} 个`)
     log.info(`[spawnProcess] =============================================`)
 
     this.sendProgress('launching-process', '正在启动游戏进程...')
@@ -1723,54 +1733,16 @@ class MinecraftLauncher {
   }
 
   /**
-   * 解压 JAR
+   * 解压 JAR（使用 adm-zip 原生解压，避免 shell 命令注入风险）
    */
-  private extractJar(jarPath: string, destDir: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (!fs.existsSync(jarPath)) return resolve()
-      if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true })
+  private async extractJar(jarPath: string, destDir: string): Promise<void> {
+    if (!fs.existsSync(jarPath)) return
+    if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true })
 
-      if (process.platform === 'win32') {
-        const psScript = [
-          '[System.Reflection.Assembly]::LoadWithPartialName("System.IO.Compression.FileSystem") | Out-Null',
-          `[System.IO.Compression.ZipFile]::ExtractToDirectory('${jarPath.replace(/'/g, "''")}', '${destDir.replace(/'/g, "''")}')`
-        ].join('\n')
-
-        const tmpPs = join(require('os').tmpdir(), `mcla-extract-${Date.now()}.ps1`)
-        fs.writeFileSync(tmpPs, psScript, 'utf-8')
-
-        const ps = spawn('powershell.exe', [
-          '-NoProfile',
-          '-ExecutionPolicy',
-          'Bypass',
-          '-File',
-          tmpPs
-        ])
-        let errMsg = ''
-        ps.stderr?.on('data', (d: Buffer) => {
-          errMsg += d.toString()
-        })
-        ps.on('exit', (code) => {
-          try {
-            fs.unlinkSync(tmpPs)
-          } catch {}
-          if (code === 0) resolve()
-          else reject(new Error(`PowerShell 解压失败(code=${code}): ${errMsg}`))
-        })
-        ps.on('error', reject)
-      } else {
-        const unzip = spawn('unzip', ['-o', jarPath, '-d', destDir])
-        let errMsg = ''
-        unzip.stderr?.on('data', (d: Buffer) => {
-          errMsg += d.toString()
-        })
-        unzip.on('exit', (code) => {
-          if (code === 0) resolve()
-          else reject(new Error(`unzip 失败(code=${code}): ${errMsg}`))
-        })
-        unzip.on('error', reject)
-      }
-    })
+    const AdmZip = require('adm-zip')
+    const zip = new AdmZip(jarPath)
+    zip.extractAllTo(destDir, true)
+    log.info(`[extractJar] 已解压: ${path.basename(jarPath)} → ${destDir}`)
   }
 
   /**

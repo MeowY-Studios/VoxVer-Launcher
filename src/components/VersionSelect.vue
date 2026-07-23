@@ -40,9 +40,11 @@
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
                     </svg>
-                    <span class="cf-name">{{ currentFolderName }}</span>
+                    <span v-if="isLoadingPath" class="cf-name loading-text">{{ $t('component.detecting') }}</span>
+                    <span v-else class="cf-name">{{ currentFolderName }}</span>
                   </div>
-                  <div class="cf-path">{{ currentFolderPath }}</div>
+                  <div class="cf-path" v-if="!isLoadingPath">{{ currentFolderPath }}</div>
+                  <div class="cf-path" v-else>{{ $t('common.loading') }}...</div>
                 </div>
 
                 <!-- 已添加的其他文件夹列表 -->
@@ -117,7 +119,18 @@
                   </svg>
                 </header>
                 <div v-show="showInstalled" class="sec-body">
-                  <div v-if="!installedVersions.length" class="empty-hint">
+                  <!-- 扫描中且有旧数据：显示加载指示器 -->
+                  <div v-if="isLoadingVersions && installedVersions.length" class="scanning-indicator">
+                    <span class="spin-loader" />
+                    <span>{{ $t('component.scanningVersions') }}</span>
+                  </div>
+                  <!-- 扫描中且无数据 -->
+                  <div v-else-if="isLoadingVersions && !installedVersions.length" class="empty-hint scanning-hint">
+                    <span class="spin-loader" />
+                    <p>{{ $t('component.scanningVersions') }}</p>
+                  </div>
+                  <!-- 无版本 -->
+                  <div v-else-if="!installedVersions.length && !isLoadingVersions" class="empty-hint">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--pcl-text-muted)"
                       stroke-width="1.5">
                       <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -168,6 +181,8 @@ const emit = defineEmits<{
 const showInstalled = ref(true)
 const currentFolderPath = ref(t('component.detecting'))
 const currentFolderName = ref(t('component.currentFolder'))
+const isLoadingPath = ref(false)
+const isLoadingVersions = ref(false)
 
 // * 文件夹列表
 interface FolderItem {
@@ -188,8 +203,11 @@ watch(
 )
 
 async function loadMinecraftPath() {
+  isLoadingPath.value = true
+
   if (!api?.path) {
     currentFolderPath.value = t('component.noElectronEnv')
+    isLoadingPath.value = false
     return
   }
 
@@ -225,12 +243,14 @@ async function loadMinecraftPath() {
   if (effectivePath) {
     currentFolderPath.value = effectivePath
     currentFolderName.value = effectivePath.split(/[\\/]/).pop() || '.minecraft'
+    isLoadingPath.value = false
     await loadVersionsFromFolder(effectivePath)
   } else {
     // * 没有有效的 .minecraft 文件夹     
     currentFolderPath.value = t('component.notFoundFolder')
     currentFolderName.value = ''
     installedVersions.value = []
+    isLoadingPath.value = false
   }
 }
 
@@ -271,7 +291,9 @@ async function addFolder() {
 
     // * 自动切换到新添加的文件夹
     await switchFolder(selectedPath)
-  } catch (err) { }
+  } catch (err) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('component.addFolderFailed'), type: 'error' })
+  }
 }
 
 async function importModpack() {
@@ -286,7 +308,9 @@ async function importModpack() {
     setTimeout(() => {
       api.instance?.scanMinecraft?.(filePath)
     }, 200)
-  } catch (err) { }
+  } catch (err) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('component.importModpackFailed'), type: 'error' })
+  }
 }
 
 async function switchFolder(path: string) {
@@ -333,7 +357,9 @@ async function createMinecraftFolder() {
     })
 
     await switchFolder(minecraftPath)
-  } catch (err) { }
+  } catch (err) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('component.detectMinecraftFailed'), type: 'error' })
+  }
 }
 
 // * 在 VoxVer 安装目录下新建 .minecraft（无文件夹状态使用）
@@ -358,7 +384,9 @@ async function createMinecraftFolderHere() {
     })
 
     await switchFolder(minecraftPath)
-  } catch (err) { }
+  } catch (err) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('component.createFolderFailed'), type: 'error' })
+  }
 }
 
 // * 已安装版本列表
@@ -378,6 +406,7 @@ async function loadVersionsFromFolder(gameDir: string) {
   if (!api?.versions) {
     return
   }
+  isLoadingVersions.value = true
   // * 恢复上次选中的版本（精确匹配 + 前缀模糊匹配）
   const lastId = localStorage.getItem('voxver_last_version') || ''
   const savedName = localStorage.getItem('voxver_last_version_name') || ''
@@ -411,7 +440,11 @@ async function loadVersionsFromFolder(gameDir: string) {
       })
     } else {
     }
-  } catch (err) { }
+  } catch (err) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('component.loadVersionsFailed'), type: 'error' })
+  } finally {
+    isLoadingVersions.value = false
+  }
 }
 
 function selectActive(ver: InstalledVer) {
@@ -420,6 +453,7 @@ function selectActive(ver: InstalledVer) {
 }
 
 async function removeVersion(id: string) {
+  if (!confirm(`确认删除版本 ${id}？此操作仅从列表中移除，不会删除游戏文件。`)) return
   installedVersions.value = installedVersions.value.filter((v) => v.id !== id)
   // * 从文件系统删除版本  if (api?.versions) {
   const mcPath = await api.path?.getMinecraft()
@@ -841,18 +875,6 @@ async function removeVersion(id: string) {
   }
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* * ----- 已安装版本项 ----- */
 .installed-ver-item {
   display: flex;
@@ -934,6 +956,22 @@ async function removeVersion(id: string) {
   svg {
     opacity: 0.35;
   }
+
+  &.scanning-hint {
+    p {
+      margin-top: 10px;
+    }
+  }
+}
+
+/* * 扫描指示器 */
+.scanning-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  font-size: 12px;
+  color: var(--voxver-text-muted);
 }
 
 /* * 动画 */
@@ -959,5 +997,21 @@ async function removeVersion(id: string) {
 .modal-fade-enter-from .vs-window {
   transform: scale(0.96) translateY(10px);
   opacity: 0;
+}
+
+/* * ===== 加载动画 ===== */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spin-loader {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--voxver-border-color);
+  border-top-color: var(--voxver-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
 }
 </style>

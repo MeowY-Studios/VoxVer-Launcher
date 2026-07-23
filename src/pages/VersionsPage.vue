@@ -454,25 +454,14 @@ onMounted(() => {
   }
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
+
 
 /* ===== Loading spinner 动画 ===== */
 .spinning {
   animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+
 
 /* ===== 错误状态 ===== */
 .error-state {

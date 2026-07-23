@@ -20,6 +20,7 @@ import {
 } from 'fs'
 import { join } from 'path'
 import * as os from 'os'
+import { validateVersionId } from '../utils/path-validation'
 import { logger } from '../utils/logger'
 const log = logger.child('Game-IPC')
 
@@ -189,6 +190,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
       const gameDir = lastFolder?.value || defaultMcDir()
 
       if (versionId) {
+        validateVersionId(versionId)
         // 如果有 instanceId，获取实例路径作为游戏数据目录
         let instancePath: string | undefined
         if (instanceId) {
@@ -237,6 +239,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
     'game:check-missing-files',
     async (_event, { versionId }: { versionId: string }): Promise<MissingFileInfo[]> => {
       try {
+        validateVersionId(versionId)
         const db = getDatabase()
         const lastFolder = db
           .prepare("SELECT value FROM configs WHERE key = 'last_selected_folder'")
@@ -276,6 +279,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
       { versionId, accountId }: { versionId: string; accountId?: string }
     ) => {
       try {
+        validateVersionId(versionId)
         return gameLauncher.continueLaunchAfterDownload(mainWindow, {
           versionId,
           accountId
@@ -312,6 +316,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
   ipcMain.handle(
     'versions:download',
     async (_event, { versionId, gameDir }: { versionId: string; gameDir: string }) => {
+      validateVersionId(versionId)
       log.error('[versions:download] ▶ versionId=', versionId, 'gameDir=', gameDir)
       const bmclUrl = 'https://bmclapi2.bangbang93.com'
       const versionDir = join(gameDir, 'versions', versionId)
@@ -377,6 +382,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
         gameDir: string
       }
     ) => {
+      validateVersionId(versionId)
       const taskId = `vdl_${versionId}_${Date.now()}`
       const bmclUrl = 'https://bmclapi2.bangbang93.com'
       const versionDir = join(gameDir, 'versions', versionId)
@@ -541,6 +547,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
     'versions:delete',
     async (_event, { versionId, gameDir }: { versionId: string; gameDir: string }) => {
       try {
+        validateVersionId(versionId)
         const versionDir = join(gameDir, 'versions', versionId)
         if (existsSync(versionDir)) {
           rmSync(versionDir, { recursive: true, force: true })
@@ -604,6 +611,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
       }
     ) => {
       try {
+        validateVersionId(versionId)
         const versionDir = join(gameDir, 'versions', versionId)
         const jsonPath = join(versionDir, `${versionId}.json`)
         if (!existsSync(jsonPath)) {
@@ -690,6 +698,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
         gameDir: string
       }
     ) => {
+      validateVersionId(versionId)
       const versionDir = join(gameDir, 'versions', versionId)
       const jsonPath = join(versionDir, `${versionId}.json`)
       const primaryMirror = versionsService?.getBaseUrl?.() ?? MIRRORS[0]

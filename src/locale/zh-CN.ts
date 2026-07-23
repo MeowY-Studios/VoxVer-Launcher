@@ -590,7 +590,13 @@ export default {
       navOverview: '概览',
       navSettings: '设置',
       navMods: 'Mod 管理',
-      navExport: '导出'
+      navExport: '导出',
+      saveSettings: '保存设置',
+      saving: '保存中...',
+      saveSuccessTitle: '设置已保存',
+      saveSuccessBody: '版本 "{name}" 的设置已成功保存。',
+      saveFailedTitle: '保存设置失败',
+      saveFailedBody: '无法保存设置，请稍后重试。'
     }
   },
 
@@ -1130,6 +1136,7 @@ export default {
     source: '来源',
     all: '全部',
     version: '版本',
+    versionPlaceholder: '全部（也可自行输入）',
     loader: '加载器',
     anyLoader: '任意 Mod 加载器',
     type: '类型',

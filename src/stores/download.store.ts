@@ -327,7 +327,9 @@ export const useDownloadStore = defineStore('download', () => {
       queuedDownloads.value = (
         (queueRes as { data?: unknown[]; success?: boolean; error?: string })?.data || []
       ).map((raw) => mapRawToTask(raw as unknown as Record<string, unknown>))
-    } catch (e) {}
+    } catch (e) {
+      console.error('刷新下载队列失败:', e)
+    }
   }
 
   /** 取消下载 */

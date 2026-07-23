@@ -143,6 +143,11 @@
     </div>
 
     <!-- ===== 自动检测到的版本 ====== -->
+    <!-- 扫描中且有旧数据：在顶部显示 loading -->
+    <div v-if="scanning && detectedVersions.length" class="scanning-bar">
+      <span class="spin-loader" />
+      <span>{{ $t('instance.scanning') }}</span>
+    </div>
     <div v-if="detectedVersions.length" class="detected-section">
       <div class="detected-header">
         <h3 class="detected-title">
@@ -202,7 +207,7 @@
     </div>
 
     <!-- 空状态 -->
-    <div v-if="!detectedVersions.length" class="empty-state">
+    <div v-if="!detectedVersions.length && !scanning" class="empty-state">
       <svg
         width="48"
         height="48"
@@ -218,6 +223,12 @@
       </svg>
       <p>{{ searchQuery ? $t('instance.noMatchingInstances') : $t('instance.noDetectedVersions') }}</p>
       <span class="hint" v-if="!searchQuery">{{ $t('instance.createFirstHint') }}</span>
+    </div>
+
+    <!-- 初始扫描加载中 -->
+    <div v-if="!detectedVersions.length && scanning" class="empty-state scanning">
+      <span class="spin-loader" />
+      <p>{{ $t('instance.scanning') }}</p>
     </div>
 
     <!-- 新建实例弹窗 -->
@@ -445,13 +456,17 @@ async function loadLaunchHistory() {
     if (saved) {
       launchHistory.value = (typeof saved === 'object' ? saved : {}) as Record<string, number>
     }
-  } catch {}
+  } catch {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('instance.loadHistoryFailed'), type: 'error' })
+  }
 }
 
 async function saveLaunchHistory() {
   try {
     await window.electronAPI?.config?.set?.('launch_history', launchHistory.value)
-  } catch {}
+  } catch {
+    console.error('保存启动历史失败')
+  }
 }
 
 const filteredDetectedVersions = computed(() => {
@@ -550,11 +565,9 @@ async function rescanVersions() {
         ...v,
         lastPlayed: launchHistory.value[v.id]
       }))
-    } else {
-      detectedVersions.value = []
     }
   } catch {
-    detectedVersions.value = []
+    // 保留旧数据，不清空
   } finally {
     scanning.value = false
   }
@@ -575,6 +588,7 @@ function launchDetectedVersion(dv: DetectedVersion) {
   launchHistory.value[dv.id] = Date.now()
   saveLaunchHistory()
   window.electronAPI?.game?.launch?.('', '', dv.id)
+  window.electronAPI?.notification?.send({ title: t('instance.launch'), body: t('instance.launching', { name: dv.id }), type: 'info' })
 }
 
 async function openDetectedFolder(dv: DetectedVersion) {
@@ -584,7 +598,9 @@ async function openDetectedFolder(dv: DetectedVersion) {
       const versionPath = `${mcPath.replace(/[\\/]+$/, '')}${mcPath.includes('/') ? '/' : '\\'}versions${mcPath.includes('/') ? '/' : '\\'}${dv.id}`
       window.electronAPI?.shell?.openPath?.(versionPath)
     }
-  } catch {}
+  } catch {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('instance.openFolderFailed'), type: 'error' })
+  }
 }
 
 async function createInstanceFromDetected(dv: DetectedVersion) {
@@ -600,7 +616,9 @@ async function createInstanceFromDetected(dv: DetectedVersion) {
           customPath = await api.path.getMinecraft()
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('获取自定义路径失败:', e)
+    }
 
     await window.electronAPI?.instance?.create({
       name: dv.id,
@@ -618,7 +636,9 @@ async function createInstanceFromDetected(dv: DetectedVersion) {
     })
 
     await loadInstances()
-  } catch {}
+  } catch {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('instance.createFailed'), type: 'error' })
+  }
 }
 
 const filteredInstances = computed(() => {
@@ -647,7 +667,9 @@ async function handleCreateInstance() {
         customPath = await api.path.getMinecraft()
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error('获取自定义路径失败:', e)
+  }
 
   try {
     await window.electronAPI?.instance?.create({
@@ -664,10 +686,17 @@ async function handleCreateInstance() {
     // 重新加载列表
     await loadInstances()
 
+    // 保存名称用于通知
+    const createdName = newInst.value.name.trim()
+
     // 重置表单
     newInst.value = { name: '', mc_version: '1.20.4', loader_type: 'vanilla' }
     showNewInstance.value = false
-  } catch (e) {}
+
+    window.electronAPI?.notification?.send({ title: t('instance.createInstanceBtn'), body: t('instance.createSuccess', { name: createdName }), type: 'success' })
+  } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('instance.createFailed'), type: 'error' })
+  }
 }
 
 function launchInstance(inst: Instance) {
@@ -780,7 +809,9 @@ async function confirmDeleteInstance(inst: Instance) {
     await window.electronAPI?.instance?.delete(inst.id)
     await loadInstances()
     if (selectedId.value === inst.id) selectedId.value = ''
-  } catch (e) {}
+  } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('instance.deleteFailed'), type: 'error' })
+  }
 }
 
 function formatTime(dateStr: string | null | undefined): string {
@@ -929,6 +960,16 @@ onMounted(async () => {
 }
 
 /* ====== 自动检测版本 ====== */
+.scanning-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--voxver-text-muted);
+  margin-bottom: 12px;
+  padding: 0 2px;
+}
+
 .detected-section {
   margin-bottom: 20px;
   flex-shrink: 0;
@@ -1346,11 +1387,7 @@ onMounted(async () => {
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+
 
 .scan-result {
   display: grid;
@@ -1421,5 +1458,20 @@ onMounted(async () => {
     height: 16px;
     accent-color: var(--voxver-primary);
   }
+}
+
+/* * ===== 动画 ===== */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spin-loader {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--voxver-border-color);
+  border-top-color: var(--voxver-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
 }
 </style>
