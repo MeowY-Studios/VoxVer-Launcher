@@ -139,7 +139,7 @@
 
     <!-- Mod 列表 -->
     <div class="mod-list-section">
-      <div v-if="modsLoading" class="empty-state">
+      <div v-if="modsStore.loading" class="empty-state">
         <svg
           width="32"
           height="32"
@@ -368,6 +368,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useModsStore } from '../stores/mods.store'
 import VirtualScroll from './common/VirtualScroll.vue'
 
 const { t } = useI18n()
@@ -383,6 +384,7 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
+const modsStore = useModsStore()
 
 function goToDownloads() {
   emit('navigate')
@@ -442,7 +444,6 @@ interface ModDependencyCheckResult {
 const modSearchText = ref('')
 const modFilter = ref('all')
 const modSort = ref('name')
-const modsLoading = ref(false)
 const installedMods = ref<ModItem[]>([])
 
 // * 更新检测状态
@@ -755,28 +756,20 @@ const filteredMods = computed(() => {
 // 加载 Mod 列表
 async function loadMods() {
   if (!props.gameDir) return
-  modsLoading.value = true
-  try {
-    const result = await window.electronAPI?.mod.list(props.gameDir)
-    const mods = Array.isArray(result) ? result : result?.data || []
-    installedMods.value = mods.map((m: { name?: string; version?: string; description?: string; fileName?: string; logoUrl?: string; enabled?: boolean; filePath: string; url?: string; authors?: string[]; dependencies?: string[] }) => ({
-      name: m.name,
-      version: m.version || t('mod.unknownVersion'),
-      description: m.description || m.fileName || '',
-      logoUrl: m.logoUrl || '',
-      hovered: false,
-      enabled: m.enabled !== false,
-      filePath: m.filePath,
-      fileName: m.fileName || '',
-      url: m.url || '',
-      authors: m.authors || [],
-      dependencies: m.dependencies || []
-    }))
-  } catch (e) {
-    installedMods.value = []
-  } finally {
-    modsLoading.value = false
-  }
+  await modsStore.fetchMods(props.gameDir)
+  installedMods.value = modsStore.mods.map((m) => ({
+    name: m.displayName || m.fileName || m.id,
+    version: m.version || t('mod.unknownVersion'),
+    description: m.description || m.fileName || '',
+    logoUrl: '',
+    hovered: false,
+    enabled: m.status === 'active',
+    filePath: m.filePath,
+    fileName: m.fileName,
+    url: '',
+    authors: m.author ? [m.author] : [],
+    dependencies: m.dependencies || []
+  }))
 }
 
 // 检查所有 mod 更新
