@@ -346,7 +346,7 @@ export class ContentService {
    */
   private curseForgeModToContentProject(mod: CurseForgeMod): ContentProject {
     // CurseForge API 返回 logo 对象，取 url 或 thumbnailUrl
-    const iconUrl = mod.logo?.url || mod.logo?.thumbnailUrl || mod.featuredImage || ''
+    const iconUrl = mod.logo?.url || mod.logo?.thumbnailUrl || ''
     return {
       id: mod.id.toString(),
       platform: ContentPlatform.CURSEFORGE,

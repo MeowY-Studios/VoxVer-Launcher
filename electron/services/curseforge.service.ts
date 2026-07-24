@@ -15,8 +15,6 @@ export interface CurseForgeMod {
   name: string
   summary: string
   downloadCount: number
-  /** @deprecated 早期猜测字段，实际 API 返回 logo 对象 */
-  featuredImage?: string
   logo?: {
     id: number
     modId: number
