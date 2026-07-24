@@ -223,6 +223,26 @@ const api = {
       ipcRenderer.on('download:progress', listener)
       return () => ipcRenderer.removeListener('download:progress', listener)
     },
+    onStarted: (callback: (data: unknown) => void) => {
+      const listener = (_event: IpcRendererEvent, data: unknown) => callback(data)
+      ipcRenderer.on('download:started', listener)
+      return () => ipcRenderer.removeListener('download:started', listener)
+    },
+    onCompleted: (callback: (data: unknown) => void) => {
+      const listener = (_event: IpcRendererEvent, data: unknown) => callback(data)
+      ipcRenderer.on('download:completed', listener)
+      return () => ipcRenderer.removeListener('download:completed', listener)
+    },
+    onError: (callback: (data: unknown) => void) => {
+      const listener = (_event: IpcRendererEvent, data: unknown) => callback(data)
+      ipcRenderer.on('download:error', listener)
+      return () => ipcRenderer.removeListener('download:error', listener)
+    },
+    onCancelled: (callback: (data: unknown) => void) => {
+      const listener = (_event: IpcRendererEvent, data: unknown) => callback(data)
+      ipcRenderer.on('download:cancelled', listener)
+      return () => ipcRenderer.removeListener('download:cancelled', listener)
+    },
     cancelDownload: (id: string) => ipcRenderer.invoke('download:cancel', id),
     // 镜像源管理
     getMirrors: () => ipcRenderer.invoke('download:mirrors:list'),

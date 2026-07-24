@@ -1,11 +1,84 @@
 /**
  * 下载管理 IPC
  */
-import { ipcMain } from 'electron'
+import { ipcMain, BrowserWindow } from 'electron'
 import { getContentService, waitForContentService } from '../services/content.ipc'
 import { ContentPlatform } from '../services/content.service'
 import type { ContentFile } from '../services/content.service'
 import type { MirrorInfo } from '../types/download.types'
+
+let progressForwarderSetup = false
+
+/** 将 DownloadService 事件转发到渲染进程（只设置一次） */
+function setupProgressForwarder(): void {
+  if (progressForwarderSetup) return
+  const service = getContentService()
+  if (!service) return
+  const ds = service.getDownloadService()
+
+  ds.on('task:progress', (task) => {
+    const win = BrowserWindow.getAllWindows()[0]
+    if (win && !win.isDestroyed()) {
+      win.webContents.send('download:progress', {
+        id: task.id,
+        progress: task.progress,
+        downloadedSize: task.downloadedSize,
+        totalSize: task.totalSize,
+        speed: task.speed,
+        status: task.status,
+        fileName: task.fileName,
+        url: task.url,
+        destination: task.destination
+      })
+    }
+  })
+
+  ds.on('task:completed', (task) => {
+    const win = BrowserWindow.getAllWindows()[0]
+    if (win && !win.isDestroyed()) {
+      win.webContents.send('download:completed', {
+        id: task.id,
+        fileName: task.fileName,
+        destination: task.destination,
+        url: task.url
+      })
+    }
+  })
+
+  ds.on('task:error', (task) => {
+    const win = BrowserWindow.getAllWindows()[0]
+    if (win && !win.isDestroyed()) {
+      win.webContents.send('download:error', {
+        id: task.id,
+        fileName: task.fileName,
+        error: task.error,
+        url: task.url
+      })
+    }
+  })
+
+  ds.on('task:started', (task) => {
+    const win = BrowserWindow.getAllWindows()[0]
+    if (win && !win.isDestroyed()) {
+      win.webContents.send('download:started', {
+        id: task.id,
+        fileName: task.fileName,
+        totalSize: task.totalSize,
+        url: task.url,
+        destination: task.destination
+      })
+    }
+  })
+
+  ds.on('task:cancelled', (task) => {
+    const win = BrowserWindow.getAllWindows()[0]
+    if (win && !win.isDestroyed()) {
+      win.webContents.send('download:cancelled', { id: task.id, fileName: task.fileName })
+    }
+  })
+
+  progressForwarderSetup = true
+}
 
 export function registerDownloadHandlers(): void {
   ipcMain.handle('download:search-mods', async (_event, params) => {
@@ -70,6 +143,7 @@ export function registerDownloadHandlers(): void {
   ipcMain.handle('download:cancel', async (_event, taskId) => {
     const service = getContentService()
     const downloadService = service.getDownloadService()
+    setupProgressForwarder()
     const result = downloadService.cancelDownload(taskId)
     return { success: result }
   })
@@ -91,6 +165,7 @@ export function registerDownloadHandlers(): void {
   ipcMain.handle('download:get-active', async () => {
     const service = getContentService()
     const downloadService = service.getDownloadService()
+    setupProgressForwarder()
     const result = downloadService.getActiveDownloads()
     return { success: true, data: result }
   })

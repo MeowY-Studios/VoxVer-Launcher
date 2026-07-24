@@ -208,6 +208,25 @@ export const useDownloadStore = defineStore('download', () => {
       const srcVal = params?.source ?? searchSource.value
       const offset = params?.offset ?? 0
       const limit = params?.limit ?? 100
+
+      // * 缓存：仅对首页查询缓存
+      if (offset === 0) {
+        const cacheKey = JSON.stringify({
+          q: params?.query ?? searchQuery.value,
+          gv: params?.gameVersion,
+          ld: params?.loaderType,
+          pt: params?.projectType,
+          src: srcVal
+        })
+        const cached = searchCache.value.get(cacheKey)
+        if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+          searchResults.value = cached.results
+          searchOffset.value = cached.offset
+          hasMore.value = cached.hasMore
+          searching.value = false
+          return
+        }
+      }
       const queryParams = {
         query: params?.query ?? searchQuery.value,
         platform:
@@ -270,6 +289,28 @@ export const useDownloadStore = defineStore('download', () => {
       searchResults.value.sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
 
       searchOffset.value = offset + data.length
+
+      // * 写入缓存
+      if (offset === 0) {
+        const cacheKey = JSON.stringify({
+          q: params?.query ?? searchQuery.value,
+          gv: params?.gameVersion,
+          ld: params?.loaderType,
+          pt: params?.projectType,
+          src: srcVal
+        })
+        searchCache.value.set(cacheKey, {
+          results: searchResults.value,
+          offset: searchOffset.value,
+          hasMore: hasMore.value,
+          timestamp: Date.now()
+        })
+        // * 限制缓存大小（最多 20 条）
+        if (searchCache.value.size > 20) {
+          const firstKey = searchCache.value.keys().next().value
+          if (firstKey) searchCache.value.delete(firstKey)
+        }
+      }
     } catch (e: unknown) {
       console.error('[searchMods] 搜索失败:', e)
     } finally {
@@ -345,6 +386,61 @@ export const useDownloadStore = defineStore('download', () => {
     searchQuery.value = q
   }
 
+  // * ====== 实时下载事件订阅 ======
+  let removeProgress: (() => void) | undefined
+  let removeCompleted: (() => void) | undefined
+  let removeError: (() => void) | undefined
+
+  /** 启动下载事件监听（由组件在合适时机调用） */
+  function attachDownloadListeners() {
+    const api = window.electronAPI?.download
+    if (!api) return
+
+    removeProgress = api.onProgress((data) => {
+      const d = data as Record<string, unknown>
+      const id = d.id as string
+      const task = activeDownloads.value.find((t) => t.id === id)
+      if (task) {
+        task.speed = (d.speed as number) || task.speed
+        task.phase = (d.status as DownloadStatus) || task.phase
+        task.downloadedBytes = (d.downloadedSize as number) || task.downloadedBytes
+      }
+    })
+
+    removeCompleted = api.onCompleted((data) => {
+      const d = data as Record<string, unknown>
+      console.log('[download store] 下载完成:', d.fileName || d.id)
+      refreshQueue()
+      // 发送通知
+      window.electronAPI?.notification?.send({
+        title: $t('download.downloadCompleted'),
+        body: (d.fileName as string) || $t('download.taskCompleted'),
+        type: 'success'
+      })
+    })
+
+    removeError = api.onError((data) => {
+      const d = data as Record<string, unknown>
+      console.error('[download store] 下载失败:', d.fileName || d.id, d.error)
+      refreshQueue()
+      window.electronAPI?.notification?.send({
+        title: $t('download.downloadFailed'),
+        body: (d.fileName as string) || (d.error as string) || $t('download.taskFailed'),
+        type: 'error'
+      })
+    })
+
+    // * 初始加载队列
+    refreshQueue()
+  }
+
+  /** 清理事件监听 */
+  function detachDownloadListeners() {
+    removeProgress?.()
+    removeCompleted?.()
+    removeError?.()
+  }
+
   return {
     // * 状态
     searchQuery,
@@ -381,7 +477,9 @@ export const useDownloadStore = defineStore('download', () => {
     refreshQueue,
     cancelDownload,
     setSource,
-    setSearchQuery
+    setSearchQuery,
+    attachDownloadListeners,
+    detachDownloadListeners
   }
 })
 

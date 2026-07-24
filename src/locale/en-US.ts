@@ -1128,10 +1128,12 @@ export default {
     resolvingManifest: 'Resolving version manifest...',
     downloadUnknownError: 'Unknown error',
     downloadCompleted: 'Download complete',
-    downloadFailed: 'Download failed',
     searchFailed: 'Search failed',
+    downloadFailed: 'Download failed',
     partialSearchFailed: 'Some sources failed, results may be incomplete',
     downloadVersionFailed: 'Version download failed',
+    taskCompleted: 'Download task completed',
+    taskFailed: 'Download task failed',
     serverVersion: 'Server {id}',
     downloadingServer: 'Downloading server...'
   },

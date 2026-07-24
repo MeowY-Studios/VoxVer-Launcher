@@ -301,7 +301,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDownloadStore } from '../stores/download.store'
@@ -452,6 +452,14 @@ function deleteSelected() {
   })
   selectedTasks.value = []
 }
+
+onMounted(() => {
+  downloadStore.attachDownloadListeners()
+})
+
+onUnmounted(() => {
+  downloadStore.detachDownloadListeners()
+})
 </script>
 
 <style scoped>
