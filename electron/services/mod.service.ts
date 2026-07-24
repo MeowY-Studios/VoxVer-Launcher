@@ -432,7 +432,7 @@ export class ModService {
         return undefined
       }
 
-      const iconData: Buffer = zip.readFile(entry)
+      const iconData: Buffer = zipToUse.readFile(entry)
       if (!iconData) {
         log.warn(`[ModService] 读取图标数据失败: ${iconPathInJar}`)
         return undefined
