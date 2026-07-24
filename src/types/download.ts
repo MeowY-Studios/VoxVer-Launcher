@@ -6,14 +6,16 @@
 /** 内容平台类型 */
 export type ContentPlatform = 'curseforge' | 'modrinth'
 
-/** 下载状态 */
+/** 下载状态 (与后端 electron/types/download.types.ts 对齐) */
 export type DownloadStatus =
   | 'pending' // * 等待中
+  | 'queued' // * 排队中
   | 'downloading' // * 下载中
   | 'paused' // * 已暂停
   | 'completed' // * 已完成
   | 'failed' // * 失败
   | 'cancelled' // * 已取消
+  | 'error' // * 错误
 
 /** 搜索排序方式 */
 export type SearchSortBy =
@@ -66,20 +68,24 @@ export interface ProjectFile {
   downloads?: number // * 下载次数
 }
 
-/** 下载任务 */
+/** 下载任务 (与后端 DownloadTask 对齐) */
 export interface DownloadTask {
   id: string
   fileName: string
   url: string
+  originalUrl?: string
   destination: string
   status: DownloadStatus
   progress: number // * 0-100
   speed: number // * bytes/sec
   downloadedSize: number // * 已下载字节
   totalSize: number // * 总大小
-  phase?: string // * 下载阶段
+  phase?: string // * 下载阶段/状态描述
   error?: string
+  type?: 'mod' | 'resourcepack' | 'version' | 'modloader' | 'asset' | 'other'
+  instanceId?: string
   createdAt: string
+  updatedAt?: string
 }
 
 /** 下载队列状态 */

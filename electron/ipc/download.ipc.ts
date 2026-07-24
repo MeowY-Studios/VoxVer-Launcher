@@ -112,31 +112,37 @@ export function registerDownloadHandlers(): void {
       destination: string,
       options?: { useMirror?: boolean; threads?: number }
     ) => {
-      const service = getContentService()
+      try {
+        const service = getContentService()
+        setupProgressForwarder()
 
-      // 将前端传来的数据转换为 ContentFile 格式
-      const platform =
-        (fileData.platform as ContentPlatform) ||
-        (fileData.source === 'curseforge' ? ContentPlatform.CURSEFORGE : ContentPlatform.MODRINTH)
+        // 将前端传来的数据转换为 ContentFile 格式
+        const platform =
+          (fileData.platform as ContentPlatform) ||
+          (fileData.source === 'curseforge' ? ContentPlatform.CURSEFORGE : ContentPlatform.MODRINTH)
 
-      const contentFile: ContentFile = {
-        id: String(fileData.id || ''),
-        platform,
-        projectId: String(fileData.projectId || fileData.id || ''),
-        name: String(fileData.fileName || fileData.displayName || ''),
-        fileName: String(fileData.fileName || fileData.displayName || ''),
-        version: '',
-        size: Number(fileData.size || 0),
-        downloadUrl: String(fileData.url || fileData.downloadUrl || ''),
-        gameVersions: Array.isArray(fileData.gameVersions) ? fileData.gameVersions : [],
-        loaders: Array.isArray(fileData.loaders) ? fileData.loaders : [],
-        releaseType: (fileData.releaseType as 'release' | 'beta' | 'alpha') || 'release',
-        datePublished: String(fileData.datePublished || ''),
-        downloads: Number(fileData.downloads || 0)
+        const contentFile: ContentFile = {
+          id: String(fileData.id || ''),
+          platform,
+          projectId: String(fileData.projectId || fileData.id || ''),
+          name: String(fileData.fileName || fileData.displayName || ''),
+          fileName: String(fileData.fileName || fileData.displayName || ''),
+          version: '',
+          size: Number(fileData.size || 0),
+          downloadUrl: String(fileData.url || fileData.downloadUrl || ''),
+          gameVersions: Array.isArray(fileData.gameVersions) ? fileData.gameVersions : [],
+          loaders: Array.isArray(fileData.loaders) ? fileData.loaders : [],
+          releaseType: (fileData.releaseType as 'release' | 'beta' | 'alpha') || 'release',
+          datePublished: String(fileData.datePublished || ''),
+          downloads: Number(fileData.downloads || 0)
+        }
+
+        const result = await service.downloadFile(contentFile, destination, options)
+        return { success: true, data: result }
+      } catch (e: unknown) {
+        console.error('[IPC] download:file error:', (e as Error)?.message || e)
+        return { success: false, error: (e as Error)?.message || 'Download failed' }
       }
-
-      const result = await service.downloadFile(contentFile, destination, options)
-      return { success: true, data: result }
     }
   )
 

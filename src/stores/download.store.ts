@@ -515,7 +515,11 @@ function mapRawToTask(raw: Record<string, unknown>): DownloadTask {
     speed: (d.speed as number) ?? 0,
     downloadedSize: (d.downloaded_size as number) ?? (d.downloadedSize as number) ?? 0,
     totalSize: (d.total_size as number) ?? (d.totalSize as number) ?? 0,
+    phase: d.phase as string | undefined,
     error: d.error as string | undefined,
-    createdAt: (d.created_at as string) || new Date().toISOString()
+    type: (d.type as DownloadTask['type']) || undefined,
+    instanceId: (d.instanceId as string) || undefined,
+    createdAt: (d.created_at as string) || (d.createdAt as string) || new Date().toISOString(),
+    updatedAt: (d.updated_at as string) || (d.updatedAt as string) || undefined
   }
 }
