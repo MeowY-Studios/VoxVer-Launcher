@@ -329,6 +329,7 @@ export const useDownloadStore = defineStore('download', () => {
     const p = params ?? lastSearchParams.value
     const srcVal = (params?.source ?? searchSource.value) as ContentPlatform | 'all'
     if (srcVal === 'all') {
+      // CF 暂未授权，仅加载 Modrinth
       if (hasMoreMr.value) {
         await searchMods({
           ...p,
@@ -336,14 +337,7 @@ export const useDownloadStore = defineStore('download', () => {
           offset: searchOffsetMr.value
         })
       }
-      if (hasMoreCf.value) {
-        await searchMods({
-          ...p,
-          source: 'curseforge',
-          offset: searchOffsetCf.value
-        })
-      }
-      hasMore.value = hasMoreMr.value || hasMoreCf.value
+      hasMore.value = hasMoreMr.value
     } else {
       await searchMods({
         ...p,

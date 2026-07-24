@@ -1,4 +1,6 @@
 import { net } from 'electron'
+import { logger } from '../utils/logger'
+const log = logger.child('CurseForge')
 
 export interface CurseForgeSearchParams {
   query?: string
@@ -65,6 +67,7 @@ export class CurseForgeService {
 
   constructor(apiKey: string = '') {
     this.apiKey = apiKey
+    log.info(`CurseForgeService created, apiKey length: ${apiKey.length}, has key: ${!!apiKey}`)
   }
 
   setApiKey(key: string): void {
@@ -82,6 +85,9 @@ export class CurseForgeService {
 
     const resp = await fetch(url, { headers })
     if (!resp.ok) {
+      let body = ''
+      try { body = await resp.text() } catch { /* ignore */ }
+      log.error(`CF API ${resp.status} ${resp.statusText} | URL: ${url} | body: ${body}`)
       throw new Error(`CurseForge API error ${resp.status}: ${resp.statusText}`)
     }
     return resp.json() as Promise<T>
@@ -89,15 +95,17 @@ export class CurseForgeService {
 
   async searchMods(params: CurseForgeSearchParams): Promise<{ data: CurseForgeMod[] }> {
     if (!this.apiKey) {
-      // 无 API Key 时返回空结果
+      log.warn('[searchMods] No API Key configured, returning empty')
       return { data: [] }
     }
     const classId = params.classId ?? MODS_CLASS_ID
+    // CF API 限制 pageSize ≤ 50
+    const pageSize = Math.min(params.pageSize || 20, 50)
     const qs = new URLSearchParams({
       gameId: String(MINECRAFT_GAME_ID),
       classId: String(classId),
-      pageSize: String(params.pageSize || 20),
-      index: String(params.index || 0)
+      pageSize: String(pageSize),
+      index: String(Math.min(params.index || 0, 10000 - pageSize))
     })
     if (params.query) qs.set('searchFilter', params.query)
     if (params.gameVersion) qs.set('gameVersion', params.gameVersion)

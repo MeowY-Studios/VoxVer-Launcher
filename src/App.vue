@@ -16,24 +16,10 @@
   </svg>
 
   <div class="voxver-app">
-    <!-- 深蓝标题栏 + 内嵌标签页 -->
+    <!-- 深蓝标题栏 -->
     <header class="titlebar">
       <!-- 品牌 -->
       <span class="brand">VoxVer</span>
-
-      <!-- 标签导航（内嵌标题栏） -->
-      <nav class="tab-nav">
-        <button
-          v-for="tab in tabs"
-          :key="tab.path"
-          class="tab-pill"
-          :class="{ active: currentRoute === tab.path }"
-          @click="$router.push(tab.path)"
-        >
-          <span v-html="tab.svg"></span>
-          {{ $t(tab.labelKey) }}
-        </button>
-      </nav>
 
       <!-- 窗口控制 — macOS: 关闭/最小化/最大化（从左到右），Windows: 最小化/最大化/关闭 -->
       <div class="wc" v-if="isElectron">
@@ -81,8 +67,25 @@
       <!-- 背景图层（覆盖侧边栏 + 主内容区） -->
       <div class="app-body-bg" :style="bgStyle"></div>
       <div v-if="bgOverlayVisible" class="app-body-overlay" :style="overlayStyle"></div>
-      <!-- 左侧边栏（根据当前页面动态渲染不同内容） -->
+      <!-- 左侧边栏 -->
       <aside class="sidebar">
+        <!-- 主导航（左侧图标栏） -->
+        <nav class="sidebar-main-nav">
+          <button
+            v-for="tab in tabs"
+            :key="tab.path"
+            class="nav-icon"
+            :class="{ active: currentRoute === tab.path }"
+            @click="$router.push(tab.path)"
+            :title="$t(tab.labelKey)"
+          >
+            <span v-html="tab.svg"></span>
+            <span class="nav-icon-label">{{ $t(tab.labelKey) }}</span>
+          </button>
+        </nav>
+
+        <!-- 侧边栏内容区 -->
+        <div class="sidebar-content">
         <!-- ========== 首页侧栏：账户 + 启动（PCL2 风格）========== -->
         <template v-if="currentRoute === '/'">
           <div class="sb-home">
@@ -425,6 +428,7 @@
             </button>
           </nav>
         </template>
+        </div>
       </aside>
 
       <!-- 主内容区 -->

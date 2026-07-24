@@ -54,9 +54,8 @@ function isDev(): boolean {
   return process.env.NODE_ENV === 'development' || !app.isPackaged
 }
 
-if (process.env.NODE_ENV === 'development') {
-  require('dotenv').config()
-}
+// 加载 .env（开发/未打包时均需；打包后 .env 不存在则静默跳过）
+try { require('dotenv').config() } catch { /* 无 .env 文件或 dotenv 未安装 */ }
 
 // ── 服务实例（模块级，供 IPC 使用）──────────────────────────
 let versionsService: VersionsService

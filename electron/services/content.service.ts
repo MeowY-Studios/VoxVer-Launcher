@@ -141,11 +141,13 @@ export class ContentService {
         searchParams.categoryId = await this.getCurseForgeCategoryId(params.category)
       }
 
+      log.info('[searchCurseForgeMods] query:', params.query, 'classId:', searchParams.classId)
       const response = await this.curseForgeService.searchMods(searchParams)
+      log.info('[searchCurseForgeMods] result count:', response.data.length)
 
       return response.data.map((mod) => this.curseForgeModToContentProject(mod))
     } catch (error) {
-      log.error('CurseForge search error:', error)
+      log.error('CurseForge search error:', (error as Error)?.message || error)
       return []
     }
   }

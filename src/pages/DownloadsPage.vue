@@ -515,7 +515,7 @@
             <select class="f-select vox-input" v-model="searchSource">
               <option value="all">{{ $t('download.all') }}</option>
               <option value="modrinth">Modrinth</option>
-              <option value="curseforge">CurseForge</option>
+              <option value="curseforge" disabled>CurseForge（即将推出）</option>
             </select>
           </div>
           <div class="f-row">
@@ -1300,10 +1300,7 @@ async function doSearch() {
   const projectType = activeCategory.value
   try {
     if (searchSource.value === 'all') {
-      // * 双源串行拉取，任一失败不影响另一方
-      const allResults: typeof dlStore.searchResults = []
-      let hasError = false
-
+      // CF 暂未授权，仅搜索 Modrinth
       try {
         await dlStore.searchMods({
           query: searchName.value,
@@ -1314,34 +1311,9 @@ async function doSearch() {
           offset: 0,
           limit: 100
         })
-        allResults.push(...dlStore.searchResults)
       } catch (mrErr) {
         console.error('[doSearch] Modrinth 请求失败:', mrErr)
-        hasError = true
-      }
-
-      try {
-        await dlStore.searchMods({
-          query: searchName.value,
-          source: 'curseforge',
-          gameVersion: searchVersion.value || undefined,
-          loaderType: searchLoader.value || undefined,
-          projectType,
-          offset: 0,
-          limit: 100
-        })
-        allResults.push(...dlStore.searchResults)
-      } catch (cfErr) {
-        console.error('[doSearch] CurseForge 请求失败:', cfErr)
-        hasError = true
-      }
-
-      // * 合并按下载量排序
-      dlStore.searchResults = allResults.sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
-      dlStore.hasMore = dlStore.hasMoreMr || dlStore.hasMoreCf
-
-      if (hasError) {
-        dlStore.searchError = t('download.partialSearchFailed')
+        dlStore.searchError = t('download.searchFailed')
       }
     } else {
       await dlStore.searchMods({

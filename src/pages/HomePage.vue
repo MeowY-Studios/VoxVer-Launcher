@@ -58,65 +58,6 @@
       </div>
     </div>
 
-    <!-- 最近游玩的实例 -->
-    <div class="recent-section">
-      <div class="section-header">
-        <h3 class="section-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-          </svg>
-          {{ $t('home.recent') }}
-        </h3>
-        <button class="section-link" @click="$router.push('/instances')">
-          {{ $t('home.viewAll') }}
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </button>
-      </div>
-
-      <!-- 加载中 -->
-      <div v-if="isLoadingInstances" class="recent-loading">
-        <span class="spin-loader" />
-        <span class="loading-text">{{ $t('common.loading') }}</span>
-      </div>
-
-      <!-- 空状态 -->
-      <div v-else-if="!recentInstances.length" class="recent-empty">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="1.2">
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
-        <p>{{ $t('home.noRecent') }}</p>
-      </div>
-
-      <!-- 有数据 -->
-      <div v-else class="recent-grid">
-        <div
-          v-for="inst in recentInstances"
-          :key="inst.id"
-          class="recent-card vox-card--game"
-          @click="$router.push('/instances')"
-        >
-          <div class="rc-icon">{{ inst.name[0] }}</div>
-          <div class="rc-info">
-            <p class="rc-name">{{ inst.name }}</p>
-            <p class="rc-meta">{{ inst.mcVersion }} · {{ getLoaderLabel(inst) }}</p>
-          </div>
-          <div class="rc-play">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="5 3 19 12 5 21 5 3" />
-            </svg>
-          </div>
-          <span class="rc-time">{{ formatTime(inst.lastPlayed) }}</span>
-        </div>
-      </div>
-    </div>
-
     <!-- 接收分享弹窗 -->
     <ReceiveModal
       v-model="showReceiveModal"
@@ -127,57 +68,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useInstancesStore } from '../stores'
-import type { GameInstance } from '../types/instance'
 
 const { t } = useI18n()
-
-interface Instance {
-  id: string
-  name: string
-  mcVersion: string
-  loaderType?: string
-  lastPlayed?: string
-}
 
 const instancesStore = useInstancesStore()
 const router = useRouter()
 
 const showReceiveModal = ref(false)
 const initialShareCode = ref('')
-const isLoadingInstances = ref(false)
 let protocolCleanup: (() => void) | undefined
-
-const recentInstances = computed(() => {
-  return instancesStore.recentInstances.map((inst: GameInstance) => ({
-    id: inst.id,
-    name: inst.name,
-    mcVersion: inst.mcVersion || t('home.unknown'),
-    loaderType: inst.loaderType || '',
-    lastPlayed: inst.lastPlayed ?? undefined
-  }))
-})
-
-function formatTime(dateStr?: string | null): string {
-  if (!dateStr) return t('instance.neverPlayed')
-  const ts = new Date(dateStr).getTime()
-  if (isNaN(ts)) return t('home.unknown')
-  const diff = Date.now() - ts
-  const mins = Math.floor(diff / 60000)
-  if (mins < 1) return t('home.justNow')
-  if (mins < 60) return t('home.minutesAgo', { n: mins })
-  const hours = Math.floor(mins / 60)
-  if (hours < 24) return t('home.hoursAgo', { n: hours })
-  return t('home.daysAgo', { n: Math.floor(hours / 24) })
-}
-
-function getLoaderLabel(inst: { loaderType: string }): string {
-  if (!inst.loaderType || inst.loaderType === 'vanilla') return t('game.vanilla') as string
-  return inst.loaderType.charAt(0).toUpperCase() + inst.loaderType.slice(1)
-}
 
 function openReceiveModal() {
   showReceiveModal.value = true
@@ -189,9 +92,7 @@ function onInstanceImported() {
 }
 
 onMounted(async () => {
-  isLoadingInstances.value = true
   await instancesStore.fetchInstances()
-  isLoadingInstances.value = false
 
   // * 监听协议唤起（voxver://share:CODE）
   protocolCleanup = window.electronAPI?.share?.onProtocolInvoke((code: string) => {
@@ -298,160 +199,6 @@ onUnmounted(() => {
   }
 }
 
-/* * ===== 最近实例 ===== */
-.recent-section {
-  margin-top: 32px;
-}
-
-.recent-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 32px 0;
-  color: var(--voxver-text-muted);
-  font-size: 13px;
-
-  .loading-text {
-    color: var(--voxver-text-muted);
-  }
-}
-
-.recent-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 0;
-  color: var(--voxver-text-muted);
-
-  svg {
-    opacity: 0.35;
-    margin-bottom: 8px;
-  }
-
-  p {
-    margin: 0;
-    font-size: 13px;
-    color: var(--voxver-text-muted);
-  }
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--voxver-text-primary);
-
-  svg { color: var(--voxver-accent); }
-}
-
-.section-link {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 12px;
-  border: 1px solid var(--voxver-border-color);
-  border-radius: 20px;
-  background: transparent;
-  color: var(--voxver-text-tertiary);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all var(--voxver-transition-fast);
-
-  &:hover {
-    border-color: var(--voxver-border-strong);
-    color: var(--voxver-text-primary);
-  }
-}
-
-.recent-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
-}
-
-.recent-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  cursor: pointer;
-  position: relative;
-}
-
-.rc-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: var(--voxver-launch-gradient);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.rc-info {
-  flex: 1;
-  min-width: 0;
-
-  .rc-name {
-    margin: 0;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--voxver-text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .rc-meta {
-    margin: 2px 0 0;
-    font-size: 11px;
-    color: var(--voxver-text-muted);
-  }
-}
-
-.rc-play {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--voxver-accent-soft);
-  color: var(--voxver-accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transform: scale(0.8);
-  transition: all var(--voxver-transition-fast);
-  flex-shrink: 0;
-}
-
-.recent-card:hover .rc-play {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.rc-time {
-  font-size: 11px;
-  color: var(--voxver-text-muted);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
 /* * ===== 响应式 ===== */
 @media (max-width: 768px) {
   .home-page { padding: 16px 20px; }
@@ -463,24 +210,5 @@ onUnmounted(() => {
   .actions-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-
-  .recent-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* * ===== 动画 ===== */
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.spin-loader {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--voxver-border-color);
-  border-top-color: var(--voxver-primary);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
 }
 </style>
