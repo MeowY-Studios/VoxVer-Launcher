@@ -73,6 +73,33 @@
               : $t('mod.checkDependencies')
         }}
       </button>
+      <button
+        class="form-action-btn"
+        :class="{ checking: checkingCompat }"
+        @click="checkCompatibility"
+        :disabled="checkingCompat"
+      >
+        <svg
+          v-if="checkingCompat"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          class="spin-icon-sm"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 6v6l4 2" />
+        </svg>
+        {{
+          checkingCompat
+            ? $t('mod.checking')
+            : compatIncompatibleCount > 0
+              ? $t('mod.compatIssuesCount', { count: compatIncompatibleCount })
+              : $t('mod.checkCompatibility')
+        }}
+      </button>
     </div>
 
     <!-- 分类筛选 -->
@@ -86,6 +113,21 @@
       >
         {{ tab.label }} <span class="mod-tab-count">({{ tab.count }})</span>
       </button>
+    </div>
+
+    <!-- 全选栏 -->
+    <div v-if="filteredMods.length > 0" class="mod-select-all-bar">
+      <label class="mod-select-all-label">
+        <input
+          type="checkbox"
+          :checked="isAllSelected"
+          :indeterminate="isIndeterminate"
+          @change="toggleSelectAll"
+          class="mod-checkbox"
+        />
+        <span v-if="selectedMods.size > 0">{{ $t('mod.selectedCount', { n: selectedMods.size }) }}</span>
+        <span v-else>{{ $t('common.selectAll') }}</span>
+      </label>
     </div>
 
     <!-- Mod 列表 -->
@@ -125,6 +167,13 @@
               @mouseenter="mod.hovered = true"
               @mouseleave="mod.hovered = false"
             >
+              <input
+                type="checkbox"
+                class="mod-checkbox"
+                :checked="selectedMods.has(mod.filePath)"
+                @click.stop="toggleModSelection(mod.filePath)"
+              />
+
               <!-- 更新中进度条 -->
               <div v-if="updatingMod === mod.filePath" class="mod-update-progress-bar">
                 <div
@@ -194,39 +243,30 @@
       </div>
     </div>
 
-    <!-- 底部操作栏（单点选中时出现） -->
-    <div v-if="selectedMod" class="mod-bottom-bar">
-      <span class="mod-bottom-label">{{ $t('mod.selectedLabel', { name: selectedModName }) }}</span>
+    <!-- 底部操作栏 -->
+    <div v-if="selectedMods.size > 0" class="mod-bottom-bar">
+      <span class="mod-bottom-label">
+        {{
+          selectedMods.size === 1
+            ? $t('mod.selectedLabel', { name: selectedModName })
+            : $t('mod.selectedCount', { n: selectedMods.size })
+        }}
+      </span>
       <div class="mod-bottom-actions">
-        <button
-          class="mod-bottom-btn"
-          :class="{ 'has-update': selectedModHasUpdate }"
+        <button class="mod-bottom-btn" @click="batchEnable">{{ $t('mod.enable') }}</button>
+        <button class="mod-bottom-btn" @click="batchDisable">{{ $t('mod.disable') }}</button>
+        <button v-if="selectedMods.size === 1 && selectedModHasUpdate"
+          class="mod-bottom-btn has-update"
           :disabled="updatingMod === selectedMod"
           @click="updateSelectedMod"
         >
           <template v-if="updatingMod === selectedMod">
             {{ $t('mod.updatingProgress', { percent: Math.round((updateProgressMap[selectedMod] ?? 0) * 100) }) }}
           </template>
-          <template v-else-if="selectedModHasUpdate">{{ $t('mod.updateAvailable') }}</template>
-          <template v-else>{{ $t('mod.checkUpdates') }}</template>
+          <template v-else>{{ $t('mod.updateAvailable') }}</template>
         </button>
-        <button
-          class="mod-bottom-btn"
-          :class="{ 'missing-deps': selectedModMissingDeps > 0 }"
-          :disabled="installingDeps === selectedMod"
-          @click="installSelectedDeps"
-        >
-          <template v-if="installingDeps === selectedMod">{{ $t('mod.installingDeps') }}</template>
-          <template v-else-if="selectedModMissingDeps > 0">
-            {{ $t('mod.installDepsCount', { count: selectedModMissingDeps }) }}
-          </template>
-          <template v-else>{{ $t('mod.checkDependencies') }}</template>
-        </button>
-        <button class="mod-bottom-btn" @click="toggleSelectedModEnable">
-          {{ selectedModEnabled ? $t('mod.disable') : $t('mod.enable') }}
-        </button>
-        <button class="mod-bottom-btn danger" @click="removeSelectedMod">{{ $t('common.delete') }}</button>
-        <button class="mod-bottom-btn" @click="selectedMod = null">{{ $t('mod.cancelSelection') }}</button>
+        <button class="mod-bottom-btn danger" @click="batchDelete">{{ $t('common.delete') }}</button>
+        <button class="mod-bottom-btn" @click="selectedMods.clear(); selectedMod = null">{{ $t('mod.cancelSelection') }}</button>
       </div>
     </div>
 
@@ -269,6 +309,45 @@
         </div>
       </div>
     </transition>
+
+    <!-- 兼容性检查结果 -->
+    <div v-if="compatResults.length > 0" class="mod-compat-panel">
+      <div class="mod-compat-header">
+        <span class="mod-compat-title">{{ $t('mod.compatResults') }}</span>
+        <span class="mod-compat-summary">
+          <span class="compat-ok">{{ $t('mod.compatCompatible', { n: compatCompatibleCount }) }}</span>
+          <span v-if="compatIncompatibleCount > 0" class="compat-bad">
+            {{ $t('mod.compatIncompatible', { n: compatIncompatibleCount }) }}
+          </span>
+        </span>
+        <button class="mod-compat-close" @click="compatResults = []">
+          <svg width="10" height="10" viewBox="0 0 10 10">
+            <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.2" />
+          </svg>
+        </button>
+      </div>
+      <div class="mod-compat-list">
+        <div
+          v-for="item in compatResults"
+          :key="item.filePath"
+          class="mod-compat-item"
+          :class="{ 'is-incompatible': !item.compatible }"
+        >
+          <span class="mod-compat-icon">
+            <svg v-if="item.compatible" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-success)" stroke-width="2">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-error)" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+          </span>
+          <span class="mod-compat-name">{{ item.modName }}</span>
+          <span class="mod-compat-reason">{{ item.reason }}</span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -370,6 +449,22 @@ const depCheckMap = ref<Record<string, ModDependencyCheckResult>>({})
 const installingDeps = ref<string | null>(null)
 const depInstallProgress = ref<Record<string, number>>({})
 
+// * 兼容性检查状态
+const checkingCompat = ref(false)
+interface CompatResult {
+  filePath: string
+  modName: string
+  compatible: boolean
+  reason: string
+}
+const compatResults = ref<CompatResult[]>([])
+const compatCompatibleCount = computed(
+  () => compatResults.value.filter((r) => r.compatible).length
+)
+const compatIncompatibleCount = computed(
+  () => compatResults.value.filter((r) => !r.compatible).length
+)
+
 // * 有缺失依赖的 mod 数量
 const missingDepsCount = computed(
   () => Object.values(depCheckMap.value).filter((d) => d.missingDependencies.length > 0).length
@@ -377,6 +472,20 @@ const missingDepsCount = computed(
 
 // * 单点选中
 const selectedMod = ref<string | null>(null)
+// * 多选
+const selectedMods = ref<Set<string>>(new Set())
+
+// * 是否全选
+const isAllSelected = computed(() => {
+  if (filteredMods.value.length === 0) return false
+  return filteredMods.value.every((m) => selectedMods.value.has(m.filePath))
+})
+
+// * 半选状态
+const isIndeterminate = computed(() => {
+  if (selectedMods.value.size === 0) return false
+  return !isAllSelected.value
+})
 const selectedModName = computed(() => {
   if (!selectedMod.value) return ''
   const m = installedMods.value.find((m) => m.filePath === selectedMod.value)
@@ -397,9 +506,154 @@ const selectedModMissingDeps = computed(() => {
   return depCheckMap.value[selectedMod.value]?.missingDependencies?.length || 0
 })
 
-// 点击选中 / 再点击取消选中
+// 点击选中 / 再点击取消选中（行点击，点击到checkbox时不触发这个）
 function selectMod(filePath: string) {
   selectedMod.value = selectedMod.value === filePath ? null : filePath
+  if (!selectedMods.value.has(filePath)) {
+    selectedMods.value = new Set([filePath])
+  }
+}
+
+// * Checkbox 切换选中
+function toggleModSelection(filePath: string) {
+  const next = new Set(selectedMods.value)
+  if (next.has(filePath)) {
+    next.delete(filePath)
+  } else {
+    next.add(filePath)
+  }
+  selectedMods.value = next
+  selectedMod.value = next.size === 1 ? filePath : null
+}
+
+// * 全选/取消全选
+function toggleSelectAll() {
+  if (isAllSelected.value) {
+    selectedMods.value = new Set()
+    selectedMod.value = null
+  } else {
+    const allPaths = new Set(filteredMods.value.map((m) => m.filePath))
+    selectedMods.value = allPaths
+    selectedMod.value = null
+  }
+}
+
+// * 批量启用
+async function batchEnable() {
+  for (const filePath of selectedMods.value) {
+    await window.electronAPI?.mod.enable(filePath)
+  }
+  await loadMods()
+}
+
+// * 批量禁用
+async function batchDisable() {
+  for (const filePath of selectedMods.value) {
+    await window.electronAPI?.mod.disable(filePath)
+  }
+  await loadMods()
+}
+
+// * 批量删除
+async function batchDelete() {
+  const names = [...selectedMods.value]
+    .map((fp) => installedMods.value.find((m) => m.filePath === fp)?.name || fp)
+    .join('、')
+  if (!confirm(t('mod.confirmBatchDelete', { names }))) return
+  for (const filePath of selectedMods.value) {
+    try {
+      await window.electronAPI?.mod.uninstall(filePath)
+    } catch {
+      // * 单个失败继续
+    }
+  }
+  selectedMods.value = new Set()
+  selectedMod.value = null
+  await loadMods()
+}
+
+// * 兼容性检查
+async function checkCompatibility() {
+  if (checkingCompat.value || installedMods.value.length === 0) return
+  checkingCompat.value = true
+  compatResults.value = []
+  try {
+    const api = window.electronAPI
+    if (!api?.mod?.checkCompatibility) {
+      // * 降级为本地检查
+      await checkCompatibilityLocal()
+      return
+    }
+    const result = await api.mod.checkCompatibility(
+      installedMods.value,
+      props.mcVersion,
+      props.loader
+    )
+    if (result?.ok && Array.isArray(result.data)) {
+      compatResults.value = result.data as CompatResult[]
+    } else {
+      await checkCompatibilityLocal()
+    }
+  } catch {
+    await checkCompatibilityLocal()
+  } finally {
+    checkingCompat.value = false
+  }
+}
+
+// * 本地兼容性检查（基于 loader 和 MC 版本）
+async function checkCompatibilityLocal() {
+  const results: CompatResult[] = []
+  const loaderType = (props.loader || '').toLowerCase()
+  const mcMajor = props.mcVersion ? parseInt(props.mcVersion.split('.')[1] || '0') : 0
+
+  for (const mod of installedMods.value) {
+    const deps = mod.dependencies || []
+    let compatible = true
+    let reason = t('mod.compatOk')
+
+    // * 检查 loader 兼容性
+    if (loaderType && deps.length > 0) {
+      // * Fabric mods should have fabric loader deps
+      const hasFabricDep = deps.some(
+        (d) => d.toLowerCase().includes('fabric') || d.toLowerCase().includes('fabric-loader')
+      )
+      const hasForgeDep = deps.some(
+        (d) => d.toLowerCase().includes('forge') || d.toLowerCase().includes('neoforged')
+      )
+      if (loaderType === 'fabric' && hasForgeDep) {
+        compatible = false
+        reason = t('mod.compatForgeOnFabric')
+      } else if ((loaderType === 'forge' || loaderType === 'neoforge') && hasFabricDep) {
+        compatible = false
+        reason = t('mod.compatFabricOnForge')
+      }
+    }
+
+    // * 检查版本名称中的 MC 版本（如 modname-1.20.1-xxx.jar）
+    if (compatible && props.mcVersion) {
+      const fileName = mod.fileName.toLowerCase()
+      const versionMatch = fileName.match(/(\d+)\.(\d+)(?:\.(\d+))?/)
+      if (versionMatch) {
+        const fileMcMajor = parseInt(versionMatch[2])
+        if (fileMcMajor !== mcMajor && mcMajor > 0) {
+          compatible = false
+          reason = t('mod.compatMcVersionMismatch', {
+            expected: props.mcVersion,
+            found: `1.${versionMatch[2]}`
+          })
+        }
+      }
+    }
+
+    results.push({
+      filePath: mod.filePath,
+      modName: mod.name,
+      compatible,
+      reason
+    })
+  }
+  compatResults.value = results
 }
 
 // 详情弹窗
@@ -1287,5 +1541,104 @@ onMounted(() => {
 .form-action-btn.checking {
   opacity: 0.7;
   cursor: wait;
+}
+
+/* * 全选栏 */
+.mod-select-all-bar {
+  padding: 4px 0;
+}
+.mod-select-all-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--voxver-text-secondary);
+  cursor: pointer;
+}
+
+/* * 兼容性检查面板 */
+.mod-compat-panel {
+  flex-shrink: 0;
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
+  max-height: 180px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.mod-compat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--voxver-border-color);
+  flex-shrink: 0;
+}
+.mod-compat-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--voxver-text-primary);
+}
+.mod-compat-summary {
+  flex: 1;
+  font-size: 11.5px;
+  display: flex;
+  gap: 8px;
+}
+.compat-ok {
+  color: var(--voxver-success);
+}
+.compat-bad {
+  color: var(--voxver-error);
+}
+.mod-compat-close {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--voxver-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--voxver-radius-sm);
+  flex-shrink: 0;
+  &:hover {
+    background: var(--voxver-bg-hover);
+    color: var(--voxver-text-primary);
+  }
+}
+.mod-compat-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+.mod-compat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  &.is-incompatible {
+    background: rgb(239 68 68 / 0.06);
+  }
+}
+.mod-compat-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.mod-compat-name {
+  font-weight: 500;
+  color: var(--voxver-text-primary);
+  flex-shrink: 0;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mod-compat-reason {
+  color: var(--voxver-text-secondary);
 }
 </style>
