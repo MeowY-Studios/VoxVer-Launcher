@@ -572,8 +572,6 @@ watch(
       bgImageDataUrl.value = p
       return
     }
-    const url = await window.electronAPI?.dialog?.readAsDataURL?.(p)
-    console.log('[bgImage] path=', p, 'dataUrlLen=', url?.length ?? 0)
     bgImageDataUrl.value = url || ''
   },
   { immediate: true }

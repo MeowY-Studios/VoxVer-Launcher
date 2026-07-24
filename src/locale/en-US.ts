@@ -1111,6 +1111,8 @@ export default {
     downloadCompleted: 'Download complete',
     downloadFailed: 'Download failed',
     searchFailed: 'Search failed',
+    partialSearchFailed: 'Some sources failed, results may be incomplete',
+    downloadVersionFailed: 'Version download failed',
     serverVersion: 'Server {id}',
     downloadingServer: 'Downloading server...'
   },
@@ -2144,6 +2146,7 @@ export default {
     noNotifications: 'No notifications',
     notificationCount: 'Notifications ({n})',
     markRead: 'Mark Read',
+    loadHistoryFailed: 'Failed to load notification history',
     // ShareModal / ReceiveModal
     packFailed: 'Pack failed!',
     connectionFailed: 'Connection failed',

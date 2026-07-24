@@ -219,9 +219,7 @@ export const useDownloadStore = defineStore('download', () => {
         category: params?.category,
         projectType: params?.projectType
       }
-      console.log('[searchMods] 请求参数:', { srcVal, ...queryParams })
       const response = await window.electronAPI?.download.searchMods(queryParams)
-      console.log('[searchMods] 原始响应:', response)
       if (response && (response as { data?: unknown[]; success?: boolean; error?: string }).success === false) {
         searchError.value = (response as { data?: unknown[]; success?: boolean; error?: string }).error || $t('download.searchFailed')
         console.error('[searchMods] IPC 返回错误:', searchError.value)
@@ -229,7 +227,6 @@ export const useDownloadStore = defineStore('download', () => {
         searchError.value = ''
       }
       const data = (response as { data?: unknown[]; success?: boolean; error?: string })?.data || []
-      console.log('[searchMods] 数据条数:', data.length, 'srcVal:', srcVal)
       const mapped = data.map((raw) =>
         mapRawToModResult(raw as unknown as Record<string, unknown>)
       )
@@ -273,7 +270,6 @@ export const useDownloadStore = defineStore('download', () => {
       searchResults.value.sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
 
       searchOffset.value = offset + data.length
-      console.log('[searchMods] 完成: results=', searchResults.value.length, 'hasMore=', hasMore.value, 'hasMoreMr=', hasMoreMr.value, 'hasMoreCf=', hasMoreCf.value)
     } catch (e: unknown) {
       console.error('[searchMods] 搜索失败:', e)
     } finally {

@@ -43,7 +43,7 @@ for (const f of srcFiles) {
   try {
     const c = fs.readFileSync(f, 'utf8')
     readKeys(c).forEach(k => usedKeys.add(k))
-  } catch (e) {}
+  } catch (e) { console.warn('[check-i18n] 读取文件失败:', f, e.message) }
 }
 
 // Parse locale files by traversing the module export

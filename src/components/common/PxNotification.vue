@@ -71,7 +71,9 @@
         </div>
 
         <div class="pxn-list">
-          <div v-if="history.length === 0" class="pxn-empty">{{ $t('component.noNotifications') }}</div>
+          <div v-if="isLoading" class="pxn-empty">{{ $t('common.loading') }}</div>
+          <div v-else-if="loadError" class="pxn-empty pxn-error">{{ loadError }}</div>
+          <div v-else-if="history.length === 0" class="pxn-empty">{{ $t('component.noNotifications') }}</div>
           <div
             v-for="item in sortedHistory"
             :key="item.id"
@@ -176,6 +178,8 @@ interface NotificationItem {
 
 const history = ref<NotificationItem[]>([])
 const unreadCount = ref(0)
+const isLoading = ref(false)
+const loadError = ref('')
 
 const sortedHistory = computed(() => [...history.value].sort((a, b) => b.timestamp - a.timestamp))
 
@@ -184,13 +188,22 @@ let removeOnClicked: (() => void) | null = null
 
 async function loadHistory() {
   if (!window.electronAPI) return
-  const result = await window.electronAPI.notification.getHistory(50)
-  if (result?.ok) {
-    history.value = (result.data || []) as NotificationItem[]
-  }
-  const count = await window.electronAPI.notification.getUnreadCount()
-  if (typeof count === 'number') {
-    unreadCount.value = count
+  isLoading.value = true
+  loadError.value = ''
+  try {
+    const result = await window.electronAPI.notification.getHistory(50)
+    if (result?.ok) {
+      history.value = (result.data || []) as NotificationItem[]
+    }
+    const count = await window.electronAPI.notification.getUnreadCount()
+    if (typeof count === 'number') {
+      unreadCount.value = count
+    }
+  } catch (e) {
+    console.error('[loadHistory] 加载通知历史失败:', e)
+    loadError.value = t('component.loadHistoryFailed')
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -381,6 +394,9 @@ onUnmounted(() => {
   text-align: center;
   font-size: 13px;
   color: var(--voxver-text-muted);
+}
+.pxn-error {
+  color: var(--voxver-error);
 }
 
 .pxn-item {

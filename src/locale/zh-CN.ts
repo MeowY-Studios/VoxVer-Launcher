@@ -1198,6 +1198,8 @@ export default {
     downloadUnknownError: '未知错误',
     downloadCompleted: '下载完成', 
     searchFailed: '搜索失败',
+    partialSearchFailed: '部分数据源搜索失败，结果可能不完整',
+    downloadVersionFailed: '版本下载失败',
     serverVersion: '服务端 {id}',
     downloadingServer: '下载服务端...'
   },
@@ -2225,6 +2227,7 @@ export default {
     noNotifications: '暂无通知',
     notificationCount: '通知 ({n})',
     markRead: '标记已读',
+    loadHistoryFailed: '加载通知历史失败',
     // ShareModal / ReceiveModal
     packFailed: '打包失败！',
     connectionFailed: '连接失败',

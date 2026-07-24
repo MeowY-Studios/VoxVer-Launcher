@@ -770,15 +770,20 @@ function handleScroll() {
 async function handleLoadMore() {
   const el = pageRef.value
   const scrollTop = el?.scrollTop ?? 0
-  await dlStore.loadMore({
-    query: searchName.value,
-    gameVersion: searchVersion.value || undefined,
-    loaderType: searchLoader.value || undefined,
-    source: searchSource.value,
-    projectType: activeCategory.value
-  })
-  await nextTick()
-  el?.scrollTo({ top: scrollTop })
+  try {
+    await dlStore.loadMore({
+      query: searchName.value,
+      gameVersion: searchVersion.value || undefined,
+      loaderType: searchLoader.value || undefined,
+      source: searchSource.value,
+      projectType: activeCategory.value
+    })
+    await nextTick()
+    el?.scrollTo({ top: scrollTop })
+  } catch (e: unknown) {
+    console.error('[handleLoadMore] 加载失败:', e)
+    dlStore.searchError = e instanceof Error ? e.message : String(e)
+  }
 }
 
 // * 从 URL query 读取分类、版本、加载器（从版本设置页跳转时传入）
@@ -994,10 +999,11 @@ async function downloadVersion(ver: VerItem) {
         loaderType: 'vanilla',
         loaderVersion: ''
       })
-    } else {
     }
-  } catch (err) {
-  } finally {
+    } catch (err) {
+      console.error('[downloadVersion] 下载失败:', err)
+      dlStore.searchError = t('download.downloadVersionFailed') + ': ' + (err instanceof Error ? err.message : String(err))
+    } finally {
     ver.downloading = false
   }
 }
@@ -1293,38 +1299,50 @@ async function doSearch() {
 
   const projectType = activeCategory.value
   try {
-    // * 统一走单源或串行双源（searchMods 会覆盖 store 结果，串行避免竞争）
     if (searchSource.value === 'all') {
-      // * 先拉 Modrinth
-      await dlStore.searchMods({
-        query: searchName.value,
-        source: 'modrinth',
-        gameVersion: searchVersion.value || undefined,
-        loaderType: searchLoader.value || undefined,
-        projectType,
-        offset: 0,
-        limit: 100
-      })
-      const mrResults = [...dlStore.searchResults]
+      // * 双源串行拉取，任一失败不影响另一方
+      const allResults: typeof dlStore.searchResults = []
+      let hasError = false
 
-      // * 再拉 CurseForge
-      await dlStore.searchMods({
-        query: searchName.value,
-        source: 'curseforge',
-        gameVersion: searchVersion.value || undefined,
-        loaderType: searchLoader.value || undefined,
-        projectType,
-        offset: 0,
-        limit: 100
-      })
-      const cfResults = [...dlStore.searchResults]
+      try {
+        await dlStore.searchMods({
+          query: searchName.value,
+          source: 'modrinth',
+          gameVersion: searchVersion.value || undefined,
+          loaderType: searchLoader.value || undefined,
+          projectType,
+          offset: 0,
+          limit: 100
+        })
+        allResults.push(...dlStore.searchResults)
+      } catch (mrErr) {
+        console.error('[doSearch] Modrinth 请求失败:', mrErr)
+        hasError = true
+      }
 
-      // * 双源结果直接拼接，不去重；按下载量混合排序（不优先任何来源）
-      const merged = [...mrResults, ...cfResults]
-      dlStore.searchResults = merged.sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
-      // * 双源合并后 hasMore 取任一源有更多
+      try {
+        await dlStore.searchMods({
+          query: searchName.value,
+          source: 'curseforge',
+          gameVersion: searchVersion.value || undefined,
+          loaderType: searchLoader.value || undefined,
+          projectType,
+          offset: 0,
+          limit: 100
+        })
+        allResults.push(...dlStore.searchResults)
+      } catch (cfErr) {
+        console.error('[doSearch] CurseForge 请求失败:', cfErr)
+        hasError = true
+      }
+
+      // * 合并按下载量排序
+      dlStore.searchResults = allResults.sort((a, b) => (b.downloads || 0) - (a.downloads || 0))
       dlStore.hasMore = dlStore.hasMoreMr || dlStore.hasMoreCf
-      console.log('[doSearch] 双源完成: mr=' + mrResults.length, 'cf=' + cfResults.length, 'merged=' + merged.length, 'hasMore=' + dlStore.hasMore)
+
+      if (hasError) {
+        dlStore.searchError = t('download.partialSearchFailed')
+      }
     } else {
       await dlStore.searchMods({
         query: searchName.value,
@@ -1335,8 +1353,10 @@ async function doSearch() {
         offset: 0,
         limit: 100
       })
-      console.log('[doSearch] 单源完成: results=' + dlStore.searchResults.length, 'hasMore=' + dlStore.hasMore)
     }
+  } catch (e: unknown) {
+    console.error('[doSearch] 搜索失败:', e)
+    dlStore.searchError = e instanceof Error ? e.message : String(e)
   } finally {
     isLoading.value = false
   }

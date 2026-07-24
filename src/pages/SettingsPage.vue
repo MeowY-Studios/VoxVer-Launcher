@@ -2667,7 +2667,6 @@
           </div>
           <div class="row-control">
             <select class="sel" v-model="s.logLevel">
-              <option value="TRACE">TRACE</option>
               <option value="DEBUG">DEBUG</option>
               <option value="INFO" selected>INFO</option>
               <option value="WARN">WARN</option>
