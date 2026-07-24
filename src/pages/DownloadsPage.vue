@@ -1046,7 +1046,7 @@ async function downloadServer(ver: VerItem) {
     } else {
       window.electronAPI?.notification?.send({
         title: t('common.error'),
-        body: (t('download.downloadFailed') as string).replace('{error}', res?.error || (t('download.unknownError') as string)),
+        body: t('download.downloadFailedWithError', { error: (res as { error?: string })?.error || t('download.unknownError') }),
         type: 'error'
       })
     }
