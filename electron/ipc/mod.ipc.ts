@@ -287,4 +287,16 @@ export function registerModIpcHandlers(modService: ModService) {
       }
     }
   )
+
+  /**
+   * 导出选中的 Mod 文件为 zip
+   */
+  ipcMain.handle('mod:export', async (_event, { filePaths }: { filePaths: string[] }) => {
+    try {
+      const result = await modService.exportMods(filePaths)
+      return { ok: true, data: result }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
+    }
+  })
 }

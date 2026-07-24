@@ -102,17 +102,24 @@
       </button>
     </div>
 
-    <!-- 分类筛选 -->
-    <div class="mod-tabs">
-      <button
-        v-for="tab in modFilterTabs"
-        :key="tab.key"
-        class="mod-tab"
-        :class="{ active: modFilter === tab.key }"
-        @click="modFilter = tab.key"
-      >
-        {{ tab.label }} <span class="mod-tab-count">({{ tab.count }})</span>
-      </button>
+    <!-- 分类筛选 + 排序 -->
+    <div class="mod-tabs-row">
+      <div class="mod-tabs">
+        <button
+          v-for="tab in modFilterTabs"
+          :key="tab.key"
+          class="mod-tab"
+          :class="{ active: modFilter === tab.key }"
+          @click="modFilter = tab.key"
+        >
+          {{ tab.label }} <span class="mod-tab-count">({{ tab.count }})</span>
+        </button>
+      </div>
+      <select v-if="filteredMods.length > 0" v-model="modSort" class="mod-sort-select">
+        <option value="name">{{ $t('mod.sortByName') }}</option>
+        <option value="version">{{ $t('mod.sortByVersion') }}</option>
+        <option value="status">{{ $t('mod.sortByStatus') }}</option>
+      </select>
     </div>
 
     <!-- 全选栏 -->
@@ -161,7 +168,8 @@
               :class="{
                 selected: selectedMod === mod.filePath,
                 'has-update': updateInfoMap[mod.filePath]?.hasUpdate,
-                'missing-deps': depCheckMap[mod.filePath]?.missingDependencies?.length > 0
+                'missing-deps': depCheckMap[mod.filePath]?.missingDependencies?.length > 0,
+                'compat-incompatible': compatBadgeMap[mod.filePath]
               }"
               @click="selectMod(mod.filePath)"
               @mouseenter="mod.hovered = true"
@@ -206,6 +214,10 @@
                     class="mod-dep-badge"
                   >
                     {{ $t('mod.missingDepsBadge', { count: depCheckMap[mod.filePath].missingDependencies.length }) }}
+                  </span>
+                  <!-- 不兼容角标 -->
+                  <span v-if="compatBadgeMap[mod.filePath]" class="mod-compat-badge" :title="compatBadgeMap[mod.filePath]">
+                    {{ $t('mod.compatBadge') }}
                   </span>
                 </div>
                 <p class="mod-desc">{{ mod.description || $t('mod.noDescription') }}</p>
@@ -265,7 +277,8 @@
           </template>
           <template v-else>{{ $t('mod.updateAvailable') }}</template>
         </button>
-        <button class="mod-bottom-btn danger" @click="batchDelete">{{ $t('common.delete') }}</button>
+        <button class="mod-bottom-btn" @click="batchDelete">{{ $t('common.delete') }}</button>
+        <button class="mod-bottom-btn" @click="exportSelected">{{ $t('mod.exportSelected') }}</button>
         <button class="mod-bottom-btn" @click="selectedMods.clear(); selectedMod = null">{{ $t('mod.cancelSelection') }}</button>
       </div>
     </div>
@@ -428,6 +441,7 @@ interface ModDependencyCheckResult {
 // * 数据
 const modSearchText = ref('')
 const modFilter = ref('all')
+const modSort = ref('name')
 const modsLoading = ref(false)
 const installedMods = ref<ModItem[]>([])
 
@@ -464,6 +478,15 @@ const compatCompatibleCount = computed(
 const compatIncompatibleCount = computed(
   () => compatResults.value.filter((r) => !r.compatible).length
 )
+
+// * filePath -> 不兼容原因（用于列表角标）
+const compatBadgeMap = computed(() => {
+  const map: Record<string, string> = {}
+  for (const r of compatResults.value) {
+    if (!r.compatible) map[r.filePath] = r.reason
+  }
+  return map
+})
 
 // * 有缺失依赖的 mod 数量
 const missingDepsCount = computed(
@@ -570,6 +593,38 @@ async function batchDelete() {
   selectedMods.value = new Set()
   selectedMod.value = null
   await loadMods()
+}
+
+// * 导出选中的 Mod 为 zip
+async function exportSelected() {
+  const api = window.electronAPI
+  if (!api?.mod?.exportMods) {
+    api?.notification?.send({ title: t('common.error'), body: t('mod.exportNotSupported'), type: 'error' })
+    return
+  }
+  const filePaths = [...selectedMods.value]
+  try {
+    const result = await api.mod.exportMods(filePaths)
+    if (result?.ok) {
+      api?.notification?.send({
+        title: t('common.success'),
+        body: t('mod.exportSuccess', { path: result.data }),
+        type: 'success'
+      })
+    } else {
+      api?.notification?.send({
+        title: t('common.error'),
+        body: t('mod.exportFailed', { error: result?.error || '' }),
+        type: 'error'
+      })
+    }
+  } catch (e) {
+    api?.notification?.send({
+      title: t('common.error'),
+      body: t('mod.exportFailed', { error: (e as Error).message }),
+      type: 'error'
+    })
+  }
 }
 
 // * 兼容性检查
@@ -685,6 +740,14 @@ const filteredMods = computed(() => {
     list = list.filter(
       (m) => m.name.toLowerCase().includes(kw) || (m.description || '').toLowerCase().includes(kw)
     )
+  }
+  // * 排序
+  if (modSort.value === 'version') {
+    list = [...list].sort((a, b) => b.version.localeCompare(a.version, undefined, { numeric: true }))
+  } else if (modSort.value === 'status') {
+    list = [...list].sort((a, b) => (a.enabled === b.enabled ? 0 : a.enabled ? -1 : 1))
+  } else {
+    list = [...list].sort((a, b) => a.name.localeCompare(b.name))
   }
   return list
 })
@@ -1098,9 +1161,28 @@ onMounted(() => {
 }
 
   /* 筛选器 Tabs */
+.mod-tabs-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 .mod-tabs {
   display: flex;
   gap: 4px;
+}
+.mod-sort-select {
+  padding: 4px 8px;
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-sm);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 65%, transparent);
+  color: var(--voxver-text-secondary);
+  font-size: 12px;
+  outline: none;
+  cursor: pointer;
+  &:focus {
+    border-color: var(--voxver-primary);
+  }
 }
 .mod-tab {
   padding: 5px 12px;
@@ -1490,6 +1572,26 @@ onMounted(() => {
   color: #ef4444;
   border: 1px solid rgb(239 68 68 / 0.35);
   margin-left: 4px;
+}
+
+/* 不兼容角标 */
+.mod-compat-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: var(--voxver-radius-xs);
+  font-size: 10px;
+  font-weight: 600;
+  background: rgb(239 68 68 / 0.15);
+  color: #ef4444;
+  border: 1px solid rgb(239 68 68 / 0.35);
+  margin-left: 4px;
+  cursor: help;
+}
+
+/* 不兼容时底部橙色边框 */
+.mod-item.compat-incompatible {
+  border-bottom: 2px solid #ef4444;
 }
 
 /* 缺失依赖时的左边框 */

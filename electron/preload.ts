@@ -560,7 +560,8 @@ const api = {
       ) => callback(data)
       ipcRenderer.on('mod:dependency-progress', listener)
       return () => ipcRenderer.removeListener('mod:dependency-progress', listener)
-    }
+    },
+    exportMods: (filePaths: string[]) => ipcRenderer.invoke('mod:export', { filePaths })
   },
 
   // 自动更新

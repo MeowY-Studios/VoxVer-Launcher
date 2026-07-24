@@ -1063,4 +1063,31 @@ export class ModService {
     const buffer = Buffer.concat(chunks)
     await fs.writeFile(destPath, buffer)
   }
+
+  /**
+   * 导出选中的 Mod 文件为 zip
+   * @param filePaths 选中 mod 的文件路径数组
+   * @returns 生成的 zip 文件路径
+   */
+  async exportMods(filePaths: string[]): Promise<string> {
+    const zip = new AdmZip()
+    for (const fp of filePaths) {
+      try {
+        const name = path.basename(fp)
+        const data = await fs.readFile(fp)
+        zip.addFile(name, data)
+      } catch (e) {
+        log.warn('导出 Mod 读取失败:', fp, e)
+      }
+    }
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+    const zipName = `voxver-mods-${timestamp}.zip`
+    const desktopPath = path.join(
+      process.env.USERPROFILE || process.env.HOME || '',
+      'Desktop',
+      zipName
+    )
+    zip.writeZip(desktopPath)
+    return desktopPath
+  }
 }
