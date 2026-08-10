@@ -20,6 +20,11 @@
       <span v-else class="loading-placeholder">{{ $t('download.loading') }}</span>
 
       <div v-if="instance" class="header-actions">
+        <button class="action-btn" @click="launchGame" :title="$t('instance.launch')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </button>
         <button class="action-btn" @click="openShareModal" :title="$t('instance.share')">
           <svg
             width="16"
@@ -67,6 +72,19 @@
             <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
           </svg>
         </button>
+        <button class="action-btn danger" @click="deleteInstance" :title="$t('instance.delete')">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+          </svg>
+        </button>
       </div>
     </div>
 
@@ -86,21 +104,53 @@
     <div v-if="instance" class="detail-content">
       <!-- 基本信息卡片 -->
       <section class="info-section vox-card">
-        <h3 class="section-title">{{ $t('instance.basicInfo') }}</h3>
+        <div class="section-header">
+          <h3 class="section-title">{{ $t('instance.basicInfo') }}</h3>
+          <button class="save-btn vox-btn vox-btn--primary" @click="saveBasicInfo" :disabled="savingBasic">
+            {{ savingBasic ? $t('common.saving') : $t('common.save') }}
+          </button>
+        </div>
         <div class="info-grid">
           <div class="info-item">
+            <label>{{ $t('instance.instanceNameLabel') }}</label>
+            <input v-model="editForm.name" class="edit-input vox-input" />
+          </div>
+          <div class="info-item">
             <label>{{ $t('instance.mcVersionLabel') }}</label>
-            <span class="value version-badge">{{ instance.mcVersion }}</span>
+            <input v-model="editForm.mcVersion" class="edit-input vox-input" placeholder="1.20.4" />
           </div>
           <div class="info-item">
             <label>{{ $t('instance.loaderLabel') }}</label>
-            <span class="value loader-badge">{{ loaderLabel }}</span>
+            <select class="vox-input" v-model="editForm.loaderType">
+              <option value="vanilla">{{ $t('instance.vanillaOption') }}</option>
+              <option value="fabric">Fabric</option>
+              <option value="forge">Forge</option>
+              <option value="neoforge">NeoForge</option>
+              <option value="quilt">Quilt</option>
+            </select>
+          </div>
+          <div class="info-item">
+            <label>{{ $t('instance.loaderVersionLabel') }}</label>
+            <input v-model="editForm.loaderVersion" class="edit-input vox-input" placeholder="0.15.11" />
           </div>
           <div class="info-item">
             <label>{{ $t('instance.gameDirectory') }}</label>
-            <span class="value path-value" :title="instance.path">{{
-              instance.path || $t('common.noData')
-            }}</span>
+            <span class="value path-value" :title="instance.path">{{ instance.path || $t('common.noData') }}</span>
+          </div>
+          <div class="info-item">
+            <label>{{ $t('game.resolution') }}</label>
+            <div class="resolution-inputs">
+              <input v-model.number="editForm.width" type="number" min="640" class="edit-input number-input vox-input" />
+              <span class="resolution-x">x</span>
+              <input v-model.number="editForm.height" type="number" min="480" class="edit-input number-input vox-input" />
+            </div>
+          </div>
+          <div class="info-item">
+            <label>{{ $t('game.fullscreen') }}</label>
+            <label class="checkbox-label">
+              <input type="checkbox" v-model="editForm.fullscreen" />
+              {{ $t('game.fullscreenEnable') }}
+            </label>
           </div>
           <div class="info-item">
             <label>{{ $t('instance.lastPlayed') }}</label>
@@ -109,10 +159,6 @@
           <div class="info-item">
             <label>{{ $t('instance.playDuration') }}</label>
             <span class="value">{{ playTimeStr }}</span>
-          </div>
-          <div class="info-item">
-            <label>{{ $t('game.resolution') }}</label>
-            <span class="value">{{ instance.width }} x {{ instance.height }}</span>
           </div>
         </div>
       </section>
@@ -306,6 +352,16 @@
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               </button>
+              <button
+                class="toggle-btn delete-btn"
+                @click="deleteModItem(mod)"
+                :title="$t('instance.delete')"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -440,7 +496,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useInstancesStore } from '../stores/instances.store'
 import { useModsStore } from '../stores/mods.store'
-import { formatRelativeTime, formatDuration } from '../utils/format'
+import { formatRelativeTime, formatDuration, getLoaderName } from '../utils/format'
 import { getCurrentLocale } from '../locale/i18n'
 import type { GameInstance, RawGameInstance, LoaderType } from '../types/instance'
 import PxModal from '../components/common/PxModal.vue'
@@ -470,13 +526,21 @@ const saving = ref(false)
 
 // * 编辑表单
 const editForm = ref({
+  name: '',
+  mcVersion: '',
+  loaderType: 'vanilla',
+  loaderVersion: '',
+  width: 854,
+  height: 480,
+  fullscreen: false,
   javaPath: '',
   minMemory: 1024,
   maxMemory: 4096,
   jvmArgs: ''
 })
+const savingBasic = ref(false)
 
-// * 本地 Mod 列表（直接从 IPC 获取，不用 store）
+// * 本地
 const localMods = ref<
   Array<{
     filePath: string
@@ -518,7 +582,6 @@ const activeModCount = computed(() => localMods.value.filter((m) => m.status ===
 
 const loaderLabel = computed(() => {
   if (!instance.value) return '-'
-  const { getLoaderName } = require('../utils/format')
   if (instance.value.loaderType === 'vanilla') return t('game.vanilla') as string
   return `${getLoaderName(instance.value.loaderType)} ${instance.value.loaderVersion}`.trim()
 })
@@ -563,6 +626,13 @@ async function fetchDetail() {
         createdAt: raw.created_at,
         updatedAt: raw.updated_at
       }
+      editForm.value.name = instance.value!.name
+      editForm.value.mcVersion = instance.value!.mcVersion
+      editForm.value.loaderType = instance.value!.loaderType
+      editForm.value.loaderVersion = instance.value!.loaderVersion
+      editForm.value.width = instance.value!.width
+      editForm.value.height = instance.value!.height
+      editForm.value.fullscreen = instance.value!.fullscreen === 1
       editForm.value.javaPath = instance.value!.javaPath
       editForm.value.minMemory = instance.value!.minMemory
       editForm.value.maxMemory = instance.value!.maxMemory
@@ -725,6 +795,76 @@ async function saveSettings() {
   }
 }
 
+// 保存基本信息
+async function saveBasicInfo() {
+  if (!instance.value) return
+  savingBasic.value = true
+  try {
+    await instancesStore.updateInstance(instance.value.id, {
+      name: editForm.value.name,
+      mcVersion: editForm.value.mcVersion,
+      loaderType: editForm.value.loaderType as LoaderType,
+      loaderVersion: editForm.value.loaderVersion,
+      width: editForm.value.width,
+      height: editForm.value.height,
+      fullscreen: editForm.value.fullscreen ? 1 : 0
+    })
+    // 更新本地数据
+    instance.value.name = editForm.value.name
+    instance.value.mcVersion = editForm.value.mcVersion
+    instance.value.loaderType = editForm.value.loaderType as LoaderType
+    instance.value.loaderVersion = editForm.value.loaderVersion
+    instance.value.width = editForm.value.width
+    instance.value.height = editForm.value.height
+    instance.value.fullscreen = editForm.value.fullscreen ? 1 : 0
+  } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('instance.saveFailed'), type: 'error' })
+  } finally {
+    savingBasic.value = false
+  }
+}
+
+// 启动游戏
+function launchGame() {
+  if (!instance.value) return
+  window.electronAPI?.game?.launch?.(instance.value.id, '', instance.value.mcVersion)
+  window.electronAPI?.notification?.send({
+    title: t('instance.launch'),
+    body: t('instance.launching', { name: instance.value.name }),
+    type: 'info'
+  })
+}
+
+// 删除实例
+async function deleteInstance() {
+  if (!instance.value) return
+  const inst = instance.value
+  if (!confirm(t('instance.deleteConfirm') + `「${inst.name}」？`)) return
+  const deleteFiles = confirm(t('instance.deleteFilesHint') + '\n\n' + t('instance.deleteFilesAlso') + '？')
+  try {
+    await window.electronAPI?.instance?.delete(inst.id, deleteFiles)
+    window.electronAPI?.notification?.send({
+      title: t('instance.delete'),
+      body: t('instance.deleteSuccess', { name: inst.name }),
+      type: 'success'
+    })
+    router.push('/instances')
+  } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('instance.deleteFailed'), type: 'error' })
+  }
+}
+
+// 删除 Mod
+async function deleteModItem(mod: { filePath: string; fileName: string }) {
+  if (!confirm(t('mod.deleteConfirm', { name: mod.fileName }))) return
+  try {
+    await window.electronAPI?.mod?.remove?.(mod.filePath)
+    await loadMods()
+  } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.deleteFailed'), type: 'error' })
+  }
+}
+
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return bytes + ' B'
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
@@ -813,6 +953,13 @@ watch(instanceId, () => {
         color: var(--voxver-warning);
         border-color: var(--voxver-warning);
         background: color-mix(in oklab, var(--voxver-warning) 8%, transparent);
+      }
+      &.danger {
+        &:hover {
+          color: var(--voxver-error);
+          border-color: var(--voxver-error);
+          background: var(--voxver-error-light);
+        }
       }
     }
   }
@@ -917,7 +1064,33 @@ watch(instanceId, () => {
 
     .edit-input {
       &.number-input {
-        width: 120px;
+        width: 100px;
+      }
+    }
+
+    .resolution-inputs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .resolution-x {
+        color: var(--voxver-text-muted);
+        font-weight: 600;
+      }
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--voxver-text-primary);
+      cursor: pointer;
+
+      input[type='checkbox'] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--voxver-primary);
       }
     }
   }
@@ -1135,6 +1308,12 @@ watch(instanceId, () => {
   &:hover {
     color: var(--voxver-primary);
     border-color: var(--voxver-primary-300);
+  }
+
+  &.delete-btn:hover {
+    color: var(--voxver-error);
+    border-color: var(--voxver-error);
+    background: var(--voxver-error-light);
   }
 }
 

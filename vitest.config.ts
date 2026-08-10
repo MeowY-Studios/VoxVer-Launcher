@@ -25,7 +25,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src')
+      '@': resolve(__dirname, 'src'),
+      '/Alogo.png': resolve(__dirname, 'tests/__mocks__/fileMock.js'),
+      '\\.(png|jpg|jpeg|gif|svg|webp)$': resolve(__dirname, 'tests/__mocks__/fileMock.js')
     }
   }
 })

@@ -28,7 +28,7 @@ export interface HotkeyConfig {
   enabled: boolean
 }
 
-export type HotkeyAction = 'launch-game' | 'toggle-window' | 'quick-join'
+export type HotkeyAction = 'launch-game' | 'toggle-window' | 'quick-join' | 'open-home' | 'open-settings'
 
 // 内置预设
 export const DEFAULT_HOTKEYS: HotkeyConfig[] = [
@@ -36,7 +36,7 @@ export const DEFAULT_HOTKEYS: HotkeyConfig[] = [
     id: 'launch-game',
     label: '快速启动游戏',
     description: '全局按下后立即启动当前选中的游戏版本',
-    accelerator: 'Ctrl+Alt+M',
+    accelerator: 'Ctrl+Shift+L',
     action: 'launch-game',
     enabled: false
   },
@@ -44,8 +44,24 @@ export const DEFAULT_HOTKEYS: HotkeyConfig[] = [
     id: 'toggle-window',
     label: '显示/隐藏启动器窗口',
     description: '全局按下后切换启动器主窗口的显示/隐藏',
-    accelerator: 'Ctrl+Alt+H',
+    accelerator: 'Ctrl+Shift+H',
     action: 'toggle-window',
+    enabled: false
+  },
+  {
+    id: 'open-home',
+    label: '打开主页',
+    description: '全局按下后导航到启动器主页',
+    accelerator: 'Ctrl+Shift+O',
+    action: 'open-home',
+    enabled: false
+  },
+  {
+    id: 'open-settings',
+    label: '打开设置',
+    description: '全局按下后导航到设置页面',
+    accelerator: 'Ctrl+,',
+    action: 'open-settings',
     enabled: false
   }
 ]
@@ -145,8 +161,10 @@ export function updateHotkey(hotkey: HotkeyConfig): UpdateHotkeyResult {
     return { ok: false, error: '快捷键冲突', conflictWith: conflict.label }
   }
 
-  // 保存
-  const next = all.map((h) => (h.id === hotkey.id ? hotkey : h))
+  // 保存：合并而非覆盖（保留 label/description 等已存在字段）
+  const next = all.map((h) =>
+    h.id === hotkey.id ? { ...h, ...hotkey } : h
+  )
   // 保证新的 id 也加进去
   if (!next.find((h) => h.id === hotkey.id)) next.push(hotkey)
   saveHotkeys(next)

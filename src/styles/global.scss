@@ -41,7 +41,7 @@
 
 /* * 文本选区高亮 */
 ::selection {
-  background: rgb(41 151 255 / 0.2);
+  background: oklch(65% 0.19 252 / 0.2);
   color: var(--voxver-text-primary);
 }
 
@@ -61,11 +61,11 @@
   -webkit-user-select: none;
 }
 
-/* * 全局过渡 — 统一交互反馈节奏 */
+/* * 全局过渡 — 统一交互反馈节奏 (quart-out) */
 a, button, input, select, textarea, .vox-card, .vox-list-card {
   transition-property: color, background-color, border-color, box-shadow, opacity;
-  transition-duration: var(--voxver-transition-fast);
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 120ms;
+  transition-timing-function: var(--voxver-ease-out-quart);
 }
 
 /* * 链接默认样式 */
@@ -128,7 +128,7 @@ pre {
 .voxver-input {
   &:focus {
     border-color: var(--voxver-accent);
-    box-shadow: 0 0 0 3px rgb(41 151 255 / 0.15);
+    box-shadow: 0 0 0 3px oklch(65% 0.19 252 / 0.15);
   }
 }
 

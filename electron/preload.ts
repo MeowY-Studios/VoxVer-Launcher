@@ -32,6 +32,7 @@ interface HotkeyConfig {
   action?: string
   enabled?: boolean
   description?: string
+  label?: string
 }
 
 /** 主题设置（用于 theme API 参数约束） */

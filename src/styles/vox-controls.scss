@@ -1,6 +1,6 @@
 /* ============================================
-   VoxVer Global Controls — Apple Design System
-   全局统一控件样式（.vox-* 前缀）
+   VoxVer Global Controls — Impeccable + High-End Visual Design
+   Double-Bezel · Magnetic Hover · Quart-Out Motion
    ============================================ */
 
 .vox-sec-title {
@@ -23,16 +23,53 @@
   margin: 0 0 var(--voxver-space-md);
 }
 
+/* ================================================================
+   Cards — Double-Bezel 嵌套架构
+   Outer Shell (::before) + Inner Core (元素本体)
+   ================================================================ */
 .vox-card {
+  position: relative;
   background: var(--voxver-bg-secondary);
-  border: 1px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-md);
+  border-radius: var(--voxver-radius-lg);
+
+  /* * Inner highlight — 玻璃感的顶部微反光 */
+  box-shadow: inset 0 1px 1px oklch(100% 0 0 / 0.06);
+
+  /* * Outer Shell — hairline 边框 + 微背景 */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: var(--voxver-border-color-light);
+    border-radius: calc(var(--voxver-radius-lg) + 1px);
+    z-index: -1;
+    pointer-events: none;
+  }
 }
 
+/* * Subtle 变体 — 轻量卡片 */
 .vox-card--subtle {
   background: var(--voxver-bg-tertiary);
-  border-radius: var(--voxver-radius-sm);
+  border-radius: var(--voxver-radius-md);
   border: 1px solid var(--voxver-border-color-light);
+  box-shadow: inset 0 1px 1px oklch(100% 0 0 / 0.04);
+}
+
+/* * Double-Bezel 完整版 — 需要 wrapper 配合 */
+.vox-card--double {
+  padding: 1.5px;
+  background: var(--voxver-border-color-light);
+  border-radius: calc(var(--voxver-radius-lg) + 1.5px);
+  box-shadow: none;
+
+  &::before { display: none; }
+
+  > .vox-card__inner {
+    background: var(--voxver-bg-secondary);
+    border-radius: var(--voxver-radius-lg);
+    box-shadow: inset 0 1px 1px oklch(100% 0 0 / 0.06);
+    padding: var(--voxver-space-lg);
+  }
 }
 
 .vox-card-hover {
@@ -49,6 +86,9 @@
   gap: var(--voxver-space-lg);
 }
 
+/* ================================================================
+   Buttons — Magnetic Hover + Quart-Out Physics
+   ================================================================ */
 .vox-btn {
   display: inline-flex;
   align-items: center;
@@ -64,16 +104,24 @@
   line-height: 1.3;
   color: var(--voxver-text-secondary);
   cursor: pointer;
-  transition: background var(--voxver-transition-fast), color var(--voxver-transition-fast);
   white-space: nowrap;
+  /* * quart-out magnetic motion */
+  transition:
+    background var(--voxver-transition-fast),
+    color var(--voxver-transition-fast),
+    transform var(--voxver-transition-fast);
 
+  /* * Magnetic hover — 微妙抬升 */
   &:hover {
     background: color-mix(in oklab, var(--voxver-text) 3%, transparent);
     color: var(--voxver-text-primary);
+    transform: translateY(-1px);
   }
 
+  /* * Magnetic press — 物理按下感 */
   &:active {
     background: color-mix(in oklab, var(--voxver-text) 5%, transparent);
+    transform: translateY(0) scale(0.98);
   }
 
   &:focus-visible {
@@ -85,29 +133,48 @@
   &:disabled {
     cursor: not-allowed;
     opacity: 0.4;
+    transform: none;
   }
 }
 
+/* * Primary — Button-in-Button 架构 */
 .vox-btn--primary {
   background: var(--voxver-accent);
-  color: #ffffff;
+  color: oklch(100% 0 0);
   border-radius: var(--voxver-radius-full);
   padding: 10px 20px;
   font-size: 14px;
   font-weight: 500;
+  position: relative;
+  overflow: hidden;
+
+  /* * 内高光 — 玻璃质感顶部反光 */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 50%;
+    background: linear-gradient(
+      180deg,
+      oklch(100% 0 0 / 0.12) 0%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
 
   &:hover {
     background: var(--voxver-accent-hover);
-    color: #ffffff;
+    color: oklch(100% 0 0);
+    transform: translateY(-1px);
   }
 
   &:active {
     background: var(--voxver-accent);
-    opacity: 0.9;
+    transform: translateY(0) scale(0.98);
   }
 
   &:focus-visible {
-    outline: 2px solid #ffffff;
+    outline: 2px solid oklch(100% 0 0);
     outline-offset: 2px;
   }
 
@@ -116,6 +183,9 @@
     color: var(--voxver-text-muted);
     cursor: not-allowed;
     opacity: 1;
+    transform: none;
+
+    &::before { display: none; }
   }
 }
 
@@ -127,14 +197,21 @@
   padding: 10px 20px;
   font-size: 14px;
   font-weight: 500;
+  transition:
+    background var(--voxver-transition-fast),
+    color var(--voxver-transition-fast),
+    border-color var(--voxver-transition-fast),
+    transform var(--voxver-transition-fast);
 
   &:hover {
     background: var(--voxver-accent-soft);
     color: var(--voxver-accent);
+    transform: translateY(-1px);
   }
 
   &:active {
     background: color-mix(in oklab, var(--voxver-accent) 8%, transparent);
+    transform: translateY(0) scale(0.98);
   }
 
   &:focus-visible {
@@ -163,15 +240,22 @@
   padding: 10px 20px;
   font-size: 14px;
   font-weight: 500;
+  transition:
+    background var(--voxver-transition-fast),
+    color var(--voxver-transition-fast),
+    border-color var(--voxver-transition-fast),
+    transform var(--voxver-transition-fast);
 
   &:hover {
     background: color-mix(in oklab, var(--voxver-error) 6%, transparent);
     border-color: color-mix(in oklab, var(--voxver-error) 30%, transparent);
     color: var(--voxver-error);
+    transform: translateY(-1px);
   }
 
   &:active {
     background: color-mix(in oklab, var(--voxver-error) 12%, transparent);
+    transform: translateY(0) scale(0.98);
   }
 
   &:focus-visible {
@@ -335,7 +419,9 @@
   outline: none;
   box-sizing: border-box;
   background: var(--voxver-bg-input);
-  transition: border-color var(--voxver-transition-fast), box-shadow var(--voxver-transition-fast);
+  transition:
+    border-color var(--voxver-transition-fast),
+    box-shadow var(--voxver-transition-fast);
 
   &::placeholder {
     color: var(--voxver-text-muted);
@@ -346,8 +432,8 @@
   }
 
   &:focus {
-    border-color: var(--voxver-accent);
-    box-shadow: 0 0 0 3px rgb(41 151 255 / 0.15);
+    border-color: var(--voxver-input-focus-border);
+    box-shadow: var(--voxver-input-focus-shadow);
   }
 
   &:disabled {
@@ -365,14 +451,18 @@
   border-radius: var(--voxver-radius-sm);
   border: none;
   cursor: pointer;
-  transition: background var(--voxver-transition-fast);
+  transition:
+    background var(--voxver-transition-fast),
+    transform var(--voxver-transition-fast);
 
   &:hover {
     background: color-mix(in oklab, var(--voxver-text) 3%, transparent);
+    transform: translateX(2px);
   }
 
   &:active {
     background: color-mix(in oklab, var(--voxver-text) 5%, transparent);
+    transform: translateX(0) scale(0.99);
   }
 
   &:focus-visible {
@@ -420,8 +510,8 @@
   }
 
   &:focus {
-    border-color: var(--voxver-accent);
-    box-shadow: 0 0 0 3px rgb(41 151 255 / 0.15);
+    border-color: var(--voxver-input-focus-border);
+    box-shadow: var(--voxver-input-focus-shadow);
   }
 
   &:disabled {
@@ -461,7 +551,7 @@
   background: var(--voxver-bg-elevated);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
-  box-shadow: 0 8px 32px rgb(0 0 0 / 0.3);
+  box-shadow: var(--voxver-shadow-lg);
   z-index: 1000;
   opacity: 0;
   visibility: hidden;

@@ -35,7 +35,11 @@ Object.defineProperty(window, 'electronAPI', {
       list: vi.fn().mockResolvedValue([]),
       create: vi.fn().mockResolvedValue(null),
       update: vi.fn().mockResolvedValue(true),
-      delete: vi.fn().mockResolvedValue(true)
+      delete: vi.fn().mockResolvedValue(true),
+      scan: vi.fn().mockResolvedValue({ ok: true, data: [] }),
+      load: vi.fn().mockResolvedValue(null),
+      toggleFavorite: vi.fn().mockResolvedValue(true),
+      openFolder: vi.fn().mockResolvedValue(true)
     },
     path: {
       getMinecraft: vi
@@ -71,7 +75,18 @@ Object.defineProperty(window, 'electronAPI', {
     },
     modloader: {
       getLoaders: vi.fn().mockResolvedValue({ fabric: [], forge: [] })
-    }
+    },
+    externalLauncher: {
+      scan: vi.fn().mockResolvedValue({ ok: true, launchers: [] }),
+      importInstance: vi.fn().mockResolvedValue({ ok: true, instanceId: 'test' })
+    },
+    mcla: {
+      import: vi.fn().mockResolvedValue({ ok: true })
+    },
+    dialog: {
+      selectFolder: vi.fn().mockResolvedValue(null),
+      selectFile: vi.fn().mockResolvedValue(null)
+    },
   },
   writable: true
 })
@@ -105,4 +120,34 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn()
   })),
   writable: true
+})
+
+// ====== Mock URL.createObjectURL ======
+if (typeof URL.createObjectURL === 'undefined') {
+  Object.defineProperty(URL, 'createObjectURL', {
+    value: vi.fn(() => 'blob:mock'),
+    writable: true
+  })
+}
+
+// ====== Prevent jsdom from resolving img src as file URLs ======
+const origSetAttribute = HTMLImageElement.prototype.setAttribute
+HTMLImageElement.prototype.setAttribute = function (name: string, value: string) {
+  if (name === 'src' && value && !value.startsWith('data:') && !value.startsWith('http')) {
+    return origSetAttribute.call(this, name, 'data:image/png;base64,')
+  }
+  return origSetAttribute.call(this, name, value)
+}
+
+// Also override property access
+Object.defineProperty(HTMLImageElement.prototype, 'src', {
+  get() { return origSetAttribute.call(this, 'src', '') as any || '' },
+  set(value: string) {
+    if (value && !value.startsWith('data:') && !value.startsWith('http')) {
+      origSetAttribute.call(this, 'src', 'data:image/png;base64,')
+    } else {
+      origSetAttribute.call(this, 'src', value)
+    }
+  },
+  configurable: true
 })

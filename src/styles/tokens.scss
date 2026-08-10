@@ -1,14 +1,15 @@
 /**
- * VoxVer Design Tokens — Apple Design System
+ * VoxVer Design Tokens — Impeccable + High-End Visual Design
  *
  * 产品类型: Gaming Launcher
- * 主风格: Apple Design System + 暗色优先
- * 设计原则: 简洁、克制、人性化
+ * 主风格: Ethereal Glass（暗色 OLED + 玻璃态 + 微色调中性色）
+ * 设计原则: 克制、深度、沉浸
  *
- * 基础: Apple DESIGN.md 令牌
+ * 规则来源:
+ *   - Impeccable 7 域参考（typography/color/spatial/motion/interaction/responsive/ux-writing）
+ *   - High-End Visual Design（Double-Bezel / Button-in-Button / Magnetic Hover）
  */
 
-/* * 像素字体（仅限特殊装饰场景） */
 @font-face {
   font-family: 'Press Start 2P';
   font-style: normal;
@@ -17,108 +18,110 @@
   src: url('/fonts/PressStart2P-Regular.woff2') format('woff2');
 }
 
-/* * ========== 暗色主题（默认） ========== */
+/* ================================================================
+   暗色主题（默认）— OKLCH 色彩空间 + 微色调中性色
+   ================================================================ */
 [data-theme='dark'] {
-  /* * 暗色背景色阶 */
-  --voxver-bg-primary: #0a0a0a;
-  --voxver-bg-secondary: #141414;
-  --voxver-bg-tertiary: #1a1a1a;
-  --voxver-bg-elevated: #1e1e1e;
-  --voxver-bg-input: #161616;
-  --voxver-bg-overlay: rgb(0 0 0 / 0.85);
-  --voxver-bg-hover: rgb(255 255 255 / 0.05);
-  --voxver-bg-active: rgb(255 255 255 / 0.08);
+  /** 背景色阶 — 中性色含微量 chroma 朝向品牌蓝 (hue: 252) */
+  --voxver-bg-primary: oklch(12% 0.006 252);
+  --voxver-bg-secondary: oklch(15.5% 0.007 252);
+  --voxver-bg-tertiary: oklch(18.5% 0.007 252);
+  --voxver-bg-elevated: oklch(21% 0.007 252);
+  --voxver-bg-input: oklch(17% 0.006 252);
+  --voxver-bg-overlay: oklch(8% 0.005 252 / 0.85);
+  --voxver-bg-hover: oklch(100% 0 0 / 0.05);
+  --voxver-bg-active: oklch(100% 0 0 / 0.08);
 
-  /* * 暗色文字色阶 */
-  --voxver-text: #f5f5f7;
-  --voxver-text-primary: #f5f5f7;
-  --voxver-text-secondary: #a1a1aa;
-  --voxver-text-tertiary: #71717a;
-  --voxver-text-muted: #52525b;
+  /** 文字色阶 */
+  --voxver-text: oklch(96% 0.002 252);
+  --voxver-text-primary: oklch(96% 0.002 252);
+  --voxver-text-secondary: oklch(72% 0.003 252);
+  --voxver-text-tertiary: oklch(54% 0.002 252);
+  --voxver-text-muted: oklch(40% 0.002 252);
 
-  /* * 暗色边框色阶 */
-  --voxver-border-color: rgb(255 255 255 / 0.08);
-  --voxver-border-color-light: rgb(255 255 255 / 0.05);
-  --voxver-border-strong: rgb(255 255 255 / 0.12);
+  /** 边框色阶 — hairline 风格 */
+  --voxver-border-color: oklch(100% 0 0 / 0.08);
+  --voxver-border-color-light: oklch(100% 0 0 / 0.05);
+  --voxver-border-strong: oklch(100% 0 0 / 0.12);
 
-  /* * 暗色主色与色阶 — Sky Link Blue */
-  --voxver-primary: #2997ff;
-  --voxver-primary-hover: #40a9ff;
-  --voxver-primary-light: rgb(41 151 255 / 0.1);
-  --voxver-primary-300: #2997ff;
-  --voxver-primary-400: #2997ff;
-  --voxver-primary-500: #2997ff;
-  --voxver-primary-600: #40a9ff;
-  --voxver-primary-700: #40a9ff;
-  --voxver-gradient-primary: linear-gradient(135deg, #2997ff, #40a9ff);
+  /** 主色 — Sky Blue (oklch hue: 252) */
+  --voxver-primary: oklch(65% 0.19 252);
+  --voxver-primary-hover: oklch(70% 0.17 252);
+  --voxver-primary-light: oklch(65% 0.19 252 / 0.12);
+  --voxver-primary-300: oklch(65% 0.19 252);
+  --voxver-primary-400: oklch(65% 0.19 252);
+  --voxver-primary-500: oklch(65% 0.19 252);
+  --voxver-primary-600: oklch(70% 0.17 252);
+  --voxver-primary-700: oklch(70% 0.17 252);
+  --voxver-gradient-primary: linear-gradient(135deg, oklch(65% 0.19 252), oklch(72% 0.15 252));
 
-  /* * 暗色状态色 — Apple 系统色 */
-  --voxver-success: #34c759;
-  --voxver-success-light: rgb(52 199 89 / 0.15);
-  --voxver-warning: #ff9500;
-  --voxver-warning-light: rgb(255 149 0 / 0.15);
-  --voxver-error: #ff3b30;
-  --voxver-error-light: rgb(255 59 48 / 0.15);
-  --voxver-info: #2997ff;
-  --voxver-info-light: rgb(41 151 255 / 0.15);
+  /** 状态色 — Apple 系统色 OKLCH 等效 */
+  --voxver-success: oklch(68% 0.19 142);
+  --voxver-success-light: oklch(68% 0.19 142 / 0.15);
+  --voxver-warning: oklch(72% 0.17 75);
+  --voxver-warning-light: oklch(72% 0.17 75 / 0.15);
+  --voxver-error: oklch(58% 0.24 27);
+  --voxver-error-light: oklch(58% 0.24 27 / 0.15);
+  --voxver-info: oklch(65% 0.19 252);
+  --voxver-info-light: oklch(65% 0.19 252 / 0.15);
 
-  /* * 暗色阴影 */
-  --voxver-shadow-sm: 0 1px 3px rgb(0 0 0 / 0.3);
-  --voxver-shadow-md: 0 4px 12px rgb(0 0 0 / 0.35);
-  --voxver-shadow-lg: 0 8px 32px rgb(0 0 0 / 0.4);
+  /** 阴影 — 柔和环境阴影系列 */
+  --voxver-shadow-sm: 0 1px 3px oklch(0% 0 0 / 0.3);
+  --voxver-shadow-md: 0 4px 12px oklch(0% 0 0 / 0.35);
+  --voxver-shadow-lg: 0 8px 32px oklch(0% 0 0 / 0.4);
 
-  /* * 暗色组件变量 */
-  --voxver-titlebar-bg: #000000;
+  /** 组件专用变量 */
+  --voxver-titlebar-bg: oklch(9% 0.005 252 / 0.85);
   --voxver-card-bg: var(--voxver-bg-secondary);
   --voxver-card-border: var(--voxver-border-color);
   --voxver-input-bg: var(--voxver-bg-input);
   --voxver-input-border: var(--voxver-border-color);
-  --voxver-input-focus-border: #2997ff;
-  --voxver-input-focus-shadow: 0 0 0 3px rgb(41 151 255 / 0.15);
-  --voxver-tab-active-color: #2997ff;
-  --voxver-tab-active-border: #2997ff;
-  --voxver-nav-active-color: #2997ff;
-  --voxver-nav-active-indicator: #2997ff;
-  --voxver-progress-bg: #2997ff;
+  --voxver-input-focus-border: oklch(65% 0.19 252);
+  --voxver-input-focus-shadow: 0 0 0 3px oklch(65% 0.19 252 / 0.15);
+  --voxver-tab-active-color: oklch(65% 0.19 252);
+  --voxver-tab-active-border: oklch(65% 0.19 252);
+  --voxver-nav-active-color: oklch(65% 0.19 252);
+  --voxver-nav-active-indicator: oklch(65% 0.19 252);
+  --voxver-progress-bg: oklch(65% 0.19 252);
 
-  /* * 暗色扩展色阶 */
-  --voxver-primary-100: rgb(41 151 255 / 0.06);
-  --voxver-primary-200: rgb(41 151 255 / 0.12);
-  --voxver-primary-muted: #2997ff;
+  /** 玻璃态背景 — 主题感知半透明色 */
+  --voxver-glass-sidebar: oklch(14% 0.006 252 / 0.78);
+  --voxver-glass-content: oklch(15% 0.006 252 / 0.72);
+  --voxver-glass-raised: oklch(21% 0.007 252 / 0.85);
+  --voxver-glass-input: oklch(21% 0.007 252 / 0.72);
+  --voxver-brand-color: oklch(96% 0.002 252);
+  --voxver-hover-overlay: oklch(100% 0 0 / 0.06);
+
+  /** 扩展色阶 */
+  --voxver-primary-100: oklch(65% 0.19 252 / 0.06);
+  --voxver-primary-200: oklch(65% 0.19 252 / 0.12);
+  --voxver-primary-muted: oklch(65% 0.19 252);
   --voxver-accent-color: var(--voxver-accent);
-  --voxver-text-inverse: #ffffff;
+  --voxver-text-inverse: oklch(100% 0 0);
   --voxver-text-error: var(--voxver-error);
   --voxver-text-success: var(--voxver-success);
   --voxver-text-warning: var(--voxver-warning);
-
-  /* * 暗色状态背景 */
   --voxver-success-bg: var(--voxver-success-light);
   --voxver-warning-bg: var(--voxver-warning-light);
   --voxver-error-bg: var(--voxver-error-light);
   --voxver-info-bg: var(--voxver-info-light);
-
-  /* * 暗色扩展背景与边框 */
   --voxver-bg-raised: var(--voxver-bg-elevated);
   --voxver-border: var(--voxver-border-color);
   --voxver-border-color-focus: var(--voxver-accent);
-
-  /* * 暗色扩展渐变 */
-  --voxver-gradient-success: linear-gradient(135deg, #34c759, #30b350);
-  --voxver-launch-gradient: linear-gradient(135deg, #2997ff, #40a9ff);
-
-  /* * 暗色扩展阴影 */
-  --voxver-shadow-glow-primary: 0 0 20px rgb(41 151 255 / 0.15);
-  --voxver-shadow-xl: 0 12px 48px rgb(0 0 0 / 0.5);
-
-  /* * 暗色滚动条 */
+  --voxver-gradient-success: linear-gradient(135deg, oklch(68% 0.19 142), oklch(66% 0.18 142));
+  --voxver-launch-gradient: linear-gradient(135deg, oklch(65% 0.19 252), oklch(72% 0.15 252));
+  --voxver-shadow-glow-primary: 0 0 20px oklch(65% 0.19 252 / 0.15);
+  --voxver-shadow-xl: 0 12px 48px oklch(0% 0 0 / 0.5);
   --voxver-scrollbar-track: transparent;
-  --voxver-scrollbar-thumb: rgb(255 255 255 / 0.1);
-  --voxver-scrollbar-thumb-hover: rgb(255 255 255 / 0.2);
+  --voxver-scrollbar-thumb: oklch(100% 0 0 / 0.1);
+  --voxver-scrollbar-thumb-hover: oklch(100% 0 0 / 0.2);
 }
 
-/* * ========== 全局令牌（主题无关） ========== */
+/* ================================================================
+   全局令牌（主题无关）
+   ================================================================ */
 :root {
-  /* * 间距系统 — 4px 基准 */
+  /** 间距系统 — 4px 基准（Impeccable spatial-design） */
   --voxver-space-xs: 4px;
   --voxver-space-sm: 8px;
   --voxver-space-md: 12px;
@@ -127,30 +130,43 @@
   --voxver-space-2xl: 32px;
   --voxver-space-3xl: 48px;
 
-  /* * 圆角系统 */
+  /** 圆角系统 — squircle 偏好 */
   --voxver-radius-xs: 4px;
   --voxver-radius-sm: 6px;
   --voxver-radius-md: 10px;
   --voxver-radius-lg: 16px;
   --voxver-radius-xl: 20px;
+  --voxver-radius-2xl: 28px;
   --voxver-radius-full: 9999px;
   --voxver-radius-pill: 9999px;
 
-  /* * 过渡时长 — cubic-bezier(0.4, 0, 0.2, 1) 统一缓动 */
-  --voxver-transition-fast: 120ms cubic-bezier(0.4, 0, 0.2, 1);
-  --voxver-transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-  --voxver-transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  /**
+   * 动效系统 — quart-out 系列（Impeccable motion-design）
+   *
+   * 原则:
+   *   - 入场 ease-out（减速停止，自然感）
+   *   - 离场 ease-in（加速消失）
+   *   - 切换 ease-in-out（平滑往返）
+   *   - 禁止 linear / ease / bounce / elastic
+   */
+  --voxver-ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --voxver-ease-in-quart: cubic-bezier(0.7, 0, 0.84, 0);
+  --voxver-ease-in-out-quart: cubic-bezier(0.65, 0, 0.35, 1);
 
-  /* * 强调色 — 暗色面 Sky Link Blue */
-  --voxver-accent: #2997ff;
-  --voxver-accent-hover: #40a9ff;
-  --voxver-accent-soft: rgb(41 151 255 / 0.1);
+  --voxver-transition-fast: 120ms var(--voxver-ease-out-quart);
+  --voxver-transition-normal: 250ms var(--voxver-ease-out-quart);
+  --voxver-transition-slow: 400ms var(--voxver-ease-out-quart);
 
-  /* * 字体栈 — macOS 优先 SF Pro，Windows 回退 Segoe UI */
+  /** 强调色 */
+  --voxver-accent: oklch(65% 0.19 252);
+  --voxver-accent-hover: oklch(70% 0.17 252);
+  --voxver-accent-soft: oklch(65% 0.19 252 / 0.1);
+
+  /** 字体栈 — SF Pro / Segoe UI 系统原生 */
   --voxver-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   --voxver-font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-  /* * 字号系统 — Apple SF Pro 规范 */
+  /** 字号系统 */
   --voxver-text-xs: 11px;
   --voxver-text-sm: 12px;
   --voxver-text-base: 13px;
@@ -159,7 +175,7 @@
   --voxver-text-2xl: 20px;
   --voxver-text-3xl: 24px;
 
-  /* * 字重系统 */
+  /** 字重系统 */
   --voxver-font-normal: 400;
   --voxver-font-medium: 500;
   --voxver-font-semibold: 600;

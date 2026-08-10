@@ -232,10 +232,10 @@ function ensureDir(dir: string) {
 
 function defaultMcDir(): string {
   if (process.platform === 'win32') {
-    return path.join(os.homedir(), 'AppData', 'Roaming')
+    return path.join(os.homedir(), 'AppData', 'Roaming', '.minecraft')
   } else if (process.platform === 'darwin') {
-    return path.join(os.homedir(), 'Library', 'Application Support')
+    return path.join(os.homedir(), 'Library', 'Application Support', 'minecraft')
   } else {
-    return os.homedir()
+    return path.join(os.homedir(), '.minecraft')
   }
 }

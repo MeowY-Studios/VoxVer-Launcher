@@ -1316,6 +1316,55 @@
           <button class="btn vox-btn vox-btn--secondary btn-sm" @click="importThemeFile">{{ $t('settings.importTheme') }}</button>
         </div>
 
+        <!-- 自定义主题色 -->
+        <div class="theme-custom-card" style="margin-top:16px">
+          <div class="mem-custom-row" style="align-items:center">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.customThemeColor') }}</label>
+              <p class="row-desc">{{ $t('settings.customThemeColorDesc') }}</p>
+            </div>
+            <div class="input-group compact" style="align-items:center;gap:8px">
+              <div class="color-swatch" :style="{ background: s.themeCustomColor }">
+                <input
+                  type="color"
+                  v-model="s.themeCustomColor"
+                  @input="previewThemeColor(s.themeCustomColor)"
+                  class="color-picker-input"
+                />
+              </div>
+              <input
+                type="text"
+                class="inp"
+                v-model="s.themeCustomColor"
+                style="width:80px;font-family:var(--voxver-font-mono)"
+                @change="previewThemeColor(s.themeCustomColor)"
+              />
+              <button class="btn-sm vox-btn--primary" @click="applyCustomThemeColor(s.themeCustomColor)">
+                {{ $t('settings.apply') }}
+              </button>
+            </div>
+          </div>
+
+          <!-- 快速颜色预设 -->
+          <div class="quick-color-palette">
+            <button
+              v-for="c in quickColorPresets"
+              :key="c"
+              class="quick-swatch"
+              :class="{ active: s.themeCustomColor.toUpperCase() === c.toUpperCase() }"
+              :style="{ background: c }"
+              @click="s.themeCustomColor = c; previewThemeColor(c)"
+              :title="c"
+            />
+          </div>
+
+          <!-- 实时预览 -->
+          <div class="theme-preview-bar">
+            <div class="preview-chip" v-for="i in 8" :key="i" :style="{ background: `var(--voxver-primary-${i}00)` }"></div>
+            <span class="preview-label">主色预览 · {{ s.themeCustomColor }}</span>
+          </div>
+        </div>
+
         <!-- 字号 -->
         <div class="mem-custom-row" style="margin-top:14px">
           <label class="row-label">{{ $t('settings.fontSize') }}</label>
@@ -3847,6 +3896,24 @@ async function importMrpack() {
 }
 
 // ========== P2: 主题自定义增强 ==========
+const quickColorPresets = [
+  '#14b8a6', '#6366f1', '#ec4899', '#f59e0b',
+  '#10b981', '#06b6d4', '#8b5cf6', '#ef4444',
+  '#84cc16', '#f97316', '#3b82f6', '#a855f7'
+]
+
+function previewThemeColor(hex: string) {
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return
+  // 只预览主色和渐变，不保存
+  const root = document.documentElement
+  root.style.setProperty('--voxver-primary', hex)
+  root.style.setProperty('--voxver-primary-hover', hex)
+  root.style.setProperty('--voxver-nav-active-color', hex)
+  root.style.setProperty('--voxver-accent', hex)
+  root.style.setProperty('--voxver-progress-bg', hex)
+  root.style.setProperty('--voxver-gradient-primary', hex)
+}
+
 async function applyCustomThemeColor(hex: string) {
   try {
     const vars = await window.electronAPI?.theme?.computeVars(hex)
@@ -3855,11 +3922,13 @@ async function applyCustomThemeColor(hex: string) {
       Object.entries(vars).forEach(([k, v]) => {
         root.style.setProperty(k, String(v))
       })
-      s.themeColor = hex
-      s.themeCustomColor = hex
     }
+    // 也调用前端色阶生成
+    applyThemeColor(hex)
   } catch (e: unknown) {
-    console.error('应用主题色失败:', e)
+    // IPC 不可用时纯前端降级
+    console.warn('后端 computeVars 不可用，使用纯前端色阶', e)
+    applyThemeColor(hex)
   }
 }
 
@@ -7331,6 +7400,85 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   font-weight: 500;
   color: var(--voxver-text-primary);
   white-space: nowrap;
+}
+
+/* ===== 自定义主题色增强 ===== */
+.theme-custom-card {
+  padding: 12px;
+  background: var(--voxver-bg-tertiary);
+  border: 1px solid var(--voxver-border-color);
+  border-radius: var(--voxver-radius-md);
+}
+
+.color-swatch {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--voxver-radius-xs);
+  border: 1.5px solid var(--voxver-border-color);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.color-picker-input {
+  position: absolute;
+  inset: -4px;
+  width: calc(100% + 8px);
+  height: calc(100% + 8px);
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.quick-color-palette {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.quick-swatch {
+  width: 22px;
+  height: 22px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    transform var(--voxver-transition-fast),
+    border-color var(--voxver-transition-fast);
+
+  &:hover {
+    transform: scale(1.2);
+  }
+
+  &.active {
+    border-color: var(--voxver-text-primary);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--voxver-primary) 30%, transparent);
+  }
+}
+
+.theme-preview-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: var(--voxver-bg-secondary);
+  border-radius: var(--voxver-radius-sm);
+}
+
+.preview-chip {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--voxver-radius-xs);
+  flex-shrink: 0;
+}
+
+.preview-label {
+  margin-left: 8px;
+  font-size: 11px;
+  color: var(--voxver-text-muted);
+  font-family: var(--voxver-font-mono);
 }
 
 /* ===== 更新通道分段选择 ===== */

@@ -135,7 +135,7 @@ interface ElectronAPI {
     list: () => Promise<unknown[]>
     create: (data: unknown) => Promise<unknown>
     update: (id: string, data: unknown) => Promise<unknown>
-    delete: (id: string) => Promise<void>
+    delete: (id: string, deleteFiles?: boolean) => Promise<void>
     getById: (id: string) => Promise<unknown | null>
     updateName: (id: string, name: string) => Promise<void>
     updateDescription: (id: string, description: string) => Promise<void>
