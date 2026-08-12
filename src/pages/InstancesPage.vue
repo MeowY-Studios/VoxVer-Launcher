@@ -52,22 +52,7 @@
             </svg>
           </button>
         </div>
-        <button class="vox-btn" @click="rescanVersions" :disabled="scanning" :title="$t('instance.refresh')">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            :class="{ spinning: scanning }"
-          >
-            <polyline points="23 4 23 10 17 10" />
-            <polyline points="1 20 1 14 7 14" />
-            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
-          </svg>
-        </button>
-        <button class="vox-btn vox-btn--primary" @click="openNewInstance">
+        <button class="vox-btn vox-btn--primary" @click="router.push('/versions')">
           <svg
             width="14"
             height="14"
@@ -126,20 +111,90 @@
       <span>{{ currentMcPath }}</span>
     </div>
 
-    <!-- 搜索栏 -->
-    <div class="search-bar">
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <circle cx="11" cy="11" r="8" />
-        <path d="M21 21l-4.35-4.35" />
-      </svg>
-      <input type="text" v-model="searchQuery" :placeholder="$t('instance.searchInstance')" />
+    <!-- 搜索栏 + 筛选/排序工具栏 -->
+    <div class="toolbar-row">
+      <div class="search-bar">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+        <input type="text" v-model="searchQuery" :placeholder="$t('instance.searchInstance')" />
+      </div>
+
+      <div class="filter-row">
+        <!-- 加载器筛选 -->
+        <div class="filter-pills">
+          <button
+            class="pill"
+            :class="{ active: filterLoader === 'all' }"
+            @click="filterLoader = 'all'"
+          >
+            {{ $t('instance.filterAll') }}
+          </button>
+          <button
+            v-for="l in loaderFilterOptions"
+            :key="l.value"
+            class="pill"
+            :class="{ active: filterLoader === l.value }"
+            @click="filterLoader = l.value"
+          >
+            {{ l.label }}
+          </button>
+        </div>
+
+        <!-- 收藏筛选 -->
+        <div class="fav-filter" :title="$t('instance.favoriteOnly')">
+          <button
+            class="icon-btn"
+            :class="{ active: filterFavorite }"
+            @click="filterFavorite = !filterFavorite"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" :fill="filterFavorite ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- 排序 -->
+        <select class="sort-select vox-input" v-model="sortBy">
+          <option value="lastPlayed">{{ $t('instance.sortLastPlayed') }}</option>
+          <option value="createdAt">{{ $t('instance.sortCreatedAt') }}</option>
+          <option value="name">{{ $t('instance.sortName') }}</option>
+          <option value="mcVersion">{{ $t('instance.sortMcVersion') }}</option>
+        </select>
+
+        <!-- 分组 -->
+        <select class="sort-select vox-input" v-model="groupBy">
+          <option value="none">{{ $t('instance.groupNone') }}</option>
+          <option value="favorite">{{ $t('instance.groupFavorite') }}</option>
+          <option value="loader">{{ $t('instance.groupLoader') }}</option>
+          <option value="mcVersion">{{ $t('instance.groupMcVersion') }}</option>
+        </select>
+
+        <!-- 刷新：重扫当前 MC 文件夹 -->
+        <button class="vox-btn refresh-btn" @click="rescanVersions" :disabled="scanning" :title="$t('instance.refresh')">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            :class="{ spinning: scanning }"
+          >
+            <polyline points="23 4 23 10 17 10" />
+            <polyline points="1 20 1 14 7 14" />
+            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- ===== 我的实例 ====== -->
@@ -152,86 +207,254 @@
           </svg>
           {{ $t('instance.myInstances') }}
         </h3>
-        <span class="section-count">{{ filteredInstances.length }}</span>
-      </div>
-
-      <!-- 网格视图 -->
-      <div v-if="viewMode === 'grid' && filteredInstances.length" class="instance-grid">
-        <InstanceCard
-          v-for="inst in filteredInstances"
-          :key="inst.id"
-          :instance="inst"
-          :selected="selectedId === inst.id"
-          :show-favorite="true"
-          @select="selectInstance"
-          @open="openInstance"
-          @launch="launchInstance"
-          @open-folder="openFolder"
-          @edit="editInstance"
-          @delete="confirmDeleteInstance"
-          @toggle-favorite="toggleFavorite"
-        />
-      </div>
-
-      <!-- 列表视图 -->
-      <div v-else-if="viewMode === 'list' && filteredInstances.length" class="instance-list">
-        <div
-          v-for="inst in filteredInstances"
-          :key="inst.id"
-          class="list-item vox-card"
-          :class="{ selected: selectedId === inst.id }"
-          @click="selectInstance(inst)"
-          @dblclick="openInstance(inst)"
-        >
-          <div class="list-icon" :style="{ background: getCoverGradient(inst) }">
-            <span class="list-icon-ver">{{ inst.mc_version }}</span>
-          </div>
-          <div class="list-info">
-            <h4 class="list-name">{{ inst.name }}</h4>
-            <p class="list-meta">
-              {{ inst.mc_version }}
-              <span v-if="inst.loader_type && inst.loader_type !== 'vanilla'">
-                · {{ capitalizeFirst(inst.loader_type) }} {{ inst.loader_version }}
-              </span>
-              <span v-if="inst.is_favorited === 1"> · ★</span>
-            </p>
-          </div>
-          <div class="list-actions">
-            <button class="action-btn" @click.stop="launchInstance(inst)" :title="$t('instance.launch')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </button>
-            <button class="action-btn" @click.stop="openFolder(inst)" :title="$t('instance.openFolder')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
-              </svg>
-            </button>
-            <button class="action-btn" @click.stop="toggleFavorite(inst)" :title="inst.is_favorited === 1 ? $t('instance.unfavorite') : $t('instance.favorite')">
-              <svg width="14" height="14" viewBox="0 0 24 24" :fill="inst.is_favorited === 1 ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-              </svg>
-            </button>
-            <button class="action-btn" @click.stop="editInstance(inst)" :title="$t('instance.edit')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-              </svg>
-            </button>
-            <button class="action-btn danger" @click.stop="confirmDeleteInstance(inst)" :title="$t('instance.delete')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6" />
-                <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-                <path d="M10 11v6M14 11v6" />
-                <path d="M9 6V4a2 2 0 012-2h2a2 2 0 012 2v2" />
-              </svg>
-            </button>
-          </div>
+        <div class="section-header-right">
+          <span v-if="scanning" class="spin-loader" style="--size: 14px" />
+          <span class="section-count">{{ mergedTotalCount }}</span>
         </div>
       </div>
 
-      <!-- 空状态：没有实例且没有搜索 -->
-      <div v-else-if="!searchQuery && !filteredInstances.length" class="empty-state my-instances-empty">
+      <!-- 无路径提示（从系统通知移到主内容区） -->
+      <div v-if="!currentMcPath" class="mc-path-banner">
+        <div class="mc-path-banner__icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+        </div>
+        <div class="mc-path-banner__body">
+          <div class="mc-path-banner__title">未配置 .minecraft 文件夹</div>
+          <div class="mc-path-banner__desc">{{ $t('instance.noCustomPathHint') }}</div>
+        </div>
+        <div class="mc-path-banner__actions">
+          <button class="vox-btn vox-btn--primary" @click="pickMcFolder">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+            </svg>
+            选择已有文件夹
+          </button>
+        </div>
+      </div>
+
+      <!-- 网格视图（支持分组） -->
+      <template v-if="viewMode === 'grid'">
+        <!-- 已管理实例 -->
+        <template v-if="sortedInstances.length">
+          <template v-for="group in groupedInstances" :key="`m-${group.key}`">
+            <div v-if="groupBy !== 'none' || group.key === '__managed__'" class="group-header managed-group-header">
+              <h4 class="group-title">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                {{ groupBy !== 'none' ? group.label : $t('instance.managedInstances') }}
+              </h4>
+              <span class="group-count">{{ group.items.length }}</span>
+            </div>
+            <div v-if="group.items.length" class="instance-grid">
+              <InstanceCard
+                v-for="inst in group.items"
+                :key="inst.id"
+                :instance="inst"
+                :selected="selectedId === inst.id"
+                :show-favorite="true"
+                @select="selectInstance"
+                @open="openInstance"
+                @launch="launchInstance"
+                @open-folder="openFolder"
+                @edit="editInstance"
+                @delete="confirmDeleteInstance"
+                @toggle-favorite="toggleFavorite"
+              />
+            </div>
+          </template>
+        </template>
+
+        <!-- 待导入（当前文件夹扫到的，但数据库里还没有） -->
+        <template v-if="pendingImportList.length">
+          <div class="group-header pending-group-header">
+            <h4 class="group-title">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              {{ $t('instance.pendingImport') }}
+            </h4>
+            <span class="group-count">{{ pendingImportList.length }}</span>
+          </div>
+          <div class="instance-grid detected-cards-grid">
+            <div
+              v-for="dv in pendingImportList"
+              :key="dv.id"
+              class="instance-card vox-card pending-card"
+            >
+              <div class="card-cover" :style="{ background: getCoverGradientForDetected(dv.id) }">
+                <div class="cover-loader-tag" v-if="dv.loaderInfo">
+                  {{ dv.loaderInfo }}
+                </div>
+                <div class="cover-version-tag">
+                  {{ dv.baseVersion }}
+                </div>
+              </div>
+              <div class="card-body">
+                <h3 class="card-name">{{ dv.id }}</h3>
+                <p class="card-meta">
+                  <span class="meta-item">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                    {{ dv.lastPlayed != null ? formatTime(String(dv.lastPlayed)) : $t('instance.neverPlayed') }}
+                  </span>
+                </p>
+              </div>
+              <div class="card-actions">
+                <button class="action-btn launch" @click="launchDetectedVersion(dv)" :title="$t('instance.launch')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </button>
+                <button class="action-btn" @click="openDetectedFolder(dv)" :title="$t('instance.openFolder')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                  </svg>
+                </button>
+                <button class="action-btn" @click="createInstanceFromDetected(dv)" :title="$t('instance.importAsManaged')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
+      </template>
+
+      <!-- 列表视图（支持分组） -->
+      <template v-else-if="viewMode === 'list'">
+        <!-- 已管理实例 -->
+        <template v-if="sortedInstances.length">
+          <template v-for="group in groupedInstances" :key="`l-${group.key}`">
+            <div v-if="groupBy !== 'none' || group.key === '__managed__'" class="group-header managed-group-header">
+              <h4 class="group-title">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                {{ groupBy !== 'none' ? group.label : $t('instance.managedInstances') }}
+              </h4>
+              <span class="group-count">{{ group.items.length }}</span>
+            </div>
+            <div v-if="group.items.length" class="instance-list">
+              <div
+                v-for="inst in group.items"
+                :key="inst.id"
+                class="list-item vox-card"
+                :class="{ selected: selectedId === inst.id }"
+                @click="selectInstance(inst)"
+                @dblclick="openInstance(inst)"
+              >
+                <div class="list-icon" :style="{ background: getCoverGradient(inst) }">
+                  <span class="list-icon-ver">{{ inst.mc_version }}</span>
+                </div>
+                <div class="list-info">
+                  <h4 class="list-name">{{ inst.name }}</h4>
+                  <p class="list-meta">
+                    {{ inst.mc_version }}
+                    <span v-if="inst.loader_type && inst.loader_type !== 'vanilla'">
+                      · {{ capitalizeFirst(inst.loader_type) }} {{ inst.loader_version }}
+                    </span>
+                    <span v-if="inst.is_favorited === 1"> · ★</span>
+                  </p>
+                </div>
+                <div class="list-actions">
+                  <button class="action-btn" @click.stop="launchInstance(inst)" :title="$t('instance.launch')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </button>
+                  <button class="action-btn" @click.stop="openFolder(inst)" :title="$t('instance.openFolder')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                    </svg>
+                  </button>
+                  <button class="action-btn" @click.stop="toggleFavorite(inst)" :title="inst.is_favorited === 1 ? $t('instance.unfavorite') : $t('instance.favorite')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" :fill="inst.is_favorited === 1 ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  </button>
+                  <button class="action-btn" @click.stop="editInstance(inst)" :title="$t('instance.edit')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                  </button>
+                  <button class="action-btn danger" @click.stop="confirmDeleteInstance(inst)" :title="$t('instance.delete')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                      <path d="M10 11v6M14 11v6" />
+                      <path d="M9 6V4a2 2 0 012-2h2a2 2 0 012 2v2" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </template>
+        </template>
+
+        <!-- 待导入列表视图 -->
+        <template v-if="pendingImportList.length">
+          <div class="group-header pending-group-header">
+            <h4 class="group-title">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              {{ $t('instance.pendingImport') }}
+            </h4>
+            <span class="group-count">{{ pendingImportList.length }}</span>
+          </div>
+          <div class="instance-list">
+            <div
+              v-for="dv in pendingImportList"
+              :key="dv.id"
+              class="list-item vox-card pending-list-item"
+            >
+              <div class="list-icon" :style="{ background: getCoverGradientForDetected(dv.id) }">
+                <span class="list-icon-ver">{{ dv.baseVersion }}</span>
+              </div>
+              <div class="list-info">
+                <h4 class="list-name">{{ dv.id }}</h4>
+                <p class="list-meta">
+                  {{ dv.baseVersion }}
+                  <span v-if="dv.loaderInfo"> · {{ dv.loaderInfo }}</span>
+                </p>
+              </div>
+              <div class="list-actions">
+                <button class="action-btn launch" @click.stop="launchDetectedVersion(dv)" :title="$t('instance.launch')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </button>
+                <button class="action-btn" @click.stop="openDetectedFolder(dv)" :title="$t('instance.openFolder')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                  </svg>
+                </button>
+                <button class="action-btn" @click.stop="createInstanceFromDetected(dv)" :title="$t('instance.importAsManaged')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
+      </template>
+
+      <!-- 空状态：没有已管理也没有待导入且没有搜索 -->
+      <div v-if="!searchQuery && mergedTotalCount === 0" class="empty-state my-instances-empty">
         <svg
           width="48"
           height="48"
@@ -246,178 +469,6 @@
         </svg>
         <p>{{ $t('instance.noInstancesHint') }}</p>
       </div>
-    </div>
-
-    <!-- ===== 我的实例 ====== -->
-    <div v-if="instances.length" class="instances-section">
-      <div class="section-header">
-        <h3 class="section-title">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="3" width="18" height="18" rx="2" />
-            <path d="M9 9h6v6H9z" />
-          </svg>
-          {{ $t('instance.myInstances') }}
-        </h3>
-        <span class="section-count">{{ instances.length }}</span>
-      </div>
-
-      <!-- 网格视图 -->
-      <div v-if="viewMode === 'grid'" class="instance-grid">
-        <InstanceCard
-          v-for="inst in sortedInstances"
-          :key="inst.id"
-          :instance="inst"
-          :selected="selectedId === inst.id"
-          @select="selectInstance"
-          @open="editInstance"
-          @launch="launchInstance"
-          @open-folder="openFolder"
-          @edit="editInstance"
-          @delete="confirmDeleteInstance"
-          @toggle-favorite="toggleFavorite"
-        />
-      </div>
-
-      <!-- 列表视图 -->
-      <div v-else class="instance-list">
-        <div
-          v-for="inst in sortedInstances"
-          :key="inst.id"
-          class="list-item vox-card"
-          :class="{ selected: selectedId === inst.id }"
-          @click="selectInstance(inst)"
-          @dblclick="editInstance(inst)"
-        >
-          <div class="list-icon" :style="{ background: getCoverGradient(inst) }">
-            <span class="list-icon-ver">{{ inst.mc_version }}</span>
-          </div>
-          <div class="list-info">
-            <h4 class="list-name">{{ inst.name }}</h4>
-            <p class="list-meta">
-              {{ inst.loader_type !== 'vanilla' ? capitalizeFirst(inst.loader_type) + ' ' + inst.loader_version : $t('instance.vanillaOption') }}
-              · {{ formatTime(inst.last_played) }}
-            </p>
-          </div>
-          <div class="list-actions">
-            <button class="action-btn" @click.stop="toggleFavorite(inst)" :title="inst.is_favorited ? $t('instance.unfavorite') : $t('instance.favorite')">
-              <svg width="14" height="14" viewBox="0 0 24 24" :fill="inst.is_favorited ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-              </svg>
-            </button>
-            <button class="action-btn" @click.stop="launchInstance(inst)" :title="$t('instance.launch')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </button>
-            <button class="action-btn" @click.stop="openFolder(inst)" :title="$t('instance.openFolder')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
-              </svg>
-            </button>
-            <button class="action-btn" @click.stop="editInstance(inst)" :title="$t('instance.edit')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-              </svg>
-            </button>
-            <button class="action-btn danger" @click.stop="confirmDeleteInstance(inst)" :title="$t('instance.delete')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6" />
-                <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== 自动检测到的版本 ====== -->
-    <!-- 扫描中且有旧数据：在顶部显示 loading -->
-    <div v-if="scanning && detectedVersions.length" class="scanning-bar">
-      <span class="spin-loader" />
-      <span>{{ $t('instance.scanning') }}</span>
-    </div>
-    <div v-if="detectedVersions.length" class="detected-section">
-      <div class="detected-header">
-        <h3 class="detected-title">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          {{ $t('instance.detectedVersions') }}
-        </h3>
-        <span class="detected-count">{{ detectedVersions.length }}</span>
-      </div>
-      <div class="detected-grid">
-        <div
-          v-for="dv in filteredDetectedVersions"
-          :key="dv.id"
-          class="instance-card vox-card"
-        >
-          <div class="card-cover" :style="{ background: getVersionColor(dv.id) }">
-            <div class="cover-loader-tag" v-if="dv.loaderInfo">
-              {{ dv.loaderInfo }}
-            </div>
-            <div class="cover-version-tag">
-              {{ dv.baseVersion }}
-            </div>
-          </div>
-          <div class="card-body">
-            <h3 class="card-name">{{ dv.id }}</h3>
-            <p class="card-meta">
-              <span class="meta-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="12 6 12 12 16 14" />
-                </svg>
-                {{ dv.lastPlayed != null ? formatTime(String(dv.lastPlayed)) : $t('instance.neverPlayed') }}
-              </span>
-            </p>
-          </div>
-          <div class="card-actions">
-            <button class="action-btn launch" @click="launchDetectedVersion(dv)" :title="$t('instance.launch')">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </button>
-            <button class="action-btn" @click="openDetectedFolder(dv)" :title="$t('instance.openFolder')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
-              </svg>
-            </button>
-            <button class="action-btn" @click="createInstanceFromDetected(dv)" :title="$t('instance.newInstance')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 空状态（仅在没有检测版本且没有实例时显示） -->
-    <div v-if="!detectedVersions.length && !scanning && !filteredInstances.length && !searchQuery" class="empty-state">
-      <svg
-        width="48"
-        height="48"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.2"
-        style="color: var(--voxver-text-muted); margin-bottom: 12px"
-      >
-        <rect x="3" y="3" width="18" height="18" rx="3" />
-        <line x1="9" y1="9" x2="15" y2="15" />
-        <line x1="15" y1="9" x2="9" y2="15" />
-      </svg>
-      <p>{{ $t('instance.noDetectedVersions') }}</p>
-      <span class="hint">{{ $t('instance.createFirstHint') }}</span>
-    </div>
-
-    <!-- 初始扫描加载中 -->
-    <div v-if="!detectedVersions.length && scanning" class="empty-state scanning">
-      <span class="spin-loader" />
-      <p>{{ $t('instance.scanning') }}</p>
     </div>
 
     <!-- ===== 外部启动器 ====== -->
@@ -458,44 +509,6 @@
             </button>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- 新建实例弹窗 -->
-    <div class="modal-overlay" v-if="showNewInstance" @click.self="showNewInstance = false">
-      <div class="modal-content vox-card">
-        <h3>{{ $t('instance.newGameInstance') }}</h3>
-        <form @submit.prevent="handleCreateInstance">
-          <div class="form-group">
-            <label>{{ $t('instance.instanceNameLabel') }}</label>
-            <input class="vox-input" v-model="newInst.name" :placeholder="$t('instance.instanceNamePlaceholder')" required />
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>{{ $t('instance.gameVersionLabel') }}</label>
-              <select class="vox-input" v-model="newInst.mc_version">
-                <option v-for="ver in availableVersions" :key="ver.id" :value="ver.id">
-                  {{ ver.id }}
-                  <span v-if="ver.type === 'release'">(Release)</span>
-                  <span v-else-if="ver.type === 'snapshot'">(Snapshot)</span>
-                </option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>{{ $t('instance.loaderLabel') }}</label>
-              <select class="vox-input" v-model="newInst.loader_type">
-                <option value="vanilla">{{ $t('instance.vanillaOption') }}</option>
-                <option value="fabric">Fabric</option>
-                <option value="forge">Forge</option>
-                <option value="neoforge">NeoForge</option>
-              </select>
-            </div>
-          </div>
-          <div class="modal-actions">
-            <button type="button" class="vox-btn" @click="showNewInstance = false">{{ $t('common.cancel') }}</button>
-            <button type="submit" class="vox-btn vox-btn--primary" :disabled="loadingVersions">{{ $t('instance.createInstanceBtn') }}</button>
-          </div>
-        </form>
       </div>
     </div>
 
@@ -758,20 +771,25 @@ interface ExternalLauncher {
   detected: boolean
 }
 
-// 可用版本
-interface VersionItem {
-  id: string
-  type: string
-  releaseTime?: string
-  url?: string
-}
-
 const router = useRouter()
 const searchQuery = ref('')
-const showNewInstance = ref(false)
 const selectedId = ref('')
 const viewMode = ref<'grid' | 'list'>('grid')
 const instances = ref<Instance[]>([])
+
+// ======== 筛选/排序/分组 ========
+const filterLoader = ref<'all' | string>('all')
+const filterFavorite = ref(false)
+const sortBy = ref<'lastPlayed' | 'createdAt' | 'name' | 'mcVersion'>('lastPlayed')
+const groupBy = ref<'none' | 'favorite' | 'loader' | 'mcVersion'>('none')
+
+const loaderFilterOptions = [
+  { value: 'vanilla', label: 'Vanilla' },
+  { value: 'fabric', label: 'Fabric' },
+  { value: 'forge', label: 'Forge' },
+  { value: 'neoforge', label: 'NeoForge' },
+  { value: 'quilt', label: 'Quilt' }
+]
 
 // 自动检测到的版本
 interface DetectedVersion {
@@ -793,10 +811,6 @@ const launchHistory = ref<Record<string, number>>({})
 const externalLaunchers = ref<ExternalLauncher[]>([])
 const scanningExternalLaunchers = ref(false)
 
-// 可用版本列表
-const availableVersions = ref<VersionItem[]>([])
-const loadingVersions = ref(false)
-
 async function loadLaunchHistory() {
   try {
     const saved = await window.electronAPI?.config?.get?.('launch_history')
@@ -816,13 +830,29 @@ async function saveLaunchHistory() {
   }
 }
 
-const filteredDetectedVersions = computed(() => {
-  if (!searchQuery.value) return detectedVersions.value
-  const q = searchQuery.value.toLowerCase()
-  return detectedVersions.value.filter(
-    (v) => v.id.toLowerCase().includes(q) || v.baseVersion.includes(q)
-  )
+// 合并：把已管理实例（数据库）和扫描版本（当前文件夹未入库）去重
+
+// 生成「已管理实例」的匹配键 —— 和 detectedVersion.id 格式（${mc}-${Loader}_${loaderVer} 或纯 mc）对齐
+function managedInstanceKey(i: Instance): string {
+  if (i.loader_type && i.loader_type !== 'vanilla' && i.loader_version) {
+    return `${i.mc_version}-${capitalizeFirst(i.loader_type)}_${i.loader_version}`
+  }
+  return i.mc_version
+}
+
+// 只保留「不在库中的」扫描版本
+const pendingImportList = computed<DetectedVersion[]>(() => {
+  const managedKeys = new Set(instances.value.map(managedInstanceKey))
+  const q = searchQuery.value?.toLowerCase() || ''
+  return detectedVersions.value.filter((dv) => {
+    if (managedKeys.has(dv.id)) return false
+    if (q && !dv.id.toLowerCase().includes(q) && !dv.baseVersion.includes(q)) return false
+    return true
+  })
 })
+
+// 合并总计数（用于空状态 & section count 显示）
+const mergedTotalCount = computed(() => filteredInstances.value.length + pendingImportList.value.length)
 
 // 导入/导出状态
 const showImport = ref(false)
@@ -836,13 +866,6 @@ const mclaImportStep = ref<'select' | 'importing' | 'done' | 'error'>('select')
 const mclaFilePath = ref('')
 const exportLoading = ref(false)
 const exportOptions = ref({ includeMods: true, includeConfigs: true, includeSaves: false })
-
-// 新建表单
-const newInst = ref({
-  name: '',
-  mc_version: '',
-  loader_type: 'vanilla'
-})
 
 // 封面色池 — Apple 主色 + 状态色（基于 ID 哈希分配，保持稳定）
 const gradients = [
@@ -860,6 +883,15 @@ function getCoverGradient(inst: Instance): string {
   let hash = 0
   for (let i = 0; i < inst.id.length; i++) {
     hash = (hash << 5) - hash + inst.id.charCodeAt(i)
+    hash |= 0
+  }
+  return gradients[Math.abs(hash) % gradients.length]
+}
+
+function getCoverGradientForDetected(id: string): string {
+  let hash = 0
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash << 5) - hash + id.charCodeAt(i)
     hash |= 0
   }
   return gradients[Math.abs(hash) % gradients.length]
@@ -886,14 +918,31 @@ async function loadInstances() {
   }
 }
 
-// 获取当前 .minecraft 路径（优先使用设置中选择的文件夹）
+// 获取当前 .minecraft 路径（仅使用用户明确选择过的路径，默认**不**回落到 C 盘的系统默认 .minecraft）
+// 额外校验：候选路径必须仍存在于 folders.list 且磁盘上真实存在，否则当作"未配置"
 async function getCurrentMcPath(): Promise<string> {
   try {
-    const last = await window.electronAPI?.folders?.getLast?.()
-    if (last) return last
-    const custom = await window.electronAPI?.path?.getCustom?.()
-    if (custom) return custom
-    return (await window.electronAPI?.path?.getMinecraft?.()) || ''
+    const api = window.electronAPI
+
+    // 1) folders.list：用户所有已知选择
+    const knownList: string[] = (api?.folders?.list ? await api.folders.list() : []) ?? []
+    const existsOnDisk = async (p: string) => (api?.path?.exists ? await api.path.exists(p) : true)
+
+    // 2) 上次选中的文件夹（需同时满足：仍在 list 中 + 磁盘存在）
+    const last = api?.folders?.getLast ? await api.folders.getLast() : null
+    if (last && knownList.includes(last) && (await existsOnDisk(last))) return last
+
+    // 3) 设置中的自定义路径（作为第二选择，需磁盘存在）
+    const custom = api?.path?.getCustom ? await api.path.getCustom() : null
+    if (custom && (await existsOnDisk(custom))) return custom
+
+    // 4) list 第一个有效路径（用户没显式指定，但添加过文件夹时兜底）
+    for (const p of knownList) {
+      if (await existsOnDisk(p)) return p
+    }
+
+    // 注意：此处不再调用 path.getMinecraft()，避免在用户未显式选择时读取 C 盘默认目录
+    return ''
   } catch {
     return ''
   }
@@ -907,6 +956,7 @@ async function rescanVersions() {
     currentMcPath.value = mcPath
     if (!mcPath) {
       detectedVersions.value = []
+      // 不再弹系统通知：已改为在主内容区（my-instances-section 顶部）显示 warning banner
       return
     }
     const res = await window.electronAPI?.versions?.scanFolder(mcPath)
@@ -923,7 +973,22 @@ async function rescanVersions() {
   }
 }
 
-// 版本颜色（基于 id 哈希）
+// 在"无路径提示 banner"里直接点选 .minecraft 文件夹，添加 + 设为 last + 立即重扫
+async function pickMcFolder() {
+  const api = window.electronAPI
+  if (!api?.dialog?.selectFolder) return
+  try {
+    const selected = await api.dialog.selectFolder()
+    if (!selected) return
+    if (api?.folders?.add) await api.folders.add(selected)
+    if (api?.folders?.setLast) await api.folders.setLast(selected)
+    await rescanVersions()
+  } catch (e) {
+    console.error('选择 .minecraft 文件夹失败:', e)
+  }
+}
+
+// 版本颜色（保留向后兼容，新代码统一使用 getCoverGradient / getCoverGradientForDetected）
 function getVersionColor(id: string): string {
   let hash = 0
   for (let i = 0; i < id.length; i++) {
@@ -932,8 +997,6 @@ function getVersionColor(id: string): string {
   }
   return gradients[Math.abs(hash) % gradients.length]
 }
-
-// 一键启动检测到的版本
 function launchDetectedVersion(dv: DetectedVersion) {
   launchHistory.value[dv.id] = Date.now()
   saveLaunchHistory()
@@ -943,11 +1006,14 @@ function launchDetectedVersion(dv: DetectedVersion) {
 
 async function openDetectedFolder(dv: DetectedVersion) {
   try {
-    const mcPath = currentMcPath.value || (await window.electronAPI?.path?.getMinecraft?.()) || ''
-    if (mcPath) {
-      const versionPath = `${mcPath.replace(/[\\/]+$/, '')}${mcPath.includes('/') ? '/' : '\\'}versions${mcPath.includes('/') ? '/' : '\\'}${dv.id}`
-      window.electronAPI?.shell?.openPath?.(versionPath)
+    const mcPath = currentMcPath.value || (await getCurrentMcPath())
+    if (!mcPath) {
+      // 不再弹系统通知：页面主内容区已显示 banner 引导用户选路径
+      return
     }
+    const sep = mcPath.includes('/') ? '/' : '\\'
+    const versionPath = `${mcPath.replace(/[\\/]+$/, '')}${sep}versions${sep}${dv.id}`
+    window.electronAPI?.shell?.openPath?.(versionPath)
   } catch {
     window.electronAPI?.notification?.send({ title: t('common.error'), body: t('instance.openFolderFailed'), type: 'error' })
   }
@@ -955,16 +1021,17 @@ async function openDetectedFolder(dv: DetectedVersion) {
 
 async function createInstanceFromDetected(dv: DetectedVersion) {
   try {
+    // 仅使用用户显式选择过的路径（folders.last / path.custom），不再回落到 C 盘系统默认
     let customPath = ''
     try {
       const api = window.electronAPI
-      if (api?.path) {
-        const custom = await api.path.getCustom()
-        if (custom) {
-          customPath = custom
-        } else {
-          customPath = await api.path.getMinecraft()
-        }
+      if (api?.folders?.getLast) {
+        const last = await api.folders.getLast()
+        if (last) customPath = last
+      }
+      if (!customPath && api?.path?.getCustom) {
+        const c = await api.path.getCustom()
+        if (c) customPath = c
       }
     } catch (e) {
       console.error('获取自定义路径失败:', e)
@@ -978,7 +1045,7 @@ async function createInstanceFromDetected(dv: DetectedVersion) {
         : dv.loaderInfo?.toLowerCase().includes('fabric')
           ? 'fabric'
           : 'vanilla',
-      customPath,
+      customPath: customPath || undefined,
       loaderVersion: '',
       javaPath: '',
       minMemory: 512,
@@ -986,25 +1053,84 @@ async function createInstanceFromDetected(dv: DetectedVersion) {
     })
 
     await loadInstances()
+    window.electronAPI?.notification?.send({
+      title: t('instance.importInstance') || '导入实例',
+      body: (t('instance.importToManagedSuccess') as string).replace('{name}', dv.id),
+      type: 'success'
+    })
   } catch {
     window.electronAPI?.notification?.send({ title: t('common.error'), body: t('instance.createFailed'), type: 'error' })
   }
 }
 
+// 筛选：搜索 + 加载器 + 收藏
 const filteredInstances = computed(() => {
-  if (!searchQuery.value) return instances.value
-  const q = searchQuery.value.toLowerCase()
-  return instances.value.filter((i) => i.name.toLowerCase().includes(q) || i.mc_version.includes(q))
+  return instances.value.filter((i) => {
+    if (searchQuery.value) {
+      const q = searchQuery.value.toLowerCase()
+      if (!i.name.toLowerCase().includes(q) && !i.mc_version.includes(q)) return false
+    }
+    if (filterLoader.value !== 'all' && i.loader_type !== filterLoader.value) return false
+    if (filterFavorite.value && i.is_favorited !== 1) return false
+    return true
+  })
 })
 
-// 排序：收藏置顶 → 最后游玩时间倒序
+// 排序：按用户选择
 const sortedInstances = computed(() => {
   return [...filteredInstances.value].sort((a, b) => {
-    if (a.is_favorited !== b.is_favorited) return b.is_favorited - a.is_favorited
-    const ta = a.last_played ? new Date(a.last_played).getTime() : 0
-    const tb = b.last_played ? new Date(b.last_played).getTime() : 0
-    return tb - ta
+    // 排序规则前始终：收藏置顶（除非分组=收藏或排序字段已冲突）
+    if (groupBy.value !== 'favorite' && sortBy.value !== 'name') {
+      if (a.is_favorited !== b.is_favorited) return b.is_favorited - a.is_favorited
+    }
+    switch (sortBy.value) {
+      case 'createdAt': {
+        const ta = a.created_at ? new Date(a.created_at).getTime() : 0
+        const tb = b.created_at ? new Date(b.created_at).getTime() : 0
+        return tb - ta
+      }
+      case 'name':
+        return a.name.localeCompare(b.name, 'zh-CN')
+      case 'mcVersion':
+        return b.mc_version.localeCompare(a.mc_version)
+      case 'lastPlayed':
+      default: {
+        const ta = a.last_played ? new Date(a.last_played).getTime() : 0
+        const tb = b.last_played ? new Date(b.last_played).getTime() : 0
+        return tb - ta
+      }
+    }
   })
+})
+
+// 分组：基于 sortedInstances 再拆分
+interface Group { key: string; label: string; items: Instance[] }
+const groupedInstances = computed<Group[]>(() => {
+  if (groupBy.value === 'none') {
+    return [{ key: '__managed__', label: t('instance.managedInstances'), items: sortedInstances.value }]
+  }
+  const map = new Map<string, Group>()
+  const order: string[] = []
+  for (const inst of sortedInstances.value) {
+    let key: string
+    let label: string
+    if (groupBy.value === 'favorite') {
+      key = inst.is_favorited === 1 ? 'fav' : 'normal'
+      label = inst.is_favorited === 1 ? '★ ' + t('instance.favorites') : t('instance.all')
+    } else if (groupBy.value === 'loader') {
+      key = inst.loader_type || 'vanilla'
+      label = key === 'vanilla' ? 'Vanilla' : capitalizeFirst(key) + (inst.loader_version ? ' ' + inst.loader_version : '')
+    } else {
+      key = inst.mc_version
+      label = inst.mc_version
+    }
+    if (!map.has(key)) {
+      map.set(key, { key, label, items: [] })
+      order.push(key)
+    }
+    map.get(key)!.items.push(inst)
+  }
+  return order.map((k) => map.get(k)!)
 })
 
 function selectInstance(inst: Instance) {
@@ -1013,88 +1139,6 @@ function selectInstance(inst: Instance) {
 
 function openInstance(inst: Instance) {
   router.push(`/instance/${inst.id}`)
-}
-
-// 打开新建实例弹窗并加载版本列表
-async function openNewInstance() {
-  showNewInstance.value = true
-  if (!availableVersions.value.length) {
-    await loadAvailableVersions()
-  }
-  if (availableVersions.value.length && !newInst.value.mc_version) {
-    newInst.value.mc_version = availableVersions.value[0].id
-  }
-}
-
-// 加载可用版本列表
-async function loadAvailableVersions() {
-  loadingVersions.value = true
-  try {
-    const res = await window.electronAPI?.versions?.list()
-    const list = Array.isArray(res) ? res : (res as { versions?: unknown[] })?.versions
-    if (Array.isArray(list)) {
-      availableVersions.value = (list as VersionItem[]).slice(0, 50)
-    }
-  } catch {
-    // 加载失败时使用硬编码的默认版本作为兜底
-    availableVersions.value = [
-      { id: '1.20.4', type: 'release' },
-      { id: '1.20.1', type: 'release' },
-      { id: '1.21.3', type: 'release' },
-      { id: '1.19.2', type: 'release' },
-      { id: '1.18.2', type: 'release' }
-    ]
-  } finally {
-    loadingVersions.value = false
-  }
-}
-
-// 创建实例（写入数据库）
-async function handleCreateInstance() {
-  if (!newInst.value.name.trim()) return
-
-  // 获取用户选择的 .minecraft 路径（自定义路径优先）
-  let customPath = ''
-  try {
-    const api = window.electronAPI
-    if (api?.path) {
-      const custom = await api.path.getCustom()
-      if (custom) {
-        customPath = custom
-      } else {
-        customPath = await api.path.getMinecraft()
-      }
-    }
-  } catch (e) {
-    console.error('获取自定义路径失败:', e)
-  }
-
-  try {
-    await window.electronAPI?.instance?.create({
-      name: newInst.value.name.trim(),
-      mcVersion: newInst.value.mc_version,
-      loaderType: newInst.value.loader_type,
-      customPath, // 传入用户选择的 .minecraft 路径
-      loaderVersion: '',
-      javaPath: '',
-      minMemory: 512,
-      maxMemory: 2048
-    })
-
-    // 重新加载列表
-    await loadInstances()
-
-    // 保存名称用于通知
-    const createdName = newInst.value.name.trim()
-
-    // 重置表单
-    newInst.value = { name: '', mc_version: availableVersions.value[0]?.id || '', loader_type: 'vanilla' }
-    showNewInstance.value = false
-
-    window.electronAPI?.notification?.send({ title: t('instance.createInstanceBtn'), body: t('instance.createSuccess', { name: createdName }), type: 'success' })
-  } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('instance.createFailed'), type: 'error' })
-  }
 }
 
 function launchInstance(inst: Instance) {
@@ -1501,63 +1545,108 @@ onMounted(async () => {
   padding: 20px 0;
 }
 
-/* ====== 自动检测版本 ====== */
-.scanning-bar {
+/* 主内容区警告 banner：无路径时显示，直接嵌在 my-instances-section 顶部 */
+.mc-path-banner {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--voxver-text-muted);
-  margin-bottom: 12px;
-  padding: 0 2px;
-}
-
-.detected-section {
-  margin-bottom: 20px;
-  flex-shrink: 0;
-  background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
   border-radius: var(--voxver-radius-md);
-  border: 1px solid var(--voxver-border-color-light);
-  padding: 14px;
+  background: color-mix(in oklab, var(--voxver-warning) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--voxver-warning) 32%, var(--voxver-border-color-light));
+  color: var(--voxver-text-primary);
+
+  &__icon {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--voxver-warning);
+    background: color-mix(in oklab, var(--voxver-warning) 18%, transparent);
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 2px;
+  }
+
+  &__desc {
+    font-size: 12px;
+    color: var(--voxver-text-muted);
+    line-height: 1.5;
+  }
+
+  &__actions {
+    flex: none;
+  }
 }
 
-.detected-header {
+/* 我的实例 section header：右侧放扫描 spinner + 计数（当有 scanning 时显示 spinner） */
+.section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--voxver-border-color-light);
 }
 
-.detected-title {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--voxver-text-primary);
-  display: flex;
+.section-header-right {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+}
+
+/* 刷新按钮（在 filter-row 内） */
+.refresh-btn {
+  padding: 0 8px;
+  min-width: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 分组头：已管理（✓ 图标，中性色） vs 待导入（🔍 图标，主色调） */
+.managed-group-header {
+  color: var(--voxver-text-primary);
 
   svg {
-    color: var(--voxver-primary);
-    flex-shrink: 0;
+    color: var(--voxver-success);
   }
 }
 
-.detected-count {
-  font-size: 11px;
-  color: var(--voxver-text-muted);
-  background: color-mix(in oklab, var(--voxver-text) 8%, transparent);
-  padding: 1px 8px;
-  border-radius: 10px;
+.pending-group-header {
+  margin-top: 12px;
+
+  svg {
+    color: var(--voxver-primary);
+  }
+
+  h4.group-title {
+    color: color-mix(in oklab, var(--voxver-primary) 72%, var(--voxver-text-primary));
+  }
 }
 
-.detected-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 14px;
+/* 待导入卡片：视觉上轻一些，边框偏主色提示待认领 */
+.pending-card {
+  border: 1px dashed color-mix(in oklab, var(--voxver-primary) 32%, var(--voxver-border-color));
+  background: color-mix(in oklab, var(--voxver-primary) 5%, var(--voxver-bg-card));
+}
+
+/* 待导入 list item：一样的虚线边框视觉区分 */
+.pending-list-item {
+  border: 1px dashed color-mix(in oklab, var(--voxver-primary) 32%, var(--voxver-border-color));
+  background: color-mix(in oklab, var(--voxver-primary) 5%, var(--voxver-bg-card));
 }
 
 /* 刷新按钮旋转动画 */
@@ -1578,7 +1667,8 @@ onMounted(async () => {
   transition: all var(--voxver-transition-normal);
   display: flex;
   flex-direction: column;
-  height: 160px;
+  min-height: 180px;
+  height: auto;
 
   &:hover {
     background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
@@ -2028,6 +2118,118 @@ onMounted(async () => {
   border-top-color: var(--voxver-primary-500);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
+}
+
+/* ========== 筛选/排序/分组工具栏 ========== */
+.toolbar-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.toolbar-row .search-bar {
+  flex: 1 1 240px;
+  margin-bottom: 0;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 4px;
+  background: var(--voxver-bg-tertiary);
+  padding: 3px;
+  border-radius: var(--voxver-radius-full);
+  border: 1px solid var(--voxver-border-color-light);
+}
+
+.pill {
+  border: none;
+  background: transparent;
+  padding: 5px 12px;
+  border-radius: var(--voxver-radius-full);
+  font-size: 12px;
+  color: var(--voxver-text-secondary);
+  cursor: pointer;
+  transition: all var(--voxver-transition-fast);
+
+  &:hover {
+    color: var(--voxver-text-primary);
+    background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  }
+
+  &.active {
+    background: var(--voxver-accent);
+    color: #fff;
+    font-weight: 500;
+  }
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--voxver-border-color);
+  background: var(--voxver-bg-tertiary);
+  color: var(--voxver-text-muted);
+  border-radius: var(--voxver-radius-md);
+  cursor: pointer;
+  transition: all var(--voxver-transition-fast);
+
+  &:hover {
+    color: var(--voxver-warning);
+    border-color: color-mix(in oklab, var(--voxver-warning) 40%, var(--voxver-border-color));
+  }
+
+  &.active {
+    color: var(--voxver-warning);
+    background: color-mix(in oklab, var(--voxver-warning) 8%, transparent);
+    border-color: color-mix(in oklab, var(--voxver-warning) 40%, var(--voxver-border-color));
+  }
+}
+
+.sort-select {
+  width: 150px;
+  height: 32px;
+  padding: 0 10px;
+  font-size: 12px;
+  border-radius: var(--voxver-radius-md);
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0 10px;
+  padding: 0 2px;
+}
+
+.group-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--voxver-text-secondary);
+  margin: 0;
+  letter-spacing: 0.2px;
+}
+
+.group-count {
+  font-size: 11px;
+  font-family: var(--voxver-font-mono);
+  color: var(--voxver-text-muted);
+  background: var(--voxver-bg-tertiary);
+  border: 1px solid var(--voxver-border-color-light);
+  padding: 1px 6px;
+  border-radius: var(--voxver-radius-full);
 }
 
 

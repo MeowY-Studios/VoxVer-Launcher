@@ -144,13 +144,39 @@ const api = {
     list: () => ipcRenderer.invoke('instance:list'),
     create: (data: unknown) => ipcRenderer.invoke('instance:create', data),
     update: (id: string, data: unknown) => ipcRenderer.invoke('instance:update', id, data),
-    delete: (id: string) => ipcRenderer.invoke('instance:delete', id),
+    delete: (id: string, deleteFiles?: boolean) =>
+      ipcRenderer.invoke('instance:delete', id, deleteFiles),
     getById: (id: string) => ipcRenderer.invoke('instance:get-by-id', id),
     // 快捷更新
     updateName: (id: string, name: string) => ipcRenderer.invoke('instance:update-name', id, name),
     updateDescription: (id: string, description: string) =>
       ipcRenderer.invoke('instance:update-description', id, description),
     toggleFavorite: (id: string) => ipcRenderer.invoke('instance:toggle-favorite', id),
+    // 文件管理
+    listMods: (id: string) => ipcRenderer.invoke('instance:list-mods', id),
+    toggleMod: (id: string, filename: string, enabled: boolean) =>
+      ipcRenderer.invoke('instance:toggle-mod', id, filename, enabled),
+    deleteMod: (id: string, filename: string) =>
+      ipcRenderer.invoke('instance:delete-mod', id, filename),
+    diskUsage: (id: string) => ipcRenderer.invoke('instance:disk-usage', id),
+    // 资源包
+    listResourcePacks: (id: string) => ipcRenderer.invoke('instance:list-resourcepacks', id),
+    toggleResourcePack: (id: string, filename: string, enabled: boolean) =>
+      ipcRenderer.invoke('instance:toggle-resourcepack', id, filename, enabled),
+    deleteResourcePack: (id: string, filename: string) =>
+      ipcRenderer.invoke('instance:delete-resourcepack', id, filename),
+    // 光影包
+    listShaderPacks: (id: string) => ipcRenderer.invoke('instance:list-shaderpacks', id),
+    toggleShaderPack: (id: string, filename: string, enabled: boolean) =>
+      ipcRenderer.invoke('instance:toggle-shaderpack', id, filename, enabled),
+    deleteShaderPack: (id: string, filename: string) =>
+      ipcRenderer.invoke('instance:delete-shaderpack', id, filename),
+    // 存档
+    listSaves: (id: string) => ipcRenderer.invoke('instance:list-saves', id),
+    deleteSave: (id: string, name: string) => ipcRenderer.invoke('instance:delete-save', id, name),
+    renameSave: (id: string, oldName: string, newName: string) =>
+      ipcRenderer.invoke('instance:rename-save', id, oldName, newName),
+    backupSave: (id: string, name: string) => ipcRenderer.invoke('instance:backup-save', id, name),
     // 导入导出
     scanMinecraft: (dirPath: string) => ipcRenderer.invoke('instance:scan-minecraft', dirPath),
     exportInstance: (

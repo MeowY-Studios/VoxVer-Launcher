@@ -6,7 +6,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as os from 'os'
-import { shell } from 'electron'
+import { app, shell } from 'electron'
 import { getDatabase } from './database'
 import {
   getInstanceById,
@@ -230,12 +230,183 @@ function ensureDir(dir: string) {
   }
 }
 
-function defaultMcDir(): string {
-  if (process.platform === 'win32') {
-    return path.join(os.homedir(), 'AppData', 'Roaming', '.minecraft')
-  } else if (process.platform === 'darwin') {
-    return path.join(os.homedir(), 'Library', 'Application Support', 'minecraft')
-  } else {
-    return path.join(os.homedir(), '.minecraft')
+// ===== 资源包/光影包/存档 通用列表 =====
+export interface PackFileInfo {
+  filename: string
+  size: number
+  enabled: boolean
+  modifiedAt: string
+  isDir: boolean
+}
+
+/**
+ * 扫描指定子目录（resourcepacks/shaderpacks/saves）
+ */
+function scanInstanceSubDir(id: string, subDirName: string, patterns: RegExp[]): PackFileInfo[] {
+  const instance = getInstanceById(id)
+  if (!instance || !instance.path) return []
+  const dir = path.join(instance.path, subDirName)
+  if (!fs.existsSync(dir)) return []
+
+  try {
+    return fs
+      .readdirSync(dir, { withFileTypes: true })
+      .filter((entry) => {
+        if (entry.isDirectory()) return subDirName === 'saves'
+        return patterns.some((p) => p.test(entry.name))
+      })
+      .map((entry) => {
+        const fullPath = path.join(dir, entry.name)
+        const stat = fs.statSync(fullPath)
+        // 资源包：zip=enabled，zip.disabled=disabled
+        // 存档：始终 enabled
+        let enabled = true
+        if (subDirName !== 'saves') {
+          enabled = !entry.name.endsWith('.disabled')
+        }
+        return {
+          filename: entry.name,
+          size: stat.size,
+          enabled,
+          modifiedAt: stat.mtime.toISOString(),
+          isDir: entry.isDirectory()
+        }
+      })
+      .sort((a, b) => {
+        // 资源包/光影：先 enabled
+        if (subDirName !== 'saves' && a.enabled !== b.enabled) return (b.enabled ? 1 : 0) - (a.enabled ? 1 : 0)
+        return a.filename.localeCompare(b.filename)
+      })
+  } catch {
+    return []
   }
+}
+
+/** 通用启用/禁用（zip↔zip.disabled），存档不支持 */
+function togglePack(id: string, subDirName: string, filename: string, enabled: boolean): boolean {
+  if (subDirName === 'saves') return false
+  const instance = getInstanceById(id)
+  if (!instance || !instance.path) return false
+  const dir = path.join(instance.path, subDirName)
+  const oldPath = path.join(dir, filename)
+  if (!fs.existsSync(oldPath)) return false
+
+  let newFilename: string
+  if (enabled) newFilename = filename.replace(/\.disabled$/, '')
+  else newFilename = filename.endsWith('.disabled') ? filename : filename + '.disabled'
+  if (newFilename === filename) return true
+
+  try {
+    fs.renameSync(oldPath, path.join(dir, newFilename))
+    return true
+  } catch {
+    return false
+  }
+}
+
+/** 通用删除文件/目录 */
+function deleteFsEntry(id: string, subDirName: string, filename: string): boolean {
+  const instance = getInstanceById(id)
+  if (!instance || !instance.path) return false
+  const target = path.join(instance.path, subDirName, filename)
+  if (!fs.existsSync(target)) return false
+  try {
+    const stat = fs.statSync(target)
+    if (stat.isDirectory()) fs.rmSync(target, { recursive: true, force: true })
+    else fs.unlinkSync(target)
+    return true
+  } catch {
+    return false
+  }
+}
+
+// ===== 资源包 =====
+const PACK_PATTERNS = [/\.zip$/, /\.zip\.disabled$/, /\.jar$/, /\.jar\.disabled$/]
+
+export function listResourcePacks(id: string): PackFileInfo[] {
+  return scanInstanceSubDir(id, 'resourcepacks', PACK_PATTERNS)
+}
+export function toggleResourcePack(id: string, filename: string, enabled: boolean): boolean {
+  return togglePack(id, 'resourcepacks', filename, enabled)
+}
+export function deleteResourcePack(id: string, filename: string): boolean {
+  return deleteFsEntry(id, 'resourcepacks', filename)
+}
+
+// ===== 光影包（先尝试 shaderpacks，不存在则在目录里检测） =====
+export function listShaderPacks(id: string): PackFileInfo[] {
+  return scanInstanceSubDir(id, 'shaderpacks', PACK_PATTERNS)
+}
+export function toggleShaderPack(id: string, filename: string, enabled: boolean): boolean {
+  return togglePack(id, 'shaderpacks', filename, enabled)
+}
+export function deleteShaderPack(id: string, filename: string): boolean {
+  return deleteFsEntry(id, 'shaderpacks', filename)
+}
+
+// ===== 存档 =====
+export function listSaves(id: string): PackFileInfo[] {
+  return scanInstanceSubDir(id, 'saves', [])
+}
+export function deleteSave(id: string, saveName: string): boolean {
+  return deleteFsEntry(id, 'saves', saveName)
+}
+export function renameSave(id: string, oldName: string, newName: string): boolean {
+  const instance = getInstanceById(id)
+  if (!instance || !instance.path) return false
+  const savesDir = path.join(instance.path, 'saves')
+  const oldPath = path.join(savesDir, oldName)
+  const newPath = path.join(savesDir, newName)
+  if (!fs.existsSync(oldPath) || fs.existsSync(newPath)) return false
+  try {
+    fs.renameSync(oldPath, newPath)
+    return true
+  } catch {
+    return false
+  }
+}
+/** 备份：将存档目录 zip 到 backups 文件夹 */
+export function backupSave(id: string, saveName: string): string | null {
+  const instance = getInstanceById(id)
+  if (!instance || !instance.path) return null
+  const savesDir = path.join(instance.path, 'saves')
+  const backupsDir = path.join(instance.path, 'backups')
+  ensureDir(backupsDir)
+  const src = path.join(savesDir, saveName)
+  if (!fs.existsSync(src)) return null
+  const ts = new Date().toISOString().replace(/[:.]/g, '-')
+  const dest = path.join(backupsDir, `${saveName}-${ts}.zip`)
+  try {
+    // 简易 zip：用 shell ？ 这里直接用原生递归压缩不现实，退而做目录拷贝
+    const destDir = path.join(backupsDir, `${saveName}-${ts}`)
+    copyDirRecursive(src, destDir)
+    return destDir
+  } catch {
+    return null
+  }
+}
+
+function copyDirRecursive(src: string, dest: string) {
+  ensureDir(dest)
+  const entries = fs.readdirSync(src, { withFileTypes: true })
+  for (const e of entries) {
+    const s = path.join(src, e.name)
+    const d = path.join(dest, e.name)
+    if (e.isDirectory()) copyDirRecursive(s, d)
+    else fs.copyFileSync(s, d)
+  }
+}
+
+/**
+ * 实例默认根目录：**不**使用系统默认的 %AppData%\.minecraft（C 盘），
+ * 改放在应用自己的 userData/voxver-mc 目录。这样能保证：
+ * 1) 不会读取/写入 C:\Users\<name>\AppData\Roaming\.minecraft
+ * 2) 实例文件和数据库（userData/data/voxver.db）同根，便于打包/备份/迁移
+ * 用户仍可通过 customPath（设置中的自定义路径）把单个实例放到指定目录。
+ */
+function defaultMcDir(): string {
+  const userData = app.getPath('userData')
+  const dir = path.join(userData, 'voxver-mc')
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+  return dir
 }

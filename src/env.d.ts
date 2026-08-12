@@ -140,6 +140,51 @@ interface ElectronAPI {
     updateName: (id: string, name: string) => Promise<void>
     updateDescription: (id: string, description: string) => Promise<void>
     toggleFavorite: (id: string) => Promise<void>
+    // 文件管理
+    listMods: (id: string) => Promise<unknown[]>
+    toggleMod: (id: string, filename: string, enabled: boolean) => Promise<boolean>
+    deleteMod: (id: string, filename: string) => Promise<boolean>
+    diskUsage: (id: string) => Promise<{
+      total: number
+      mods: number
+      saves: number
+      resourcepacks: number
+      shaderpacks: number
+      config: number
+      others: number
+    }>
+    // 资源包
+    listResourcePacks: (id: string) => Promise<Array<{
+      filename: string
+      size: number
+      enabled: boolean
+      modifiedAt: string
+      isDir: boolean
+    }>>
+    toggleResourcePack: (id: string, filename: string, enabled: boolean) => Promise<boolean>
+    deleteResourcePack: (id: string, filename: string) => Promise<boolean>
+    // 光影包
+    listShaderPacks: (id: string) => Promise<Array<{
+      filename: string
+      size: number
+      enabled: boolean
+      modifiedAt: string
+      isDir: boolean
+    }>>
+    toggleShaderPack: (id: string, filename: string, enabled: boolean) => Promise<boolean>
+    deleteShaderPack: (id: string, filename: string) => Promise<boolean>
+    // 存档
+    listSaves: (id: string) => Promise<Array<{
+      filename: string
+      size: number
+      enabled: boolean
+      modifiedAt: string
+      isDir: boolean
+    }>>
+    renameSave: (id: string, oldName: string, newName: string) => Promise<boolean>
+    backupSave: (id: string, name: string) => Promise<string | null>
+    deleteSave: (id: string, name: string) => Promise<boolean>
+    // 导入导出
     scanMinecraft: (dirPath: string) => Promise<IpcResult<ScanMinecraftResult>>
     exportInstance: (id: string, destPath: string, options?: ExportOptions) => Promise<IpcResult>
     importInstance: (mclaFilePath: string, targetDir: string) => Promise<IpcResult>

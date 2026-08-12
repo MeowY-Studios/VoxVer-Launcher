@@ -52,6 +52,30 @@ export function registerInstanceHandlers(modService?: ModService): void {
   // ===== 统计 =====
   ipcMain.handle('instance:disk-usage', (_event, id: string) => enhanced.getInstanceDiskUsage(id))
 
+  // ===== 资源包 =====
+  ipcMain.handle('instance:list-resourcepacks', (_e, id: string) => enhanced.listResourcePacks(id))
+  ipcMain.handle('instance:toggle-resourcepack', (_e, id: string, f: string, enabled: boolean) =>
+    enhanced.toggleResourcePack(id, f, enabled)
+  )
+  ipcMain.handle('instance:delete-resourcepack', (_e, id: string, f: string) =>
+    enhanced.deleteResourcePack(id, f)
+  )
+  // ===== 光影包 =====
+  ipcMain.handle('instance:list-shaderpacks', (_e, id: string) => enhanced.listShaderPacks(id))
+  ipcMain.handle('instance:toggle-shaderpack', (_e, id: string, f: string, enabled: boolean) =>
+    enhanced.toggleShaderPack(id, f, enabled)
+  )
+  ipcMain.handle('instance:delete-shaderpack', (_e, id: string, f: string) =>
+    enhanced.deleteShaderPack(id, f)
+  )
+  // ===== 存档 =====
+  ipcMain.handle('instance:list-saves', (_e, id: string) => enhanced.listSaves(id))
+  ipcMain.handle('instance:delete-save', (_e, id: string, name: string) => enhanced.deleteSave(id, name))
+  ipcMain.handle('instance:rename-save', (_e, id: string, oldN: string, newN: string) =>
+    enhanced.renameSave(id, oldN, newN)
+  )
+  ipcMain.handle('instance:backup-save', (_e, id: string, name: string) => enhanced.backupSave(id, name))
+
   // ===== 导入导出 =====
   ipcMain.handle('instance:scan-minecraft', async (_event, dirPath: string) => {
     try {

@@ -69,17 +69,29 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { LoaderType } from '../types/instance'
 
 interface InstanceCardProps {
   instance: {
     id: string
     name: string
+    path: string
     mc_version: string
-    loader_type: string
+    loader_type: LoaderType
     loader_version: string
+    icon: string
+    java_path: string
+    jvm_args: string
+    min_memory: number
+    max_memory: number
+    width: number
+    height: number
+    fullscreen: number
     is_favorited: number
     last_played: string | null
     play_time: number
+    created_at: string
+    updated_at: string
   }
   selected?: boolean
   showFavorite?: boolean
@@ -90,7 +102,7 @@ const props = withDefaults(defineProps<InstanceCardProps>(), {
   showFavorite: true
 })
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'select', inst: InstanceCardProps['instance']): void
   (e: 'open', inst: InstanceCardProps['instance']): void
   (e: 'launch', inst: InstanceCardProps['instance']): void

@@ -695,7 +695,7 @@ export async function launchByVersionWithXMCL(
     }
   } else {
     const defaultAccount = db
-      .prepare('SELECT name, uuid, access_token, xuid FROM accounts WHERE is_selected = 1 LIMIT 1')
+      .prepare('SELECT name, uuid, access_token, xuid FROM accounts WHERE is_active = 1 LIMIT 1')
       .get() as {
         name: string
         uuid: string

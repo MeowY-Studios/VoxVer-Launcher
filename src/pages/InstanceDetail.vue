@@ -102,6 +102,52 @@
 
     <!-- 实例详情内容 -->
     <div v-if="instance" class="detail-content">
+      <!-- Tab 导航 -->
+      <nav class="tab-nav">
+        <button class="tab-btn" :class="{ active: detailTab === 'overview' }" @click="detailTab = 'overview'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="4" />
+          </svg>
+          {{ t('instance.tabOverview') }}
+        </button>
+        <button class="tab-btn" :class="{ active: detailTab === 'mods' }" @click="detailTab = 'mods'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="14" rx="2" />
+            <path d="M16 7V5a2 2 0 00-4 0v2M8 7V5a2 2 0 00-4 0v2" />
+          </svg>
+          {{ t('instance.tabMods') }}
+          <span v-if="modUpdatesAvailable > 0" class="tab-badge update">{{ modUpdatesAvailable }}</span>
+          <span v-else class="tab-count" v-if="localMods.length > 0">{{ localMods.length }}</span>
+        </button>
+        <button class="tab-btn" :class="{ active: detailTab === 'resourcepacks' }" @click="detailTab = 'resourcepacks'; loadResourcePacks()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 2 7 12 12 22 7 12 2" />
+            <polyline points="2 17 12 22 22 17" />
+            <polyline points="2 12 12 17 22 12" />
+          </svg>
+          {{ t('instance.tabResourcePacks') }}
+        </button>
+        <button class="tab-btn" :class="{ active: detailTab === 'shaderpacks' }" @click="detailTab = 'shaderpacks'; loadShaderPacks()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5" />
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+          </svg>
+          {{ t('instance.tabShaderPacks') }}
+        </button>
+        <button class="tab-btn" :class="{ active: detailTab === 'saves' }" @click="detailTab = 'saves'; loadSaves()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+          {{ t('instance.tabSaves') }}
+        </button>
+      </nav>
+
+      <!-- ============================================== -->
+      <!-- 概览 Tab：基本信息 + Java/内存 + 磁盘占用      -->
+      <!-- ============================================== -->
+      <template v-if="detailTab === 'overview'">
       <!-- 基本信息卡片 -->
       <section class="info-section vox-card">
         <div class="section-header">
@@ -211,164 +257,56 @@
         </button>
       </section>
 
-      <!-- Mod 列表 -->
+      <!-- 磁盘占用 + 配置文件 -->
       <section class="info-section vox-card">
         <div class="section-header">
-          <h3 class="section-title">
-            {{ $t('instance.installedMods') }}
-            <span class="mod-count" v-if="localMods.length > 0"
-              >({{ activeModCount }}/{{ localMods.length }})</span
-            >
-          </h3>
-          <div class="section-actions">
-            <button class="icon-btn" @click="refreshMods" :title="$t('common.refresh')">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
-                <polyline points="23 4 23 10 17 10" />
-                <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
-              </svg>
-            </button>
-            <button class="icon-btn" @click="openModsFolder" :title="$t('mod.mods') + ' ' + $t('game.gameDir')">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
-              </svg>
-            </button>
-            <button class="icon-btn" @click="openConfigDir" :title="$t('game.configs') + ' ' + $t('game.gameDir')">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="12" cy="12" r="3" />
-                <path
-                  d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"
-                />
-              </svg>
-            </button>
-          </div>
+          <h3 class="section-title">{{ t('instance.diskUsage') }}</h3>
+          <button class="icon-btn" @click="loadDiskUsage" :title="t('common.refresh')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="23 4 23 10 17 10" />
+              <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
+            </svg>
+          </button>
         </div>
-
-        <!-- 加载中 -->
-        <div v-if="modsLoading" class="mod-loading">
+        <div v-if="diskUsageLoading" class="mod-loading">
           <div class="spinner-sm"></div>
-          <span>{{ $t('common.loading') }}</span>
+          <span>{{ t('common.loading') }}</span>
         </div>
-
-        <!-- 空状态 -->
-        <div v-else-if="localMods.length === 0" class="empty-state">
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="var(--voxver-text-muted)"
-            stroke-width="1.5"
-          >
-            <path
-              d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"
-            />
-          </svg>
-          <p>{{ $t('instance.noModsInstalled') }}</p>
-          <router-link to="/downloads" class="link-btn">{{ $t('instance.goDownloadMods') }}</router-link>
-        </div>
-
-        <!-- Mod 列表 -->
-        <div v-else class="mod-list">
-          <div
-            v-for="mod in localMods"
-            :key="mod.filePath"
-            class="mod-item"
-            :class="{ 'mod-disabled': mod.status === 'disabled' }"
-          >
-            <div class="mod-icon">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-              >
-                <rect x="2" y="7" width="20" height="14" rx="2" />
-                <path d="M16 7V5a2 2 0 00-4 0v2M8 7V5a2 2 0 00-4 0v2" />
-              </svg>
+        <div v-else class="disk-grid">
+          <div class="disk-total">
+            <span class="disk-label">{{ t('instance.totalSize') }}</span>
+            <span class="disk-big">{{ formatFileSize(diskUsage.total || 0) }}</span>
+          </div>
+          <div class="disk-bar">
+            <div class="disk-bar-fill" :style="{ width: diskPercent.toFixed(1) + '%' }"></div>
+          </div>
+          <div class="disk-parts">
+            <div class="disk-part">
+              <span class="dot" style="background: var(--voxver-primary-500)"></span>
+              {{ t('instance.modsDir') }}：{{ formatFileSize(diskUsage.mods || 0) }}
             </div>
-            <div class="mod-info">
-              <span class="mod-name">{{ mod.displayName || mod.fileName }}</span>
-              <span class="mod-meta">
-                <span v-if="mod.version" class="mod-version">v{{ mod.version }}</span>
-                <span v-if="mod.author" class="mod-author">{{ mod.author }}</span>
-                <span class="mod-size">{{ formatFileSize(mod.fileSize) }}</span>
-              </span>
+            <div class="disk-part">
+              <span class="dot" style="background: var(--voxver-accent)"></span>
+              {{ t('instance.savesDir') }}：{{ formatFileSize(diskUsage.saves || 0) }}
             </div>
-            <div class="mod-actions">
-              <span class="status-badge" :class="'status-' + mod.status">
-                {{ statusLabel(mod.status) }}
-              </span>
-              <button
-                class="toggle-btn"
-                @click="toggleMod(mod)"
-                :title="mod.status === 'active' ? $t('mod.disable') : $t('mod.enable')"
-              >
-                <svg
-                  v-if="mod.status === 'active'"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                >
-                  <path
-                    d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
-                  />
-                  <line x1="1" y1="1" x2="23" y2="23" />
-                </svg>
-                <svg
-                  v-else
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              </button>
-              <button
-                class="toggle-btn delete-btn"
-                @click="deleteModItem(mod)"
-                :title="$t('instance.delete')"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-                </svg>
-              </button>
+            <div class="disk-part">
+              <span class="dot" style="background: var(--voxver-warning)"></span>
+              {{ t('instance.resourcePacks') }}：{{ formatFileSize(diskUsage.resourcepacks || 0) }}
+            </div>
+            <div class="disk-part">
+              <span class="dot" style="background: var(--voxver-info)"></span>
+              {{ t('instance.shaderPacks') }}：{{ formatFileSize(diskUsage.shaderpacks || 0) }}
+            </div>
+            <div class="disk-part">
+              <span class="dot" style="background: var(--voxver-text-muted)"></span>
+              {{ t('instance.otherDir') }}：{{ formatFileSize(diskUsage.others || 0) }}
             </div>
           </div>
         </div>
       </section>
 
-      <!-- 配置文件列表 -->
-      <section class="info-section">
+      <!-- 配置文件列表（概览 Tab 内快速入口） -->
+      <section class="info-section vox-card">
         <div class="section-header">
           <h3 class="section-title">{{ $t('instance.configFiles') }}</h3>
           <div class="section-actions">
@@ -449,6 +387,380 @@
           </div>
         </div>
       </section>
+      </template>
+
+      <!-- ============================================== -->
+      <!-- Mod Tab：Mod 列表 + Mod 更新检测               -->
+      <!-- ============================================== -->
+      <template v-if="detailTab === 'mods'">
+      <section class="info-section vox-card">
+        <div class="section-header">
+          <h3 class="section-title">
+            {{ $t('instance.installedMods') }}
+            <span class="mod-count" v-if="localMods.length > 0"
+              >({{ activeModCount }}/{{ localMods.length }})</span
+            >
+          </h3>
+          <div class="section-actions">
+            <button
+              class="check-update-btn vox-btn vox-btn--ghost"
+              :disabled="modsUpdateLoading || localMods.length === 0"
+              @click="checkModUpdates"
+            >
+              <svg v-if="!modsUpdateLoading" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10" />
+                <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
+              </svg>
+              <svg v-else width="14" height="14" class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="9" stroke-opacity="0.25" />
+                <path d="M21 12a9 9 0 0 0-9-9" />
+              </svg>
+              {{ modsUpdateLoading ? t('instance.checkingUpdates') : t('instance.checkUpdates') }}
+            </button>
+            <button class="icon-btn" @click="refreshMods" :title="$t('common.refresh')">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <polyline points="23 4 23 10 17 10" />
+                <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
+              </svg>
+            </button>
+            <button class="icon-btn" @click="openModsFolder" :title="$t('mod.mods') + ' ' + $t('game.gameDir')">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+              </svg>
+            </button>
+            <button class="icon-btn" @click="openConfigDir" :title="$t('game.configs') + ' ' + $t('game.gameDir')">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 加载中 -->
+        <div v-if="modsLoading" class="mod-loading">
+          <div class="spinner-sm"></div>
+          <span>{{ $t('common.loading') }}</span>
+        </div>
+
+        <!-- 空状态 -->
+        <div v-else-if="localMods.length === 0" class="empty-state">
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--voxver-text-muted)"
+            stroke-width="1.5"
+          >
+            <path
+              d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"
+            />
+          </svg>
+          <p>{{ $t('instance.noModsInstalled') }}</p>
+          <router-link to="/downloads" class="link-btn">{{ $t('instance.goDownloadMods') }}</router-link>
+        </div>
+
+        <!-- Mod 列表 -->
+        <div v-else class="mod-list">
+          <div
+            v-for="mod in localMods"
+            :key="mod.filePath"
+            class="mod-item"
+            :class="{ 'mod-disabled': mod.status === 'disabled', 'mod-outdated': mod.latestVersion && mod.latestVersion !== mod.version }"
+          >
+            <div class="mod-icon">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <rect x="2" y="7" width="20" height="14" rx="2" />
+                <path d="M16 7V5a2 2 0 00-4 0v2M8 7V5a2 2 0 00-4 0v2" />
+              </svg>
+            </div>
+            <div class="mod-info">
+              <span class="mod-name">{{ mod.displayName || mod.fileName }}</span>
+              <span class="mod-meta">
+                <span v-if="mod.version" class="mod-version">v{{ mod.version }}</span>
+                <span v-if="mod.latestVersion" class="mod-version mod-version-new">→ v{{ mod.latestVersion }}</span>
+                <span v-if="mod.author" class="mod-author">{{ mod.author }}</span>
+                <span class="mod-size">{{ formatFileSize(mod.fileSize) }}</span>
+              </span>
+            </div>
+            <div class="mod-actions">
+              <span class="status-badge" :class="'status-' + mod.status">
+                {{ statusLabel(mod.status) }}
+              </span>
+              <button
+                class="toggle-btn"
+                @click="toggleMod(mod)"
+                :title="mod.status === 'active' ? $t('mod.disable') : $t('mod.enable')"
+              >
+                <svg
+                  v-if="mod.status === 'active'"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <path
+                    d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
+                  />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+                <svg
+                  v-else
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </button>
+              <button
+                class="toggle-btn delete-btn"
+                @click="deleteModItem(mod)"
+                :title="$t('instance.delete')"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+      </template>
+
+      <!-- ============================================== -->
+      <!-- 资源包 Tab                                     -->
+      <!-- ============================================== -->
+      <template v-if="detailTab === 'resourcepacks'">
+        <section class="info-section vox-card pack-section">
+          <div class="section-header">
+            <h3 class="section-title">{{ t('instance.tabResourcePacks') }} <span class="mod-count" v-if="resourcePacks.length">({{ resourcePacks.length }})</span></h3>
+            <div class="section-actions">
+              <button class="icon-btn" @click="loadResourcePacks" :title="t('common.refresh')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
+                </svg>
+              </button>
+              <button class="icon-btn" @click="openInstanceSubdir('resourcepacks')" :title="t('instance.openFolder')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div v-if="resourcePacksLoading" class="mod-loading">
+            <div class="spinner-sm"></div><span>{{ t('common.loading') }}</span>
+          </div>
+          <div v-else-if="resourcePacks.length === 0" class="empty-state small">
+            <p>{{ t('instance.noPacks') }}</p>
+          </div>
+          <div v-else class="pack-list">
+            <div v-for="p in resourcePacks" :key="p.filename" class="pack-item" :class="{ disabled: !p.enabled }">
+              <div class="pack-icon" :class="{ dir: p.isDir }">
+                <svg v-if="p.isDir" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                </svg>
+                <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" />
+                </svg>
+              </div>
+              <div class="pack-info">
+                <span class="pack-name">{{ p.filename }}</span>
+                <span class="pack-meta">{{ formatFileSize(p.size) }} · {{ formatDate(p.modifiedAt) }} · {{ p.isDir ? t('instance.dirPack') : t('instance.zipPack') }}</span>
+              </div>
+              <div class="pack-actions">
+                <span class="status-badge" :class="p.enabled ? 'status-active' : 'status-disabled'">
+                  {{ p.enabled ? t('instance.statusActive') : t('instance.statusDisabled') }}
+                </span>
+                <button class="toggle-btn" @click="togglePack('resourcepacks', p.filename, !p.enabled)"
+                  :title="p.enabled ? t('mod.disable') : t('mod.enable')">
+                  <svg v-if="p.enabled" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                  <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </button>
+                <button class="toggle-btn delete-btn" @click="deletePack('resourcepacks', p.filename)" :title="t('instance.delete')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </template>
+
+      <!-- ============================================== -->
+      <!-- 光影包 Tab                                     -->
+      <!-- ============================================== -->
+      <template v-if="detailTab === 'shaderpacks'">
+        <section class="info-section vox-card pack-section">
+          <div class="section-header">
+            <h3 class="section-title">{{ t('instance.tabShaderPacks') }} <span class="mod-count" v-if="shaderPacks.length">({{ shaderPacks.length }})</span></h3>
+            <div class="section-actions">
+              <button class="icon-btn" @click="loadShaderPacks" :title="t('common.refresh')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
+                </svg>
+              </button>
+              <button class="icon-btn" @click="openInstanceSubdir('shaderpacks')" :title="t('instance.openFolder')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div v-if="shaderPacksLoading" class="mod-loading">
+            <div class="spinner-sm"></div><span>{{ t('common.loading') }}</span>
+          </div>
+          <div v-else-if="shaderPacks.length === 0" class="empty-state small">
+            <p>{{ t('instance.noShaders') }}</p>
+          </div>
+          <div v-else class="pack-list">
+            <div v-for="p in shaderPacks" :key="p.filename" class="pack-item" :class="{ disabled: !p.enabled }">
+              <div class="pack-icon" :class="{ dir: p.isDir }">
+                <svg v-if="p.isDir" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                </svg>
+                <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" />
+                </svg>
+              </div>
+              <div class="pack-info">
+                <span class="pack-name">{{ p.filename }}</span>
+                <span class="pack-meta">{{ formatFileSize(p.size) }} · {{ formatDate(p.modifiedAt) }} · {{ p.isDir ? t('instance.dirPack') : t('instance.zipPack') }}</span>
+              </div>
+              <div class="pack-actions">
+                <span class="status-badge" :class="p.enabled ? 'status-active' : 'status-disabled'">
+                  {{ p.enabled ? t('instance.statusActive') : t('instance.statusDisabled') }}
+                </span>
+                <button class="toggle-btn" @click="togglePack('shaderpacks', p.filename, !p.enabled)"
+                  :title="p.enabled ? t('mod.disable') : t('mod.enable')">
+                  <svg v-if="p.enabled" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                  <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </button>
+                <button class="toggle-btn delete-btn" @click="deletePack('shaderpacks', p.filename)" :title="t('instance.delete')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </template>
+
+      <!-- ============================================== -->
+      <!-- 存档 Tab                                       -->
+      <!-- ============================================== -->
+      <template v-if="detailTab === 'saves'">
+        <section class="info-section vox-card pack-section">
+          <div class="section-header">
+            <h3 class="section-title">{{ t('instance.tabSaves') }} <span class="mod-count" v-if="saves.length">({{ saves.length }})</span></h3>
+            <div class="section-actions">
+              <button class="icon-btn" @click="loadSaves" :title="t('common.refresh')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
+                </svg>
+              </button>
+              <button class="icon-btn" @click="openInstanceSubdir('saves')" :title="t('instance.openFolder')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div v-if="savesLoading" class="mod-loading">
+            <div class="spinner-sm"></div><span>{{ t('common.loading') }}</span>
+          </div>
+          <div v-else-if="saves.length === 0" class="empty-state small">
+            <p>{{ t('instance.noSaves') }}</p>
+          </div>
+          <div v-else class="pack-list">
+            <div v-for="s in saves" :key="s.filename" class="pack-item save-item">
+              <div class="pack-icon save-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </div>
+              <div class="pack-info">
+                <span v-if="s.renaming" class="save-rename-row">
+                  <input v-model="s.renameValue" class="vox-input save-rename-input" @keyup.enter="confirmRenameSave(s)" @keyup.esc="s.renaming = false" />
+                  <button class="vox-btn vox-btn--primary vox-btn--sm" @click="confirmRenameSave(s)">{{ t('common.confirm') }}</button>
+                </span>
+                <span v-else class="pack-name">{{ s.filename }}</span>
+                <span class="pack-meta">{{ formatFileSize(s.size) }} · {{ formatDate(s.modifiedAt) }}</span>
+              </div>
+              <div class="pack-actions">
+                <button v-if="!s.renaming" class="toggle-btn" @click="startRenameSave(s)" :title="t('common.rename')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
+                </button>
+                <button class="toggle-btn" @click="backupSave(s)" :title="t('instance.backupSave')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                </button>
+                <button class="toggle-btn delete-btn" @click="deleteSave(s)" :title="t('instance.delete')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </template>
     </div>
 
     <!-- 分享弹窗 -->
@@ -523,6 +835,7 @@ const modsStore = useModsStore()
 const instance = ref<GameInstance | null>(null)
 const error = ref<string | null>(null)
 const saving = ref(false)
+const detailTab = ref<'overview' | 'mods' | 'resourcepacks' | 'shaderpacks' | 'saves'>('overview')
 
 // * 编辑表单
 const editForm = ref({
@@ -540,7 +853,7 @@ const editForm = ref({
 })
 const savingBasic = ref(false)
 
-// * 本地
+// * 本地 Mod
 const localMods = ref<
   Array<{
     filePath: string
@@ -550,9 +863,12 @@ const localMods = ref<
     author: string
     fileSize: number
     status: LocalModStatus
+    latestVersion?: string
   }>
 >([])
 const modsLoading = ref(false)
+const modsUpdateLoading = ref(false)
+const modUpdatesAvailable = computed(() => localMods.value.filter((m) => m.latestVersion && m.latestVersion !== m.version).length)
 
 // 配置文件列表
 interface ConfigFile {
@@ -563,6 +879,44 @@ interface ConfigFile {
 }
 const configFiles = ref<ConfigFile[]>([])
 const configFilesLoading = ref(false)
+
+// 资源包 / 光影包 / 存档
+interface PackFileInfo {
+  filename: string
+  size: number
+  enabled: boolean
+  modifiedAt: string
+  isDir: boolean
+}
+const resourcePacks = ref<PackFileInfo[]>([])
+const resourcePacksLoading = ref(false)
+const shaderPacks = ref<PackFileInfo[]>([])
+const shaderPacksLoading = ref(false)
+
+interface SaveInfo extends PackFileInfo {
+  renaming?: boolean
+  renameValue?: string
+}
+const saves = ref<SaveInfo[]>([])
+const savesLoading = ref(false)
+
+// 磁盘占用
+interface DiskUsage {
+  total: number
+  mods: number
+  saves: number
+  resourcepacks: number
+  shaderpacks: number
+  config: number
+  others: number
+}
+const diskUsage = ref<DiskUsage>({ total: 0, mods: 0, saves: 0, resourcepacks: 0, shaderpacks: 0, config: 0, others: 0 })
+const diskUsageLoading = ref(false)
+const diskPercent = computed(() => {
+  if (!diskUsage.value.total) return 0
+  // 相对总量作为 100%（占满自己的条），可用于直观条
+  return 100
+})
 
 // Config 编辑器状态
 const editingConfig = ref<ConfigFile | null>(null)
@@ -639,8 +993,8 @@ async function fetchDetail() {
       editForm.value.jvmArgs = instance.value!.jvmArgs
     }
 
-    // 并行加载 Mod 列表和配置列表
-    await Promise.all([loadMods(), loadConfigFiles()])
+    // 并行加载：Mod 列表 + 配置列表 + 磁盘占用
+    await Promise.all([loadMods(), loadConfigFiles(), loadDiskUsage()])
   } catch (e: unknown) {
     error.value = (e as Error).message || t('instance.loadFailed') as string
   }
@@ -686,6 +1040,207 @@ async function loadConfigFiles() {
 
 async function refreshMods() {
   await loadMods()
+}
+
+// ===== 新增：资源包/光影/存档/磁盘/Mod 更新 =====
+async function loadDiskUsage() {
+  if (!instance.value?.id) return
+  diskUsageLoading.value = true
+  try {
+    const data = await window.electronAPI?.instance?.diskUsage?.(instance.value.id)
+    if (data) diskUsage.value = data as DiskUsage
+  } catch {
+    // ignore
+  } finally {
+    diskUsageLoading.value = false
+  }
+}
+
+async function openInstanceSubdir(sub: 'resourcepacks' | 'shaderpacks' | 'saves' | 'mods' | 'config') {
+  if (!instance.value?.path) return
+  window.electronAPI?.shell.openPath(instance.value.path + '/' + sub)
+}
+
+async function loadResourcePacks() {
+  if (!instance.value?.id) return
+  resourcePacksLoading.value = true
+  try {
+    const data = await window.electronAPI?.instance?.listResourcePacks?.(instance.value.id)
+    if (Array.isArray(data)) resourcePacks.value = data
+  } catch {
+    // ignore
+  } finally {
+    resourcePacksLoading.value = false
+  }
+}
+
+async function loadShaderPacks() {
+  if (!instance.value?.id) return
+  shaderPacksLoading.value = true
+  try {
+    const data = await window.electronAPI?.instance?.listShaderPacks?.(instance.value.id)
+    if (Array.isArray(data)) shaderPacks.value = data
+  } catch {
+    // ignore
+  } finally {
+    shaderPacksLoading.value = false
+  }
+}
+
+async function loadSaves() {
+  if (!instance.value?.id) return
+  savesLoading.value = true
+  try {
+    const data = await window.electronAPI?.instance?.listSaves?.(instance.value.id)
+    if (Array.isArray(data)) saves.value = data.map((s) => ({ ...s }))
+  } catch {
+    // ignore
+  } finally {
+    savesLoading.value = false
+  }
+}
+
+type PackKind = 'resourcepacks' | 'shaderpacks'
+
+async function togglePack(kind: PackKind, filename: string, enabled: boolean) {
+  if (!instance.value?.id) return
+  try {
+    const fn = kind === 'resourcepacks'
+      ? window.electronAPI?.instance?.toggleResourcePack
+      : window.electronAPI?.instance?.toggleShaderPack
+    const ok = await fn?.(instance.value.id, filename, enabled)
+    if (ok) {
+      if (kind === 'resourcepacks') {
+        const p = resourcePacks.value.find((x) => x.filename === filename)
+        if (p) p.enabled = enabled
+      } else {
+        const p = shaderPacks.value.find((x) => x.filename === filename)
+        if (p) p.enabled = enabled
+      }
+    }
+  } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: (e as Error).message, type: 'error' })
+  }
+}
+
+async function deletePack(kind: PackKind, filename: string) {
+  if (!instance.value?.id) return
+  if (!confirm(t('instance.deletePackConfirm', { name: filename }))) return
+  try {
+    const fn = kind === 'resourcepacks'
+      ? window.electronAPI?.instance?.deleteResourcePack
+      : window.electronAPI?.instance?.deleteShaderPack
+    const ok = await fn?.(instance.value.id, filename)
+    if (ok) {
+      if (kind === 'resourcepacks') resourcePacks.value = resourcePacks.value.filter((p) => p.filename !== filename)
+      else shaderPacks.value = shaderPacks.value.filter((p) => p.filename !== filename)
+      loadDiskUsage()
+    }
+  } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: (e as Error).message, type: 'error' })
+  }
+}
+
+function startRenameSave(s: SaveInfo) {
+  s.renameValue = s.filename
+  s.renaming = true
+}
+
+async function confirmRenameSave(s: SaveInfo) {
+  if (!instance.value?.id || !s.renameValue || s.renameValue === s.filename) {
+    s.renaming = false
+    return
+  }
+  try {
+    const ok = await window.electronAPI?.instance?.renameSave?.(instance.value.id, s.filename, s.renameValue)
+    if (ok) {
+      s.filename = s.renameValue
+    }
+  } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: (e as Error).message, type: 'error' })
+  } finally {
+    s.renaming = false
+    s.renameValue = undefined
+  }
+}
+
+async function backupSave(s: SaveInfo) {
+  if (!instance.value?.id) return
+  try {
+    const out = await window.electronAPI?.instance?.backupSave?.(instance.value.id, s.filename)
+    if (out) {
+      window.electronAPI?.notification?.send({ title: t('instance.backupSave'), body: t('instance.backupSaveSuccess', { file: out }), type: 'success' })
+    }
+  } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: (e as Error).message, type: 'error' })
+  }
+}
+
+async function deleteSave(s: SaveInfo) {
+  if (!instance.value?.id) return
+  if (!confirm(t('instance.deleteSaveConfirm', { name: s.filename }))) return
+  try {
+    const ok = await window.electronAPI?.instance?.deleteSave?.(instance.value.id, s.filename)
+    if (ok) {
+      saves.value = saves.value.filter((x) => x.filename !== s.filename)
+      loadDiskUsage()
+    }
+  } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: (e as Error).message, type: 'error' })
+  }
+}
+
+// ===== Mod 更新检测（走 Modrinth 版本搜索 / fingerprint 匹配，这里走文件名 + 版本启发式）=====
+interface ModrinthVersion { version_number: string }
+async function checkModUpdates() {
+  if (!instance.value || localMods.value.length === 0) return
+  modsUpdateLoading.value = true
+  try {
+    const mc = instance.value.mcVersion
+    const loader = instance.value.loaderType
+    // 并发限制 5，避免超时
+    const queue = [...localMods.value]
+    const worker = async () => {
+      while (queue.length) {
+        const mod = queue.shift()!
+        try {
+          // 以 displayName 作为 slug 搜索项目
+          const slug = (mod.displayName || mod.fileName.replace(/\.jar$/i, '')).toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '')
+          if (!slug) continue
+          const project = await fetch(`https://api.modrinth.com/v2/project/${encodeURIComponent(slug)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null)
+          if (!project?.id) continue
+          const versions: ModrinthVersion[] = await fetch(
+            `https://api.modrinth.com/v2/project/${project.id}/version?game_versions=["${mc}"]&loaders=["${loader}"]`
+          ).then((r) => (r.ok ? r.json() : [])).catch(() => [])
+          if (!versions || !versions.length) continue
+          const latest = versions[0]?.version_number
+          if (latest && latest !== mod.version) {
+            mod.latestVersion = latest
+          }
+        } catch {
+          // 单个失败忽略
+        }
+      }
+    }
+    await Promise.all(Array.from({ length: 5 }, () => worker()))
+    if (modUpdatesAvailable.value > 0) {
+      window.electronAPI?.notification?.send({
+        title: t('instance.checkUpdates'),
+        body: t('instance.modUpdatesFound', { count: modUpdatesAvailable.value }),
+        type: 'info'
+      })
+    } else {
+      window.electronAPI?.notification?.send({
+        title: t('instance.checkUpdates'),
+        body: t('instance.modNoUpdates'),
+        type: 'success'
+      })
+    }
+  } catch (e) {
+    window.electronAPI?.notification?.send({ title: t('common.error'), body: (e as Error).message, type: 'error' })
+  } finally {
+    modsUpdateLoading.value = false
+  }
 }
 
 async function openModsFolder() {
@@ -858,7 +1413,7 @@ async function deleteInstance() {
 async function deleteModItem(mod: { filePath: string; fileName: string }) {
   if (!confirm(t('mod.deleteConfirm', { name: mod.fileName }))) return
   try {
-    await window.electronAPI?.mod?.remove?.(mod.filePath)
+    await window.electronAPI?.mod?.uninstall?.(mod.filePath)
     await loadMods()
   } catch (e) {
     window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.deleteFailed'), type: 'error' })
@@ -1448,5 +2003,258 @@ watch(instanceId, () => {
 
 .empty-state.small {
   padding: 24px 0;
+}
+
+/* ========== Tab 导航 ========== */
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 20px;
+  background: var(--voxver-bg-tertiary);
+  border: 1px solid var(--voxver-border-color-light);
+  border-radius: var(--voxver-radius-lg);
+  overflow-x: auto;
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--voxver-text-secondary);
+  border-radius: var(--voxver-radius-md);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--voxver-transition-fast);
+  position: relative;
+
+  &:hover {
+    color: var(--voxver-text-primary);
+    background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  }
+
+  &.active {
+    background: var(--voxver-primary);
+    color: #fff;
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.tab-count {
+  font-size: 11px;
+  font-family: var(--voxver-font-mono);
+  padding: 1px 7px;
+  background: color-mix(in oklab, currentColor 12%, transparent);
+  border-radius: var(--voxver-radius-full);
+  line-height: 1.4;
+}
+
+.tab-badge {
+  min-width: 18px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-family: var(--voxver-font-mono);
+  border-radius: var(--voxver-radius-full);
+  line-height: 1.4;
+  text-align: center;
+
+  &.update {
+    background: var(--voxver-success);
+    color: #fff;
+  }
+}
+
+.check-update-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: var(--voxver-radius-md);
+  color: var(--voxver-primary);
+  border-color: color-mix(in oklab, var(--voxver-primary) 40%, var(--voxver-border-color));
+
+  &:hover:not(:disabled) {
+    background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+/* ========== 磁盘占用 ========== */
+.disk-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.disk-total {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.disk-label {
+  font-size: 13px;
+  color: var(--voxver-text-secondary);
+}
+
+.disk-big {
+  font-size: 24px;
+  font-weight: 700;
+  font-family: var(--voxver-font-mono);
+  color: var(--voxver-text-primary);
+}
+
+.disk-bar {
+  height: 8px;
+  background: var(--voxver-bg-tertiary);
+  border-radius: var(--voxver-radius-full);
+  overflow: hidden;
+  border: 1px solid var(--voxver-border-color-light);
+}
+
+.disk-bar-fill {
+  height: 100%;
+  border-radius: var(--voxver-radius-full);
+  background: linear-gradient(90deg, var(--voxver-primary-500), var(--voxver-accent));
+  transition: width 0.4s ease;
+}
+
+.disk-parts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px 14px;
+  font-size: 12px;
+  color: var(--voxver-text-secondary);
+}
+
+.disk-part {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+}
+
+/* ========== 资源包/光影/存档 公共 ========== */
+.pack-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pack-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--voxver-border-color-light);
+  border-radius: var(--voxver-radius-md);
+  background: var(--voxver-bg-tertiary);
+  transition: all var(--voxver-transition-fast);
+
+  &:hover {
+    border-color: var(--voxver-border-color);
+    background: color-mix(in oklab, var(--voxver-text) 2%, transparent);
+  }
+
+  &.disabled {
+    opacity: 0.55;
+  }
+}
+
+.pack-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
+  color: var(--voxver-primary);
+  border-radius: var(--voxver-radius-md);
+
+  &.dir {
+    background: color-mix(in oklab, var(--voxver-warning) 12%, transparent);
+    color: var(--voxver-warning);
+  }
+
+  &.save-icon {
+    background: color-mix(in oklab, var(--voxver-success) 12%, transparent);
+    color: var(--voxver-success);
+  }
+}
+
+.pack-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pack-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--voxver-text-primary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.pack-meta {
+  font-size: 11px;
+  color: var(--voxver-text-muted);
+  font-family: var(--voxver-font-mono);
+}
+
+.pack-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.save-rename-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.save-rename-input {
+  flex: 1;
+  height: 30px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.mod-outdated {
+  border-color: color-mix(in oklab, var(--voxver-success) 35%, var(--voxver-border-color));
+  background: color-mix(in oklab, var(--voxver-success) 4%, var(--voxver-bg-tertiary));
+}
+
+.mod-version-new {
+  color: var(--voxver-success);
+  font-weight: 600;
 }
 </style>
