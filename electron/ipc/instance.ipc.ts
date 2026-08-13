@@ -19,6 +19,9 @@ export function registerInstanceHandlers(modService?: ModService): void {
   ipcMain.handle('instance:update-name', (_event, id: string, name: string) =>
     instanceService.updateInstance(id, { name })
   )
+  ipcMain.handle('instance:update-description', (_event, id: string, description: string) =>
+    instanceService.updateInstance(id, { description })
+  )
   ipcMain.handle('instance:toggle-favorite', (_event, id: string) => {
     const inst = instanceService.getInstanceById(id)
     if (!inst) return null

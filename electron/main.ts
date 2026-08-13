@@ -35,7 +35,11 @@ import { VersionsService } from './services/versions'
 import { ModLoaderService } from './services/modloader.service'
 import { DownloadService } from './services/download.service'
 import { initializeContentServiceAsync } from './services/content.ipc'
-import { registerAllIpcHandlers, updateMainWindowRefs } from './ipc'
+import {
+  registerAllIpcHandlers,
+  updateMainWindowRefs,
+  type IpcRegistrationResult
+} from './ipc'
 import { CrashService } from './services/crash.service'
 import { ModService } from './services/mod.service'
 import { initAutoUpdater, checkForUpdates } from './services/updater.service'
@@ -221,8 +225,8 @@ function createWindow(): BrowserWindow {
 }
 
 // ========== IPC Handler 注册（拆分到 electron/ipc/ 模块）==========
-function registerIpcHandlers(mainWindow: BrowserWindow): void {
-  registerAllIpcHandlers(mainWindow, {
+function registerIpcHandlers(mainWindow: BrowserWindow): IpcRegistrationResult {
+  return registerAllIpcHandlers(mainWindow, {
     versionsService,
     modLoaderService,
     crashService,
@@ -324,13 +328,36 @@ app.whenReady().then(() => {
 
   // ========== 注册 IPC 处理器 ==========
   try {
-    registerIpcHandlers(win)
-    writeLog('>>> Handlers registered successfully')
+    const ipcResult = registerIpcHandlers(win)
+    if (ipcResult.failed.length === 0) {
+      writeLog(
+        `>>> IPC handlers registered OK (${ipcResult.registered}/${ipcResult.total} modules)`
+      )
+      log.info(
+        `[IPC] All registered (${ipcResult.registered}/${ipcResult.total} modules)`
+      )
+    } else {
+      const summary = ipcResult.failed
+        .map((f) => `${f.module}(${f.error})`)
+        .join('; ')
+      writeLog(
+        `[IPC] >>> Handlers PARTIAL FAILED: ${ipcResult.registered}/${ipcResult.total} — failed: [${summary}]`
+      )
+      log.error(
+        `[IPC] Handlers PARTIAL FAILED: ${ipcResult.registered}/${ipcResult.total} modules`,
+        { failed: ipcResult.failed }
+      )
+    }
   } catch (err: unknown) {
-    writeLog('[IPC] >>> Handlers registration FAILED:', (err as Error).message, (err as Error).stack)
+    writeLog(
+      '[IPC] >>> Handlers registration THROWN:',
+      (err as Error).message,
+      (err as Error).stack
+    )
+    log.error('[IPC] Handlers registration THROWN:', err)
   }
 
-  // ========== 延迟任务 ==========
+  // ========== 延迟任务（挂到 did-finish-load，不依赖固定延迟）==========
   if (pendingShareCode) {
     win.webContents.once('did-finish-load', () => {
       win.webContents.send('share:protocol-invoke', { shareCode: pendingShareCode })
@@ -339,7 +366,8 @@ app.whenReady().then(() => {
     })
   }
 
-  setTimeout(async () => {
+  win.webContents.once('did-finish-load', async () => {
+    // xuid 回填：在渲染端完全就绪后执行
     try {
       if (win && !win.isDestroyed()) {
         const result = await win.webContents.executeJavaScript(`
@@ -352,11 +380,12 @@ app.whenReady().then(() => {
     } catch (e: unknown) {
       writeLog('[startup] xuid 回填失败:', (e as Error).message)
     }
-  }, 3000)
 
-  setTimeout(() => {
-    checkForUpdates()
-  }, 5000)
+    // 自动更新检测：渲染端就绪后 2s 触发，避免抢占首屏资源
+    setTimeout(() => {
+      if (win && !win.isDestroyed()) checkForUpdates()
+    }, 2000)
+  })
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

@@ -134,6 +134,12 @@ function createTables(): void {
   } catch {
     /* 列已存在 */
   }
+  // 迁移：给已有实例添加 description 列（实例简介）
+  try {
+    db.exec('ALTER TABLE instances ADD COLUMN description TEXT')
+  } catch {
+    /* 列已存在 */
+  }
 
   // 配置表（键值对）
   db.exec(`

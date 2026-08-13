@@ -430,9 +430,17 @@ async function getWindowsCandidates(): Promise<string[]> {
     for (const vendor of vendors) {
       for (const ver of versions) {
         const javaPath = path.join(root, vendor, ver, 'bin', 'java.exe')
-        candidates.push(javaPath)
-        candidates.push(path.join(root, vendor, ver + '-hotspot', 'bin', 'java.exe'))
-        candidates.push(path.join(root, vendor, ver + '-jre', 'bin', 'java.exe'))
+        if (fs.existsSync(javaPath) && !candidates.includes(javaPath)) {
+          candidates.push(javaPath)
+        }
+        const hotspotPath = path.join(root, vendor, ver + '-hotspot', 'bin', 'java.exe')
+        if (fs.existsSync(hotspotPath) && !candidates.includes(hotspotPath)) {
+          candidates.push(hotspotPath)
+        }
+        const jrePath = path.join(root, vendor, ver + '-jre', 'bin', 'java.exe')
+        if (fs.existsSync(jrePath) && !candidates.includes(jrePath)) {
+          candidates.push(jrePath)
+        }
       }
 
       // 检查 vendor 目录下的所有子目录（通配查找）

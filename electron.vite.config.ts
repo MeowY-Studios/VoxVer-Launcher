@@ -77,6 +77,9 @@ export default defineConfig({
     css: {
       preprocessorOptions: {
         scss: {
+          // sass-embedded >= 1.99 支持 modern-compiler api，@types/sass/vite 声明还未同步
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
           api: 'modern-compiler'
         }
       }

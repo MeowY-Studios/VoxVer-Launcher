@@ -8,6 +8,7 @@ import { getDatabase } from './database'
 export interface Instance {
   id: string
   name: string
+  description?: string | null
   path: string
   mc_version: string
   loader_type: 'vanilla' | 'forge' | 'fabric' | 'neoforge' | 'quilt'
