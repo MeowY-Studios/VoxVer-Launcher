@@ -180,8 +180,6 @@
       </div>
     </section>
   </div>
-
-  <PxLaunchProgress ref="pxProgressRef" />
 </template>
 
 <script setup lang="ts">
@@ -189,11 +187,8 @@ import { ref, computed, onMounted, onUnmounted, inject, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useVersionsStore, useAccountsStore, useInstancesStore } from '../stores'
-import PxLaunchProgress from '../components/common/PxLaunchProgress.vue'
 
 const { t, locale } = useI18n()
-
-const pxProgressRef = ref<InstanceType<typeof PxLaunchProgress> | null>(null)
 
 const router = useRouter()
 const settingsActive = inject<Ref<string>>('settingsActive')
@@ -246,7 +241,6 @@ async function handleLaunch() {
   hasError.value = false
   statusMessage.value = t('launch.buildingArgs')
   crashReport.value = null
-  pxProgressRef.value?.open()
   addLog('[VoxVer] 开始启动流程...')
 
   try {

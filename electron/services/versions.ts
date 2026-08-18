@@ -7,8 +7,16 @@ const log = logger.child('VersionsService')
 
 // BMCLAPI API 端点
 const BMCLAPI_BASE = 'https://bmclapi2.bangbang93.com'
-const BMCLAPI_MIRROR = 'https://mcplayer.cn'
 const MOJANG_BASE = 'https://launchermeta.mojang.com'
+
+// 多线路镜像源（按优先级排列）
+const VERSION_MIRRORS = [
+  'https://bmclapi2.bangbang93.com',
+  'https://bmclapi.bangbang93.com',
+  'https://mcplayer.cn',
+  'https://launchermeta.mojang.com',
+  'https://piston-meta.mojang.com'
+]
 
 interface MojangVersionManifest {
   latest: {
@@ -126,47 +134,57 @@ export class VersionsService {
       // 数据库读取失败，继续
     }
 
-    try {
-      const baseUrl = this.getBaseUrl()
-      const response = await fetch(`${baseUrl}/mc/game/version_manifest.json`)
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
-      const data = await response.json()
+    // 3. 多线路镜像请求（自动切换）
+    const mirrors = this.source === 'official' ? [MOJANG_BASE] : VERSION_MIRRORS
+    let lastError: unknown = null
 
-      // 更新内存和数据库缓存
-      this.cache.set(cacheKey, { data, timestamp: Date.now() })
+    for (const mirrorUrl of mirrors) {
       try {
-        this.db
-          .prepare('INSERT OR REPLACE INTO configs (key, value) VALUES (?, ?)')
-          .run(['versionList', JSON.stringify({ data, timestamp: Date.now() })])
-      } catch (dbError) {
-        log.error('[VersionsService] 保存缓存失败:', dbError)
-      }
-
-      return data
-    } catch (error) {
-      log.error('[VersionsService] 获取版本列表失败:', error)
-
-      // 即使请求失败，也尝试返回数据库中的旧缓存
-      try {
-        const dbCached = this.db
-          .prepare('SELECT * FROM configs WHERE key = ?')
-          .get(['versionList']) as any
-
-        if (dbCached) {
-          const cachedData = JSON.parse(dbCached.value)
-          this.cache.set(cacheKey, { data: cachedData.data, timestamp: cachedData.timestamp })
-          return cachedData.data
+        const response = await fetch(`${mirrorUrl}/mc/game/version_manifest.json`)
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`)
         }
-      } catch {
-        // 忽略
-      }
+        const data = await response.json()
 
-      // 降级到官方 API
-      const fallback = await this.getMojangManifest()
-      return fallback
+        // 更新内存和数据库缓存
+        this.cache.set(cacheKey, { data, timestamp: Date.now() })
+        try {
+          this.db
+            .prepare('INSERT OR REPLACE INTO configs (key, value) VALUES (?, ?)')
+            .run(['versionList', JSON.stringify({ data, timestamp: Date.now() })])
+        } catch (dbError) {
+          log.error('[VersionsService] 保存缓存失败:', dbError)
+        }
+
+        log.info(`[VersionsService] 版本列表获取成功 (源: ${mirrorUrl})`)
+        return data
+      } catch (error) {
+        lastError = error
+        log.warn(`[VersionsService] 镜像 ${mirrorUrl} 失败: ${(error as Error).message}`)
+      }
     }
+
+    // 所有镜像都失败
+    log.error('[VersionsService] 所有镜像获取版本列表失败:', lastError)
+
+    // 即使请求失败，也尝试返回数据库中的旧缓存
+    try {
+      const dbCached = this.db
+        .prepare('SELECT * FROM configs WHERE key = ?')
+        .get(['versionList']) as any
+
+      if (dbCached) {
+        const cachedData = JSON.parse(dbCached.value)
+        this.cache.set(cacheKey, { data: cachedData.data, timestamp: cachedData.timestamp })
+        return cachedData.data
+      }
+    } catch {
+      // 忽略
+    }
+
+    // 降级到官方 API
+    const fallback = await this.getMojangManifest()
+    return fallback
   }
 
   // 获取 Mojang 版本清单（降级方案）
@@ -205,17 +223,29 @@ export class VersionsService {
     }
 
     try {
-      // ✅ 复用 getVersionList() 的缓存，不再重复下载 manifest
+      // 复用 getVersionList() 的缓存，不再重复下载 manifest
       const manifest = await this.getVersionList()
       const verEntry = manifest.versions.find((v) => v.id === versionId)
       if (!verEntry) return null
 
-      // 用 manifest 中的 URL 下载 version.json
-      const response = await fetch(verEntry.url)
-      if (!response.ok) throw new Error(`HTTP ${response.status}`)
-      const data = await response.json()
-      this.cache.set(cacheKey, { data, timestamp: Date.now() })
-      return data
+      // 用 manifest 中的 URL 下载 version.json（多线路回退）
+      let lastError: unknown = null
+      for (const mirrorUrl of VERSION_MIRRORS) {
+        try {
+          const mirrorUrl_full = verEntry.url.replace(/https?:\/\/[^/]+/, mirrorUrl)
+          const response = await fetch(mirrorUrl_full)
+          if (!response.ok) throw new Error(`HTTP ${response.status}`)
+          const data = await response.json()
+          this.cache.set(cacheKey, { data, timestamp: Date.now() })
+          return data
+        } catch (err) {
+          lastError = err
+          log.warn(`[VersionsService] 版本 ${versionId} 信息获取失败 (源: ${mirrorUrl}): ${(err as Error).message}`)
+        }
+      }
+
+      log.error(`[VersionsService] 获取版本 ${versionId} 信息全部镜像失败:`, lastError)
+      return null
     } catch (error) {
       log.error(`[VersionsService] 获取版本 ${versionId} 信息失败:`, error)
       return null

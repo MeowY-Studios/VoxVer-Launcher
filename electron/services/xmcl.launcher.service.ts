@@ -16,6 +16,7 @@ import {
   installLibraries
 } from '@xmcl/installer'
 import type { Options as InstallerOptions, LibraryOptions as InstallerLibraryOptions } from '@xmcl/installer'
+import { Agent, interceptors } from 'undici'
 import { ChildProcess } from 'child_process'
 import { BrowserWindow } from 'electron'
 import * as fs from 'fs'
@@ -32,8 +33,13 @@ import { logger } from '../utils/logger'
 import { validatePathSafe } from '../utils/path-validation'
 const log = logger.child('XMCL')
 
-// BMCLAPI 镜像配置
+// BMCLAPI 镜像配置（多线路）
 const BMCLAPI_BASE = 'https://bmclapi2.bangbang93.com'
+const BMCLAPI_MIRRORS_LIST = [
+  'https://bmclapi2.bangbang93.com',
+  'https://bmclapi.bangbang93.com',
+  'https://mcplayer.cn'
+]
 const BMCLAPI_MAVEN = `${BMCLAPI_BASE}/maven`
 const BMCLAPI_ASSETS = `${BMCLAPI_BASE}/assets`
 const BMCLAPI_VERSION = `${BMCLAPI_BASE}/version`
@@ -160,58 +166,53 @@ function isValidJsonObjectFile(filePath: string): boolean {
   }
 }
 function bmclapiLibraryHost(lib: { download?: { url?: string } }): string | string[] | undefined {
-  // optifine 家族：直接返回「空字符串数组」信号，让 installLibraries 视为"已有镜像、不需要再尝试 mavenHost"
-  // 实际上我们就是不想让它下载；否则必定会走 optifine.net → 长挂。
+  // optifine 家族：返回空数组信号，让 installLibraries 跳过下载（这些是本地合成库，没有公开仓库）
   if (isOptiFineLocalLib(lib)) return []
+  // 其他库返回 undefined，让 mavenHost + 原始URL + DEFAULT_MAVENS 一起尝试
+  // 这样如果 BMCLAPI 镜像失败，会自动回退到原始域名
   if (lib.download?.url) {
-    const originalUrl = lib.download.url
-    if (originalUrl.includes('libraries.minecraft.net')) {
-      return originalUrl.replace('https://libraries.minecraft.net', BMCLAPI_MAVEN)
-    }
-    if (originalUrl.includes('maven.fabricmc.net')) {
-      return originalUrl.replace('https://maven.fabricmc.net', `${BMCLAPI_BASE}/maven`)
-    }
-    if (originalUrl.includes('files.minecraftforge.net')) {
-      return originalUrl.replace('https://files.minecraftforge.net', `${BMCLAPI_BASE}/maven`)
-    }
-    if (originalUrl.includes('maven.minecraftforge.net')) {
-      return originalUrl.replace('https://maven.minecraftforge.net', `${BMCLAPI_BASE}/maven`)
-    }
-    // OptiFine / NeoForge / Quilt / Maven Central 等常见但国内访问慢的源
-    if (originalUrl.includes('optifine.net')) {
-      return []  // 同上：不下载
-    }
-    if (originalUrl.includes('maven.neoforged.net')) {
-      return originalUrl.replace('https://maven.neoforged.net', `${BMCLAPI_BASE}/maven`)
-    }
-    if (originalUrl.includes('maven.quiltmc.org')) {
-      return originalUrl.replace('https://maven.quiltmc.org', `${BMCLAPI_BASE}/maven`)
-    }
-    if (originalUrl.includes('repo1.maven.org/maven2')) {
-      return originalUrl.replace('https://repo1.maven.org/maven2', BMCLAPI_MAVEN)
+    const url = lib.download.url
+    if (
+      url.includes('optifine.net') ||
+      url.includes('/optifine/')
+    ) {
+      return []
     }
   }
   return undefined
 }
 
-// 资源索引 URL 替换为 BMCLAPI
+// 资源索引 URL 替换为 BMCLAPI（返回多线路数组）
 function bmclapiAssetsIndexUrl(version: ResolvedVersion): string | string[] {
   if (version.assetIndex?.url) {
-    return version.assetIndex.url
-      .replace('https://launchermeta.mojang.com', BMCLAPI_BASE)
-      .replace('https://piston-meta.mojang.com', BMCLAPI_BASE)
+    return BMCLAPI_MIRRORS_LIST.map((base) =>
+      version.assetIndex!.url
+        .replace('https://launchermeta.mojang.com', base)
+        .replace('https://piston-meta.mojang.com', base)
+    )
   }
-  // 返回空数组表示不替换（类型要求不能返回 undefined）
   return []
 }
 
-// 统一的 BMCLAPI 安装选项
+// 带超时的 undici Agent（per-request 15s 超时 + 3 次重试）
+const DOWNLOAD_TIMEOUT = 15_000
+const downloadDispatcher = new Agent({
+  connect: { timeout: DOWNLOAD_TIMEOUT },
+  bodyTimeout: DOWNLOAD_TIMEOUT,
+  headersTimeout: DOWNLOAD_TIMEOUT,
+}).compose(
+  interceptors.retry({ maxRetries: 3, maxTimeout: DOWNLOAD_TIMEOUT }),
+  interceptors.redirect({ maxRedirections: 5 })
+)
+
+// 统一的 BMCLAPI 安装选项（多线路 + per-request 超时）
 function getBmclapiInstallOptions(): Record<string, unknown> {
   return {
     libraryHost: bmclapiLibraryHost,
-    mavenHost: [BMCLAPI_MAVEN, `${BMCLAPI_BASE}/maven`],
-    assetsHost: [BMCLAPI_ASSETS, `${BMCLAPI_BASE}/assets`],
-    assetsIndexUrl: bmclapiAssetsIndexUrl
+    mavenHost: BMCLAPI_MIRRORS_LIST.map((b) => `${b}/maven`),
+    assetsHost: BMCLAPI_MIRRORS_LIST.map((b) => `${b}/assets`),
+    assetsIndexUrl: bmclapiAssetsIndexUrl,
+    dispatcher: downloadDispatcher
   }
 }
 
@@ -336,6 +337,13 @@ async function downloadMissingDependencies(
     log.info(`[downloadMissingDependencies] 开始检测并下载缺失文件: ${versionId}`)
     mainWindow.webContents.send('game:status', 'downloading')
 
+    // 通知前端：开始检查文件
+    mainWindow.webContents.send('game:progress', {
+      phase: 'checking-files',
+      message: '正在检查游戏文件...',
+      detail: `版本: ${versionId}`
+    })
+
     const folder = new MinecraftFolder(gamePath)
 
     // 1. 先用 diagnose 检测缺失文件（用于日志和反馈）
@@ -343,6 +351,12 @@ async function downloadMissingDependencies(
 
     if (report && report.issues.length === 0) {
       log.info(`[downloadMissingDependencies] 诊断完成，所有文件完整，无需下载`)
+      // 通知前端：文件检查完成，跳过下载
+      mainWindow.webContents.send('game:progress', {
+        phase: 'downloading-files',
+        message: '游戏文件完整，无需下载',
+        detail: '所有依赖文件已存在'
+      })
       mainWindow.webContents.send('game:status', 'launching')
       return true
     }
@@ -453,17 +467,32 @@ async function downloadMissingDependencies(
     }
 
     // 3. 安装依赖（libraries + assets）— installDependencies 内部会跳过已存在的文件
-    //    注意：国内网络下 installDependencies 可能因为单个外网库连接长时间挂起，
-    //    所以用带 90s 超时的包装，避免整个启动链路看起来"卡死"。
+    //    使用 per-request 超时 + 多线路镜像，单文件超时自动切换下载源
     checkLaunchAbort('开始安装依赖前')
     log.info(`[downloadMissingDependencies] 开始安装依赖（库 + 资源）`)
     let installOk = false
+
+    const installOptions = getBmclapiInstallOptions()
+    log.info(`[downloadMissingDependencies] 镜像配置: mavenHost=${JSON.stringify(installOptions.mavenHost)}`)
+
+    // 通知前端：开始下载依赖
+    mainWindow.webContents.send('game:progress', {
+      phase: 'downloading-files',
+      message: '正在下载游戏依赖文件...',
+      detail: `${BMCLAPI_MIRRORS_LIST.length} 条镜像线路，单文件 ${DOWNLOAD_TIMEOUT / 1000}s 超时自动切换`
+    })
+
     try {
       const refreshedVersion = await Version.parse(gamePath, versionId)
       const t0 = Date.now()
       log.info(`[downloadMissingDependencies] installDependencies 开始，超时 90s ...`)
+      mainWindow.webContents.send('game:progress', {
+        phase: 'downloading-files',
+        message: '正在下载库文件和资源...',
+        detail: '优先使用国内镜像，超时自动切换备用源'
+      })
       await withTimeout(
-        installDependencies(refreshedVersion, getBmclapiInstallOptions() as InstallerOptions),
+        installDependencies(refreshedVersion, installOptions as InstallerOptions),
         90_000,
         `installDependencies(${versionId}) 超过 90s，中断并降级为分步安装`
       )
@@ -472,12 +501,23 @@ async function downloadMissingDependencies(
     } catch (e: unknown) {
       checkLaunchAbort('installDependencies 超时/失败后')
       log.warn(`[downloadMissingDependencies] installDependencies 失败，尝试分步安装: ${(e as Error).message}`)
+      // 通知前端：批量下载失败，正在降级
+      mainWindow.webContents.send('game:progress', {
+        phase: 'downloading-files',
+        message: '批量下载超时，正在分步重试...',
+        detail: '逐个下载库文件，失败时自动切换下载源'
+      })
       try {
         const refreshedVersion = await Version.parse(gamePath, versionId)
         const tLib = Date.now()
         log.info(`[downloadMissingDependencies] 开始 installLibraries，超时 90s ...`)
+        mainWindow.webContents.send('game:progress', {
+          phase: 'downloading-files',
+          message: '正在下载库文件...',
+          detail: `镜像源: ${BMCLAPI_MIRRORS_LIST.join(' → ')}`
+        })
         await withTimeout(
-          installLibraries(refreshedVersion, getBmclapiInstallOptions() as InstallerLibraryOptions),
+          installLibraries(refreshedVersion, installOptions as InstallerLibraryOptions),
           90_000,
           `installLibraries(${versionId}) 超过 90s，中断`
         )
@@ -486,8 +526,13 @@ async function downloadMissingDependencies(
 
         const tAsset = Date.now()
         log.info(`[downloadMissingDependencies] 开始 installAssets，超时 90s ...`)
+        mainWindow.webContents.send('game:progress', {
+          phase: 'downloading-files',
+          message: '正在下载游戏资源...',
+          detail: '纹理、声音等资源文件'
+        })
         await withTimeout(
-          installAssets(refreshedVersion, getBmclapiInstallOptions() as InstallerOptions),
+          installAssets(refreshedVersion, installOptions as InstallerOptions),
           90_000,
           `installAssets(${versionId}) 超过 90s，中断`
         )
@@ -495,6 +540,12 @@ async function downloadMissingDependencies(
         installOk = true
       } catch (e2: unknown) {
         log.error(`[downloadMissingDependencies] 分步安装也失败: ${(e2 as Error).message}`)
+        // 通知前端：所有下载源都失败
+        mainWindow.webContents.send('game:progress', {
+          phase: 'error',
+          message: '依赖下载失败',
+          detail: `所有镜像源均无法下载: ${(e2 as Error).message}`
+        })
       }
     }
     checkLaunchAbort('依赖安装阶段结束')
@@ -875,6 +926,13 @@ export async function launchWithXMCL(
   try {
     gameStatus = 'launching'
     log.info(`[launchWithXMCL] 开始启动版本: ${options.versionId}`)
+
+    // 通知前端：开始构建启动配置
+    mainWindow.webContents.send('game:progress', {
+      phase: 'building-config',
+      message: '正在构建启动参数...',
+      detail: `版本: ${options.versionId}`
+    })
     
     const sharedGamePath = options.gamePath
     const instancePath = options.gameDir
@@ -887,6 +945,12 @@ export async function launchWithXMCL(
 
     let javaPath: string
     try {
+      // 通知前端：正在验证 Java
+      mainWindow.webContents.send('game:progress', {
+        phase: 'validating-java',
+        message: '正在验证 Java 环境...',
+        detail: '检测 Java 版本和路径'
+      })
       javaPath = await resolveJavaPath(versionId, options.javaPath)
       log.info(`[launchWithXMCL] 使用 Java: ${javaPath}`)
     } catch (e: unknown) {
@@ -1158,11 +1222,26 @@ export async function launchWithXMCL(
       launchOptions.extraExecOption!['windowsHide'] = false
     }
 
+    // 通知前端：正在启动游戏进程
+    mainWindow.webContents.send('game:progress', {
+      phase: 'launching-process',
+      message: '正在启动游戏进程...',
+      detail: `版本: ${versionId}`
+    })
+
     log.info(`[launchWithXMCL] 正在启动游戏...`)
     const proc = await launch(launchOptions as unknown as Parameters<typeof launch>[0])
 
     currentProcess = proc
     gameStatus = 'running'
+
+    // 通知前端：游戏已启动
+    mainWindow.webContents.send('game:progress', {
+      phase: 'running',
+      message: '游戏已启动',
+      detail: `版本: ${versionId}，PID: ${proc.pid}`
+    })
+    mainWindow.webContents.send('game:status', 'running')
 
     // 为了避免 stdout/stderr 环形缓冲撑爆内存，用 tail 数组保留最后 200 行，
     // 进程 exit code != 0 时一次性输出到日志。

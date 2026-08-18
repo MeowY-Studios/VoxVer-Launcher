@@ -142,9 +142,15 @@ const DEFAULT_PEER_CONFIG = {
   debug: 0,
   config: {
     iceServers: [
+      // Google STUN（全球高可用）
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun:openrelay.metered.ca:80' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun3.l.google.com:19302' },
+      { urls: 'stun:stun4.l.google.com:19302' },
+      // Cloudflare STUN
+      { urls: 'stun:stun.cloudflare.com:3478' },
+      // Open Relay TURN（免费公共 TURN 服务，提升 NAT 穿透成功率）
       {
         urls: 'turn:openrelay.metered.ca:80',
         username: 'openrelayproject',
@@ -159,14 +165,22 @@ const DEFAULT_PEER_CONFIG = {
         urls: 'turn:openrelay.metered.ca:443?transport=tcp',
         username: 'openrelayproject',
         credential: 'openrelayproject'
-      }
+      },
+      {
+        urls: 'turns:openrelay.metered.ca:443',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      // Twilio STUN
+      { urls: 'stun:stun.twilio.com:3478' }
     ]
   }
 }
 
+// 备用信令服务器（peerjs-server.herokuapp.com 已停服，仅保留官方和自定义）
 const FALLBACK_PEER_CONFIGS = [
   {
-    host: 'peerjs-server.herokuapp.com',
+    host: '0.peerjs.com',
     port: 443,
     path: '/',
     secure: true,

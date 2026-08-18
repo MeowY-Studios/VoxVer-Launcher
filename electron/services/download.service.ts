@@ -18,8 +18,11 @@ import { logger } from '../utils/logger'
 const log = logger.child('Download')
 
 const BMCLAPI_MIRRORS = [
+  { name: 'BMCLAPI', url: 'https://bmclapi2.bangbang93.com', ping: 0 },
+  { name: 'BMCLAPI(备用)', url: 'https://bmclapi.bangbang93.com', ping: 0 },
+  { name: 'MCPlayer', url: 'https://mcplayer.cn', ping: 0 },
   { name: 'Mojang 官方', url: 'https://launchermeta.mojang.com', ping: 0 },
-  { name: 'BMCLAPI', url: 'https://bmclapi2.bangbang93.com', ping: 0 }
+  { name: 'Mojang 新端点', url: 'https://piston-meta.mojang.com', ping: 0 }
 ]
 
 export class DownloadService extends EventEmitter {
@@ -112,12 +115,19 @@ export class DownloadService extends EventEmitter {
   }
 
   replaceWithMirror(url: string): string {
-    for (const mirror of BMCLAPI_MIRRORS) {
-      if (url.includes('bmclapi')) {
-        return url.replace(/https?:\/\/[^/]+/, mirror.url)
-      }
-    }
-    return url
+    return url.replace(/https?:\/\/[^/]+/, this.currentMirror.url)
+  }
+
+  /** 根据 URL 判断是否需要镜像替换（MoJang/BMCLAPI 等资源 URL） */
+  private shouldMirror(url: string): boolean {
+    return (
+      url.includes('launchermeta.mojang.com') ||
+      url.includes('piston-meta.mojang.com') ||
+      url.includes('libraries.minecraft.net') ||
+      url.includes('resources.download.minecraft.net') ||
+      url.includes('bmclapi') ||
+      url.includes('mcplayer.cn')
+    )
   }
 
   async addDownload(
@@ -126,7 +136,7 @@ export class DownloadService extends EventEmitter {
     options?: { useMirror?: boolean; threads?: number }
   ): Promise<DownloadTask> {
     const id = `dl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-    const useMirror = options?.useMirror ?? true
+    const useMirror = options?.useMirror ?? this.shouldMirror(url)
     const finalUrl = useMirror ? this.replaceWithMirror(url) : url
 
     const task: DownloadTask = {
@@ -210,6 +220,9 @@ export class DownloadService extends EventEmitter {
         task.status = 'cancelled'
         this.emit('task:cancelled', task)
       } else {
+        // 尝试镜像切换重试
+        const retried = await this.retryWithNextMirror(task)
+        if (retried) return
         task.status = 'error'
         task.error = (err as Error).message
         this.emit('task:error', task)
@@ -474,10 +487,38 @@ export class DownloadService extends EventEmitter {
 
     const failedChunks = (task.chunks ?? []).filter((c) => c.status === 'error')
     if (failedChunks.length > 0) {
+      // 尝试镜像切换重试
+      const retried = await this.retryWithNextMirror(task)
+      if (retried) return
       throw new Error(`${failedChunks.length} chunks failed to download`)
     }
 
     this.saveResumeData(task, resumeFile)
+  }
+
+  /** 下载失败时切换到下一个镜像并重试 */
+  private async retryWithNextMirror(task: DownloadTask): Promise<boolean> {
+    if (!task.useMirror) return false
+    const currentIndex = BMCLAPI_MIRRORS.findIndex((m) => m.url === this.currentMirror.url)
+    const nextIndex = (currentIndex + 1) % BMCLAPI_MIRRORS.length
+    if (nextIndex === currentIndex) return false // 只有一个镜像
+    const nextMirror = BMCLAPI_MIRRORS[nextIndex]
+    log.warn(`[Download] ${task.fileName} 下载失败，切换镜像: ${this.currentMirror.name} → ${nextMirror.name}`)
+    // 临时切换到下一个镜像
+    const prevMirror = this.currentMirror
+    this.currentMirror = nextMirror
+    task.url = this.replaceWithMirror(task.originalUrl || task.url)
+    task.status = 'pending'
+    task.updatedAt = new Date()
+    this.emit('task:mirror-switch', { task, mirror: nextMirror })
+    // 重新启动下载
+    try {
+      this.startDownload(task)
+      return true
+    } catch {
+      this.currentMirror = prevMirror
+      return false
+    }
   }
 
   private processQueue(): void {

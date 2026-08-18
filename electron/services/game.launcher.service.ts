@@ -152,6 +152,10 @@ interface AccountRow {
 // ===== 常量 =====
 
 const BMCLAPI = 'https://bmclapi2.bangbang93.com'
+const BMCLAPI_FALLBACKS = [
+  'https://bmclapi.bangbang93.com',
+  'https://mcplayer.cn'
+]
 const PARALLEL_DOWNLOAD_CONCURRENCY = 5 // 并行下载并发数
 
 // ===== MinecraftLauncher 类 =====
@@ -723,7 +727,7 @@ class MinecraftLauncher {
     this.sendProgress('downloading-files', '正在下载缺失文件...')
 
     // 1. 下载缺失的 libraries
-    const missingLibs: Array<{ url: string; path: string }> = []
+    const missingLibs: Array<{ url: string; path: string; fallbackUrl?: string }> = []
     for (const lib of versionJson.libraries || []) {
       if (!this.checkLibRules(lib.rules)) continue
 
@@ -739,7 +743,8 @@ class MinecraftLauncher {
           } catch {}
         }
         const bmclUrl = `${BMCLAPI}/libraries/${dl.path}`
-        missingLibs.push({ url: bmclUrl, path: fullPath })
+        const fallbackUrl = `${BMCLAPI_FALLBACKS[0]}/libraries/${dl.path}`
+        missingLibs.push({ url: bmclUrl, path: fullPath, fallbackUrl })
       }
     }
 

@@ -1104,7 +1104,7 @@
         <div class="sec-body">
           <div class="row">
             <div class="row-control full">
-              <textarea class="textarea" rows="4" readonly :placeholder="$t('settings.advancedSection.launchCommandPlaceholder')" style="font-family:var(--font-mono,monospace);font-size:12px;opacity:0.7"></textarea>
+              <textarea class="textarea" rows="4" readonly :value="launchCommandPreview" :placeholder="$t('settings.advancedSection.launchCommandPlaceholder')" style="font-family:var(--font-mono,monospace);font-size:12px"></textarea>
             </div>
           </div>
         </div>
@@ -2306,7 +2306,7 @@
             </svg>
             {{ $t('settings.openMcDir') }}
           </button>
-          <button class="action-btn outline">
+          <button class="action-btn outline" @click="openDirectory('userData')">
             <svg
               width="14"
               height="14"
@@ -2322,12 +2322,12 @@
         </div>
 
         <div class="btn-row" style="margin-top: 10px">
-          <button class="action-btn outline">{{ $t('settings.clearDownloadCache') }}</button>
-          <button class="action-btn outline">{{ $t('settings.clearVersionCache') }}</button>
+          <button class="action-btn outline" @click="clearDownloadCache">{{ $t('settings.clearDownloadCache') }}</button>
+          <button class="action-btn outline" @click="clearVersionCache">{{ $t('settings.clearVersionCache') }}</button>
         </div>
 
         <div class="btn-row danger-zone" style="margin-top: 18px">
-          <button class="action-btn danger">{{ $t('settings.resetSettings') }}</button>
+          <button class="action-btn danger" @click="resetSettings">{{ $t('settings.resetSettings') }}</button>
         </div>
       </section>
 
@@ -2952,6 +2952,46 @@ const activeCategory = computed(() => settingsActive?.value || 'home')
 
 const searchQuery = ref('')
 
+// 设置分类搜索关键词映射（key: category id, value: 该分类相关的搜索标签）
+const SEARCH_CATEGORY_MAP: Record<string, string[]> = {
+  home: ['首页', '主页', '概览', 'home', 'dashboard', '概述'],
+  launcher: ['启动', '游戏', '版本', '启动器', 'launch', 'start', 'version', '窗口', '全屏'],
+  account: ['账号', '账户', '登录', 'account', 'login', '用户', '皮肤'],
+  about: ['关于', '版权', '信息', '版本号', 'about', 'info', 'credits'],
+  copyright: ['版权', '许可', '开源', 'license', 'copyright', '第三方'],
+  profile: ['个人资料', '账户', 'profile'],
+  'java-memory': ['java', '内存', 'jvm', '堆', 'memory', 'ram', '分配', '垃圾回收'],
+  'game-dir': ['目录', '文件夹', '路径', '游戏文件', 'instance', 'minecraft', '实例'],
+  advanced: ['高级', 'jvm参数', '命令行', '启动命令', '进程', '优先级', 'advanced', 'args'],
+  personalize: ['个性化', '外观', '自定义', '主题', '背景', '颜色', 'theme', 'appearance', '个性化'],
+  interface: ['界面', '交互', '布局', '侧边栏', '字体', '动画', 'ui', 'interface', '特效'],
+  language: ['语言', '国际化', '多语言', 'language', 'locale', 'i18n', '中文', '英文'],
+  accessibility: ['辅助', '无障碍', '色盲', '字体缩放', '屏幕阅读器', 'accessibility', 'a11y', '辅助功能'],
+  'download-net': ['下载', '网络', '镜像', '线程', '速度', 'download', 'mirror', '网络', '源'],
+  'data-migration': ['迁移', '导入', '导出', 'hmcl', 'pcl', '数据', 'migration', 'import'],
+  online: ['在线', '联机', '多人', 'online', 'multiplayer'],
+  'auth-service': ['安全', '扫描', '病毒', '防病毒', 'security', '安全扫描', '信任', '完整性'],
+  other: ['数据', '缓存', '备份', '社区', '整合包', 'other', '数据管理', '清除'],
+  service: ['服务', '后台', '自启动', 'service'],
+  sponsor: ['赞助', '支持', '捐赠', 'sponsor', '支持作者'],
+  developer: ['开发者', '调试', '开发', '代理', '日志', 'dev', 'debug', '开发人员', '实验']
+}
+
+// 设置搜索：匹配关键词并跳转到首个匹配分类
+function onSearchInput() {
+  const q = searchQuery.value.trim().toLowerCase()
+  if (!q) return
+  for (const [cat, keywords] of Object.entries(SEARCH_CATEGORY_MAP)) {
+    const hit = keywords.some((k) => k.toLowerCase().includes(q) || q.includes(k.toLowerCase()))
+    // 同时匹配分类标题（通过 i18n key 的方式兜底匹配）
+    const catMatch = cat.toLowerCase().includes(q)
+    if (hit || catMatch) {
+      switchCategory(cat)
+      return
+    }
+  }
+}
+
 // Java 检测结果类型
 interface JavaInfo {
   id: string
@@ -2978,9 +3018,6 @@ interface BackupFileInfo {
 
 function switchCategory(cat: string) {
   if (settingsActive) settingsActive.value = cat
-}
-function onSearchInput() {
-  // 搜索过滤 - 后续可扩展为全局设置搜索
 }
 
 // ===== 游戏文件夹列表管理 =====
@@ -3155,93 +3192,100 @@ const selectedJavaPreset = computed({
   }
 })
 
+// 日志级别：与 electron/utils/logger.ts 中 LogLevel 保持同步
+type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR'
+const LOG_LEVELS: readonly LogLevel[] = ['DEBUG', 'INFO', 'WARN', 'ERROR'] as const
+function safeLogLevel(v: string | null): LogLevel {
+  return LOG_LEVELS.includes(v as LogLevel) ? (v as LogLevel) : 'INFO'
+}
+
 const s = reactive({
   // 启动
-  versionIsolation: 'version',
-  windowTitle: 'Minecraft {version}',
-  launchVisibility: 'hide',
-  processPriority: 'normal',
-  winW: '854',
-  winH: '480',
-  windowPreset: 'default',
-  fullscreen: false,
-  javaPreset: 'auto',
-  javaPath: '',
-  memoryMode: 'auto',
-  memoryCustomGB: 4,
-  memoryMin: 1024,
-  memoryMax: 4096,
-  offlineSkin: 'default',
-  customSkinPath: '',
-  officialSkinName: '',
-  jvmArgs: '',
-  gameArgs: '',
-  preLaunchCmd: '',
-  memoryManage: 'g1gc',
-  disableJavaLaunchWrapper: false,
-  disableLwjglUnsafeAgent: false,
-  useHighPerformanceGPU: false,
+  versionIsolation: (localStorage.getItem('voxver_versionIsolation') as string) || 'version',
+  windowTitle: localStorage.getItem('voxver_windowTitle') || 'Minecraft {version}',
+  launchVisibility: (localStorage.getItem('voxver_launchVisibility') as string) || 'hide',
+  processPriority: (localStorage.getItem('voxver_processPriority') as string) || 'normal',
+  winW: localStorage.getItem('voxver_winW') || '854',
+  winH: localStorage.getItem('voxver_winH') || '480',
+  windowPreset: (localStorage.getItem('voxver_windowPreset') as string) || 'default',
+  fullscreen: localStorage.getItem('voxver_fullscreen') === 'true',
+  javaPreset: (localStorage.getItem('voxver_javaPreset') as string) || 'auto',
+  javaPath: localStorage.getItem('voxver_javaPath') || '',
+  memoryMode: (localStorage.getItem('voxver_memoryMode') as string) || 'auto',
+  memoryCustomGB: Number(localStorage.getItem('voxver_memoryCustomGB')) || 4,
+  memoryMin: Number(localStorage.getItem('voxver_memoryMin')) || 1024,
+  memoryMax: Number(localStorage.getItem('voxver_memoryMax')) || 4096,
+  offlineSkin: (localStorage.getItem('voxver_offlineSkin') as string) || 'default',
+  customSkinPath: localStorage.getItem('voxver_customSkinPath') || '',
+  officialSkinName: localStorage.getItem('voxver_officialSkinName') || '',
+  jvmArgs: localStorage.getItem('voxver_jvmArgs') || '',
+  gameArgs: localStorage.getItem('voxver_gameArgs') || '',
+  preLaunchCmd: localStorage.getItem('voxver_preLaunchCmd') || '',
+  memoryManage: (localStorage.getItem('voxver_memoryManage') as string) || 'g1gc',
+  disableJavaLaunchWrapper: localStorage.getItem('voxver_disableJavaLaunchWrapper') === 'true',
+  disableLwjglUnsafeAgent: localStorage.getItem('voxver_disableLwjglUnsafeAgent') === 'true',
+  useHighPerformanceGPU: localStorage.getItem('voxver_useHighPerformanceGPU') === 'true',
 
   // 个性化
-  opacity: 100,
+  opacity: Number(localStorage.getItem('voxver_opacity')) || 100,
   themeColor: localStorage.getItem('voxver_themeColor') || '#14b8a6',
-  accentColor: '#8b5cf6',
+  accentColor: localStorage.getItem('voxver_accentColor') || '#8b5cf6',
   lang: (localStorage.getItem('voxver-language') as 'zh-CN' | 'en-US') || 'zh-CN',
   dateFormat: (localStorage.getItem('voxver-dateFormat') as 'follow' | '24h' | '12h') || 'follow',
-  bgMusicMode: 'none',
-  titleBarMode: 'default',
-  homeContent: 'blank',
-  fontSize: 14,
-  enableAnimations: true,
-  enableEffects: true,
-  enableSounds: true,
+  bgMusicMode: (localStorage.getItem('voxver_bgMusicMode') as string) || 'none',
+  titleBarMode: (localStorage.getItem('voxver_titleBarMode') as string) || 'default',
+  homeContent: (localStorage.getItem('voxver_homeContent') as string) || 'blank',
+  fontSize: Number(localStorage.getItem('voxver_fontSize')) || 14,
+  enableAnimations: localStorage.getItem('voxver_enableAnimations') !== 'false',
+  enableEffects: localStorage.getItem('voxver_enableEffects') !== 'false',
+  enableSounds: localStorage.getItem('voxver_enableSounds') !== 'false',
 
   // 其他
-  downloadSource: 'bmclapi',
-  versionListSource: 'bmclapi',
-  maxThreads: 32,
-  speedLimit: 0,
-  modSource: 'both',
-  fileNameFormat: 'name-version',
-  modManageStyle: 'card',
+  downloadSource: (localStorage.getItem('voxver_downloadSource') as string) || 'bmclapi',
+  versionListSource: (localStorage.getItem('voxver_versionListSource') as string) || 'bmclapi',
+  maxThreads: Number(localStorage.getItem('voxver_maxThreads')) || 32,
+  speedLimit: Number(localStorage.getItem('voxver_speedLimit')) || 0,
+  modSource: (localStorage.getItem('voxver_modSource') as string) || 'both',
+  fileNameFormat: (localStorage.getItem('voxver_fileNameFormat') as string) || 'name-version',
+  modManageStyle: (localStorage.getItem('voxver_modManageStyle') as string) || 'card',
 
   // P2: 全局快捷键
-  hotkeyLaunch: 'Ctrl+Shift+L',
-  hotkeyToggleWindow: 'Ctrl+Shift+H',
-  hotkeyOpenHome: 'Ctrl+Shift+O',
-  hotkeyOpenSettings: 'Ctrl+,',
+  hotkeyLaunch: localStorage.getItem('voxver_hotkeyLaunch') || 'Ctrl+Shift+L',
+  hotkeyToggleWindow: localStorage.getItem('voxver_hotkeyToggleWindow') || 'Ctrl+Shift+H',
+  hotkeyOpenHome: localStorage.getItem('voxver_hotkeyOpenHome') || 'Ctrl+Shift+O',
+  hotkeyOpenSettings: localStorage.getItem('voxver_hotkeyOpenSettings') || 'Ctrl+,',
 
   // P2: 主题自定义
-  themeCustomColor: '#14b8a6',
-  themeBgOpacity: 100,
+  themeCustomColor: localStorage.getItem('voxver_themeCustomColor') || '#14b8a6',
+  themeBgOpacity: Number(localStorage.getItem('voxver_themeBgOpacity')) || 100,
 
   // P2: 整合包工具
-  modpackInstancePath: '',
-  modpackOutputDir: '',
-  modpackIncludeConfigs: true,
-  modpackIncludeMods: true,
-  modpackIncludeSaves: true,
-  modpackIncludeResourcepacks: false,
-  modpackName: '',
-  modpackAuthor: '',
-  modpackVersion: '1.0.0',
+  modpackInstancePath: localStorage.getItem('voxver_modpackInstancePath') || '',
+  modpackOutputDir: localStorage.getItem('voxver_modpackOutputDir') || '',
+  modpackIncludeConfigs: localStorage.getItem('voxver_modpackIncludeConfigs') !== 'false',
+  modpackIncludeMods: localStorage.getItem('voxver_modpackIncludeMods') !== 'false',
+  modpackIncludeSaves: localStorage.getItem('voxver_modpackIncludeSaves') !== 'false',
+  modpackIncludeResourcepacks: localStorage.getItem('voxver_modpackIncludeResourcepacks') === 'true',
+  modpackName: localStorage.getItem('voxver_modpackName') || '',
+  modpackAuthor: localStorage.getItem('voxver_modpackAuthor') || '',
+  modpackVersion: localStorage.getItem('voxver_modpackVersion') || '1.0.0',
 
   // P2: 数据备份
-  backupLastTime: '',
-  backupFile: '',
+  backupLastTime: localStorage.getItem('voxver_backupLastTime') || '',
+  backupFile: localStorage.getItem('voxver_backupFile') || '',
 
   // v0.5.3: 调试模式
-  debugMode: false,
+  debugMode: localStorage.getItem('voxver_debugMode') === 'true',
 
   // v0.6.0: 开发者选项
-  logLevel: 'INFO',
-  useProxy: false,
-  proxyHost: '127.0.0.1',
-  proxyPort: 7890,
-  closeToTray: false,
-  gpuAcceleration: true,
-  networkLogging: false,
-  skipCorsCheck: false,
+  logLevel: safeLogLevel(localStorage.getItem('voxver_logLevel')),
+  useProxy: localStorage.getItem('voxver_useProxy') === 'true',
+  proxyHost: localStorage.getItem('voxver_proxyHost') || '127.0.0.1',
+  proxyPort: Number(localStorage.getItem('voxver_proxyPort')) || 7890,
+  closeToTray: localStorage.getItem('voxver_closeToTray') === 'true',
+  gpuAcceleration: localStorage.getItem('voxver_gpuAcceleration') !== 'false',
+  networkLogging: localStorage.getItem('voxver_networkLogging') === 'true',
+  skipCorsCheck: localStorage.getItem('voxver_skipCorsCheck') === 'true',
 
   // 辅助功能
   accessibilityScreenReader: false,
@@ -3351,6 +3395,94 @@ watch(() => s.accessibilityKeyboardNav, (val) => applyKeyboardNav(val))
 if (localStorage.getItem('voxver_keyboardNav') === 'true') s.accessibilityKeyboardNav = true
 applyKeyboardNav(s.accessibilityKeyboardNav)
 
+// ====== 设置项批量持久化 watch ======
+// 启动类
+watch(() => s.versionIsolation, (v) => v && localStorage.setItem('voxver_versionIsolation', v))
+watch(() => s.windowTitle, (v) => localStorage.setItem('voxver_windowTitle', v))
+watch(() => s.launchVisibility, (v) => v && localStorage.setItem('voxver_launchVisibility', v))
+watch(() => s.processPriority, (v) => v && localStorage.setItem('voxver_processPriority', v))
+watch(() => s.winW, (v) => localStorage.setItem('voxver_winW', v))
+watch(() => s.winH, (v) => localStorage.setItem('voxver_winH', v))
+watch(() => s.windowPreset, (v) => v && localStorage.setItem('voxver_windowPreset', v))
+watch(() => s.fullscreen, (v) => localStorage.setItem('voxver_fullscreen', String(v)))
+watch(() => s.javaPreset, (v) => v && localStorage.setItem('voxver_javaPreset', v))
+watch(() => s.javaPath, (v) => localStorage.setItem('voxver_javaPath', v))
+watch(() => s.memoryMode, (v) => v && localStorage.setItem('voxver_memoryMode', v))
+watch(() => s.memoryCustomGB, (v) => localStorage.setItem('voxver_memoryCustomGB', String(v)))
+watch(() => s.memoryMin, (v) => localStorage.setItem('voxver_memoryMin', String(v)))
+watch(() => s.memoryMax, (v) => localStorage.setItem('voxver_memoryMax', String(v)))
+watch(() => s.offlineSkin, (v) => v && localStorage.setItem('voxver_offlineSkin', v))
+watch(() => s.customSkinPath, (v) => localStorage.setItem('voxver_customSkinPath', v))
+watch(() => s.officialSkinName, (v) => localStorage.setItem('voxver_officialSkinName', v))
+watch(() => s.jvmArgs, (v) => localStorage.setItem('voxver_jvmArgs', v))
+watch(() => s.gameArgs, (v) => localStorage.setItem('voxver_gameArgs', v))
+watch(() => s.preLaunchCmd, (v) => localStorage.setItem('voxver_preLaunchCmd', v))
+watch(() => s.memoryManage, (v) => v && localStorage.setItem('voxver_memoryManage', v))
+watch(() => s.disableJavaLaunchWrapper, (v) => localStorage.setItem('voxver_disableJavaLaunchWrapper', String(v)))
+watch(() => s.disableLwjglUnsafeAgent, (v) => localStorage.setItem('voxver_disableLwjglUnsafeAgent', String(v)))
+watch(() => s.useHighPerformanceGPU, (v) => localStorage.setItem('voxver_useHighPerformanceGPU', String(v)))
+
+// 个性化类
+watch(() => s.opacity, (v) => localStorage.setItem('voxver_opacity', String(v)))
+watch(() => s.accentColor, (v) => localStorage.setItem('voxver_accentColor', v))
+watch(() => s.bgMusicMode, (v) => v && localStorage.setItem('voxver_bgMusicMode', v))
+watch(() => s.titleBarMode, (v) => v && localStorage.setItem('voxver_titleBarMode', v))
+watch(() => s.homeContent, (v) => v && localStorage.setItem('voxver_homeContent', v))
+watch(() => s.fontSize, (v) => localStorage.setItem('voxver_fontSize', String(v)))
+watch(() => s.enableAnimations, (v) => localStorage.setItem('voxver_enableAnimations', String(v)))
+watch(() => s.enableEffects, (v) => localStorage.setItem('voxver_enableEffects', String(v)))
+watch(() => s.enableSounds, (v) => localStorage.setItem('voxver_enableSounds', String(v)))
+watch(() => s.themeCustomColor, (v) => localStorage.setItem('voxver_themeCustomColor', v))
+watch(() => s.themeBgOpacity, (v) => localStorage.setItem('voxver_themeBgOpacity', String(v)))
+
+// 下载/社区类
+watch(() => s.downloadSource, (v) => v && localStorage.setItem('voxver_downloadSource', v))
+watch(() => s.versionListSource, (v) => v && localStorage.setItem('voxver_versionListSource', v))
+watch(() => s.maxThreads, (v) => localStorage.setItem('voxver_maxThreads', String(v)))
+watch(() => s.speedLimit, (v) => localStorage.setItem('voxver_speedLimit', String(v)))
+watch(() => s.modSource, (v) => v && localStorage.setItem('voxver_modSource', v))
+watch(() => s.fileNameFormat, (v) => v && localStorage.setItem('voxver_fileNameFormat', v))
+watch(() => s.modManageStyle, (v) => v && localStorage.setItem('voxver_modManageStyle', v))
+
+// 快捷键
+watch(() => s.hotkeyLaunch, (v) => localStorage.setItem('voxver_hotkeyLaunch', v))
+watch(() => s.hotkeyToggleWindow, (v) => localStorage.setItem('voxver_hotkeyToggleWindow', v))
+watch(() => s.hotkeyOpenHome, (v) => localStorage.setItem('voxver_hotkeyOpenHome', v))
+watch(() => s.hotkeyOpenSettings, (v) => localStorage.setItem('voxver_hotkeyOpenSettings', v))
+
+// 整合包工具
+watch(() => s.modpackInstancePath, (v) => localStorage.setItem('voxver_modpackInstancePath', v))
+watch(() => s.modpackOutputDir, (v) => localStorage.setItem('voxver_modpackOutputDir', v))
+watch(() => s.modpackIncludeConfigs, (v) => localStorage.setItem('voxver_modpackIncludeConfigs', String(v)))
+watch(() => s.modpackIncludeMods, (v) => localStorage.setItem('voxver_modpackIncludeMods', String(v)))
+watch(() => s.modpackIncludeSaves, (v) => localStorage.setItem('voxver_modpackIncludeSaves', String(v)))
+watch(() => s.modpackIncludeResourcepacks, (v) => localStorage.setItem('voxver_modpackIncludeResourcepacks', String(v)))
+watch(() => s.modpackName, (v) => localStorage.setItem('voxver_modpackName', v))
+watch(() => s.modpackAuthor, (v) => localStorage.setItem('voxver_modpackAuthor', v))
+watch(() => s.modpackVersion, (v) => localStorage.setItem('voxver_modpackVersion', v))
+
+// 数据备份
+watch(() => s.backupLastTime, (v) => localStorage.setItem('voxver_backupLastTime', v))
+watch(() => s.backupFile, (v) => localStorage.setItem('voxver_backupFile', v))
+
+// 调试/开发者选项
+watch(() => s.debugMode, (v) => {
+  localStorage.setItem('voxver_debugMode', String(v))
+  toggleDebugMode()
+})
+watch(() => s.logLevel, (v) => {
+  const level = safeLogLevel(v)
+  localStorage.setItem('voxver_logLevel', level)
+  window.electronAPI?.logger?.setLevel?.(level).catch(() => {})
+})
+watch(() => s.useProxy, (v) => localStorage.setItem('voxver_useProxy', String(v)))
+watch(() => s.proxyHost, (v) => localStorage.setItem('voxver_proxyHost', v))
+watch(() => s.proxyPort, (v) => localStorage.setItem('voxver_proxyPort', String(v)))
+watch(() => s.closeToTray, (v) => localStorage.setItem('voxver_closeToTray', String(v)))
+watch(() => s.gpuAcceleration, (v) => localStorage.setItem('voxver_gpuAcceleration', String(v)))
+watch(() => s.networkLogging, (v) => localStorage.setItem('voxver_networkLogging', String(v)))
+watch(() => s.skipCorsCheck, (v) => localStorage.setItem('voxver_skipCorsCheck', String(v)))
+
 // P2 状态变量
 const hotkeyList = ref<HotkeyInfo[]>([])
 const modpackProgress = ref({ stage: '', progress: 0, currentFile: '' })
@@ -3405,6 +3537,52 @@ const memoryPercent = computed(() => {
   return Math.round((s.memoryMax / total) * 100)
 })
 
+// 启动命令预览（占位实现：根据当前设置拼接示意命令）
+const launchCommandPreview = computed(() => {
+  const parts: string[] = []
+  const java = s.javaPath || 'java'
+  parts.push(`"${java}"`)
+
+  // 内存
+  if (s.memoryMode === 'custom') {
+    parts.push(`-Xms${s.memoryMin}M`)
+    parts.push(`-Xmx${s.memoryMax}M`)
+  } else {
+    parts.push('-Xms1024M')
+    parts.push('-Xmx4096M')
+  }
+
+  // GC
+  if (s.memoryManage === 'g1gc') parts.push('-XX:+UseG1GC')
+  else if (s.memoryManage === 'zgc') parts.push('-XX:+UseZGC')
+  else if (s.memoryManage === 'parallel') parts.push('-XX:+UseParallelGC')
+  else if (s.memoryManage === 'serial') parts.push('-XX:+UseSerialGC')
+
+  // Java 16+ add-opens（Forge/OptiFine 兼容）
+  parts.push('--add-opens=java.base/java.lang=ALL-UNNAMED')
+  parts.push('--add-opens=java.base/java.lang.reflect=ALL-UNNAMED')
+  parts.push('--add-opens=java.base/java.util=ALL-UNNAMED')
+  parts.push('--add-opens=java.base/java.net=ALL-UNNAMED')
+
+  // JVM 自定义参数
+  if (s.jvmArgs?.trim()) parts.push(s.jvmArgs.trim())
+
+  // classpath + main class（占位）
+  parts.push('-cp "versions/<version>/<version>.jar;libraries/*"')
+  parts.push('net.minecraft.client.main.Main')
+
+  // 游戏参数
+  if (s.officialSkinName) parts.push(`--username "${s.officialSkinName}"`)
+  parts.push('--version "<version>"')
+  parts.push('--gameDir ".minecraft"')
+  parts.push('--assetsDir "assets"')
+  parts.push(`--width ${s.winW} --height ${s.winH}`)
+  if (s.fullscreen) parts.push('--fullscreen')
+  if (s.gameArgs?.trim()) parts.push(s.gameArgs.trim())
+
+  return parts.join(' \\\n  ')
+})
+
 const colorPresets = computed(() => [
   { name: t('settings.colorPresets.teal'), value: '#14b8a6' },
   { name: t('settings.colorPresets.sky'), value: '#0ea5e9' },
@@ -3453,6 +3631,34 @@ const featureRows = reactive([
     ]
   }
 ])
+
+// ====== featureRows 功能隐藏持久化（放在 featureRows 声明之后，避免声明前引用） ======
+interface FeatureHideState { [key: string]: { hidden: boolean; disabled: boolean } }
+function loadFeatureHide() {
+  try {
+    const raw = localStorage.getItem('voxver_featureHide')
+    if (!raw) return
+    const saved: FeatureHideState = JSON.parse(raw)
+    featureRows.forEach((row) => {
+      row.items.forEach((item) => {
+        if (saved[item.key] && !item.disabled) {
+          item.hidden = saved[item.key].hidden
+        }
+      })
+    })
+  } catch { /* ignore parse errors */ }
+}
+function saveFeatureHide() {
+  const state: FeatureHideState = {}
+  featureRows.forEach((row) => {
+    row.items.forEach((item) => {
+      state[item.key] = { hidden: item.hidden, disabled: item.disabled }
+    })
+  })
+  localStorage.setItem('voxver_featureHide', JSON.stringify(state))
+}
+watch(featureRows, saveFeatureHide, { deep: true })
+loadFeatureHide()
 
 async function browseJava() {
   const path = await window.electronAPI?.dialog.selectFile({
@@ -4436,8 +4642,9 @@ function openDevTools() {
   window.electronAPI?.devTools?.open?.()
 }
 
-// 快捷打开目录
-const appPaths = ref<{ userData: string; logs: string; temp: string; cache: string } | null>(null)
+// 快捷打开目录（与 env.d.ts 中 app.getPaths 返回类型保持一致）
+type AppPathKey = 'userData' | 'logs' | 'temp' | 'cache' | 'downloads' | 'home'
+const appPaths = ref<Record<AppPathKey, string> | null>(null)
 
 async function loadAppPaths() {
   try {
@@ -4445,7 +4652,7 @@ async function loadAppPaths() {
   } catch { /* ignore */ }
 }
 
-async function openDirectory(key: 'userData' | 'logs' | 'temp' | 'cache') {
+async function openDirectory(key: AppPathKey) {
   if (!appPaths.value) await loadAppPaths()
   const p = appPaths.value?.[key]
   if (p) {
@@ -4481,6 +4688,59 @@ async function clearCache() {
     })
   } finally {
     isClearingCache.value = false
+  }
+}
+
+// 清除下载缓存
+async function clearDownloadCache() {
+  try {
+    const ok = await window.electronAPI?.app?.clearDownloadCache?.()
+    if (ok === false) {
+      // Fallback: 通知用户手动清除
+      window.electronAPI?.notification?.send({
+        title: t('common.tip'),
+        body: t('settings.clearCacheManually', { type: t('settings.download') }),
+        type: 'warning'
+      })
+    } else {
+      window.electronAPI?.notification?.send({
+        title: t('settings.cacheCleared'),
+        body: t('settings.clearDownloadCacheSuccess'),
+        type: 'success'
+      })
+    }
+  } catch (e: unknown) {
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: (e as Error)?.message || t('settings.clearCacheFailed'),
+      type: 'error'
+    })
+  }
+}
+
+// 清除版本缓存
+async function clearVersionCache() {
+  try {
+    const ok = await window.electronAPI?.app?.clearVersionCache?.()
+    if (ok === false) {
+      window.electronAPI?.notification?.send({
+        title: t('common.tip'),
+        body: t('settings.clearCacheManually', { type: t('settings.version') }),
+        type: 'warning'
+      })
+    } else {
+      window.electronAPI?.notification?.send({
+        title: t('settings.cacheCleared'),
+        body: t('settings.clearVersionCacheSuccess'),
+        type: 'success'
+      })
+    }
+  } catch (e: unknown) {
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: (e as Error)?.message || t('settings.clearCacheFailed'),
+      type: 'error'
+    })
   }
 }
 

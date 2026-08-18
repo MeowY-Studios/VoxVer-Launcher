@@ -318,19 +318,28 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
     async (_event, { versionId, gameDir }: { versionId: string; gameDir: string }) => {
       validateVersionId(versionId)
       log.error('[versions:download] ▶ versionId=', versionId, 'gameDir=', gameDir)
-      const bmclUrl = 'https://bmclapi2.bangbang93.com'
       const versionDir = join(gameDir, 'versions', versionId)
 
       try {
         mkdirSync(versionDir, { recursive: true })
 
-        // 1. 获取版本清单，找到该版本的 URL
+        // 1. 获取版本清单（多线路切换），找到该版本的 URL
         log.error('[versions:download] Step1 获取版本清单...')
-        const manifestRes = await fetch(`${bmclUrl}/mc/game/version_manifest.json`)
-        if (!manifestRes.ok) throw new Error(`获取版本清单失败 HTTP ${manifestRes.status}`)
-        const manifest = (await manifestRes.json()) as {
-          versions: Array<{ id: string; url: string }>
+        let manifest: { versions: Array<{ id: string; url: string }> } | null = null
+        let usedMirror = ''
+        for (const mirror of MIRRORS) {
+          try {
+            const manifestRes = await fetch(`${mirror}/mc/game/version_manifest.json`)
+            if (!manifestRes.ok) throw new Error(`HTTP ${manifestRes.status}`)
+            manifest = (await manifestRes.json()) as typeof manifest
+            usedMirror = mirror
+            break
+          } catch (e) {
+            log.warn(`[versions:download] 镜像 ${mirror} 失败: ${(e as Error).message}`)
+          }
         }
+        if (!manifest) throw new Error('所有镜像都无法获取版本清单')
+        log.error(`[versions:download] 使用镜像: ${usedMirror}`)
         const verEntry = manifest.versions.find((v) => v.id === versionId)
         if (!verEntry) throw new Error(`版本清单中未找到 ${versionId}`)
 
@@ -384,7 +393,6 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
     ) => {
       validateVersionId(versionId)
       const taskId = `vdl_${versionId}_${Date.now()}`
-      const bmclUrl = 'https://bmclapi2.bangbang93.com'
       const versionDir = join(gameDir, 'versions', versionId)
       const jsonPath = join(versionDir, `${versionId}.json`)
       const jarPath = join(versionDir, `${versionId}.jar`)
@@ -415,15 +423,14 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
         try {
           mkdirSync(versionDir, { recursive: true })
 
-          // 阶段1：获取版本清单（带重试）
+          // 阶段1：获取版本清单（多线路镜像切换）
           sendProgress('resolving', '解析版本清单...', 5, 0, 1, 0)
           let manifest: { versions: Array<{ id: string; url: string }> } | undefined
-          let retries = 3
-          while (retries > 0) {
+          for (const mirror of MIRRORS) {
             try {
               const controller = new AbortController()
               const timeoutId = setTimeout(() => controller.abort(), 30000)
-              const manifestRes = await fetch(`${bmclUrl}/mc/game/version_manifest.json`, {
+              const manifestRes = await fetch(`${mirror}/mc/game/version_manifest.json`, {
                 signal: controller.signal
               })
               clearTimeout(timeoutId)
@@ -432,20 +439,11 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
               const text = await manifestRes.text()
               if (!text || text.length < 10) throw new Error('响应内容为空')
 
-              try {
-                manifest = JSON.parse(text) as { versions: Array<{ id: string; url: string }> }
-                break
-              } catch (jsonErr) {
-                throw new Error(`JSON 解析失败: ${(jsonErr as Error).message}`)
-              }
+              manifest = JSON.parse(text) as { versions: Array<{ id: string; url: string }> }
+              log.info(`[versions:download-start] 版本清单获取成功 (源: ${mirror})`)
+              break
             } catch (e) {
-              retries--
-              if (retries === 0) throw e
-              log.warn(
-                `[versions:download-start] 获取版本清单失败，重试 ${3 - retries}/3:`,
-                (e as Error).message
-              )
-              await new Promise((r) => setTimeout(r, 2000))
+              log.warn(`[versions:download-start] 镜像 ${mirror} 失败: ${(e as Error).message}`)
             }
           }
 
@@ -503,15 +501,21 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
   ipcMain.handle(
     'versions:download-server',
     async (_event, { versionId, savePath }: { versionId: string; savePath: string }) => {
-      const bmclUrl = 'https://bmclapi2.bangbang93.com'
 
       try {
-        // 1. 获取版本清单，找到该版本的 URL
-        const manifestRes = await fetch(`${bmclUrl}/mc/game/version_manifest.json`)
-        if (!manifestRes.ok) throw new Error(`获取版本清单失败 HTTP ${manifestRes.status}`)
-        const manifest = (await manifestRes.json()) as {
-          versions: Array<{ id: string; url: string }>
+        // 1. 获取版本清单（多线路切换），找到该版本的 URL
+        let manifest: { versions: Array<{ id: string; url: string }> } | null = null
+        for (const mirror of MIRRORS) {
+          try {
+            const manifestRes = await fetch(`${mirror}/mc/game/version_manifest.json`)
+            if (!manifestRes.ok) throw new Error(`HTTP ${manifestRes.status}`)
+            manifest = (await manifestRes.json()) as typeof manifest
+            break
+          } catch (e) {
+            log.warn(`[versions:download-server] 镜像 ${mirror} 失败: ${(e as Error).message}`)
+          }
         }
+        if (!manifest) throw new Error('所有镜像都无法获取版本清单')
         const verEntry = manifest.versions.find((v) => v.id === versionId)
         if (!verEntry) throw new Error(`版本清单中未找到 ${versionId}`)
 
@@ -662,7 +666,13 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
 
   // ===== 补全文件：下载缺失的库 =====
 
-  const MIRRORS = ['https://bmclapi2.bangbang93.com', 'https://piston-meta.mojang.com']
+  const MIRRORS = [
+    'https://bmclapi2.bangbang93.com',
+    'https://bmclapi.bangbang93.com',
+    'https://mcplayer.cn',
+    'https://piston-meta.mojang.com',
+    'https://launchermeta.mojang.com'
+  ]
 
   async function downloadWithMirrors(
     pathPattern: (baseUrl: string) => string,

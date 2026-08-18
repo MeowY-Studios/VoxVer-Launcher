@@ -116,6 +116,8 @@ interface ElectronAPI {
       arch: string
     }>
     clearCache: () => Promise<string[]>
+    clearDownloadCache: () => Promise<boolean>
+    clearVersionCache: () => Promise<boolean>
     resetSettings: () => Promise<boolean>
     checkPermissions: () => Promise<{
       inProtectedDir: boolean

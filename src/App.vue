@@ -515,6 +515,9 @@
       </div>
     </div>
   </div>
+
+  <!-- 全局启动进度面板（使用 Teleport 渲染到 body，任意页面启动都可见） -->
+  <PxLaunchProgress ref="pxProgressRef" :version-id="selectedVersion" />
 </template>
 
 <script setup lang="ts">
@@ -526,6 +529,7 @@ import VersionSelect from './components/VersionSelect.vue'
 import AccountManager from './components/AccountManager.vue'
 import DownloadFloat from './components/DownloadFloat.vue'
 import PxModal from './components/common/PxModal.vue'
+import PxLaunchProgress from './components/common/PxLaunchProgress.vue'
 import { useVersionsStore, useAccountsStore, useInstancesStore, useDownloadStore, useAppStore } from './stores'
 
 const route = useRoute()
@@ -540,6 +544,7 @@ const versionsStore = useVersionsStore()
 const accountsStore = useAccountsStore()
 const instancesStore = useInstancesStore()
 const downloadStore = useDownloadStore()
+const pxProgressRef = ref<InstanceType<typeof PxLaunchProgress> | null>(null)
 const minecraftPath = ref('')
 const versionGameDir = computed(() => {
   // * 1. 如果 selectedVersionId 本身就是完整路径
@@ -1118,6 +1123,7 @@ async function handleLaunch() {
   }
 
   isLaunching.value = true
+  pxProgressRef.value?.open()
   const accountId = accountsStore.activeAccount.id
   const versionId =
     selectedVersionId.value.includes('\\') || selectedVersionId.value.includes('/')
