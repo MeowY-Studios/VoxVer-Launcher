@@ -749,6 +749,11 @@ const api = {
         ipcRenderer.invoke('share:close-session', { sessionId }),
       getSession: (sessionId: string) =>
         ipcRenderer.invoke('share:get-session', { sessionId }),
+      saveSettings: (settings: { chunkSize?: number; connectionTimeout?: number; signalingServer?: string }) =>
+        ipcRenderer.invoke('share:save-settings', settings),
+      getSettings: () => ipcRenderer.invoke('share:get-settings'),
+      getHistory: (options?: { limit?: number }) =>
+        ipcRenderer.invoke('share:get-history', options || {}),
       onProtocolInvoke: (callback: (shareCode: string) => void) => {
         const listener = (_event: IpcRendererEvent, data: { shareCode: string }) =>
           callback(data.shareCode)

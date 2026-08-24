@@ -24,6 +24,9 @@ import {
 } from '../services/instanceSharePack.service'
 import {
   p2pShareService,
+  saveP2pSettings,
+  getP2pSettings,
+  getShareHistory,
   type ShareSession,
   type TransferProgress
 } from '../services/p2pShare.service'
@@ -248,6 +251,32 @@ export function registerShareHandlers(): void {
       p2pShareService.closeSession(sessionId)
     } catch (e: unknown) {
       log.error('Failed to close session', e)
+    }
+  })
+
+  ipcMain.handle('share:save-settings', async (_event, settings: { chunkSize?: number; connectionTimeout?: number; signalingServer?: string }) => {
+    try {
+      saveP2pSettings(settings)
+      return { ok: true }
+    } catch (e: unknown) {
+      log.error('Failed to save P2P settings', e)
+      return { ok: false, error: (e as Error).message }
+    }
+  })
+
+  ipcMain.handle('share:get-settings', async () => {
+    try {
+      return { ok: true, settings: getP2pSettings() }
+    } catch (e: unknown) {
+      return { ok: false, error: (e as Error).message }
+    }
+  })
+
+  ipcMain.handle('share:get-history', async (_event, options?: { limit?: number }) => {
+    try {
+      return { ok: true, history: getShareHistory(options?.limit || 50) }
+    } catch (e: unknown) {
+      return { ok: false, error: (e as Error).message }
     }
   })
 

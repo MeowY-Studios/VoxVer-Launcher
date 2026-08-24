@@ -199,7 +199,7 @@ const lastPlayedText = computed(() => {
   position: absolute;
   top: 8px;
   left: 8px;
-  z-index: 1;
+  z-index: var(--voxver-z-raised);
   padding: 2px 8px;
   font-size: 10px;
   font-weight: 600;
@@ -214,7 +214,7 @@ const lastPlayedText = computed(() => {
   position: absolute;
   bottom: 8px;
   right: 8px;
-  z-index: 1;
+  z-index: var(--voxver-z-raised);
   padding: 2px 8px;
   font-size: 11px;
   font-weight: 600;
@@ -228,7 +228,7 @@ const lastPlayedText = computed(() => {
   position: absolute;
   top: 8px;
   right: 8px;
-  z-index: 2;
+  z-index: var(--voxver-z-above);
   width: 26px;
   height: 26px;
   border: none;

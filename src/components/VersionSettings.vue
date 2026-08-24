@@ -590,8 +590,10 @@
 import { ref, computed, watch, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ModManager from './ModManager.vue'
+import { useConfirm } from '@/composables/useConfirm'
 
 const { t } = useI18n()
+const { confirm: pxConfirm } = useConfirm()
 
 const props = defineProps<{
   visible: boolean
@@ -730,9 +732,12 @@ async function exportScript() {
 async function deleteVersion() {
   if (!props.instanceId) return
   if (
-    !confirm(
-      t('version.settings.deleteConfirm', { name: props.versionName }) + '\n\n' + t('version.settings.deleteConfirmAgain')
-    )
+    !await pxConfirm({
+      title: t('common.warning'),
+      message: t('version.settings.deleteConfirm', { name: props.versionName }) + '\n\n' + t('version.settings.deleteConfirmAgain'),
+      type: 'danger',
+      confirmText: t('common.confirm')
+    })
   )
     return
   await window.electronAPI?.instance.delete(props.instanceId)
@@ -1090,7 +1095,7 @@ const navItems = [
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: var(--voxver-z-overlay);
 }
 
 /* * ---- 窗口容器 ---- */

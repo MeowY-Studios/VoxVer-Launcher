@@ -2998,7 +2998,7 @@
               {{ $t('more.copyEmailAddress') }}
             </button>
           </div>
-          <div v-if="showCopyToast" class="copy-toast">{{ $t('more.emailCopied') }}</div>
+
         </div>
       </div>
     </div>
@@ -3013,12 +3013,16 @@ import { useI18n } from 'vue-i18n'
 import { useAppStore } from '../stores/app.store'
 import { useInstancesStore } from '../stores/instances.store'
 import AccountPage from './AccountPage.vue'
+import { useConfirm } from '@/composables/useConfirm'
+import { useToast } from '@/composables/useToast'
 
 const router = useRouter()
 const appStore = useAppStore()
 const instancesStore = useInstancesStore()
 const allInstances = computed(() => instancesStore.instances)
 const { tm, t } = useI18n()
+const { confirm: pxConfirm } = useConfirm()
+const { toast } = useToast()
 const faqItems = computed(() => (tm('more.faq') as Array<{ q: string; a: string }>))
 
 const themePreviewOptions = computed(() => [
@@ -3593,7 +3597,7 @@ const autoCheckUpdate = ref(true)
 const showUpdateErrModal = ref(false)
 const showUpdateAvailableModal = ref(false)
 const showEmailModal = ref(false)
-const showCopyToast = ref(false)
+
 
 // 权限检测
 const permInfo = ref<{ inProtectedDir: boolean; canWriteToUserData: boolean; exePath: string; userDataPath: string; isAdmin: boolean } | null>(null)
@@ -4287,7 +4291,7 @@ async function restoreBackup() {
     })
     if (!path) return
 
-    if (!confirm(t('settings.restoreBackupConfirm'))) return
+    if (!await pxConfirm({ title: t('common.warning'), message: t('settings.restoreBackupConfirm'), type: 'warning', confirmText: t('common.confirm') })) return
 
     isWorkingBackup.value = true
     backupProgress.value = { stage: t('settings.backupRestoring'), progress: 0, currentItem: '' }
@@ -4327,7 +4331,7 @@ async function listBackups() {
 }
 
 async function deleteBackup(fileName: string) {
-  if (!confirm(t('settings.deleteBackupConfirm', { name: fileName }))) return
+  if (!await pxConfirm({ title: t('common.warning'), message: t('settings.deleteBackupConfirm', { name: fileName }), type: 'danger', confirmText: t('common.confirm') })) return
   try {
     await window.electronAPI?.backup?.delete(fileName)
     await listBackups()
@@ -4692,6 +4696,7 @@ onMounted(async () => {
   } catch { /* fallback to Alpha */ }
   loadAppPaths()
   loadRuntimeInfo()
+  loadP2pSettings()
 })
 
 // ====== 安全识别服务 ======
@@ -4720,16 +4725,29 @@ function saveSecuritySettings() {
 // ====== 联机 P2P 设置 ======
 const p2pSettings = reactive({
   useCustomServer: localStorage.getItem('p2p_use_custom_server') === 'true',
-  signalingServer: localStorage.getItem('p2p_signaling_server') || '',
-  chunkSize: localStorage.getItem('p2p_chunk_size') || '1024',
-  connectionTimeout: localStorage.getItem('p2p_connection_timeout') || '30'
+  signalingServer: '',
+  chunkSize: '1024',
+  connectionTimeout: '30'
 })
 
-function saveP2pSettings() {
+async function loadP2pSettings() {
+  try {
+    const result = await window.electronAPI?.share?.getSettings?.()
+    if (result?.ok && result.settings) {
+      p2pSettings.signalingServer = result.settings.signalingServer || ''
+      p2pSettings.chunkSize = String(result.settings.chunkSize || 1024)
+      p2pSettings.connectionTimeout = String((result.settings.connectionTimeout || 30000) / 1000)
+    }
+  } catch { /* ignore */ }
+}
+
+async function saveP2pSettings() {
   localStorage.setItem('p2p_use_custom_server', String(p2pSettings.useCustomServer))
-  localStorage.setItem('p2p_signaling_server', p2pSettings.signalingServer)
-  localStorage.setItem('p2p_chunk_size', p2pSettings.chunkSize)
-  localStorage.setItem('p2p_connection_timeout', p2pSettings.connectionTimeout)
+  await window.electronAPI?.share?.saveSettings?.({
+    signalingServer: p2pSettings.signalingServer,
+    chunkSize: Number(p2pSettings.chunkSize),
+    connectionTimeout: Number(p2pSettings.connectionTimeout) * 1000
+  })
 }
 
 // ====== 开发者选项辅助函数 ======
@@ -4850,7 +4868,7 @@ async function loadRuntimeInfo() {
 
 // 重置启动器
 async function resetSettings() {
-  if (!confirm(t('settings.devResetConfirm'))) return
+  if (!await pxConfirm({ title: t('common.warning'), message: t('settings.devResetConfirm'), type: 'danger', confirmText: t('common.confirm') })) return
   try {
     const ok = await window.electronAPI?.app?.resetSettings?.()
     if (ok) {
@@ -4875,10 +4893,7 @@ async function resetSettings() {
 function handleEmailCopy() {
   const email = 'sksadfg@163.com'
   navigator.clipboard.writeText(email).then(() => {
-    showCopyToast.value = true
-    setTimeout(() => {
-      showCopyToast.value = false
-    }, 2000)
+    toast({ message: t('more.emailCopied'), type: 'success' })
   })
 }
 
@@ -5040,7 +5055,7 @@ async function exportScreenshot(filePath: string) {
 }
 
 async function deleteScreenshotAction(s: { filePath: string; fileName: string }) {
-  if (!confirm(t('settings.deleteScreenshotConfirm', { name: s.fileName }))) return
+  if (!await pxConfirm({ title: t('common.warning'), message: t('settings.deleteScreenshotConfirm', { name: s.fileName }), type: 'danger', confirmText: t('common.confirm') })) return
   try {
     await window.electronAPI?.screenshot?.delete(s.filePath)
     screenshots.value = screenshots.value.filter((x) => x.filePath !== s.filePath)
@@ -5156,7 +5171,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   gap: 16px;
   margin-bottom: 12px;
   padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--voxver-bg-hover);
   border-radius: var(--voxver-radius-sm);
   border: 1px solid var(--voxver-border-color-light);
 
@@ -6365,7 +6380,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: var(--voxver-z-toast);
 }
 
 .modal-box {
@@ -6431,22 +6446,6 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
   flex: 1;
   user-select: all;
-}
-
-.copy-toast {
-  margin-top: 10px;
-  padding: 6px 14px;
-  background: rgba(0, 200, 83, 0.12);
-  border: 1px solid rgba(0, 200, 83, 0.25);
-  border-radius: var(--voxver-radius-sm);
-  font-size: 12px;
-  color: var(--voxver-success-color, #4caf50);
-  animation: toastIn 0.25s ease;
-}
-
-@keyframes toastIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
 }
 
 .about-redirect-desc {
@@ -7957,7 +7956,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 }
 
 .folder-content {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--voxver-bg-hover);
   border-radius: var(--voxver-radius-md);
   padding: 8px;
 }

@@ -324,6 +324,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAccountsStore } from '../stores/accounts.store'
+import { useConfirm } from '@/composables/useConfirm'
 import type { Account } from '../types/account'
 
 const props = defineProps<{ visible: boolean }>()
@@ -331,6 +332,7 @@ const emit = defineEmits<{ 'update:visible': [val: boolean] }>()
 
 const accountsStore = useAccountsStore()
 const { t } = useI18n()
+const { confirm: pxConfirm } = useConfirm()
 
 // ====== 微软账户列表 ======
 const msAccounts = computed(() => accountsStore.accounts.filter((a: Account) => a.type === 'microsoft'))
@@ -355,7 +357,7 @@ async function switchToAccount(id: string) {
 // 删除离线账户
 async function deleteOffline(id: string) {
   const confirmMsg = t('auth.confirmDelete')
-  if (!confirm(confirmMsg)) return
+  if (!await pxConfirm({ title: t('common.warning'), message: confirmMsg, type: 'danger', confirmText: t('common.confirm') })) return
   await accountsStore.deleteAccount(id)
   await accountsStore.fetchAccounts()
 }
@@ -363,7 +365,7 @@ async function deleteOffline(id: string) {
 // 删除微软账户
 async function removeMicrosoftAccount(id: string) {
   const confirmMsg = t('auth.confirmDelete')
-  if (!confirm(confirmMsg)) return
+  if (!await pxConfirm({ title: t('common.warning'), message: confirmMsg, type: 'danger', confirmText: t('common.confirm') })) return
   await accountsStore.deleteAccount(id)
   await accountsStore.fetchAccounts()
 }
@@ -550,7 +552,7 @@ function generateUUID(): string {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
-  z-index: 9000;
+  z-index: var(--voxver-z-sticky);
   backdrop-filter: blur(1px);
   overflow: hidden;
 }
@@ -936,7 +938,7 @@ function generateUUID(): string {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: var(--voxver-z-overlay);
   backdrop-filter: blur(2px);
 }
 

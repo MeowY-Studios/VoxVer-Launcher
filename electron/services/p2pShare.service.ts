@@ -61,6 +61,37 @@ function getCustomSignalingConfig(): CustomSignalingConfig | null {
   }
 }
 
+/**
+ * 获取 P2P 传输设置（从数据库读取）
+ */
+export function getP2pSettings(): { chunkSize: number; connectionTimeout: number; signalingServer: string } {
+  try {
+    const db = getDatabase()
+    const chunkRow = db.prepare("SELECT value FROM configs WHERE key = 'p2p_chunk_size'").get() as { value: string } | undefined
+    const timeoutRow = db.prepare("SELECT value FROM configs WHERE key = 'p2p_connection_timeout'").get() as { value: string } | undefined
+    const signalingRow = db.prepare("SELECT value FROM configs WHERE key = 'p2p_signaling_server'").get() as { value: string } | undefined
+
+    return {
+      chunkSize: chunkRow ? parseInt(chunkRow.value, 10) || 1024 : 1024,
+      connectionTimeout: timeoutRow ? parseInt(timeoutRow.value, 10) * 1000 || 30000 : 30000,
+      signalingServer: signalingRow?.value || ''
+    }
+  } catch {
+    return { chunkSize: 1024, connectionTimeout: 30000, signalingServer: '' }
+  }
+}
+
+/**
+ * 保存 P2P 设置到数据库
+ */
+export function saveP2pSettings(settings: { chunkSize?: number; connectionTimeout?: number; signalingServer?: string }): void {
+  const db = getDatabase()
+  const upsert = db.prepare("INSERT INTO configs (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
+  if (settings.chunkSize !== undefined) upsert.run('p2p_chunk_size', String(settings.chunkSize))
+  if (settings.connectionTimeout !== undefined) upsert.run('p2p_connection_timeout', String(settings.connectionTimeout))
+  if (settings.signalingServer !== undefined) upsert.run('p2p_signaling_server', settings.signalingServer)
+}
+
 export interface ShareSession {
   sessionId: string
   shareCode: string
@@ -438,6 +469,17 @@ class P2PShareService {
 
       case 'complete': {
         log.info('Receiver confirmed completion', { sessionId })
+        saveShareHistory({
+          id: `share_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+          type: 'share',
+          instanceName: session.packedInstance?.instanceName || '',
+          mcVersion: session.packedInstance?.mcVersion || null,
+          loaderType: session.packedInstance?.loaderType || null,
+          shareCode: session.shareCode,
+          fileSize: session.packedInstance?.fileSize || 0,
+          status: 'completed',
+          errorMsg: null
+        })
         this.updateSessionStatus(sessionId, 'completed')
         break
       }
@@ -483,8 +525,9 @@ class P2PShareService {
       })
 
       peer.on('disconnected', () => {
-        log.warn('Receiver peer disconnected', { sessionId })
-        this.updateSessionStatus(sessionId, 'error', 'Connection lost, please retry')
+        log.warn('Receiver peer disconnected, attempting to reconnect', { sessionId })
+        // Auto-reconnect with exponential backoff
+        this.attemptReconnect(sessionId, shareCode, senderPeerId)
       })
 
       const targetPeerId = senderPeerId || shareCode
@@ -564,6 +607,21 @@ class P2PShareService {
         const tempDir = this.getTempReceiveDir()
         const tempFilePath = path.join(tempDir, `${sessionId}.mcla.tmp`)
 
+        // Check for existing temp file (resume support)
+        let existingChunks = new Set<number>()
+        const metaPath = `${tempFilePath}.meta`
+        if (fs.existsSync(tempFilePath) && fs.existsSync(metaPath)) {
+          try {
+            const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'))
+            if (meta.totalChunks === info.totalChunks && meta.chunkSize === info.chunkSize) {
+              existingChunks = new Set(meta.receivedChunks as number[])
+              log.info('Resuming transfer', { sessionId, existingChunks: existingChunks.size })
+            }
+          } catch {
+            // Invalid meta, start fresh
+          }
+        }
+
         this.fileInfo.set(sessionId, {
           instanceName: info.instanceName,
           mcVersion: info.mcVersion,
@@ -574,13 +632,16 @@ class P2PShareService {
           totalChunks: info.totalChunks,
           chunkSize: info.chunkSize,
           tempFilePath,
-          receivedChunks: new Set()
+          receivedChunks: existingChunks
         })
 
         session.totalChunks = info.totalChunks
         log.info('Received file info', { sessionId, totalChunks: info.totalChunks })
 
-        this.requestNextChunk(sessionId, conn, 0)
+        // Start from first missing chunk (resume support)
+        const fi = this.fileInfo.get(sessionId)
+        const firstMissing = fi ? this.findFirstMissingChunk(fi.totalChunks, fi.receivedChunks) : 0
+        this.requestNextChunk(sessionId, conn, firstMissing)
         break
       }
 
@@ -599,6 +660,16 @@ class P2PShareService {
           session.transferredChunks = info.receivedChunks.size
           this.retryCount.delete(`${sessionId}_${chunkIndex}`)
           this.notifyProgress(sessionId)
+
+          // Persist received chunks for resume
+          try {
+            const metaPath = `${info.tempFilePath}.meta`
+            fs.writeFileSync(metaPath, JSON.stringify({
+              totalChunks: info.totalChunks,
+              chunkSize: info.chunkSize,
+              receivedChunks: Array.from(info.receivedChunks)
+            }))
+          } catch { /* ignore */ }
 
           const nextChunk = chunkIndex + 1
           if (nextChunk < info.totalChunks) {
@@ -639,6 +710,8 @@ class P2PShareService {
   }
 
   private retryCount: Map<string, number> = new Map()
+  private reconnectAttempts: Map<string, number> = new Map()
+  private readonly MAX_RECONNECT_ATTEMPTS = 3
 
   private requestNextChunk(sessionId: string, conn: DataConnection, chunkIndex: number): void {
     const msg: RequestChunkMessage = {
@@ -648,9 +721,73 @@ class P2PShareService {
     conn.send(msg)
   }
 
+  private findFirstMissingChunk(totalChunks: number, received: Set<number>): number {
+    for (let i = 0; i < totalChunks; i++) {
+      if (!received.has(i)) return i
+    }
+    return totalChunks - 1 // All received, will trigger verify
+  }
+
+  private attemptReconnect(sessionId: string, shareCode: string, senderPeerId?: string): void {
+    const attempts = (this.reconnectAttempts.get(sessionId) || 0) + 1
+    this.reconnectAttempts.set(sessionId, attempts)
+
+    if (attempts > this.MAX_RECONNECT_ATTEMPTS) {
+      this.updateSessionStatus(sessionId, 'error', 'Connection lost, max reconnect attempts reached')
+      this.reconnectAttempts.delete(sessionId)
+      return
+    }
+
+    const delay = Math.min(1000 * Math.pow(2, attempts - 1), 10000)
+    log.info('Reconnecting', { sessionId, attempt: attempts, delay })
+
+    setTimeout(async () => {
+      try {
+        // Destroy old peer and create new one
+        const oldPeer = this.peer
+        if (oldPeer) {
+          oldPeer.destroy()
+          this.peer = null
+        }
+
+        const peer = await this.createPeerWithRetry()
+        this.peer = peer
+
+        const targetPeerId = senderPeerId || shareCode
+        const conn = peer.connect(targetPeerId, { reliable: true, serialization: 'binary' })
+        this.connections.set(sessionId, conn)
+
+        conn.on('open', () => {
+          this.reconnectAttempts.delete(sessionId)
+          log.info('Reconnected successfully', { sessionId })
+          // Resume from first missing chunk
+          const info = this.fileInfo.get(sessionId)
+          if (info) {
+            const firstMissing = this.findFirstMissingChunk(info.totalChunks, info.receivedChunks)
+            this.requestNextChunk(sessionId, conn, firstMissing)
+          }
+        })
+
+        conn.on('data', (data: unknown) => {
+          this.handleReceiverMessage(sessionId, conn, data as P2PMessage)
+        })
+
+        conn.on('error', (err) => {
+          log.error('Reconnect connection error', sessionId, err)
+          this.attemptReconnect(sessionId, shareCode, senderPeerId)
+        })
+      } catch (e: unknown) {
+        log.error('Reconnect failed', sessionId, e)
+        this.attemptReconnect(sessionId, shareCode, senderPeerId)
+      }
+    }, delay)
+  }
+
   private async verifyAndComplete(sessionId: string, conn: DataConnection): Promise<void> {
     const info = this.fileInfo.get(sessionId)
     if (!info) return
+    const session = this.receiverSessions.get(sessionId)
+    if (!session) return
 
     log.info('Verifying received file', { sessionId })
 
@@ -667,6 +804,17 @@ class P2PShareService {
       }
       conn.send(completeMsg)
 
+      saveShareHistory({
+        id: `share_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        type: 'receive',
+        instanceName: info.instanceName,
+        mcVersion: info.mcVersion || null,
+        loaderType: info.loaderType || null,
+        shareCode: session.shareCode,
+        fileSize: info.fileSize,
+        status: 'completed',
+        errorMsg: null
+      })
       this.updateSessionStatus(sessionId, 'completed')
       log.info('Receive session completed successfully', { sessionId })
     } catch (e) {
@@ -780,6 +928,26 @@ class P2PShareService {
     }
 
     const receiverSession = this.receiverSessions.get(sessionId)
+    const senderSession = this.senderSessions.get(sessionId)
+    const session = receiverSession || senderSession
+
+    // 保存分享历史记录
+    if (session) {
+      const info = this.fileInfo.get(sessionId)
+      const packed = session.packedInstance
+      saveShareHistory({
+        id: sessionId,
+        type: session.type,
+        instanceName: info?.instanceName || packed?.instanceName || 'unknown',
+        mcVersion: info?.mcVersion || packed?.mcVersion || null,
+        loaderType: info?.loaderType || packed?.loaderType || null,
+        shareCode: session.shareCode,
+        fileSize: info?.fileSize || packed?.fileSize || 0,
+        status: session.status,
+        errorMsg: session.error || null
+      })
+    }
+
     if (receiverSession) {
       // 「稍后导入」场景下保留已完成会话的文件，等导入后再清理
       if (receiverSession.status !== 'completed') {
@@ -796,7 +964,6 @@ class P2PShareService {
       this.receiverSessions.delete(sessionId)
     }
 
-    const senderSession = this.senderSessions.get(sessionId)
     if (senderSession?.shareCode) {
       this.shareCodeToPeerId.delete(senderSession.shareCode)
     }
@@ -804,6 +971,7 @@ class P2PShareService {
     this.senderSessions.delete(sessionId)
     this.progressCallbacks.delete(sessionId)
     this.statusCallbacks.delete(sessionId)
+    this.reconnectAttempts.delete(sessionId)
 
     if (this.peer && this.senderSessions.size === 0 && this.receiverSessions.size === 0) {
       try {
@@ -821,6 +989,70 @@ class P2PShareService {
     for (const sessionId of [...this.senderSessions.keys(), ...this.receiverSessions.keys()]) {
       this.closeSession(sessionId)
     }
+  }
+}
+
+/**
+ * 分享历史记录条目
+ */
+export interface ShareHistoryEntry {
+  id: string
+  type: string
+  instanceName: string
+  mcVersion: string | null
+  loaderType: string | null
+  shareCode: string
+  fileSize: number
+  status: string
+  errorMsg: string | null
+  createdAt: string
+}
+
+/**
+ * 保存分享历史记录到数据库
+ */
+function saveShareHistory(entry: {
+  id: string
+  type: string
+  instanceName: string
+  mcVersion: string | null
+  loaderType: string | null
+  shareCode: string
+  fileSize: number
+  status: string
+  errorMsg: string | null
+}): void {
+  try {
+    const db = getDatabase()
+    db.prepare(
+      `INSERT INTO share_history (id, type, instance_name, mc_version, loader_type, share_code, file_size, status, error_msg)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(entry.id, entry.type, entry.instanceName, entry.mcVersion, entry.loaderType, entry.shareCode, entry.fileSize, entry.status, entry.errorMsg)
+  } catch (e: unknown) {
+    log.error('Failed to save share history', (e as Error).message)
+  }
+}
+
+/**
+ * 获取分享历史记录
+ */
+export function getShareHistory(limit: number = 50): ShareHistoryEntry[] {
+  try {
+    const db = getDatabase()
+    const rows = db
+      .prepare(
+        `SELECT id, type, instance_name AS instanceName, mc_version AS mcVersion,
+                loader_type AS loaderType, share_code AS shareCode, file_size AS fileSize,
+                status, error_msg AS errorMsg, created_at AS createdAt
+         FROM share_history
+         ORDER BY created_at DESC
+         LIMIT ?`
+      )
+      .all(limit) as ShareHistoryEntry[]
+    return rows
+  } catch (e: unknown) {
+    log.error('Failed to get share history', (e as Error).message)
+    return []
   }
 }
 

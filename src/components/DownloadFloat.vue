@@ -254,7 +254,7 @@ watch(
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 8px 32px rgb(0 0 0 / 0.5);
-  z-index: 9999;
+  z-index: var(--voxver-z-overlay);
   backdrop-filter: blur(12px);
 }
 

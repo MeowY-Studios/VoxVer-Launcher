@@ -814,6 +814,7 @@ import type { GameInstance, RawGameInstance, LoaderType } from '../types/instanc
 import PxModal from '../components/common/PxModal.vue'
 import ShareModal from '../components/share/ShareModal.vue'
 import type { LocalModStatus } from '../types/mod'
+import { useConfirm } from '@/composables/useConfirm'
 
 interface IpcModInfo {
   filePath: string
@@ -826,6 +827,7 @@ interface IpcModInfo {
 }
 
 const { t } = useI18n()
+const { confirm: pxConfirm } = useConfirm()
 const route = useRoute()
 const router = useRouter()
 const instancesStore = useInstancesStore()
@@ -1125,7 +1127,7 @@ async function togglePack(kind: PackKind, filename: string, enabled: boolean) {
 
 async function deletePack(kind: PackKind, filename: string) {
   if (!instance.value?.id) return
-  if (!confirm(t('instance.deletePackConfirm', { name: filename }))) return
+  if (!await pxConfirm({ title: t('common.warning'), message: t('instance.deletePackConfirm', { name: filename }), type: 'danger', confirmText: t('common.confirm') })) return
   try {
     const fn = kind === 'resourcepacks'
       ? window.electronAPI?.instance?.deleteResourcePack
@@ -1178,7 +1180,7 @@ async function backupSave(s: SaveInfo) {
 
 async function deleteSave(s: SaveInfo) {
   if (!instance.value?.id) return
-  if (!confirm(t('instance.deleteSaveConfirm', { name: s.filename }))) return
+  if (!await pxConfirm({ title: t('common.warning'), message: t('instance.deleteSaveConfirm', { name: s.filename }), type: 'danger', confirmText: t('common.confirm') })) return
   try {
     const ok = await window.electronAPI?.instance?.deleteSave?.(instance.value.id, s.filename)
     if (ok) {
@@ -1310,9 +1312,9 @@ async function saveConfig() {
   }
 }
 
-function closeConfigEditor() {
+async function closeConfigEditor() {
   if (configDirty.value) {
-    if (!confirm(t('instance.unsavedChangesWarning'))) return
+    if (!await pxConfirm({ title: t('common.warning'), message: t('instance.unsavedChangesWarning'), type: 'warning', confirmText: t('common.confirm') })) return
   }
   editingConfig.value = null
   configDirty.value = false
@@ -1394,8 +1396,8 @@ function launchGame() {
 async function deleteInstance() {
   if (!instance.value) return
   const inst = instance.value
-  if (!confirm(t('instance.deleteConfirm') + `「${inst.name}」？`)) return
-  const deleteFiles = confirm(t('instance.deleteFilesHint') + '\n\n' + t('instance.deleteFilesAlso') + '？')
+  if (!await pxConfirm({ title: t('instance.delete'), message: t('instance.deleteConfirm') + `「${inst.name}」？`, type: 'danger', confirmText: t('common.confirm') })) return
+  const deleteFiles = await pxConfirm({ title: t('instance.delete'), message: t('instance.deleteFilesHint') + '\n\n' + t('instance.deleteFilesAlso') + '？', type: 'warning', confirmText: t('common.confirm') })
   try {
     await window.electronAPI?.instance?.delete(inst.id, deleteFiles)
     window.electronAPI?.notification?.send({
@@ -1411,7 +1413,7 @@ async function deleteInstance() {
 
 // 删除 Mod
 async function deleteModItem(mod: { filePath: string; fileName: string }) {
-  if (!confirm(t('mod.deleteConfirm', { name: mod.fileName }))) return
+  if (!await pxConfirm({ title: t('common.warning'), message: t('mod.deleteConfirm', { name: mod.fileName }), type: 'danger', confirmText: t('common.confirm') })) return
   try {
     await window.electronAPI?.mod?.uninstall?.(mod.filePath)
     await loadMods()

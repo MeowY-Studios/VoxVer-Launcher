@@ -1125,7 +1125,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: var(--voxver-z-dropdown);
 }
 
 .modal-content {

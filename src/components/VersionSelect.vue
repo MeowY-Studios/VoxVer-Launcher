@@ -164,8 +164,10 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useConfirm } from '@/composables/useConfirm'
 
 const { t } = useI18n()
+const { confirm: pxConfirm } = useConfirm()
 const api = window.electronAPI
 
 const props = defineProps<{
@@ -453,7 +455,7 @@ function selectActive(ver: InstalledVer) {
 }
 
 async function removeVersion(id: string) {
-  if (!confirm(t('component.deleteVersionConfirm', { id }))) return
+  if (!await pxConfirm({ title: t('common.warning'), message: t('component.deleteVersionConfirm', { id }), type: 'danger', confirmText: t('common.confirm') })) return
   installedVersions.value = installedVersions.value.filter((v) => v.id !== id)
   // * 从文件系统删除版本  if (api?.versions) {
   const mcPath = await api.path?.getMinecraft()
@@ -475,7 +477,7 @@ async function removeVersion(id: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: var(--voxver-z-overlay);
 }
 
 /* * ---- 弹窗容器 ---- */
@@ -997,11 +999,6 @@ async function removeVersion(id: string) {
 .modal-fade-enter-from .vs-window {
   transform: scale(0.96) translateY(10px);
   opacity: 0;
-}
-
-/* * ===== 加载动画 ===== */
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 .spin-loader {

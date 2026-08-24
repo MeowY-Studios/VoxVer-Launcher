@@ -328,6 +328,8 @@ interface ElectronAPI {
     disable: (modPath: string) => Promise<IpcResult>
     installBatch: (sourcePaths: string[], gameDir: string) => Promise<IpcResult>
     checkCompat: (mods: unknown[], targetVersion: string, loader?: string) => Promise<IpcResult>
+    checkCompatibility: (mods: unknown[], mcVersion: string, loader?: string) => Promise<IpcResult>
+    exportMods: (filePaths: string[]) => Promise<IpcResult<string>>
     ensureDir: (gameDir: string) => Promise<IpcResult>
     listConfigs: (gameDir: string) => Promise<IpcResult<unknown[]>>
     getConfigContent: (filePath: string) => Promise<IpcResult<string>>
@@ -335,10 +337,10 @@ interface ElectronAPI {
     openConfigDir: (gameDir: string) => Promise<IpcResult<string>>
     checkUpdate: (mods: unknown[], mcVersion?: string, loader?: string) => Promise<IpcResult>
     update: (mod: unknown, updateInfo: unknown) => Promise<IpcResult>
-    onUpdateProgress: (callback: (data: unknown) => void) => () => void
+    onUpdateProgress: (callback: (data: { filePath: string; progress: number }) => void) => () => void
     checkDependencies: (mods: unknown[], mcVersion?: string, loader?: string) => Promise<IpcResult>
     installDependencies: (mod: unknown, gameDir: string, mcVersion?: string, loader?: string) => Promise<IpcResult>
-    onDependencyProgress: (callback: (data: unknown) => void) => () => void
+    onDependencyProgress: (callback: (data: { modPath: string; depName: string; progress: number }) => void) => () => void
   }
   updater: {
     check: () => Promise<{ success: boolean }>
@@ -410,6 +412,9 @@ interface ElectronAPI {
     receiveInstance: (shareCode: string) => Promise<{ sessionId: string }>
     importReceived: (sessionId: string) => Promise<ShareImportResult>
     getSession: (sessionId: string) => Promise<unknown>
+    saveSettings: (settings: { chunkSize?: number; connectionTimeout?: number; signalingServer?: string }) => Promise<{ ok: boolean; error?: string }>
+    getSettings: () => Promise<{ ok: boolean; settings?: { chunkSize: number; connectionTimeout: number; signalingServer: string }; error?: string }>
+    getHistory: (options?: { limit?: number }) => Promise<{ ok: boolean; history?: Array<{ id: string; type: string; instanceName: string; mcVersion: string | null; loaderType: string | null; shareCode: string; fileSize: number; status: string; errorMsg: string | null; createdAt: string }>; error?: string }>
     onProtocolInvoke: (callback: (shareCode: string) => void) => () => void
     onPackProgress: (callback: (event: Event, data: { instanceId: string; stage: string; progress: number }) => void) => () => void
     onSessionUpdate: (callback: (event: Event, data: { sessionId: string; session: ShareSession }) => void) => () => void

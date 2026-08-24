@@ -726,8 +726,10 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import InstanceCard from '../components/InstanceCard.vue'
 import type { ScanMinecraftResult } from '../env'
+import { useConfirm } from '@/composables/useConfirm'
 
 const { t } = useI18n()
+const { confirm: pxConfirm } = useConfirm()
 
 // 实例类型（统一使用 camelCase）
 interface Instance {
@@ -1298,9 +1300,9 @@ function editInstance(inst: Instance) {
 
 // 确认删除（写入数据库）
 async function confirmDeleteInstance(inst: Instance) {
-  const firstConfirm = confirm(t('instance.deleteConfirm') + `「${inst.name}」？`)
+  const firstConfirm = await pxConfirm({ title: t('instance.delete'), message: t('instance.deleteConfirm') + `「${inst.name}」？`, type: 'danger', confirmText: t('common.confirm') })
   if (!firstConfirm) return
-  const deleteFiles = confirm(t('instance.deleteFilesHint') + '\n\n' + t('instance.deleteFilesAlso') + '？')
+  const deleteFiles = await pxConfirm({ title: t('instance.delete'), message: t('instance.deleteFilesHint') + '\n\n' + t('instance.deleteFilesAlso') + '？', type: 'warning', confirmText: t('common.confirm') })
   try {
     await window.electronAPI?.instance?.delete(inst.id, deleteFiles)
     await loadInstances()
@@ -1697,7 +1699,7 @@ onMounted(async () => {
   position: absolute;
   top: 6px;
   left: 6px;
-  z-index: 1;
+  z-index: var(--voxver-z-raised);
   padding: 1px 6px;
   font-size: 9px;
   font-weight: 600;
@@ -1712,7 +1714,7 @@ onMounted(async () => {
   position: absolute;
   bottom: 6px;
   right: 6px;
-  z-index: 1;
+  z-index: var(--voxver-z-raised);
   padding: 1px 6px;
   font-size: 10px;
   font-weight: 600;
@@ -1999,7 +2001,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
+  z-index: var(--voxver-z-dropdown);
   backdrop-filter: blur(4px);
 }
 
@@ -2302,11 +2304,6 @@ onMounted(async () => {
     height: 16px;
     accent-color: var(--voxver-primary);
   }
-}
-
-/* * ===== 动画 ===== */
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 .spin-loader {

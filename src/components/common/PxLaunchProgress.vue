@@ -274,7 +274,7 @@ defineExpose({
 .px-launch-progress-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: var(--voxver-z-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -523,12 +523,5 @@ defineExpose({
   transform: translateY(0);
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
+
 </style>

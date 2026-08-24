@@ -2171,7 +2171,7 @@ watch(
   justify-content: center;
   cursor: pointer;
   transition: all 0.18s ease;
-  z-index: 50;
+  z-index: var(--voxver-z-float);
 
   &:hover {
     background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
@@ -2181,11 +2181,6 @@ watch(
   svg {
     flex-shrink: 0;
   }
-}
-
-/* * ===== 动画 ===== */
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 .spin-loader {

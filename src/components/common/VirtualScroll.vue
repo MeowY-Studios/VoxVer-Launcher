@@ -32,21 +32,22 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends Record<string, unknown>">
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 
-interface Props {
-  items: Record<string, unknown>[]
-  itemHeight?: number
-  overscan?: number
-  getItemKey?: (item: Record<string, unknown>, index: number) => string | number
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  itemHeight: 50,
-  overscan: 5,
-  getItemKey: (_item: Record<string, unknown>, index: number) => index
-})
+const props = withDefaults(
+  defineProps<{
+    items: T[]
+    itemHeight?: number
+    overscan?: number
+    getItemKey?: (item: T, index: number) => string | number
+  }>(),
+  {
+    itemHeight: 50,
+    overscan: 5,
+    getItemKey: (item: T, index: number) => index
+  }
+)
 
 const emit = defineEmits<{
   (e: 'scroll', event: Event): void

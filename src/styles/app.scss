@@ -28,7 +28,7 @@
   -webkit-user-select: none;
   user-select: none;
   position: relative;
-  z-index: 10;
+  z-index: var(--voxver-z-titlebar);
   border-bottom: 1px solid var(--voxver-border-color-light);
 }
 
@@ -46,7 +46,7 @@
     transparent 70%
   );
   pointer-events: none;
-  z-index: 0;
+  z-index: var(--voxver-z-base);
 }
 
 .electron .titlebar,
@@ -66,7 +66,7 @@
   -webkit-app-region: no-drag;
   pointer-events: auto;
   position: relative;
-  z-index: 1;
+  z-index: var(--voxver-z-raised);
 }
 
 .platform-macos .brand {
@@ -87,7 +87,7 @@
   align-items: center;
   gap: 8px;
   -webkit-app-region: no-drag;
-  z-index: 1;
+  z-index: var(--voxver-z-raised);
   flex-shrink: 0;
 }
 
@@ -174,13 +174,13 @@
   background-position: center;
   background-repeat: no-repeat;
   pointer-events: none;
-  z-index: 0;
+  z-index: var(--voxver-z-base);
 }
 
 .app-body-overlay {
   position: absolute; inset: 0;
   pointer-events: none;
-  z-index: 1;
+  z-index: var(--voxver-z-raised);
 }
 
 /* ================================================================
@@ -194,7 +194,7 @@
   display: flex;
   flex-direction: row;
   position: relative;
-  z-index: 2;
+  z-index: var(--voxver-z-above);
   overflow: hidden;
 
   /* * Outer Shell — 玻璃底板 */
@@ -483,7 +483,7 @@
     border: 1px solid var(--voxver-border-color);
     border-radius: var(--voxver-radius-md);
     box-shadow: var(--voxver-shadow-lg);
-    z-index: 1000;
+    z-index: var(--voxver-z-dropdown);
     opacity: 0;
     visibility: hidden;
     transform: translateY(-4px);
@@ -877,7 +877,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   height: 100%;
-  z-index: 2;
+  z-index: var(--voxver-z-above);
 
   /* * 玻璃纹理 — Impeccable 背景处理 */
   &::before {
@@ -944,7 +944,7 @@
 .perf-panel {
   position: fixed;
   bottom: 16px; right: 16px;
-  z-index: 9999;
+  z-index: var(--voxver-z-overlay);
   width: 200px;
   background: var(--voxver-glass-raised);
   backdrop-filter: blur(16px) saturate(140%);

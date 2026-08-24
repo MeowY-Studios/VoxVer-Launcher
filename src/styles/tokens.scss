@@ -157,6 +157,22 @@
   --voxver-transition-normal: 250ms var(--voxver-ease-out-quart);
   --voxver-transition-slow: 400ms var(--voxver-ease-out-quart);
 
+  /** Z-index 层级系统 */
+  --voxver-z-base: 0;
+  --voxver-z-raised: 1;
+  --voxver-z-above: 2;
+  --voxver-z-titlebar: 10;
+  --voxver-z-float: 50;
+  --voxver-z-dropdown: 1000;
+  --voxver-z-sticky: 9000;
+  --voxver-z-overlay: 9999;
+  --voxver-z-toast: 10000;
+  --voxver-z-notification: 10001;
+  --voxver-z-modal: 10002;
+  --voxver-z-confirm: 10003;
+  --voxver-z-toast-top: 10004;
+  --voxver-z-max: 99999;
+
   /** 强调色 */
   --voxver-accent: oklch(65% 0.19 252);
   --voxver-accent-hover: oklch(70% 0.17 252);

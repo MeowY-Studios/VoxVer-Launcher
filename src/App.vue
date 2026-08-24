@@ -531,10 +531,12 @@ import DownloadFloat from './components/DownloadFloat.vue'
 import PxModal from './components/common/PxModal.vue'
 import PxLaunchProgress from './components/common/PxLaunchProgress.vue'
 import { useVersionsStore, useAccountsStore, useInstancesStore, useDownloadStore, useAppStore } from './stores'
+import { useConfirm } from './composables/useConfirm'
 
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
+const { confirm: pxConfirm } = useConfirm()
 const currentRoute = computed(() => route.path)
 const isElectron = ref(false)
 const appVersion = ref('0.6.0')
@@ -1109,7 +1111,7 @@ async function onVersionSelect(version: { id: string; name: string; loader?: str
 async function handleLaunch() {
   // * 前置检查
   if (!selectedVersionId.value) {
-    if (confirm(t('launch.noVersionConfirm'))) {
+    if (await pxConfirm({ title: t('common.tip'), message: t('launch.noVersionConfirm'), type: 'warning', confirmText: t('common.confirm') })) {
       router.push('/downloads')
     }
     return

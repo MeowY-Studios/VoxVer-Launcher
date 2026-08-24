@@ -273,7 +273,7 @@
           @click="updateSelectedMod"
         >
           <template v-if="updatingMod === selectedMod">
-            {{ $t('mod.updatingProgress', { percent: Math.round((updateProgressMap[selectedMod] ?? 0) * 100) }) }}
+            {{ $t('mod.updatingProgress', { percent: Math.round((updateProgressMap[selectedMod!] ?? 0) * 100) }) }}
           </template>
           <template v-else>{{ $t('mod.updateAvailable') }}</template>
         </button>
@@ -370,8 +370,10 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useModsStore } from '../stores/mods.store'
 import VirtualScroll from './common/VirtualScroll.vue'
+import { useConfirm } from '@/composables/useConfirm'
 
 const { t } = useI18n()
+const { confirm: pxConfirm } = useConfirm()
 
 const props = defineProps<{
   gameDir: string
@@ -564,7 +566,7 @@ function toggleSelectAll() {
 
 // * 批量启用
 async function batchEnable() {
-  for (const filePath of selectedMods.value) {
+  for (const filePath of Array.from(selectedMods.value)) {
     await window.electronAPI?.mod.enable(filePath)
   }
   await loadMods()
@@ -572,7 +574,7 @@ async function batchEnable() {
 
 // * 批量禁用
 async function batchDisable() {
-  for (const filePath of selectedMods.value) {
+  for (const filePath of Array.from(selectedMods.value)) {
     await window.electronAPI?.mod.disable(filePath)
   }
   await loadMods()
@@ -580,11 +582,11 @@ async function batchDisable() {
 
 // * 批量删除
 async function batchDelete() {
-  const names = [...selectedMods.value]
+  const names = Array.from(selectedMods.value)
     .map((fp) => installedMods.value.find((m) => m.filePath === fp)?.name || fp)
     .join('、')
-  if (!confirm(t('mod.confirmBatchDelete', { names }))) return
-  for (const filePath of selectedMods.value) {
+  if (!await pxConfirm({ title: t('common.warning'), message: t('mod.confirmBatchDelete', { names }), type: 'danger', confirmText: t('common.confirm') })) return
+  for (const filePath of Array.from(selectedMods.value)) {
     try {
       await window.electronAPI?.mod.uninstall(filePath)
     } catch {
@@ -603,7 +605,7 @@ async function exportSelected() {
     api?.notification?.send({ title: t('common.error'), body: t('mod.exportNotSupported'), type: 'error' })
     return
   }
-  const filePaths = [...selectedMods.value]
+  const filePaths = Array.from(selectedMods.value)
   try {
     const result = await api.mod.exportMods(filePaths)
     if (result?.ok) {
@@ -642,7 +644,7 @@ async function checkCompatibility() {
     }
     const result = await api.mod.checkCompatibility(
       installedMods.value,
-      props.mcVersion,
+      props.mcVersion || '',
       props.loader
     )
     if (result?.ok && Array.isArray(result.data)) {
@@ -828,7 +830,7 @@ async function doUpdateMod(mod: ModItem, info: ModUpdateInfo) {
     })
     return
   }
-  if (!confirm(t('mod.confirmUpdate', { name: mod.name, currentVersion: info.currentVersionName, latestVersion: info.latestVersionName })))
+  if (!await pxConfirm({ title: t('common.warning'), message: t('mod.confirmUpdate', { name: mod.name, currentVersion: info.currentVersionName, latestVersion: info.latestVersionName }), type: 'warning', confirmText: t('common.confirm') }))
     return
 
   updatingMod.value = mod.filePath
@@ -924,7 +926,7 @@ async function installSelectedDeps() {
 }
 
 async function doInstallDeps(mod: ModItem, depCheck: ModDependencyCheckResult) {
-  if (!confirm(t('mod.confirmInstallDeps', { name: mod.name, count: depCheck.missingDependencies.length })))
+  if (!await pxConfirm({ title: t('common.warning'), message: t('mod.confirmInstallDeps', { name: mod.name, count: depCheck.missingDependencies.length }), type: 'warning', confirmText: t('common.confirm') }))
     return
 
   installingDeps.value = mod.filePath
@@ -992,7 +994,7 @@ async function removeSelectedMod() {
   if (!selectedMod.value) return
   const mod = installedMods.value.find((m) => m.filePath === selectedMod.value)
   if (!mod) return
-  if (!confirm(t('mod.confirmDeleteMod', { name: mod.name }))) return
+  if (!await pxConfirm({ title: t('common.warning'), message: t('mod.confirmDeleteMod', { name: mod.name }), type: 'danger', confirmText: t('common.confirm') })) return
   try {
     await window.electronAPI?.mod.uninstall(mod.filePath)
     await loadMods()
@@ -1076,7 +1078,7 @@ async function toggleModEnable(mod: ModItem) {
 
 // * 删除单个 Mod
 async function removeMod(mod: ModItem) {
-  if (!confirm(t('mod.confirmDeleteMod', { name: mod.name }))) return
+  if (!await pxConfirm({ title: t('common.warning'), message: t('mod.confirmDeleteMod', { name: mod.name }), type: 'danger', confirmText: t('common.confirm') })) return
   try {
     await window.electronAPI?.mod.uninstall(mod.filePath)
     await loadMods()
@@ -1398,7 +1400,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: var(--voxver-z-toast);
 }
 .mod-detail-window {
   width: 480px;

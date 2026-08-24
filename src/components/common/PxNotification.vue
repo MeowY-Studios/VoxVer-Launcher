@@ -283,7 +283,7 @@ onUnmounted(() => {
   position: fixed;
   top: 0;
   right: 88px;
-  z-index: 10001;
+  z-index: var(--voxver-z-notification);
   width: 44px;
   height: 44px;
   display: flex;
@@ -327,7 +327,7 @@ onUnmounted(() => {
   position: fixed;
   top: 48px;
   right: 12px;
-  z-index: 10002;
+  z-index: var(--voxver-z-modal);
   width: 340px;
   max-height: 420px;
   background: var(--voxver-bg-elevated);

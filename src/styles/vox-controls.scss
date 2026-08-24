@@ -503,7 +503,7 @@
   appearance: none;
   transition: border-color var(--voxver-transition-fast), box-shadow var(--voxver-transition-fast);
   position: relative;
-  z-index: 1;
+  z-index: var(--voxver-z-raised);
 
   &::placeholder {
     color: var(--voxver-text-muted);
@@ -526,7 +526,7 @@
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
-  z-index: 2;
+  z-index: var(--voxver-z-above);
   color: var(--voxver-text-muted);
   transition: transform var(--voxver-transition-fast);
 
@@ -552,7 +552,7 @@
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
   box-shadow: var(--voxver-shadow-lg);
-  z-index: 1000;
+  z-index: var(--voxver-z-dropdown);
   opacity: 0;
   visibility: hidden;
   transform: translateY(-4px);

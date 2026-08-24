@@ -131,7 +131,7 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10002;
+  z-index: var(--voxver-z-modal);
   padding: 16px;
 }
 .px-modal--blur {

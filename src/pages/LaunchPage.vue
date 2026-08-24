@@ -830,11 +830,6 @@ onUnmounted(() => {
   }
 }
 
-/* * ===== 动画 ===== */
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 .spin-loader-sm {
   display: inline-block;
   width: 14px;
