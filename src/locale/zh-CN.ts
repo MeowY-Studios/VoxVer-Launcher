@@ -2034,7 +2034,33 @@ export default {
     modpackCreateErrorBody: '创建整合包失败: {error}',
     modpackImportErrorBody: '导入整合包失败: {error}',
     backupErrorBody: '备份失败: {error}',
-    backupRestoreErrorBody: '恢复失败: {error}'
+    backupRestoreErrorBody: '恢复失败: {error}',
+
+    // 联机与 P2P 分享
+    online: {
+      title: '联机',
+      desc: '联机与网络对战设置。',
+      useCustomServer: '使用自定义信令服务器',
+      useCustomServerDesc: '使用自定义信令服务器替代默认服务器',
+      signalingServer: '信令服务器地址',
+      signalingServerDesc: 'WebSocket 信令服务器地址',
+      signalingServerPlaceholder: 'wss://your-server.com',
+      currentServer: '当前服务器',
+      defaultServer: '默认服务器',
+      transferSettings: '传输设置',
+      transferSettingsDesc: 'P2P 文件传输参数配置',
+      chunkSize: '分片大小',
+      chunkSizeDesc: '文件分片大小，影响传输稳定性',
+      chunk512: '512 KB',
+      chunk1024: '1024 KB',
+      chunk2048: '2048 KB',
+      chunk4096: '4096 KB',
+      connectionTimeout: '连接超时',
+      connectionTimeoutDesc: 'P2P 连接超时时间（秒）',
+      timeout15: '15 秒',
+      timeout30: '30 秒',
+      timeout60: '60 秒'
+    }
   },
 
   backup: {

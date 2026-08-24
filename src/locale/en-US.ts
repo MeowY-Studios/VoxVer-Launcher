@@ -1975,7 +1975,33 @@ export default {
     modpackCreateErrorBody: 'Create modpack failed: {error}',
     modpackImportErrorBody: 'Import modpack failed: {error}',
     backupErrorBody: 'Backup failed: {error}',
-    backupRestoreErrorBody: 'Restore failed: {error}'
+    backupRestoreErrorBody: 'Restore failed: {error}',
+
+    // Online & P2P Sharing
+    online: {
+      title: 'Online',
+      desc: 'Online and multiplayer settings.',
+      useCustomServer: 'Use Custom Signaling Server',
+      useCustomServerDesc: 'Use a custom signaling server instead of the default',
+      signalingServer: 'Signaling Server URL',
+      signalingServerDesc: 'WebSocket signaling server address',
+      signalingServerPlaceholder: 'wss://your-server.com',
+      currentServer: 'Current Server',
+      defaultServer: 'Default Server',
+      transferSettings: 'Transfer Settings',
+      transferSettingsDesc: 'P2P file transfer configuration',
+      chunkSize: 'Chunk Size',
+      chunkSizeDesc: 'File chunk size, affects transfer stability',
+      chunk512: '512 KB',
+      chunk1024: '1024 KB',
+      chunk2048: '2048 KB',
+      chunk4096: '4096 KB',
+      connectionTimeout: 'Connection Timeout',
+      connectionTimeoutDesc: 'P2P connection timeout in seconds',
+      timeout15: '15 seconds',
+      timeout30: '30 seconds',
+      timeout60: '60 seconds'
+    }
   },
 
   backup: {
