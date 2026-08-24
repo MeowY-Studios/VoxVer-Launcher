@@ -80,11 +80,13 @@ const total = defineModel<number>('total', { default: 0 })
 function statusLabel(status: DownloadStatus): string {
   const map: Record<DownloadStatus, string> = {
     pending: t('component.downloadStatusPending'),
+    queued: t('component.downloadStatusQueued'),
     downloading: t('component.downloadStatusDownloading'),
     paused: t('component.downloadStatusPaused'),
     completed: t('component.downloadStatusCompleted'),
     failed: t('component.downloadStatusFailed'),
-    cancelled: t('component.downloadStatusCancelled')
+    cancelled: t('component.downloadStatusCancelled'),
+    error: t('component.downloadStatusError')
   }
   return map[status] || status
 }

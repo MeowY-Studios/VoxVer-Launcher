@@ -2337,6 +2337,8 @@ export default {
     downloadStatusCompleted: 'Completed',
     downloadStatusFailed: 'Failed',
     downloadStatusCancelled: 'Cancelled',
+    downloadStatusQueued: 'Queued',
+    downloadStatusError: 'Error',
     // PxNotification
     notificationCenter: 'Notifications',
     markAllRead: 'Mark All Read',

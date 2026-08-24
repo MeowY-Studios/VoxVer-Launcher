@@ -2385,6 +2385,8 @@ export default {
     downloadStatusCompleted: '已完成',
     downloadStatusFailed: '失败',
     downloadStatusCancelled: '已取消',
+    downloadStatusQueued: '排队中',
+    downloadStatusError: '错误',
     // PxNotification
     notificationCenter: '通知中心',
     markAllRead: '全部标为已读',
