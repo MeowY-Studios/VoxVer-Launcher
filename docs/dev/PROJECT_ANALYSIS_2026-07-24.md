@@ -1,6 +1,6 @@
 # VoxVer Launcher 项目全面分析报告
 
-> 分析日期：2026-08-24（更新） | 初始日期：2026-07-24 | 版本：v0.7.6
+> 分析日期：2026-08-24（更新） | 初始日期：2026-07-24 | 版本：v0.7.7
 
 ---
 
@@ -21,7 +21,7 @@
 | 下载系统 | 100% | 多线程分块、断点续传、镜像切换、实时进度事件、下载通知、搜索缓存、前后端类型对齐 |
 | P2P 实例分享 | 100% | PeerJS WebRTC，自定义协议 voxver://share:CODE，导入参数保留、传输取消、解压进度、配置 UI/IPC、磁盘预检、错误消息英文化、断点续传、自动重连、传输历史记录 |
 | 设置系统 | 100% | 5 组 17 项、主题自定义（颜色选择器 + 实时预览）、键盘快捷键、全字段本地持久化（60+ 双向联动）、分类搜索、启动命令预览、数据管理按钮闭环 |
-| UI/UX 设计系统 | 100% | OKLCH 色彩空间、quart-out 动效、Double-Bezel 嵌套、Ethereal Glass 玻璃态、Magnetic Hover、Z-index token 系统、PxConfirm/PxToast/PxSkeleton 组件库、泛型 VirtualScroll、Light Theme 兼容 |
+| UI/UX 设计系统 | 100% | OKLCH 色彩空间、quart-out 动效、Double-Bezel 嵌套、Ethereal Glass 玻璃态、Magnetic Hover、Z-index token 系统、PxConfirm/PxToast/PxSkeleton 组件库、泛型 VirtualScroll、Light/Dark Theme 全面 token 化 |
 | 国际化 | 100% | zh-CN + en-US，覆盖所有主要模块（含实例管理 40+、设置系统清除缓存/搜索等新增词条、硬编码中文清零、en-US auth 整块补齐、代码注释保留中文属于开发文档不需国际化） |
 | 动画系统 | 100% | 集中化重构完成，重复 keyframe 已清理，统一引用 animations.scss |
 | 多游戏适配器 | 60% | 接口定义完成，Minecraft Java 版已实现 |
@@ -40,14 +40,22 @@
 
 | 模块 | 优先级 |
 |------|--------|
-| 联机/多人游戏 | P2（UI 已隐藏） |
+| 联机/多人游戏 | P2（侧边栏入口已添加，占位页面已创建） |
 | 游戏内性能监控面板 | P3 |
 | macOS/Linux 平台验证 | P2 |
 | 页面组件单元测试 | P2（2/12 页面已覆盖：HomePage 8 测试 + InstancesPage 9 测试） |
 
 ### 版本迭代历程
 
-从 v0.1.0 (2026-04-24) 到 v0.7.6 (2026-08-24)，约 3.5 个月完成 20+ 个版本迭代，核心闭环已打通。
+从 v0.1.0 (2026-04-24) 到 v0.7.7 (2026-08-24)，约 3.5 个月完成 20+ 个版本迭代，核心闭环已打通。
+
+**最近更新 (2026-08-24) v0.7.7：**
+- **Theme 全面 token 化 + P2P/联机分离 + i18n 补全**
+  - *Dark/Light Theme 硬编码颜色清零：* 9 个文件 63 处替换（DownloadFloat 16 处、SettingsPage 18 处、ModManager 8 处、AccountManager 5 处、DownloadItem 4 处、VersionSettings 3 处、InstanceDetail/VersionDetail/DownloadManager 各 1-2 处），所有状态色（success/warning/error）、文字色（primary/secondary/tertiary/muted）、overlay、shadow 均使用 `var(--voxver-*)` token
+  - *P2P 分享与联机分离：* settings 侧边栏新增「联机」入口，P2P 文件分享独立为 `p2p` 命名空间，联机（多人游戏）新增 `multiplayer` 命名空间含占位内容（LAN/直连/服务器列表/Realms）
+  - *i18n 补全：* 新增 `settings.online.*` → `p2p.*` 迁移，新增 `multiplayer.*` 中英文 12+ 词条
+  - *UI 微调：* 颜色预设圆点间距优化、主题色选择器左对齐
+  - 已推送：`2530e59` fix(ui): reduce theme color palette gap and left-align color picker
 
 **最近更新 (2026-08-24) v0.7.6：**
 - **UI/UX 设计系统收官 (95% → 100%) + 类型修复**
