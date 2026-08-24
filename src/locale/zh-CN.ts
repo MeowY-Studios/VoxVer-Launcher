@@ -1795,9 +1795,6 @@ export default {
     accessibility: {
       desc: '优化界面交互体验，让每位用户都能顺畅使用启动器。'
     },
-    online: {
-      desc: '联机与网络对战设置。'
-    },
     security: {
       desc: '配置下载文件的安全扫描服务，保护你的游戏环境免受恶意代码侵害。',
       modScan: 'Mod 安全扫描',

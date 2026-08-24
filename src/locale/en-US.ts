@@ -1740,9 +1740,6 @@ export default {
     accessibility: {
       desc: 'Optimize the interaction experience so every user can use the launcher smoothly.'
     },
-    online: {
-      desc: 'Online and network battle settings.'
-    },
     security: {
       desc: 'Configure security scanning for downloaded files to protect your game environment from malicious code.',
       modScan: 'Mod Security Scan',
