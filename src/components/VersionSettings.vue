@@ -1377,6 +1377,11 @@ const navItems = [
   &.short {
     flex: 0 0 80px;
   }
+}
+
+.form-select {
+  color-scheme: dark;
+}
 
   &.mono {
     font-family: var(--voxver-font-mono);
