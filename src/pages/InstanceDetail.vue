@@ -2043,7 +2043,7 @@ watch(instanceId, () => {
     background: var(--voxver-primary);
     color: #fff;
     font-weight: 500;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 2px var(--voxver-shadow-sm);
   }
 }
 

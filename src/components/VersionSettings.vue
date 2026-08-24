@@ -482,7 +482,7 @@
 
             <!-- 检测完成：有缺失文件 -->
             <div v-else-if="completeState === 'missing'" class="complete-status warning">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-warning)" stroke-width="2">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="12" />
                 <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -1533,8 +1533,8 @@ const navItems = [
   }
 
   &.active {
-    border-color: #f59e0b;
-    color: #f59e0b;
+    border-color: var(--voxver-warning);
+    color: var(--voxver-warning);
     background: rgb(245 158 11 / 0.08);
   }
 }
@@ -1705,7 +1705,7 @@ const navItems = [
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #f59e0b;
+  background: var(--voxver-warning);
   flex-shrink: 0;
 }
 

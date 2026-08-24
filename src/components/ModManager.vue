@@ -1538,7 +1538,7 @@ onMounted(() => {
 
 /* mod 卡片有更新时的右侧橙色边框 */
 .mod-item.has-update {
-  border-right: 3px solid #f59e0b;
+  border-right: 3px solid var(--voxver-warning);
 }
 
 /* * 有更新角标 */
@@ -1550,7 +1550,7 @@ onMounted(() => {
   font-size: 10px;
   font-weight: 600;
   background: rgb(245 158 11 / 0.15);
-  color: #f59e0b;
+  color: var(--voxver-warning);
   border: 1px solid rgb(245 158 11 / 0.35);
   margin-left: 4px;
 }
@@ -1564,7 +1564,7 @@ onMounted(() => {
   font-size: 10px;
   font-weight: 600;
   background: rgb(239 68 68 / 0.15);
-  color: #ef4444;
+  color: var(--voxver-error);
   border: 1px solid rgb(239 68 68 / 0.35);
   margin-left: 4px;
 }
@@ -1578,7 +1578,7 @@ onMounted(() => {
   font-size: 10px;
   font-weight: 600;
   background: rgb(239 68 68 / 0.15);
-  color: #ef4444;
+  color: var(--voxver-error);
   border: 1px solid rgb(239 68 68 / 0.35);
   margin-left: 4px;
   cursor: help;
@@ -1586,12 +1586,12 @@ onMounted(() => {
 
 /* 不兼容时底部橙色边框 */
 .mod-item.compat-incompatible {
-  border-bottom: 2px solid #ef4444;
+  border-bottom: 2px solid var(--voxver-error);
 }
 
 /* 缺失依赖时的左边框 */
 .mod-item.missing-deps {
-  border-left: 3px solid #ef4444;
+  border-left: 3px solid var(--voxver-error);
 }
 
 /* * 更新中进度条（覆盖在卡片顶部） */
@@ -1615,7 +1615,7 @@ onMounted(() => {
 /* * 底部操作栏「更新」按钮有更新时变橙色高亮 */
 .mod-bottom-btn.has-update {
   background: rgb(245 158 11 / 0.12);
-  color: #f59e0b;
+  color: var(--voxver-warning);
   border-color: rgb(245 158 11 / 0.4);
 
   &:hover:not(:disabled) {
@@ -1626,7 +1626,7 @@ onMounted(() => {
 /* * 底部操作栏「安装依赖」按钮有缺失时变红色高亮 */
 .mod-bottom-btn.missing-deps {
   background: rgb(239 68 68 / 0.12);
-  color: #ef4444;
+  color: var(--voxver-error);
   border-color: rgb(239 68 68 / 0.4);
 
   &:hover:not(:disabled) {

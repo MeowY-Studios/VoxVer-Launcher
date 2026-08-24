@@ -819,10 +819,10 @@ onUnmounted(() => {
 }
 
 .task-item.completed .task-bar {
-  background: linear-gradient(90deg, var(--voxver-success), color-mix(in oklab, var(--voxver-success) 70%, #000));
+  background: linear-gradient(90deg, var(--voxver-success), color-mix(in oklab, var(--voxver-success) 70%, var(--voxver-bg-primary)));
 }
 .task-item.failed .task-bar {
-  background: linear-gradient(90deg, var(--voxver-error), color-mix(in oklab, var(--voxver-error) 70%, #000));
+  background: linear-gradient(90deg, var(--voxver-error), color-mix(in oklab, var(--voxver-error) 70%, var(--voxver-bg-primary)));
 }
 
 .task-progress-text {

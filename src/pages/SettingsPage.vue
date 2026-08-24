@@ -5797,7 +5797,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   &.active {
     border-color: var(--voxver-text-primary);
     box-shadow:
-      0 0 0 2px #fff,
+      0 0 0 2px var(--voxver-bg-elevated),
       0 0 0 4px var(--voxver-text-primary);
   }
 }
@@ -6166,11 +6166,11 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
     gap: 8px;
     padding: 10px 12px;
     margin-bottom: 14px;
-    background: color-mix(in oklab, #f59e0b 12%, transparent);
-    border: 1px solid color-mix(in oklab, #f59e0b 30%, transparent);
+    background: color-mix(in oklab, var(--voxver-warning) 12%, transparent);
+    border: 1px solid color-mix(in oklab, var(--voxver-warning) 30%, transparent);
     border-radius: var(--voxver-radius-sm);
     font-size: 12px;
-    color: #f59e0b;
+    color: var(--voxver-warning);
     line-height: 1.5;
     text-align: left;
 
@@ -6233,7 +6233,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 }
 
 .update-error {
-  color: #ef4444;
+  color: var(--voxver-error);
 }
 
 /* 更新错误弹窗 */
@@ -6277,7 +6277,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 .update-version-num {
   font-size: 18px;
   font-weight: 600;
-  color: #22c55e;
+  color: var(--voxver-success);
 }
 
 .update-release-notes {
@@ -6388,7 +6388,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #22c55e;
+  color: var(--voxver-success);
   font-size: 14px;
   margin: 8px 0;
 }
@@ -6396,7 +6396,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--voxver-bg-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6409,7 +6409,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   border-radius: var(--voxver-radius-md);
   min-width: 360px;
   max-width: 90vw;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px var(--voxver-shadow-xl);
 }
 
 .modal-header {
@@ -7889,26 +7889,26 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 
   /* 稳定版 → 绿色遮罩 */
   &.vox-chip--stable.vox-chip--active {
-    background: color-mix(in oklab, #22c55e 18%, transparent);
-    &:hover { background: color-mix(in oklab, #22c55e 24%, transparent); }
+    background: color-mix(in oklab, var(--voxver-success) 18%, transparent);
+    &:hover { background: color-mix(in oklab, var(--voxver-success) 24%, transparent); }
   }
 
   /* 测试版 → 黄色遮罩 */
   &.vox-chip--beta.vox-chip--active {
-    background: color-mix(in oklab, #f59e0b 18%, transparent);
-    &:hover { background: color-mix(in oklab, #f59e0b 24%, transparent); }
+    background: color-mix(in oklab, var(--voxver-warning) 18%, transparent);
+    &:hover { background: color-mix(in oklab, var(--voxver-warning) 24%, transparent); }
   }
 
   /* 开启 → 绿色遮罩 */
   &.vox-chip--on.vox-chip--active {
-    background: color-mix(in oklab, #22c55e 18%, transparent);
-    &:hover { background: color-mix(in oklab, #22c55e 24%, transparent); }
+    background: color-mix(in oklab, var(--voxver-success) 18%, transparent);
+    &:hover { background: color-mix(in oklab, var(--voxver-success) 24%, transparent); }
   }
 
   /* 关闭 → 红色遮罩 */
   &.vox-chip--off.vox-chip--active {
-    background: color-mix(in oklab, #ef4444 18%, transparent);
-    &:hover { background: color-mix(in oklab, #ef4444 24%, transparent); }
+    background: color-mix(in oklab, var(--voxver-error) 18%, transparent);
+    &:hover { background: color-mix(in oklab, var(--voxver-error) 24%, transparent); }
   }
 }
 
@@ -7940,10 +7940,10 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   border-radius: 50%;
   flex-shrink: 0;
 
-  &.status-dot--stable { background: #22c55e; }
-  &.status-dot--beta   { background: #f59e0b; }
-  &.status-dot--on     { background: #22c55e; }
-  &.status-dot--off    { background: #6b7280; }
+  &.status-dot--stable { background: var(--voxver-success); }
+  &.status-dot--beta   { background: var(--voxver-warning); }
+  &.status-dot--on     { background: var(--voxver-success); }
+  &.status-dot--off    { background: var(--voxver-text-muted); }
 }
 
 /* toggle chip 继承 vox-chip 样式 */

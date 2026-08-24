@@ -112,8 +112,8 @@ function formatSize(b: number): string {
   &.failed {
     border-color: rgb(239 68 68 / 0.3);
     .item-icon svg {
-      stroke: #ef4444;
-      color: #ef4444;
+      stroke: var(--voxver-error);
+      color: var(--voxver-error);
     }
   }
 
@@ -196,7 +196,7 @@ function formatSize(b: number): string {
 .error-text {
   margin: 4px 0 0;
   font-size: 11.5px;
-  color: #ef4444;
+  color: var(--voxver-error);
 }
 
 .cancel-btn {
@@ -209,7 +209,7 @@ function formatSize(b: number): string {
   transition: all 0.1s;
 
   &:hover {
-    color: #ef4444;
+    color: var(--voxver-error);
     background: rgb(239 68 68 / 0.08);
   }
 }
@@ -230,7 +230,7 @@ function formatSize(b: number): string {
   }
   &.failed {
     background: rgb(239 68 68 / 0.1);
-    color: #ef4444;
+    color: var(--voxver-error);
   }
 }
 </style>

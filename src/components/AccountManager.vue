@@ -551,7 +551,7 @@ function generateUUID(): string {
 .acc-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--voxver-bg-overlay);
   z-index: var(--voxver-z-sticky);
   backdrop-filter: blur(1px);
   overflow: hidden;
@@ -569,7 +569,7 @@ function generateUUID(): string {
   display: flex;
   flex-direction: column;
   overflow: visible;
-  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.3);
+  box-shadow: -8px 0 32px var(--voxver-shadow-lg);
 }
 
 /* * ===== 标题栏 ===== */
@@ -778,7 +778,7 @@ function generateUUID(): string {
   border-radius: 7px;
   font-size: 13px;
   color: var(--voxver-text-primary);
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--voxver-bg-tertiary);
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.15s;
@@ -934,7 +934,7 @@ function generateUUID(): string {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--voxver-bg-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -948,7 +948,7 @@ function generateUUID(): string {
   border-radius: 14px;
   width: 420px;
   max-width: calc(100vw - 32px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 12px 40px var(--voxver-shadow-lg);
   overflow: hidden;
 }
 

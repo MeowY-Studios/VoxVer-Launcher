@@ -299,7 +299,7 @@ watch(
 }
 .fp-close:hover {
   background: rgb(239 68 68 / 0.2);
-  color: #ef4444;
+  color: var(--voxver-error);
 }
 
 .fp-tasks {
@@ -325,22 +325,22 @@ watch(
 }
 
 .fp-task-ok {
-  border-left: 2px solid #22c55e;
+  border-left: 2px solid var(--voxver-success);
 }
 .fp-task-err {
-  border-left: 2px solid #ef4444;
+  border-left: 2px solid var(--voxver-error);
 }
 
 .fp-task-name {
   font-size: 12px;
   font-weight: 600;
-  color: #ddd;
+  color: var(--voxver-text-primary);
   margin-bottom: 2px;
 }
 
 .fp-task-phase {
   font-size: 11px;
-  color: #777;
+  color: var(--voxver-text-tertiary);
   margin-bottom: 6px;
 }
 
@@ -358,10 +358,10 @@ watch(
   transition: width 0.4s ease;
 }
 .fp-task-ok .fp-bar {
-  background: #22c55e;
+  background: var(--voxver-success);
 }
 .fp-task-err .fp-bar {
-  background: #ef4444;
+  background: var(--voxver-error);
   width: 100% !important;
 }
 
@@ -378,21 +378,21 @@ watch(
 }
 .fp-speed {
   font-size: 10px;
-  color: #666;
+  color: var(--voxver-text-muted);
 }
 
 .fp-task-dismiss {
   font-size: 10px;
   background: var(--voxver-bg-hover);
   border: none;
-  color: #666;
+  color: var(--voxver-text-muted);
   padding: 2px 8px;
   border-radius: var(--voxver-radius-xs);
   cursor: pointer;
   flex-shrink: 0;
 }
 .fp-task-dismiss:hover {
-  color: #aaa;
+  color: var(--voxver-text-secondary);
 }
 
 .fp-view-all {
@@ -434,7 +434,7 @@ watch(
   align-items: center;
   gap: 8px;
   padding: 20px;
-  color: #555;
+  color: var(--voxver-text-muted);
   font-size: 12px;
 
   p {
@@ -458,7 +458,7 @@ watch(
 
 .fp-phase {
   font-size: 11px;
-  color: #777;
+  color: var(--voxver-text-tertiary);
 }
 
 .fp-cancel-btn {
@@ -467,7 +467,7 @@ watch(
   border-radius: var(--voxver-radius-xs);
   border: none;
   background: var(--voxver-bg-hover);
-  color: #666;
+  color: var(--voxver-text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -478,7 +478,7 @@ watch(
 
 .fp-cancel-btn:hover {
   background: rgb(239 68 68 / 0.2);
-  color: #ef4444;
+  color: var(--voxver-error);
 }
 
 .fp-task-done {
@@ -507,10 +507,10 @@ watch(
 }
 
 .fp-task-ok .fp-task-phase {
-  color: #22c55e;
+  color: var(--voxver-success);
 }
 .fp-task-err .fp-task-phase {
-  color: #ef4444;
+  color: var(--voxver-error);
 }
 
 /* * 动画 */
