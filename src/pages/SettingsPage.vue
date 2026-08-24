@@ -2109,12 +2109,16 @@
             <p class="row-desc">{{ $t('p2p.chunkSizeDesc') }}</p>
           </div>
           <div class="row-control">
-            <select class="inp vox-input" v-model="p2pSettings.chunkSize" @change="saveP2pSettings">
-              <option value="512">{{ $t('p2p.chunk512') }}</option>
-              <option value="1024">{{ $t('p2p.chunk1024') }}</option>
-              <option value="2048">{{ $t('p2p.chunk2048') }}</option>
-              <option value="4096">{{ $t('p2p.chunk4096') }}</option>
-            </select>
+            <PxSelect
+              v-model="p2pSettings.chunkSize"
+              :options="[
+                { label: $t('p2p.chunk512'), value: '512' },
+                { label: $t('p2p.chunk1024'), value: '1024' },
+                { label: $t('p2p.chunk2048'), value: '2048' },
+                { label: $t('p2p.chunk4096'), value: '4096' }
+              ]"
+              @update:model-value="saveP2pSettings"
+            />
           </div>
         </div>
 
@@ -2125,11 +2129,15 @@
             <p class="row-desc">{{ $t('p2p.connectionTimeoutDesc') }}</p>
           </div>
           <div class="row-control">
-            <select class="inp vox-input" v-model="p2pSettings.connectionTimeout" @change="saveP2pSettings">
-              <option value="15">{{ $t('p2p.timeout15') }}</option>
-              <option value="30">{{ $t('p2p.timeout30') }}</option>
-              <option value="60">{{ $t('p2p.timeout60') }}</option>
-            </select>
+            <PxSelect
+              v-model="p2pSettings.connectionTimeout"
+              :options="[
+                { label: $t('p2p.timeout15'), value: '15' },
+                { label: $t('p2p.timeout30'), value: '30' },
+                { label: $t('p2p.timeout60'), value: '60' }
+              ]"
+              @update:model-value="saveP2pSettings"
+            />
           </div>
         </div>
       </section>
@@ -2191,10 +2199,14 @@
             <p class="row-desc">{{ $t('settings.security.scanEngineDesc') }}</p>
           </div>
           <div class="row-control">
-            <select class="inp vox-input" v-model="securitySettings.scanEngine" @change="saveSecuritySettings">
-              <option value="builtin">{{ $t('settings.security.engineBuiltin') }}</option>
-              <option value="virustotal">VirusTotal</option>
-            </select>
+            <PxSelect
+              v-model="securitySettings.scanEngine"
+              :options="[
+                { label: $t('settings.security.engineBuiltin'), value: 'builtin' },
+                { label: 'VirusTotal', value: 'virustotal' }
+              ]"
+              @update:model-value="saveSecuritySettings"
+            />
           </div>
         </div>
 
@@ -2221,11 +2233,15 @@
             <p class="row-desc">{{ $t('settings.security.sensitivityDesc') }}</p>
           </div>
           <div class="row-control">
-            <select class="inp vox-input" v-model="securitySettings.sensitivity" @change="saveSecuritySettings">
-              <option value="loose">{{ $t('settings.security.sensitivityLoose') }}</option>
-              <option value="standard">{{ $t('settings.security.sensitivityStandard') }}</option>
-              <option value="strict">{{ $t('settings.security.sensitivityStrict') }}</option>
-            </select>
+            <PxSelect
+              v-model="securitySettings.sensitivity"
+              :options="[
+                { label: $t('settings.security.sensitivityLoose'), value: 'loose' },
+                { label: $t('settings.security.sensitivityStandard'), value: 'standard' },
+                { label: $t('settings.security.sensitivityStrict'), value: 'strict' }
+              ]"
+              @update:model-value="saveSecuritySettings"
+            />
           </div>
         </div>
       </section>
@@ -3034,6 +3050,7 @@ import { useInstancesStore } from '../stores/instances.store'
 import AccountPage from './AccountPage.vue'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import PxSelect from '@/components/common/PxSelect.vue'
 
 const router = useRouter()
 const appStore = useAppStore()
