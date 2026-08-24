@@ -11,6 +11,33 @@ const AdmZip = require('adm-zip')
 
 const MR_BASE = 'https://api.modrinth.com/v2'
 
+/** Mod 信息解析结果 */
+interface ModReadInfo {
+  name?: string
+  version?: string
+  description?: string
+  authors?: string[]
+  url?: string
+  loader?: 'fabric' | 'forge' | 'quilt' | 'neoforge'
+  mcVersion?: string
+  dependencies?: string[]
+  logoUrl?: string
+}
+
+/** Mod 文件信息 */
+interface ModFileInfo {
+  file: string
+  filePath: string
+  stat: import('fs').Stats
+  isDisabled: boolean
+}
+
+/** AdmZip 最小类型（无 @types 包） */
+interface AdmZipInstance {
+  getEntry(path: string): unknown
+  readFile(entry: unknown): Buffer
+}
+
 /** Mod 依赖信息 */
 export interface ModDependencyInfo {
   project_id: string
@@ -107,7 +134,7 @@ export enum ModType {
 export class ModService {
   private cacheDir: string
   // mod 信息内存缓存：key=filePath，value={mtime, info}，按 mtime 失效
-  private modInfoCache = new Map<string, { mtime: number; info: any }>()
+  private modInfoCache = new Map<string, { mtime: number; info: ModReadInfo }>()
 
   constructor(cacheDir?: string) {
     // 默认缓存目录：%APPDATA%\mcla\mod-icons（Windows）或 ~/.mcla/mod-icons
@@ -145,7 +172,7 @@ export class ModService {
       )
 
       const validFiles = fileInfos.filter(
-        (f): f is { file: string; filePath: string; stat: any; isDisabled: boolean } => f !== null
+        (f): f is ModFileInfo => f !== null
       )
 
       // 第二步：并行读取所有 mod 信息（带缓存）
@@ -229,19 +256,9 @@ export class ModService {
    * 读取 Mod 信息（从 jar 文件）
    * 使用 @xmcl/mod-parser 解析 Fabric / Quilt / Forge 三种 Mod 格式
    */
-  private async readModInfo(filePath: string): Promise<{
-    name?: string
-    version?: string
-    description?: string
-    authors?: string[]
-    url?: string
-    loader?: 'fabric' | 'forge' | 'quilt' | 'neoforge'
-    mcVersion?: string
-    dependencies?: string[]
-    logoUrl?: string
-  }> {
+  private async readModInfo(filePath: string): Promise<ModReadInfo> {
     const fileName = path.basename(filePath)
-    const result: any = {}
+    const result: ModReadInfo = {}
 
     try {
       // 1. 尝试 Fabric Mod 解析（fabric.mod.json）
@@ -254,7 +271,7 @@ export class ModService {
 
         if (fabMeta.authors) {
           result.authors = fabMeta.authors
-            .map((a: any) => (typeof a === 'string' ? a : a.name))
+            .map((a: string | { name: string }) => (typeof a === 'string' ? a : a.name))
             .filter(Boolean)
         }
 
@@ -293,7 +310,7 @@ export class ModService {
         }
 
         if (loader.depends) {
-          result.dependencies = loader.depends.map((d: any) => d.id)
+          result.dependencies = loader.depends.map((d: { id: string }) => d.id)
         }
 
         const iconValue = loader.metadata?.icon
@@ -324,7 +341,7 @@ export class ModService {
           result.url = tomlEntry.displayURL
 
           if (tomlEntry.dependencies) {
-            result.dependencies = tomlEntry.dependencies.map((d: any) => d.modId)
+            result.dependencies = tomlEntry.dependencies.map((d: { modId: string }) => d.modId)
           }
 
           if (tomlEntry.logoFile) {
@@ -376,8 +393,8 @@ export class ModService {
       if (mcMatch) result.mcVersion = mcMatch[1]
 
       return result
-    } catch (e: any) {
-      log.warn('[ModService] 读取 jar 信息失败，回退到文件名解析:', filePath, e?.message)
+    } catch (e: unknown) {
+      log.warn('[ModService] 读取 jar 信息失败，回退到文件名解析:', filePath, (e as Error).message)
       return {
         name: this.extractModName(fileName),
         version: this.extractVersionFromFileName(fileName),
@@ -401,7 +418,7 @@ export class ModService {
     jarPath: string,
     iconPathInJar: string,
     jarFileName: string,
-    zip?: any
+    zip?: AdmZipInstance
   ): Promise<string | undefined> {
     try {
       await fs.mkdir(this.cacheDir, { recursive: true })
@@ -440,8 +457,8 @@ export class ModService {
 
       await fs.writeFile(cachePath, iconData)
       return this.bufferToDataUrl(iconData, iconPathInJar)
-    } catch (e: any) {
-      log.warn('[ModService] 提取图标失败:', e?.message)
+    } catch (e: unknown) {
+      log.warn('[ModService] 提取图标失败:', (e as Error).message)
       return undefined
     }
   }
@@ -816,7 +833,7 @@ export class ModService {
         logoUrl: modInfo.logoUrl || mod.logoUrl,
         size: stat.size
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       log.error('[ModService] 更新 mod 失败:', e)
       return null
     }
@@ -947,8 +964,8 @@ export class ModService {
         headers: { 'User-Agent': 'VoxVer-Launcher/1.0' }
       })
       if (resp.ok) {
-        const data = (await resp.json()) as any
-        return (data.dependencies || []) as ModDependencyInfo[]
+        const data = (await resp.json()) as { dependencies?: ModDependencyInfo[] }
+        return data.dependencies || []
       }
       return []
     } catch (e) {

@@ -61,8 +61,8 @@ export function registerThemeHandlers(): void {
     try {
       const json = exportThemeAsJson(payload.settings)
       return { ok: true, json }
-    } catch (e: any) {
-      return { ok: false, error: e.message }
+    } catch (e: unknown) {
+      return { ok: false, error: (e as Error).message }
     }
   })
 

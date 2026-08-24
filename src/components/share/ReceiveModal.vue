@@ -93,6 +93,10 @@
         {{ $t('common.cancel') }}
       </button>
 
+      <button v-if="stage === 'transferring'" class="px-btn px-btn--secondary" @click="cancelReceive">
+        {{ $t('common.cancel') }}
+      </button>
+
       <button v-if="stage === 'completed'" class="px-btn px-btn--secondary" @click="close">
         {{ $t('component.laterImport') }}
       </button>
@@ -213,9 +217,6 @@ function close() {
 }
 
 function onClose() {
-  if (stage.value === 'transferring') {
-    return
-  }
   cancelReceive()
 }
 

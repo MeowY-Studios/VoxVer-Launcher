@@ -508,18 +508,18 @@ async function loadFiles() {
   filesLoading.value = true
   try {
     const res = await window.electronAPI?.download.getFiles(modId.value, modSource.value as ContentPlatform, {})
-    const data = (res as { data?: ProjectFile[] })?.data || []
-    files.value = data.map((f: any) => ({
-      id: String(f.id),
-      filename: f.fileName || f.filename || '',
-      displayName: f.displayName || f.fileName || f.filename || '',
-      size: f.size ?? 0,
-      downloadUrl: f.downloadUrl || f.url || '',
-      gameVersions: f.gameVersions || f.gameVersion || [],
-      loaders: f.loaders || [],
-      releaseType: (f.releaseType || f.release_type || 'release') as 'release' | 'beta' | 'alpha',
-      datePublished: f.datePublished || f.date_published || f.date || '',
-      downloads: f.downloads ?? 0
+    const data = (res as { data?: Array<Record<string, unknown>> })?.data || []
+    files.value = data.map((f) => ({
+      id: String(f.id ?? ''),
+      filename: String(f.fileName ?? f.filename ?? ''),
+      displayName: String(f.displayName ?? f.fileName ?? f.filename ?? ''),
+      size: Number(f.size ?? 0),
+      downloadUrl: String(f.downloadUrl ?? f.url ?? ''),
+      gameVersions: (f.gameVersions as string[]) || (f.gameVersion as string[]) || [],
+      loaders: (f.loaders as string[]) || [],
+      releaseType: (String(f.releaseType || f.release_type || 'release') as 'release' | 'beta' | 'alpha'),
+      datePublished: String(f.datePublished ?? f.date_published ?? f.date ?? ''),
+      downloads: Number(f.downloads ?? 0)
     })) as ProjectFile[]
 
     // 自动展开最新的 MC 版本分组

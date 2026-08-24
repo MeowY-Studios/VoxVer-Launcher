@@ -182,7 +182,7 @@
               >
                 <span class="speed-label">{{ formatSpeed(task.speed) }}</span>
                 <span class="speed-status"
-                  >剩余 {{ formatSize(task.totalSize - task.downloadedSize) }}</span
+                  >{{ $t('download.remaining') }} {{ formatSize(task.totalSize - task.downloadedSize) }}</span
                 >
               </div>
               <div v-else class="action-buttons">

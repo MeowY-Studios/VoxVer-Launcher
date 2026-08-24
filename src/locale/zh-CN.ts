@@ -94,6 +94,7 @@ export default {
     copied: '已复制',
     retry: '重试',
     tip: '提示',
+    unknownError: '未知错误',
   },
   home: {
     welcomeTip: '在左侧选择版本后点击「启动游戏」按钮',
@@ -207,7 +208,9 @@ export default {
     initializing: '正在初始化...',
     newAccount: '新账户',
     playerNameMinLength: '玩家名至少 2 个字符',
-    saveFailed: '保存失败'
+    saveFailed: '保存失败',
+    confirmDelete: '确认删除该账户？此操作不可撤销。',
+    pleaseAddAccount: '请先添加并选择一个账号'
   },
 
   app: {
@@ -351,7 +354,11 @@ export default {
     missingFilesMessage: '检测到 {count} 个缺失文件，是否下载并启动游戏？',
     missingFilesHint: '点击"下载并启动"将自动下载缺失文件并启动游戏。',
     cancelDownload: '取消',
-    confirmDownload: '下载并启动'
+    confirmDownload: '下载并启动',
+    noVersionConfirm: '当前没有可用的游戏版本，是否前往下载页面？',
+    downloadAndLaunchFailed: '下载并启动失败: {error}',
+    launchFailedWithError: '启动失败: {error}',
+    launchException: '启动异常: {error}'
   },
 
   version: {
@@ -609,7 +616,11 @@ export default {
     selectModLoader: '选择 ModLoader',
     loading: '正在加载 Mod Loader 版本...',
     noAvailable: '该版本暂无可用 Mod Loader',
-    installing: '正在安装...'
+    installing: '正在安装...',
+    fabricDesc: '轻量级 ModLoader',
+    forgeDesc: '最流行的 ModLoader',
+    neoforgeDesc: 'Forge 的现代分支',
+    quiltDesc: 'Fabric 的继任者'
   },
 
   more: {
@@ -1028,6 +1039,7 @@ export default {
     loadHistoryFailed: '加载启动历史失败',
     favoriteOnly: '仅显示收藏',
     noCustomPathHint: '请先在设置中选择一个 .minecraft 文件夹，本次未扫描系统默认路径。',
+    noCustomPathTitle: '未配置 .minecraft 文件夹',
     // 空状态
     noMatchingInstances: '没有匹配的实例',
     noInstancesYet: '暂无游戏实例',
@@ -1056,10 +1068,12 @@ export default {
     includeSavesHint: '包含存档（建议关闭，会使包体较大）',
     reselectBtn: '重新选择',
     scanFailed: '扫描失败',
+    invalidDirectory: '目录无效',
     cannotGetMinecraftDir: '无法获取 .minecraft 目录',
     importFailed: '导入失败',
     exportInstanceTitle: '导出实例',
     voxVerExportPackage: 'VoxVer 导出包',
+    exportMclaDesc: '导出为 .mcla 可分享包',
     exportFailed: '导出失败: {error}',
     unknown: '未知',
     minutesAgo: '{n}分钟前',
@@ -1155,6 +1169,7 @@ export default {
     texturePacksSubtitle: '下载并安装材质包',
     installed: '已安装',
     notInstalled: '未安装',
+    comingSoon: '即将推出',
     noResults: '没有找到匹配的结果',
     pause: '暂停',
     resume: '继续',
@@ -1325,6 +1340,7 @@ export default {
     themePresets: '主题预设',
     customThemeColor: '自定义主题色',
     customThemeColorDesc: '选择一个颜色作为启动器主色调',
+    primaryColorPreview: '主色预览',
     apply: '应用',
 
     // 更新通道
@@ -2238,6 +2254,7 @@ export default {
     noInstalledVersions: '当前文件夹下暂无已安装的版本',
     releaseVersion: '正式版',
     deleteVersion: '删除版本',
+    deleteVersionConfirm: '确认删除版本 {id}？此操作仅从列表中移除，不会删除游戏文件。',
     detecting: '检测中...',
     noElectronEnv: '未检测到 Electron 环境',
     notFoundFolder: '未找到 .minecraft 文件夹',

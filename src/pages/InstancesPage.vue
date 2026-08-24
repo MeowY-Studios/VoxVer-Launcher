@@ -223,7 +223,7 @@
           </svg>
         </div>
         <div class="mc-path-banner__body">
-          <div class="mc-path-banner__title">未配置 .minecraft 文件夹</div>
+          <div class="mc-path-banner__title">{{ $t('instance.noCustomPathTitle') }}</div>
           <div class="mc-path-banner__desc">{{ $t('instance.noCustomPathHint') }}</div>
         </div>
         <div class="mc-path-banner__actions">
@@ -231,7 +231,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
             </svg>
-            选择已有文件夹
+            {{ $t('component.selectExistingFolder') }}
           </button>
         </div>
       </div>
@@ -694,7 +694,7 @@
     <div class="modal-overlay" v-if="showExport" @click.self="showExport = false">
       <div class="modal-content vox-card">
         <h3>{{ $t('instance.export') }}{{ $t('instance.instance') }}</h3>
-        <p class="export-desc">{{ $t('instance.export') }}为 .mcla 可分享包</p>
+        <p class="export-desc">{{ $t('instance.exportMclaDesc') }}</p>
         <div class="export-options">
           <label class="checkbox-label">
             <input type="checkbox" v-model="exportOptions.includeMods" />
@@ -1054,7 +1054,7 @@ async function createInstanceFromDetected(dv: DetectedVersion) {
 
     await loadInstances()
     window.electronAPI?.notification?.send({
-      title: t('instance.importInstance') || '导入实例',
+      title: t('instance.importInstance'),
       body: (t('instance.importToManagedSuccess') as string).replace('{name}', dv.id),
       type: 'success'
     })
@@ -1178,7 +1178,7 @@ async function scanImportDir() {
     if (res?.ok && res.data) {
       importScanResult.value = res.data
       importStep.value = res.data.valid ? 'preview' : 'error'
-      if (!res.data.valid) importError.value = res.data.suggestions?.[0] || '目录无效'
+      if (!res.data.valid) importError.value = res.data.suggestions?.[0] || t('instance.invalidDirectory')
     } else {
       importStep.value = 'error'
       importError.value = res?.error || t('instance.scanFailed')

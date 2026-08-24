@@ -105,8 +105,8 @@ export function importBackgroundImage(sourcePath: string): {
     copyFileSafe(sourcePath, dest)
 
     return { ok: true, localPath: fileName }
-  } catch (e: any) {
-    return { ok: false, error: e.message || '导入背景图片失败' }
+  } catch (e: unknown) {
+    return { ok: false, error: (e as Error).message || '导入背景图片失败' }
   }
 }
 
@@ -176,8 +176,8 @@ export function importThemeFromJson(jsonStr: string): { ok: boolean; settings?: 
       return { ok: false, error: '无效的主题色' }
     }
     return { ok: true, settings }
-  } catch (e: any) {
-    return { ok: false, error: e.message || '解析主题文件失败' }
+  } catch (e: unknown) {
+    return { ok: false, error: (e as Error).message || '解析主题文件失败' }
   }
 }
 

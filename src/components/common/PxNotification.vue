@@ -259,14 +259,14 @@ onMounted(async () => {
   await loadHistory()
 
   if (window.electronAPI?.notification?.onNotify) {
-    removeOnNotify = window.electronAPI.notification.onNotify((item: any) => {
+    removeOnNotify = window.electronAPI.notification.onNotify((item) => {
       history.value.unshift(item)
       if (!item.read) unreadCount.value++
     })
   }
 
   if (window.electronAPI?.notification?.onClicked) {
-    removeOnClicked = window.electronAPI.notification.onClicked((data: any) => {
+    removeOnClicked = window.electronAPI.notification.onClicked((data) => {
       if (data?.route) router.push(data.route)
     })
   }

@@ -15,7 +15,7 @@ export interface UpdateStatus {
 }
 
 let mainWindow: BrowserWindow | null = null
-let cachedUpdateCheckResult: any = null
+let cachedUpdateCheckResult: Awaited<ReturnType<typeof autoUpdater.checkForUpdates>> | null = null
 let updateChannel: 'stable' | 'beta' = 'stable'
 let autoCheckUpdate = true
 const currentStatus: UpdateStatus = {
@@ -66,10 +66,10 @@ export function initAutoUpdater(window: BrowserWindow): void {
         : null
     broadcastStatus()
     log.info('[updater] Update available:', info.version)
-    const files = (info as any).files
+    const files = info.files
     log.info(
       '[updater] Update files:',
-      files ? files.map((f: any) => f.url || f.name).join(', ') : 'N/A'
+      files ? files.map((f) => f.url).join(', ') : 'N/A'
     )
   })
 
@@ -150,16 +150,16 @@ export function startDownload(): void {
 
   autoUpdater
     .downloadUpdate()
-    .then((result: any) => {
+    .then((result) => {
       log.info('[updater.download] Download started, result type:', typeof result)
     })
-    .catch((err: any) => {
+    .catch((err: unknown) => {
       currentStatus.downloading = false
-      currentStatus.error = err && err.message ? err.message : String(err)
+      currentStatus.error = err instanceof Error ? err.message : String(err)
       broadcastStatus()
       log.error(
         '[updater.download] Failed to start download:',
-        err && err.message ? err.message : err
+        err instanceof Error ? err.message : err
       )
     })
 }

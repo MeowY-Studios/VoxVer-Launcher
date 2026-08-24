@@ -1361,7 +1361,7 @@
           <!-- 实时预览 -->
           <div class="theme-preview-bar">
             <div class="preview-chip" v-for="i in 8" :key="i" :style="{ background: `var(--voxver-primary-${i}00)` }"></div>
-            <span class="preview-label">主色预览 · {{ s.themeCustomColor }}</span>
+            <span class="preview-label">{{ $t('settings.primaryColorPreview') }} · {{ s.themeCustomColor }}</span>
           </div>
         </div>
 
@@ -1939,7 +1939,7 @@
             <div class="migration-card-header">
               <span class="migration-card-name">{{ launcher.name }}</span>
               <span class="migration-card-path">{{ launcher.path }}</span>
-              <span class="migration-card-count">{{ launcher.instances.length }} 个实例</span>
+              <span class="migration-card-count">{{ $t('settings.instancesCount', { n: launcher.instances.length }) }}</span>
             </div>
             <div class="migration-instances">
               <div v-for="inst in launcher.instances" :key="inst.gameDir" class="migration-instance-item">
@@ -1955,7 +1955,7 @@
                   class="btn vox-btn vox-btn--secondary btn-sm"
                   @click="importExternalInstance(inst.gameDir)"
                 >
-                  导入
+                  {{ $t('common.import') }}
                 </button>
               </div>
             </div>
@@ -2016,14 +2016,14 @@
                   <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                 </svg>
               </button>
-              <button class="btn vox-btn vox-btn--secondary btn-sm" @click.stop="exportScreenshot(s.filePath)" title="导出">
+              <button class="btn vox-btn vox-btn--secondary btn-sm" @click.stop="exportScreenshot(s.filePath)" :title="$t('common.export')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
                   <polyline points="7 10 12 15 17 10" />
                   <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
               </button>
-              <button class="btn vox-btn vox-btn--secondary btn-sm" @click.stop="deleteScreenshotAction(s)" title="删除">
+              <button class="btn vox-btn vox-btn--secondary btn-sm" @click.stop="deleteScreenshotAction(s)" :title="$t('common.delete')">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6" />
                   <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
@@ -2041,8 +2041,9 @@
 
     <!-- ========== 联机 ========== -->
     <template v-if="activeCategory === 'online'">
+      <!-- 信令服务器 -->
       <section class="sec">
-        <h3 class="sec-title">
+        <h3 class="sec-title vox-sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
             <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
@@ -2052,6 +2053,85 @@
           {{ $t('settings.sidebar.online') }}
         </h3>
         <p class="sec-desc">{{ $t('settings.online.desc') }}</p>
+
+        <!-- 自定义信令服务器 -->
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">{{ $t('settings.online.useCustomServer') }}</label>
+            <p class="row-desc">{{ $t('settings.online.useCustomServerDesc') }}</p>
+          </div>
+          <div class="row-control">
+            <label class="toggle vox-toggle">
+              <input type="checkbox" v-model="p2pSettings.useCustomServer" @change="saveP2pSettings" />
+              <span class="toggle-slider vox-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="row" v-if="p2pSettings.useCustomServer">
+          <div class="row-main">
+            <label class="row-label">{{ $t('settings.online.signalingServer') }}</label>
+            <p class="row-desc">{{ $t('settings.online.signalingServerDesc') }}</p>
+          </div>
+          <div class="row-control">
+            <input
+              type="text"
+              class="inp vox-input"
+              v-model="p2pSettings.signalingServer"
+              @change="saveP2pSettings"
+              :placeholder="$t('settings.online.signalingServerPlaceholder')"
+              style="width: 240px"
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">{{ $t('settings.online.currentServer') }}</label>
+          </div>
+          <div class="row-control">
+            <span style="opacity:0.7;font-size:13px">
+              {{ p2pSettings.useCustomServer && p2pSettings.signalingServer ? p2pSettings.signalingServer : $t('settings.online.defaultServer') }}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 传输设置 -->
+      <section class="sec">
+        <h3 class="sec-title vox-sec-title">{{ $t('settings.online.transferSettings') }}</h3>
+        <p class="sec-desc">{{ $t('settings.online.transferSettingsDesc') }}</p>
+
+        <!-- 分片大小 -->
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">{{ $t('settings.online.chunkSize') }}</label>
+            <p class="row-desc">{{ $t('settings.online.chunkSizeDesc') }}</p>
+          </div>
+          <div class="row-control">
+            <select class="inp vox-input" v-model="p2pSettings.chunkSize" @change="saveP2pSettings">
+              <option value="512">{{ $t('settings.online.chunk512') }}</option>
+              <option value="1024">{{ $t('settings.online.chunk1024') }}</option>
+              <option value="2048">{{ $t('settings.online.chunk2048') }}</option>
+              <option value="4096">{{ $t('settings.online.chunk4096') }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 连接超时 -->
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">{{ $t('settings.online.connectionTimeout') }}</label>
+            <p class="row-desc">{{ $t('settings.online.connectionTimeoutDesc') }}</p>
+          </div>
+          <div class="row-control">
+            <select class="inp vox-input" v-model="p2pSettings.connectionTimeout" @change="saveP2pSettings">
+              <option value="15">{{ $t('settings.online.timeout15') }}</option>
+              <option value="30">{{ $t('settings.online.timeout30') }}</option>
+              <option value="60">{{ $t('settings.online.timeout60') }}</option>
+            </select>
+          </div>
+        </div>
       </section>
     </template>
 
@@ -3679,10 +3759,10 @@ async function detectJava() {
   progressPercent.value = 0
 
   const steps = [
-    { name: '检查环境变量', progress: 25 },
-    { name: '扫描常见安装目录', progress: 50 },
-    { name: '检查系统特定位置', progress: 75 },
-    { name: '验证检测到的 Java', progress: 100 }
+    { name: t('settings.javaDetectStepEnv'), progress: 25 },
+    { name: t('settings.javaDetectStepScan'), progress: 50 },
+    { name: t('settings.javaDetectStepSystem'), progress: 75 },
+    { name: t('settings.javaDetectStepVerify'), progress: 100 }
   ]
 
   try {
@@ -4635,6 +4715,21 @@ function saveSecuritySettings() {
   localStorage.setItem('voxver_security_quarantine', String(securitySettings.autoQuarantine))
   localStorage.setItem('voxver_security_trust_modrinth', String(securitySettings.trustModrinth))
   localStorage.setItem('voxver_security_trust_curseforge', String(securitySettings.trustCurseForge))
+}
+
+// ====== 联机 P2P 设置 ======
+const p2pSettings = reactive({
+  useCustomServer: localStorage.getItem('p2p_use_custom_server') === 'true',
+  signalingServer: localStorage.getItem('p2p_signaling_server') || '',
+  chunkSize: localStorage.getItem('p2p_chunk_size') || '1024',
+  connectionTimeout: localStorage.getItem('p2p_connection_timeout') || '30'
+})
+
+function saveP2pSettings() {
+  localStorage.setItem('p2p_use_custom_server', String(p2pSettings.useCustomServer))
+  localStorage.setItem('p2p_signaling_server', p2pSettings.signalingServer)
+  localStorage.setItem('p2p_chunk_size', p2pSettings.chunkSize)
+  localStorage.setItem('p2p_connection_timeout', p2pSettings.connectionTimeout)
 }
 
 // ====== 开发者选项辅助函数 ======

@@ -35,7 +35,7 @@ export interface GameProcessInfo {
 export interface ProcessEvent {
   type: 'stateChange' | 'output' | 'error' | 'exit' | 'crash'
   instanceId: string
-  data?: any
+  data?: Record<string, unknown>
 }
 
 /**
@@ -94,7 +94,7 @@ export class WatcherService extends EventEmitter {
     this.emit('stateChange', {
       type: 'stateChange',
       instanceId,
-      data: info
+      data: info as unknown as Record<string, unknown>
     } as ProcessEvent)
 
     log.info(`[WatcherService] 注册进程 ${instanceId} (PID: ${pid})`)
@@ -198,8 +198,8 @@ export class WatcherService extends EventEmitter {
           return latest.path
         }
       }
-    } catch (e: any) {
-      log.warn(`[findCrashReport] 查找崩溃报告失败: ${e.message}`)
+    } catch (e: unknown) {
+      log.warn(`[findCrashReport] 查找崩溃报告失败: ${(e as Error).message}`)
     }
 
     return undefined
@@ -224,7 +224,7 @@ export class WatcherService extends EventEmitter {
     this.emit('exit', {
       type: 'exit',
       instanceId,
-      data: info
+      data: info as unknown as Record<string, unknown>
     } as ProcessEvent)
 
     log.info(`[WatcherService] 进程 ${instanceId} 退出，退出码: ${exitCode}`)
@@ -276,7 +276,7 @@ export class WatcherService extends EventEmitter {
         this.emit('stateChange', {
           type: 'stateChange',
           instanceId,
-          data: info
+          data: info as unknown as Record<string, unknown>
         } as ProcessEvent)
         log.info(`[WatcherService] 进程 ${instanceId} 已启动`)
       }
@@ -350,8 +350,8 @@ export class WatcherService extends EventEmitter {
       }
 
       return true
-    } catch (error: any) {
-      log.error(`[WatcherService] 终止进程 ${instanceId} 失败:`, error.message)
+    } catch (error: unknown) {
+      log.error(`[WatcherService] 终止进程 ${instanceId} 失败:`, (error as Error).message)
       return false
     }
   }

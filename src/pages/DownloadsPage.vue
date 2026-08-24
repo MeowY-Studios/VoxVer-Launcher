@@ -515,7 +515,7 @@
             <select class="f-select vox-input" v-model="searchSource">
               <option value="all">{{ $t('download.all') }}</option>
               <option value="modrinth">Modrinth</option>
-              <option value="curseforge" disabled>CurseForge（即将推出）</option>
+              <option value="curseforge" disabled>CurseForge（{{ $t('download.comingSoon') }}）</option>
             </select>
           </div>
           <div class="f-row">

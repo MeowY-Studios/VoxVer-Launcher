@@ -33,7 +33,7 @@
       <!-- 已登录状态 -->
       <div class="section-body" v-if="msAccount">
         <div class="profile-row">
-          <img v-if="skinDataUrl" :src="skinDataUrl" class="profile-avatar" alt="皮肤" />
+          <img v-if="skinDataUrl" :src="skinDataUrl" class="profile-avatar" :alt="$t('auth.skin')" />
           <div
             v-else-if="skinError"
             class="profile-avatar placeholder skin-error"
@@ -378,7 +378,7 @@ function handleLoginProgress(stage: string, detail?: string) {
   switch (stage) {
     case 'device_code':
       loginState.value = 'processing'
-      loginProgressText.value = '正在获取设备码...'
+      loginProgressText.value = t('auth.fetchingDeviceCode')
       break
     case 'waiting_user': {
       try {
@@ -396,33 +396,33 @@ function handleLoginProgress(stage: string, detail?: string) {
     }
     case 'token_received':
       loginState.value = 'processing'
-      loginProgressText.value = '微软令牌获取成功，验证 Xbox 账户...'
+      loginProgressText.value = t('auth.tokenReceivedVerifyingXbox')
       break
     case 'xbox_live':
-      loginProgressText.value = detail || '正在连接 Xbox Live...'
+      loginProgressText.value = detail || t('auth.connectingXboxLive')
       break
     case 'xsts':
-      loginProgressText.value = detail || '正在获取 XSTS 令牌...'
+      loginProgressText.value = detail || t('auth.fetchingXstsToken')
       break
     case 'minecraft':
-      loginProgressText.value = detail || '正在验证 Minecraft 账户...'
+      loginProgressText.value = detail || t('auth.verifyingMinecraft')
       break
     case 'profile':
-      loginProgressText.value = detail || '正在获取游戏档案...'
+      loginProgressText.value = detail || t('auth.fetchingProfile')
       break
     case 'saving':
-      loginProgressText.value = '正在保存账户...'
+      loginProgressText.value = t('auth.savingAccount')
       break
     case 'done':
       loginState.value = 'done'
       break
     case 'error':
       loginState.value = 'error'
-      loginError.value = detail || '登录失败，请重试'
+      loginError.value = detail || t('auth.loginFailedRetry')
       break
     case 'timeout':
       loginState.value = 'error'
-      loginError.value = '设备码已过期，请重新点击登录'
+      loginError.value = t('auth.deviceCodeExpired')
       break
     case 'cancelled':
       loginState.value = 'idle'
@@ -433,7 +433,7 @@ function handleLoginProgress(stage: string, detail?: string) {
 // * ====== 开始 Microsoft 登录 ======
 async function startMicrosoftLogin() {
   loginState.value = 'processing'
-  loginProgressText.value = '正在初始化...'
+  loginProgressText.value = t('auth.initializing')
   loginError.value = ''
   newAccountName.value = ''
   codeCopied.value = false
@@ -441,7 +441,7 @@ async function startMicrosoftLogin() {
   const result = await window.electronAPI?.account.loginMicrosoft()
 
   if (result?.ok && result.data) {
-    newAccountName.value = result.data.name || '新账户'
+    newAccountName.value = result.data.name || t('auth.newAccount')
     loginState.value = 'done'
     await accountsStore.fetchAccounts()
     await syncMsAccount()
@@ -449,7 +449,7 @@ async function startMicrosoftLogin() {
     loginState.value = 'idle'
   } else {
     loginState.value = 'error'
-    loginError.value = result?.error || '登录失败，请重试'
+    loginError.value = result?.error || t('auth.loginFailedRetry')
   }
 }
 

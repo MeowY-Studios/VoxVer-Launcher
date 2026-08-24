@@ -210,7 +210,7 @@ onMounted(() => {
 
   // * 监听日志
   if (api.game.onLog) {
-    cleanupLog = api.game.onLog((data: any) => {
+    cleanupLog = api.game.onLog((data: string | { text?: string; level?: string }) => {
       // onLog 可能返回 string 或 { text, level } 对象
       const text = typeof data === 'string' ? data : data?.text ?? ''
       if (!text) return

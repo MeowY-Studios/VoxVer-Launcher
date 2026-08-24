@@ -116,7 +116,7 @@ export class VersionsService {
     try {
       const dbCached = this.db
         .prepare('SELECT * FROM configs WHERE key = ?')
-        .get(['versionList']) as any
+        .get(['versionList']) as { key: string; value: string } | undefined
 
       if (dbCached) {
         try {
@@ -171,7 +171,7 @@ export class VersionsService {
     try {
       const dbCached = this.db
         .prepare('SELECT * FROM configs WHERE key = ?')
-        .get(['versionList']) as any
+        .get(['versionList']) as { key: string; value: string } | undefined
 
       if (dbCached) {
         const cachedData = JSON.parse(dbCached.value)

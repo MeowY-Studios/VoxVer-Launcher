@@ -35,7 +35,7 @@
     </div>
 
     <!-- 操作 -->
-    <button v-if="canCancel" class="cancel-btn" @click="$emit('cancel', task.id)" title="取消">
+    <button v-if="canCancel" class="cancel-btn" @click="$emit('cancel', task.id)" :title="$t('download.cancel')">
       <svg
         width="13"
         height="13"

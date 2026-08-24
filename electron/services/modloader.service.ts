@@ -138,8 +138,8 @@ export class ModLoaderService {
         return await this.getOptiFineVersionsForMinecraft(mcVersion)
       }
       return []
-    } catch (err: any) {
-      log.warn(`获取 ${loaderType} 版本列表失败:`, err.message)
+    } catch (err: unknown) {
+      log.warn(`获取 ${loaderType} 版本列表失败:`, (err as Error).message)
       return []
     }
   }

@@ -69,8 +69,8 @@ export async function generateThumbnail(filePath: string): Promise<string | null
       .toBuffer()
 
     return `data:image/jpeg;base64,${buffer.toString('base64')}`
-  } catch (e: any) {
-    log.warn('缩略图生成失败:', basename(filePath), e.message)
+  } catch (e: unknown) {
+    log.warn('缩略图生成失败:', basename(filePath), (e as Error).message)
     return null
   }
 }
@@ -86,8 +86,8 @@ export async function getFullImage(filePath: string, maxWidth = 1200): Promise<s
       .toBuffer()
 
     return `data:image/png;base64,${buffer.toString('base64')}`
-  } catch (e: any) {
-    log.warn('截图读取失败:', basename(filePath), e.message)
+  } catch (e: unknown) {
+    log.warn('截图读取失败:', basename(filePath), (e as Error).message)
     return null
   }
 }
@@ -100,8 +100,8 @@ export function deleteScreenshot(filePath: string): boolean {
     unlinkSync(filePath)
     log.info('已删除截图:', basename(filePath))
     return true
-  } catch (e: any) {
-    log.error('删除截图失败:', basename(filePath), e.message)
+  } catch (e: unknown) {
+    log.error('删除截图失败:', basename(filePath), (e as Error).message)
     return false
   }
 }
@@ -116,8 +116,8 @@ export function renameScreenshot(filePath: string, newName: string): string | nu
     renameSync(filePath, newPath)
     log.info('已重命名截图:', basename(filePath), '→', newName)
     return newPath
-  } catch (e: any) {
-    log.error('重命名截图失败:', basename(filePath), e.message)
+  } catch (e: unknown) {
+    log.error('重命名截图失败:', basename(filePath), (e as Error).message)
     return null
   }
 }
@@ -139,8 +139,8 @@ export async function exportScreenshot(filePath: string): Promise<boolean> {
     copyFileSync(filePath, result.filePath)
     log.info('已导出截图:', result.filePath)
     return true
-  } catch (e: any) {
-    log.error('导出截图失败:', e.message)
+  } catch (e: unknown) {
+    log.error('导出截图失败:', (e as Error).message)
     return false
   }
 }
@@ -154,8 +154,8 @@ export function copyScreenshotToClipboard(filePath: string): boolean {
     if (img.isEmpty()) return false
     clipboard.writeImage(img)
     return true
-  } catch (e: any) {
-    log.error('截图复制到剪贴板失败:', e.message)
+  } catch (e: unknown) {
+    log.error('截图复制到剪贴板失败:', (e as Error).message)
     return false
   }
 }

@@ -75,7 +75,7 @@
           >
             <span class="loader-icon">{{ loader.icon }}</span>
             <span class="loader-name">{{ loader.name }}</span>
-            <span class="loader-desc">{{ loader.desc }}</span>
+            <span class="loader-desc">{{ $t(loader.descKey) }}</span>
             <div v-if="selectedLoader === loader.type" class="loader-check">
               <svg
                 width="14"
@@ -453,16 +453,16 @@ const versionDisplayName = computed(() => {
 })
 
 const modLoaders = [
-  { type: 'fabric', icon: 'F', name: 'Fabric', desc: '轻量级 ModLoader', minVersion: '1.14.4' },
-  { type: 'forge', icon: 'FG', name: 'Forge', desc: '最流行的 ModLoader', minVersion: '1.0.0' },
+  { type: 'fabric', icon: 'F', name: 'Fabric', descKey: 'modloader.fabricDesc', minVersion: '1.14.4' },
+  { type: 'forge', icon: 'FG', name: 'Forge', descKey: 'modloader.forgeDesc', minVersion: '1.0.0' },
   {
     type: 'neoforge',
     icon: 'NF',
     name: 'NeoForge',
-    desc: 'Forge 的现代分支',
+    descKey: 'modloader.neoforgeDesc',
     minVersion: '1.20.1'
   },
-  { type: 'quilt', icon: 'Q', name: 'Quilt', desc: 'Fabric 的继任者', minVersion: '1.18.2' }
+  { type: 'quilt', icon: 'Q', name: 'Quilt', descKey: 'modloader.quiltDesc', minVersion: '1.18.2' }
 ]
 
 const currentLoaderName = computed(() => {

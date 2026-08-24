@@ -213,6 +213,10 @@ interface ElectronAPI {
     getActive: () => Promise<unknown[]>
     getQueue: () => Promise<unknown[]>
     onProgress: (callback: (progress: unknown) => void) => () => void
+    onStarted: (callback: (data: unknown) => void) => () => void
+    onCompleted: (callback: (data: unknown) => void) => () => void
+    onError: (callback: (data: unknown) => void) => () => void
+    onCancelled: (callback: (data: unknown) => void) => () => void
     cancelDownload: (id: string) => Promise<void>
     // 镜像源管理
     getMirrors: () => Promise<{ success: boolean; data: Array<{ name: string; url: string; ping: number }> }>
@@ -313,8 +317,8 @@ interface ElectronAPI {
     markAllRead: () => Promise<void>
     clear: () => Promise<void>
     getUnreadCount: () => Promise<number>
-    onNotify: (callback: (item: unknown) => void) => () => void
-    onClicked: (callback: (data: unknown) => void) => () => void
+    onNotify: (callback: (item: { id: string; title: string; body: string; type: 'success' | 'error' | 'warning' | 'info'; timestamp: number; read: boolean; route?: string }) => void) => () => void
+    onClicked: (callback: (data: { id: string; route?: string }) => void) => () => void
   }
   mod: {
     list: (gameDir: string) => Promise<IpcResult<unknown[]>>

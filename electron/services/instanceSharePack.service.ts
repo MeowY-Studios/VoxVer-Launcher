@@ -104,12 +104,12 @@ export async function packInstanceForShare(
 
   const instance = getInstanceById(instanceId)
   if (!instance) {
-    throw new Error('实例不存在')
+    throw new Error('Instance not found')
   }
 
   const gameDir = instance.path
   if (!fs.existsSync(gameDir)) {
-    throw new Error('实例目录不存在')
+    throw new Error('Instance directory not found')
   }
 
   onProgress?.({ stage: 'scanning', progress: 0 })
@@ -189,12 +189,12 @@ export async function packInstanceForShare(
         })
         resolve(result)
       } catch (e) {
-        reject(new Error(`打包后处理失败: ${(e as Error).message}`))
+        reject(new Error(`Post-processing failed: ${(e as Error).message}`))
       }
     })
 
     archive.on('error', (err) => {
-      reject(new Error(`打包失败: ${err.message}`))
+      reject(new Error(`Pack failed: ${err.message}`))
     })
 
     archive.on('entry', (entry) => {
@@ -246,7 +246,7 @@ export async function unpackSharedInstance(
   loaderType: string
   loaderVersion: string
   gameDir: string
-  manifest: any
+  manifest: Record<string, unknown>
 }> {
   log.info('Starting to unpack shared instance', { archivePath, targetDir })
 
@@ -255,7 +255,7 @@ export async function unpackSharedInstance(
   if (expectedMd5) {
     const actualMd5 = await hashFile(archivePath, 'md5')
     if (actualMd5.toLowerCase() !== expectedMd5.toLowerCase()) {
-      throw new Error('文件校验失败，可能已损坏')
+      throw new Error('File verification failed, file may be corrupted')
     }
   }
 
@@ -263,9 +263,9 @@ export async function unpackSharedInstance(
 
   const dir = await unzipper.Open.file(archivePath)
 
-  const manifestEntry = dir.files.find((f: any) => f.path === 'share_manifest.json')
+  const manifestEntry = dir.files.find((f: { path: string; dir?: boolean }) => f.path === 'share_manifest.json')
   if (!manifestEntry) {
-    throw new Error('不是有效的分享文件（缺少 manifest）')
+    throw new Error('Invalid share file (missing manifest)')
   }
 
   const manifestContent = await manifestEntry.buffer()
@@ -273,13 +273,13 @@ export async function unpackSharedInstance(
 
   onProgress?.({ stage: 'verifying', progress: 100 })
 
-  const instanceName = `${manifest.instanceName} (分享)`
+  const instanceName = `${manifest.instanceName} (Shared)`
   const dirName = `shared_${Date.now()}`
   const gameDir = path.join(targetDir, dirName)
 
   await fs.promises.mkdir(gameDir, { recursive: true })
 
-  const files = dir.files.filter((f: any) => !f.dir && f.path !== 'share_manifest.json')
+  const files = dir.files.filter((f: { path: string; dir?: boolean }) => !f.dir && f.path !== 'share_manifest.json')
   const totalFiles = files.length
   let extractedFiles = 0
 

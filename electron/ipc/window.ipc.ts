@@ -33,7 +33,7 @@ export function registerWindowHandlers(mainWindow: BrowserWindow): void {
       userData: app.getPath('userData'),
       logs: app.getPath('logs'),
       temp: app.getPath('temp'),
-      cache: (app.getPath as any)('cache'),
+      cache: (app.getPath as (name: string) => string)('cache'),
       downloads: app.getPath('downloads'),
       home: app.getPath('home')
     }
@@ -55,7 +55,7 @@ export function registerWindowHandlers(mainWindow: BrowserWindow): void {
   // 清除缓存
   ipcMain.handle('app:clear-cache', async () => {
     const cleared: string[] = []
-    const cacheDir = (app.getPath as any)('cache')
+    const cacheDir = (app.getPath as (name: string) => string)('cache')
     const tempDir = app.getPath('temp')
     const dirsToClean = [
       path.join(cacheDir, 'voxver-launcher'),

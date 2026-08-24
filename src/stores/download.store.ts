@@ -118,7 +118,7 @@ export const useDownloadStore = defineStore('download', () => {
     if (!res?.ok) {
       task.phase = 'failed'
       task.error = res?.error || $t('download.downloadUnknownError')
-      task.phaseLabel = `失败: ${task.error}`
+      task.phaseLabel = $t('download.downloadFailedWithError', { error: task.error })
     }
   }
 
@@ -160,7 +160,7 @@ export const useDownloadStore = defineStore('download', () => {
     if (task) {
       task.phase = 'failed'
       task.error = data.error
-      task.phaseLabel = `失败: ${data.error}`
+      task.phaseLabel = $t('download.downloadFailedWithError', { error: data.error })
     }
   }
 
@@ -197,7 +197,7 @@ export const useDownloadStore = defineStore('download', () => {
     } catch (error: unknown) {
       task.phase = 'failed'
       task.error = (error as Error).message || $t('download.downloadFailed')
-      task.phaseLabel = `失败: ${task.error}`
+      task.phaseLabel = $t('download.downloadFailedWithError', { error: task.error })
     }
   }
 
@@ -397,7 +397,7 @@ export const useDownloadStore = defineStore('download', () => {
       if (task) {
         task.speed = (d.speed as number) || task.speed
         task.phase = (d.status as DownloadStatus) || task.phase
-        task.downloadedBytes = (d.downloadedSize as number) || task.downloadedBytes
+        task.downloadedSize = (d.downloadedSize as number) || task.downloadedSize
       }
     })
 

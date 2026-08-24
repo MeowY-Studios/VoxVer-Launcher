@@ -12,6 +12,7 @@
 
 import { app, ipcMain, type BrowserWindow } from 'electron'
 import { join } from 'path'
+import { statSync } from 'fs'
 import { logger } from '../utils/logger'
 import {
   packInstanceForShare,
@@ -27,7 +28,6 @@ import {
   type TransferProgress
 } from '../services/p2pShare.service'
 import { createInstanceWithDir } from '../services/instance.enhanced.service'
-import { updateInstance } from '../services/instances'
 
 const log = logger.child('share.ipc')
 
@@ -39,18 +39,7 @@ export function setShareMainWindow(win: BrowserWindow): void {
 
 function sendSessionUpdate(sessionId: string, session: ShareSession): void {
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('share:session-update', {
-      sessionId,
-      session: {
-        sessionId: session.sessionId,
-        shareCode: session.shareCode,
-        type: session.type,
-        status: session.status,
-        transferredChunks: session.transferredChunks,
-        totalChunks: session.totalChunks,
-        error: session.error
-      }
-    })
+    mainWindow.webContents.send('share:session-update', { sessionId, session })
   }
 }
 
@@ -109,7 +98,7 @@ export function registerShareHandlers(): void {
       }
     } catch (e: unknown) {
       log.error('Failed to start share', e)
-      throw new Error((e as Error).message || '启动分享失败')
+      throw new Error((e as Error).message || 'Failed to start sharing')
     }
   })
 
@@ -150,7 +139,7 @@ export function registerShareHandlers(): void {
       return { sessionId, peerId }
     } catch (e: unknown) {
       log.error('Failed to start receive', e)
-      throw new Error((e as Error).message || '开始接收失败')
+      throw new Error((e as Error).message || 'Failed to start receiving')
     }
   })
 
@@ -174,29 +163,48 @@ export function registerShareHandlers(): void {
     }
   })
 
-  ipcMain.handle('share:import-received', async (_event, { sessionId }) => {
+  ipcMain.handle('share:import-received', async (event, { sessionId }) => {
     try {
       log.info('Importing received instance', { sessionId })
 
       const fileInfo = p2pShareService.getReceivedFileInfo(sessionId)
       if (!fileInfo?.filePath) {
-        return { ok: false, error: '未找到接收的文件' }
+        return { ok: false, error: 'Received file not found' }
       }
 
       const session = p2pShareService.getSession(sessionId)
       if (!session || session.status !== 'completed') {
-        return { ok: false, error: '传输未完成' }
+        return { ok: false, error: 'Transfer not completed' }
       }
 
       const targetDir = app.getPath('userData')
       const instancesDir = join(targetDir, 'instances')
 
+      // Disk space pre-check: estimate 3x the packed file size for safety
+      try {
+        const packedSize = statSync(fileInfo.filePath).size
+        const { statfsSync } = await import('fs')
+        const disk = statfsSync(instancesDir)
+        const availableBytes = disk.bavail * 4096
+        if (availableBytes < packedSize * 3) {
+          return {
+            ok: false,
+            error: `Insufficient disk space. Need ~${Math.ceil((packedSize * 3) / 1024 / 1024)}MB, available ${Math.ceil(availableBytes / 1024 / 1024)}MB`
+          }
+        }
+      } catch {
+        // Skip check if statfs unavailable (e.g. Windows)
+      }
+
       const result = await unpackSharedInstance(
         fileInfo.filePath,
         instancesDir,
         fileInfo.fileMd5,
-        (_progress: UnpackProgress) => {
-          // 可选：推送解压进度
+        (progress: UnpackProgress) => {
+          event.sender.send('share:unpack-progress', {
+            sessionId: sessionId || '',
+            progress
+          })
         }
       )
 
@@ -207,29 +215,30 @@ export function registerShareHandlers(): void {
         ? (rawLoader as LoaderType)
         : 'vanilla'
 
+      const m = result.manifest as Record<string, unknown> | undefined
       const newInstance = createInstanceWithDir({
         name: result.instanceName,
         mcVersion: result.mcVersion,
+        customPath: result.gameDir,
         loaderType: resolvedLoader,
-        loaderVersion: result.manifest?.loaderVersion || '',
-        javaPath: result.manifest?.javaPath || '',
-        jvmArgs: result.manifest?.jvmArgs || '',
-        minMemory: result.manifest?.minMemory || 1024,
-        maxMemory: result.manifest?.maxMemory || 4096,
-        width: result.manifest?.width || 854,
-        height: result.manifest?.height || 480
+        loaderVersion: String(m?.loaderVersion ?? ''),
+        javaPath: String(m?.javaPath ?? ''),
+        jvmArgs: String(m?.jvmArgs ?? ''),
+        minMemory: Number(m?.minMemory ?? 1024),
+        maxMemory: Number(m?.maxMemory ?? 4096),
+        width: Number(m?.width ?? 854),
+        height: Number(m?.height ?? 480)
       })
 
       if (newInstance) {
-        updateInstance(newInstance.id, { path: result.gameDir })
         log.info('Instance imported successfully', { instanceId: newInstance.id })
         return { ok: true, instanceId: newInstance.id }
       }
 
-      return { ok: false, error: '创建实例失败' }
+      return { ok: false, error: 'Failed to create instance' }
     } catch (e: unknown) {
       log.error('Failed to import received instance', e)
-      return { ok: false, error: (e as Error).message || '导入失败' }
+      return { ok: false, error: (e as Error).message || 'Import failed' }
     }
   })
 

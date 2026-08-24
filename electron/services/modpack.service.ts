@@ -219,8 +219,8 @@ export async function packAsMrpack(
     if (onProgress) onProgress({ stage: 'finalizing', currentFile: '', progress: 100 })
 
     return { ok: true, filePath: outputPath, fileCount: collectList.length }
-  } catch (e: any) {
-    return { ok: false, error: e.message || '打包失败' }
+  } catch (e: unknown) {
+    return { ok: false, error: (e as Error).message || '打包失败' }
   }
 }
 
@@ -295,8 +295,8 @@ export async function importMrpack(
       instanceName: safeName,
       fileCount: total
     }
-  } catch (e: any) {
-    return { ok: false, error: e.message || '导入失败' }
+  } catch (e: unknown) {
+    return { ok: false, error: (e as Error).message || '导入失败' }
   }
 }
 

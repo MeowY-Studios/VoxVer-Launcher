@@ -581,6 +581,7 @@ watch(
       bgImageDataUrl.value = p
       return
     }
+    const url = await window.electronAPI?.dialog?.readAsDataURL?.(p)
     bgImageDataUrl.value = url || ''
   },
   { immediate: true }
@@ -1108,15 +1109,15 @@ async function onVersionSelect(version: { id: string; name: string; loader?: str
 async function handleLaunch() {
   // * 前置检查
   if (!selectedVersionId.value) {
-    if (confirm('当前没有可用的游戏版本，是否前往下载页面？')) {
+    if (confirm(t('launch.noVersionConfirm'))) {
       router.push('/downloads')
     }
     return
   }
   if (!accountsStore.activeAccount) {
     window.electronAPI?.notification?.send({
-      title: '提示',
-      body: '请先添加并选择一个账号',
+      title: t('common.tip'),
+      body: t('auth.pleaseAddAccount'),
       type: 'warning'
     })
     return
@@ -1147,8 +1148,8 @@ async function handleLaunch() {
         )
         if (!dlResult?.success) {
           window.electronAPI?.notification?.send({
-            title: '错误',
-            body: '下载并启动失败: ' + (dlResult?.error || '未知错误'),
+            title: t('common.error'),
+            body: t('launch.downloadAndLaunchFailed', { error: dlResult?.error || t('common.unknownError') }),
             type: 'error'
           })
         } else if (dlResult?.pid) {
@@ -1162,15 +1163,15 @@ async function handleLaunch() {
       }
     } else {
       window.electronAPI?.notification?.send({
-        title: '错误',
-        body: '启动失败: ' + (result?.error || '未知错误'),
+        title: t('common.error'),
+        body: t('launch.launchFailedWithError', { error: result?.error || t('common.unknownError') }),
         type: 'error'
       })
     }
   } catch (e: unknown) {
     window.electronAPI?.notification?.send({
-      title: '错误',
-      body: '启动异常: ' + (e as Error).message,
+      title: t('common.error'),
+      body: t('launch.launchException', { error: (e as Error).message }),
       type: 'error'
     })
   } finally {

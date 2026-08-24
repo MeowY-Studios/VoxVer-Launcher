@@ -453,7 +453,7 @@ function selectActive(ver: InstalledVer) {
 }
 
 async function removeVersion(id: string) {
-  if (!confirm(`确认删除版本 ${id}？此操作仅从列表中移除，不会删除游戏文件。`)) return
+  if (!confirm(t('component.deleteVersionConfirm', { id }))) return
   installedVersions.value = installedVersions.value.filter((v) => v.id !== id)
   // * 从文件系统删除版本  if (api?.versions) {
   const mcPath = await api.path?.getMinecraft()

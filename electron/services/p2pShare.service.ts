@@ -55,8 +55,8 @@ function getCustomSignalingConfig(): CustomSignalingConfig | null {
 
     log.info('[getCustomSignalingConfig] 使用自定义信令服务器:', config)
     return config
-  } catch (e: any) {
-    log.warn('[getCustomSignalingConfig] 解析配置失败:', e.message)
+  } catch (e: unknown) {
+    log.warn('[getCustomSignalingConfig] 解析配置失败:', (e as Error).message)
     return null
   }
 }
@@ -74,6 +74,11 @@ export interface ShareSession {
   startTime: number
   endTime?: number
   error?: string
+  bytesPerSecond?: number
+  estimatedRemaining?: number
+  instanceName?: string
+  mcVersion?: string
+  loaderType?: string
 }
 
 export interface TransferProgress {
@@ -323,14 +328,14 @@ class P2PShareService {
 
       peer.on('disconnected', () => {
         log.warn('Peer disconnected, attempting to reconnect', { sessionId })
-        this.updateSessionStatus(sessionId, 'error', '连接已断开，请重试')
+        this.updateSessionStatus(sessionId, 'error', 'Connection lost, please retry')
       })
 
       log.info('Share session started', { sessionId, peerId, shareCode })
       return { sessionId, shareCode, peerId }
-    } catch (e: any) {
+    } catch (e: unknown) {
       log.error('Failed to start share session', e)
-      throw new Error(`启动分享失败: ${e.message || '请检查网络连接'}`)
+      throw new Error(`Failed to start sharing: ${(e as Error).message || 'Check network connection'}`)
     }
   }
 
@@ -424,7 +429,7 @@ class P2PShareService {
           log.error('Failed to send chunk', { sessionId, chunkIndex }, e)
           const errMsg: ErrorMessage = {
             type: 'error',
-            data: { message: `分片 ${chunkIndex} 发送失败` }
+            data: { message: `Chunk ${chunkIndex} send failed` }
           }
           conn.send(errMsg)
         }
@@ -479,7 +484,7 @@ class P2PShareService {
 
       peer.on('disconnected', () => {
         log.warn('Receiver peer disconnected', { sessionId })
-        this.updateSessionStatus(sessionId, 'error', '连接已断开，请重试')
+        this.updateSessionStatus(sessionId, 'error', 'Connection lost, please retry')
       })
 
       const targetPeerId = senderPeerId || shareCode
@@ -491,7 +496,7 @@ class P2PShareService {
       let connectionTimeout: NodeJS.Timeout | null = setTimeout(() => {
         if (session.status === 'connecting') {
           log.warn('Connection timeout, attempting to retry', { sessionId })
-          this.updateSessionStatus(sessionId, 'error', '连接超时，请确保分享码正确且分享者在线')
+          this.updateSessionStatus(sessionId, 'error', 'Connection timeout, ensure share code is correct and sender is online')
         }
       }, CONNECTION_TIMEOUT)
 
@@ -522,14 +527,14 @@ class P2PShareService {
           connectionTimeout = null
         }
         log.error('Receiver connection error', sessionId, err)
-        this.updateSessionStatus(sessionId, 'error', err.message || '连接失败，请检查网络')
+        this.updateSessionStatus(sessionId, 'error', err.message || 'Connection failed, check network')
       })
 
       log.info('Receive session initialized', { sessionId, peerId })
       return { sessionId, peerId }
-    } catch (e: any) {
+    } catch (e: unknown) {
       log.error('Failed to start receive session', e)
-      throw new Error(`连接失败: ${e.message || '请检查网络连接'}`)
+      throw new Error(`Connection failed: ${(e as Error).message || 'Check network connection'}`)
     }
   }
 
@@ -615,10 +620,10 @@ class P2PShareService {
             this.retryCount.delete(retryKey)
             const errMsg: ErrorMessage = {
               type: 'error',
-              data: { message: `分片 ${chunkIndex} 写入失败（已重试 ${CHUNK_RETRY_COUNT} 次）` }
+              data: { message: `Chunk ${chunkIndex} write failed after ${CHUNK_RETRY_COUNT} retries` }
             }
             conn.send(errMsg)
-            this.updateSessionStatus(sessionId, 'error', `分片 ${chunkIndex} 写入失败`)
+            this.updateSessionStatus(sessionId, 'error', `Chunk ${chunkIndex} write failed`)
           }
         }
         break
@@ -653,7 +658,7 @@ class P2PShareService {
       const receivedMd5 = await hashFile(info.tempFilePath, 'md5')
 
       if (receivedMd5.toLowerCase() !== info.fileMd5.toLowerCase()) {
-        throw new Error('MD5 校验失败')
+        throw new Error('MD5 verification failed')
       }
 
       const completeMsg: CompleteMessage = {
@@ -668,10 +673,10 @@ class P2PShareService {
       log.error('Verification failed', { sessionId }, e)
       const errMsg: ErrorMessage = {
         type: 'error',
-        data: { message: '文件校验失败' }
+        data: { message: 'File verification failed' }
       }
       conn.send(errMsg)
-      this.updateSessionStatus(sessionId, 'error', '文件校验失败')
+      this.updateSessionStatus(sessionId, 'error', 'File verification failed')
     }
   }
 
@@ -721,6 +726,10 @@ class P2PShareService {
       bytesPerSecond,
       estimatedRemaining
     }
+
+    // Store computed speed on session for session-update consumers
+    session.bytesPerSecond = bytesPerSecond
+    session.estimatedRemaining = estimatedRemaining
 
     const callback = this.progressCallbacks.get(sessionId)
     if (callback) {

@@ -1,6 +1,9 @@
 /**
  * 游戏适配器相关类型定义
  */
+import type { AccountData } from './ipc.types'
+import type { GameAccount } from '../services/game.launcher.service'
+import type { ModLoaderInstallResult, ModLoaderStatus } from './modloader.types'
 
 /**
  * 游戏信息
@@ -78,7 +81,7 @@ export interface IGameAdapter {
   gameInfo: GameInfo
   getVersions(): Promise<GameVersion[]>
   installVersion(instance: GameInstance): Promise<void>
-  launchGame(instance: GameInstance, account: any): Promise<any>
+  launchGame(instance: GameInstance, account: GameAccount): Promise<void>
   detectJava(): Promise<JavaInfo[]>
   getModLoaders(version: string): Promise<ModLoader[]>
   parseCrashLog(logPath: string): Promise<CrashReport | null>
@@ -93,12 +96,12 @@ export interface IpcChannels {
   'instance:list': { args: void; return: GameInstance[] }
   'instance:create': { args: Partial<GameInstance>; return: GameInstance }
   'instance:delete': { args: { id: string }; return: void }
-  'account:list': { args: void; return: any[] }
-  'account:login-microsoft': { args: void; return: any }
-  'account:login-offline': { args: { username: string }; return: any }
+  'account:list': { args: void; return: AccountData[] }
+  'account:login-microsoft': { args: void; return: AccountData }
+  'account:login-offline': { args: { username: string }; return: AccountData }
   'download:search-mods': {
     args: { query: string; source: 'curseforge' | 'modrinth' }
-    return: any[]
+    return: unknown[]
   }
   'game:launch': { args: { instanceId: string; accountId: string }; return: void }
   'game:get-log': { args: { instanceId: string }; return: string }
@@ -106,8 +109,8 @@ export interface IpcChannels {
   'modloader:get-loaders': { args: { minecraftVersion: string }; return: ModLoader[] }
   'modloader:install': {
     args: { instanceId: string; loaderType: ModLoaderType; loaderVersion: string; gameDir: string }
-    return: any
+    return: ModLoaderInstallResult
   }
-  'modloader:get-status': { args: { instanceId: string }; return: any }
-  'modloader:get-progress': { args: { instanceId: string }; return: any }
+  'modloader:get-status': { args: { instanceId: string }; return: ModLoaderStatus }
+  'modloader:get-progress': { args: { instanceId: string }; return: number }
 }

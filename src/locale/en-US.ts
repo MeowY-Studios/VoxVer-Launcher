@@ -92,7 +92,8 @@ export default {
     generate: 'Generate',
     saving: 'Saving...',
     copied: 'Copied',
-    retry: 'Retry'
+    retry: 'Retry',
+    unknownError: 'Unknown error'
   },
   home: {
     welcomeTip: 'Select a version on the left then click "Play" button',
@@ -179,7 +180,36 @@ export default {
     copyAndOpenBrowser: 'Copy & Open Browser',
     deviceFlowTip: 'Complete Microsoft login after entering the code. This window will update automatically.',
     waitingAuthorization: 'Waiting for authorization...',
-    loginSuccess: 'Login successful, welcome'
+    loginSuccess: 'Login successful, welcome',
+    unknownUser: 'Unknown user',
+    loadFailed: 'Failed to load account',
+    microsoftLoginFailed: 'Microsoft login failed',
+    offlineLoginFailed: 'Offline login failed',
+    useAccount: 'Use',
+    currentAccount: 'Current',
+    addAnotherMicrosoftAccount: 'Add another Microsoft account',
+    loginMicrosoftAccount: 'Sign in with Microsoft account',
+    uuidOptional: 'UUID (optional)',
+    switchToAccount: 'Switch to this account',
+    deleteAccount: 'Delete account',
+    playerNamePlaceholderShort: '2-16 characters',
+    addOfflineAccount: 'Add offline account',
+    accountCount: '{count} accounts',
+    fetchingDeviceCode: 'Fetching device code...',
+    tokenReceivedVerifyingXbox: 'Microsoft token received, verifying Xbox account...',
+    connectingXboxLive: 'Connecting to Xbox Live...',
+    fetchingXstsToken: 'Fetching XSTS token...',
+    verifyingMinecraft: 'Verifying Minecraft account...',
+    fetchingProfile: 'Fetching game profile...',
+    savingAccount: 'Saving account...',
+    loginFailedRetry: 'Login failed, please try again',
+    deviceCodeExpired: 'Device code expired, please click login again',
+    initializing: 'Initializing...',
+    newAccount: 'New account',
+    playerNameMinLength: 'Player name must be at least 2 characters',
+    saveFailed: 'Save failed',
+    confirmDelete: 'Are you sure you want to delete this account? This action cannot be undone.',
+    pleaseAddAccount: 'Please add and select an account first'
   },
 
   app: {
@@ -323,7 +353,11 @@ export default {
     missingFilesMessage: 'Detected {count} missing files. Download and launch game?',
     missingFilesHint: 'Click "Download & Launch" to automatically download missing files and start the game.',
     cancelDownload: 'Cancel',
-    confirmDownload: 'Download & Launch'
+    confirmDownload: 'Download & Launch',
+    noVersionConfirm: 'No game version available. Go to the download page?',
+    downloadAndLaunchFailed: 'Download & launch failed: {error}',
+    launchFailedWithError: 'Launch failed: {error}',
+    launchException: 'Launch exception: {error}'
   },
 
   version: {
@@ -576,7 +610,11 @@ export default {
     selectModLoader: 'Select ModLoader',
     loading: 'Loading Mod Loader versions...',
     noAvailable: 'No available Mod Loader for this version',
-    installing: 'Installing...'
+    installing: 'Installing...',
+    fabricDesc: 'Lightweight ModLoader',
+    forgeDesc: 'Most popular ModLoader',
+    neoforgeDesc: 'Modern fork of Forge',
+    quiltDesc: 'Successor to Fabric'
   },
 
   more: {
@@ -996,6 +1034,7 @@ export default {
     loadHistoryFailed: 'Failed to load launch history',
     favoriteOnly: 'Favorites only',
     noCustomPathHint: 'Please select a .minecraft folder in Settings first. The system default path was not scanned.',
+    noCustomPathTitle: 'No .minecraft folder configured',
     // Empty state
     noMatchingInstances: 'No matching instances',
     noInstancesYet: 'No game instances yet',
@@ -1023,6 +1062,8 @@ export default {
     // Export modal
     includeSavesHint: 'Include saves (recommended to disable, increases package size)',
     reselectBtn: 'Reselect',
+    invalidDirectory: 'Invalid directory',
+    exportMclaDesc: 'Export as a shareable .mcla package',
     loadFailed: 'Failed to load instances',
     defaultName: 'New Instance',
     // Status
@@ -1112,6 +1153,7 @@ export default {
     texturePacksSubtitle: 'Download and install texture packs',
     installed: 'Installed',
     notInstalled: 'Not Installed',
+    comingSoon: 'Coming soon',
     noResults: 'No matching results found',
     pause: 'Pause',
     resume: 'Resume',
@@ -1243,6 +1285,7 @@ export default {
     themePresets: 'Theme Presets',
     customThemeColor: 'Custom Theme Color',
     customThemeColorDesc: 'Choose a primary color for the launcher',
+    primaryColorPreview: 'Primary color preview',
     apply: 'Apply',
 
     // Update channel
@@ -2162,6 +2205,7 @@ export default {
     noInstalledVersions: 'No installed versions in current folder',
     releaseVersion: 'Release',
     deleteVersion: 'Delete Version',
+    deleteVersionConfirm: 'Confirm delete version {id}? This only removes it from the list and will not delete game files.',
     detecting: 'Detecting...',
     noElectronEnv: 'Electron environment not detected',
     notFoundFolder: '.minecraft folder not found',
