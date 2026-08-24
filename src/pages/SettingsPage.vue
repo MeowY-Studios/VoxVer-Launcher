@@ -1318,7 +1318,7 @@
 
         <!-- 自定义主题色 -->
         <div class="theme-custom-card" style="margin-top:16px">
-          <div class="mem-custom-row" style="align-items:center">
+          <div class="mem-custom-row" style="align-items:flex-start">
             <div class="row-main">
               <label class="row-label">{{ $t('settings.customThemeColor') }}</label>
               <p class="row-desc">{{ $t('settings.customThemeColorDesc') }}</p>
@@ -7807,7 +7807,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 .quick-color-palette {
   display: flex;
   gap: 6px;
-  margin-top: 10px;
+  margin-top: 4px;
   flex-wrap: wrap;
 }
 
