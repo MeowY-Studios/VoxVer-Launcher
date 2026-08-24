@@ -1383,12 +1383,6 @@ const navItems = [
   color-scheme: dark;
 }
 
-  &.mono {
-    font-family: var(--voxver-font-mono);
-    font-size: 12px;
-  }
-}
-
 .form-textarea {
   flex: 1;
   padding: 8px 12px;
