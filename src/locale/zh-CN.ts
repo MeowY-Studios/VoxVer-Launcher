@@ -1132,6 +1132,48 @@ export default {
     modNoUpdates: '所有 Mod 已是最新版本',
   },
 
+  p2p: {
+    title: 'P2P 分享',
+    desc: '通过 P2P 网络分享和接收游戏实例。',
+    useCustomServer: '使用自定义信令服务器',
+    useCustomServerDesc: '使用自定义信令服务器替代默认服务器',
+    signalingServer: '信令服务器地址',
+    signalingServerDesc: 'WebSocket 信令服务器地址',
+    signalingServerPlaceholder: 'wss://your-server.com',
+    currentServer: '当前服务器',
+    defaultServer: '默认服务器',
+    transferSettings: '传输设置',
+    transferSettingsDesc: 'P2P 文件传输参数配置',
+    chunkSize: '分片大小',
+    chunkSizeDesc: '文件分片大小，影响传输稳定性',
+    chunk512: '512 KB',
+    chunk1024: '1024 KB',
+    chunk2048: '2048 KB',
+    chunk4096: '4096 KB',
+    connectionTimeout: '连接超时',
+    connectionTimeoutDesc: 'P2P 连接超时时间（秒）',
+    timeout15: '15 秒',
+    timeout30: '30 秒',
+    timeout60: '60 秒'
+  },
+
+  multiplayer: {
+    title: '联机',
+    desc: '多人游戏与网络对战设置。',
+    comingSoon: '联机功能正在开发中，敬请期待。',
+    features: {
+      title: '计划功能',
+      lan: '局域网联机',
+      lanDesc: '发现并加入同一局域网内的游戏世界',
+      directConnect: '直连服务器',
+      directConnectDesc: '通过 IP 地址直接连接到多人服务器',
+      serverList: '服务器列表',
+      serverListDesc: '管理和收藏常用的多人服务器',
+      realms: 'Realms 私人服务器',
+      realmsDesc: '连接到 Minecraft Realms 私人服务器'
+    }
+  },
+
   download: {
     download: '下载',
     downloads: '下载',
@@ -1392,7 +1434,8 @@ export default {
       lang: '语言',
       accessibility: '辅助功能',
       downloadNet: '下载',
-      online: '联机',
+      online: 'P2P 分享',
+      multiplayer: '联机',
       authService: '安全识别服务',
       service: '服务与反馈',
       sponsor: '赞助我们',
@@ -2031,33 +2074,7 @@ export default {
     modpackCreateErrorBody: '创建整合包失败: {error}',
     modpackImportErrorBody: '导入整合包失败: {error}',
     backupErrorBody: '备份失败: {error}',
-    backupRestoreErrorBody: '恢复失败: {error}',
-
-    // 联机与 P2P 分享
-    online: {
-      title: '联机',
-      desc: '联机与网络对战设置。',
-      useCustomServer: '使用自定义信令服务器',
-      useCustomServerDesc: '使用自定义信令服务器替代默认服务器',
-      signalingServer: '信令服务器地址',
-      signalingServerDesc: 'WebSocket 信令服务器地址',
-      signalingServerPlaceholder: 'wss://your-server.com',
-      currentServer: '当前服务器',
-      defaultServer: '默认服务器',
-      transferSettings: '传输设置',
-      transferSettingsDesc: 'P2P 文件传输参数配置',
-      chunkSize: '分片大小',
-      chunkSizeDesc: '文件分片大小，影响传输稳定性',
-      chunk512: '512 KB',
-      chunk1024: '1024 KB',
-      chunk2048: '2048 KB',
-      chunk4096: '4096 KB',
-      connectionTimeout: '连接超时',
-      connectionTimeoutDesc: 'P2P 连接超时时间（秒）',
-      timeout15: '15 秒',
-      timeout30: '30 秒',
-      timeout60: '60 秒'
-    }
+    backupRestoreErrorBody: '恢复失败: {error}'
   },
 
   backup: {

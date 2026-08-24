@@ -117,7 +117,7 @@ export default {
     hoursAgo: '{n} hours ago',
     daysAgo: '{n} days ago',
     auth: {
-      online: 'Online',
+      online: 'P2P Sharing',
       offline: 'Offline',
       selectAccount: 'Select account...',
       microsoft: 'Microsoft',
@@ -1116,6 +1116,48 @@ export default {
     modNoUpdates: 'All mods are up to date'
   },
 
+  p2p: {
+    title: 'P2P Sharing',
+    desc: 'Share and receive game instances via P2P network.',
+    useCustomServer: 'Use Custom Signaling Server',
+    useCustomServerDesc: 'Use a custom signaling server instead of the default',
+    signalingServer: 'Signaling Server URL',
+    signalingServerDesc: 'WebSocket signaling server address',
+    signalingServerPlaceholder: 'wss://your-server.com',
+    currentServer: 'Current Server',
+    defaultServer: 'Default Server',
+    transferSettings: 'Transfer Settings',
+    transferSettingsDesc: 'P2P file transfer configuration',
+    chunkSize: 'Chunk Size',
+    chunkSizeDesc: 'File chunk size, affects transfer stability',
+    chunk512: '512 KB',
+    chunk1024: '1024 KB',
+    chunk2048: '2048 KB',
+    chunk4096: '4096 KB',
+    connectionTimeout: 'Connection Timeout',
+    connectionTimeoutDesc: 'P2P connection timeout in seconds',
+    timeout15: '15 seconds',
+    timeout30: '30 seconds',
+    timeout60: '60 seconds'
+  },
+
+  multiplayer: {
+    title: 'Multiplayer',
+    desc: 'Multiplayer and online game settings.',
+    comingSoon: 'Multiplayer features are under development. Stay tuned!',
+    features: {
+      title: 'Planned Features',
+      lan: 'LAN Multiplayer',
+      lanDesc: 'Discover and join game worlds on your local network',
+      directConnect: 'Direct Connect',
+      directConnectDesc: 'Connect to a multiplayer server via IP address',
+      serverList: 'Server List',
+      serverListDesc: 'Manage and favorite your multiplayer servers',
+      realms: 'Realms',
+      realmsDesc: 'Connect to Minecraft Realms private servers'
+    }
+  },
+
   download: {
     download: 'Download',
     downloads: 'Downloads',
@@ -1337,7 +1379,8 @@ export default {
       lang: 'Language',
       accessibility: 'Accessibility',
       downloadNet: 'Download',
-      online: 'Online',
+      online: 'P2P Sharing',
+      multiplayer: 'Multiplayer',
       authService: 'Auth Service',
       service: 'Service & Feedback',
       sponsor: 'Sponsor Us',
@@ -1974,31 +2017,6 @@ export default {
     backupErrorBody: 'Backup failed: {error}',
     backupRestoreErrorBody: 'Restore failed: {error}',
 
-    // Online & P2P Sharing
-    online: {
-      title: 'Online',
-      desc: 'Online and multiplayer settings.',
-      useCustomServer: 'Use Custom Signaling Server',
-      useCustomServerDesc: 'Use a custom signaling server instead of the default',
-      signalingServer: 'Signaling Server URL',
-      signalingServerDesc: 'WebSocket signaling server address',
-      signalingServerPlaceholder: 'wss://your-server.com',
-      currentServer: 'Current Server',
-      defaultServer: 'Default Server',
-      transferSettings: 'Transfer Settings',
-      transferSettingsDesc: 'P2P file transfer configuration',
-      chunkSize: 'Chunk Size',
-      chunkSizeDesc: 'File chunk size, affects transfer stability',
-      chunk512: '512 KB',
-      chunk1024: '1024 KB',
-      chunk2048: '2048 KB',
-      chunk4096: '4096 KB',
-      connectionTimeout: 'Connection Timeout',
-      connectionTimeoutDesc: 'P2P connection timeout in seconds',
-      timeout15: '15 seconds',
-      timeout30: '30 seconds',
-      timeout60: '60 seconds'
-    }
   },
 
   backup: {

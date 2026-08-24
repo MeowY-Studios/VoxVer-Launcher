@@ -2052,13 +2052,13 @@
           </svg>
           {{ $t('settings.sidebar.online') }}
         </h3>
-        <p class="sec-desc">{{ $t('settings.online.desc') }}</p>
+        <p class="sec-desc">{{ $t('p2p.desc') }}</p>
 
         <!-- 自定义信令服务器 -->
         <div class="row">
           <div class="row-main">
-            <label class="row-label">{{ $t('settings.online.useCustomServer') }}</label>
-            <p class="row-desc">{{ $t('settings.online.useCustomServerDesc') }}</p>
+            <label class="row-label">{{ $t('p2p.useCustomServer') }}</label>
+            <p class="row-desc">{{ $t('p2p.useCustomServerDesc') }}</p>
           </div>
           <div class="row-control">
             <label class="toggle vox-toggle">
@@ -2070,8 +2070,8 @@
 
         <div class="row" v-if="p2pSettings.useCustomServer">
           <div class="row-main">
-            <label class="row-label">{{ $t('settings.online.signalingServer') }}</label>
-            <p class="row-desc">{{ $t('settings.online.signalingServerDesc') }}</p>
+            <label class="row-label">{{ $t('p2p.signalingServer') }}</label>
+            <p class="row-desc">{{ $t('p2p.signalingServerDesc') }}</p>
           </div>
           <div class="row-control">
             <input
@@ -2079,7 +2079,7 @@
               class="inp vox-input"
               v-model="p2pSettings.signalingServer"
               @change="saveP2pSettings"
-              :placeholder="$t('settings.online.signalingServerPlaceholder')"
+              :placeholder="$t('p2p.signalingServerPlaceholder')"
               style="width: 240px"
             />
           </div>
@@ -2087,11 +2087,11 @@
 
         <div class="row">
           <div class="row-main">
-            <label class="row-label">{{ $t('settings.online.currentServer') }}</label>
+            <label class="row-label">{{ $t('p2p.currentServer') }}</label>
           </div>
           <div class="row-control">
             <span style="opacity:0.7;font-size:13px">
-              {{ p2pSettings.useCustomServer && p2pSettings.signalingServer ? p2pSettings.signalingServer : $t('settings.online.defaultServer') }}
+              {{ p2pSettings.useCustomServer && p2pSettings.signalingServer ? p2pSettings.signalingServer : $t('p2p.defaultServer') }}
             </span>
           </div>
         </div>
@@ -2099,21 +2099,21 @@
 
       <!-- 传输设置 -->
       <section class="sec">
-        <h3 class="sec-title vox-sec-title">{{ $t('settings.online.transferSettings') }}</h3>
-        <p class="sec-desc">{{ $t('settings.online.transferSettingsDesc') }}</p>
+        <h3 class="sec-title vox-sec-title">{{ $t('p2p.transferSettings') }}</h3>
+        <p class="sec-desc">{{ $t('p2p.transferSettingsDesc') }}</p>
 
         <!-- 分片大小 -->
         <div class="row">
           <div class="row-main">
-            <label class="row-label">{{ $t('settings.online.chunkSize') }}</label>
-            <p class="row-desc">{{ $t('settings.online.chunkSizeDesc') }}</p>
+            <label class="row-label">{{ $t('p2p.chunkSize') }}</label>
+            <p class="row-desc">{{ $t('p2p.chunkSizeDesc') }}</p>
           </div>
           <div class="row-control">
             <select class="inp vox-input" v-model="p2pSettings.chunkSize" @change="saveP2pSettings">
-              <option value="512">{{ $t('settings.online.chunk512') }}</option>
-              <option value="1024">{{ $t('settings.online.chunk1024') }}</option>
-              <option value="2048">{{ $t('settings.online.chunk2048') }}</option>
-              <option value="4096">{{ $t('settings.online.chunk4096') }}</option>
+              <option value="512">{{ $t('p2p.chunk512') }}</option>
+              <option value="1024">{{ $t('p2p.chunk1024') }}</option>
+              <option value="2048">{{ $t('p2p.chunk2048') }}</option>
+              <option value="4096">{{ $t('p2p.chunk4096') }}</option>
             </select>
           </div>
         </div>
@@ -2121,16 +2121,35 @@
         <!-- 连接超时 -->
         <div class="row">
           <div class="row-main">
-            <label class="row-label">{{ $t('settings.online.connectionTimeout') }}</label>
-            <p class="row-desc">{{ $t('settings.online.connectionTimeoutDesc') }}</p>
+            <label class="row-label">{{ $t('p2p.connectionTimeout') }}</label>
+            <p class="row-desc">{{ $t('p2p.connectionTimeoutDesc') }}</p>
           </div>
           <div class="row-control">
             <select class="inp vox-input" v-model="p2pSettings.connectionTimeout" @change="saveP2pSettings">
-              <option value="15">{{ $t('settings.online.timeout15') }}</option>
-              <option value="30">{{ $t('settings.online.timeout30') }}</option>
-              <option value="60">{{ $t('settings.online.timeout60') }}</option>
+              <option value="15">{{ $t('p2p.timeout15') }}</option>
+              <option value="30">{{ $t('p2p.timeout30') }}</option>
+              <option value="60">{{ $t('p2p.timeout60') }}</option>
             </select>
           </div>
+        </div>
+      </section>
+    </template>
+
+    <!-- ========== 联机 ========== -->
+    <template v-if="activeCategory === 'multiplayer'">
+      <section class="sec">
+        <h3 class="sec-title vox-sec-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+          {{ $t('settings.sidebar.multiplayer') }}
+        </h3>
+        <p class="sec-desc">{{ $t('multiplayer.desc') }}</p>
+        <div class="coming-soon-card">
+          <p>{{ $t('multiplayer.comingSoon') }}</p>
         </div>
       </section>
     </template>
@@ -3054,6 +3073,7 @@ const SEARCH_CATEGORY_MAP: Record<string, string[]> = {
   'download-net': ['下载', '网络', '镜像', '线程', '速度', 'download', 'mirror', '网络', '源'],
   'data-migration': ['迁移', '导入', '导出', 'hmcl', 'pcl', '数据', 'migration', 'import'],
   online: ['在线', '联机', '多人', 'online', 'multiplayer'],
+  multiplayer: ['联机', '多人', 'multiplayer', 'online'],
   'auth-service': ['安全', '扫描', '病毒', '防病毒', 'security', '安全扫描', '信任', '完整性'],
   other: ['数据', '缓存', '备份', '社区', '整合包', 'other', '数据管理', '清除'],
   service: ['服务', '后台', '自启动', 'service'],
