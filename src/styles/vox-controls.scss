@@ -419,7 +419,7 @@
   outline: none;
   box-sizing: border-box;
   background: var(--voxver-bg-input);
-  color-scheme: dark;
+  color-scheme: dark light;
   transition:
     border-color var(--voxver-transition-fast),
     box-shadow var(--voxver-transition-fast);
@@ -622,7 +622,7 @@ select.vox-input {
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 36px;
-  color-scheme: dark;
+  color-scheme: dark light;
 }
 
 select.vox-input:focus {

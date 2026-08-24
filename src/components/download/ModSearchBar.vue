@@ -213,7 +213,7 @@ onMounted(() => {
     transition: all 0.15s;
 
     &.active {
-      background: #fff;
+      background: var(--voxver-bg-primary);
       color: var(--voxver-primary);
       border: 1px solid var(--voxver-border-color);
     }

@@ -471,7 +471,7 @@
 
             <!-- 检测完成：文件完整 -->
             <div v-else-if="completeState === 'complete'" class="complete-status success">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-success)" stroke-width="2">
                 <path d="M20 6L9 17l-5-5" />
               </svg>
               <p class="complete-status-text">{{ $t('version.settings.allComplete') }}</p>
@@ -522,7 +522,7 @@
 
             <!-- 下载完成 -->
             <div v-else-if="completeState === 'done'" class="complete-status success">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-success)" stroke-width="2">
                 <path d="M20 6L9 17l-5-5" />
               </svg>
               <p class="complete-status-text">{{ $t('version.settings.completed') }}</p>
@@ -534,13 +534,13 @@
 
             <!-- 错误 -->
             <div v-else-if="completeState === 'error'" class="complete-status error">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-error)" stroke-width="2">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="15" y1="9" x2="9" y2="15" />
                 <line x1="9" y1="9" x2="15" y2="15" />
               </svg>
               <p class="complete-status-text">{{ $t('version.settings.failed') }}</p>
-              <p class="complete-status-sub" style="color: #ef4444">{{ completeError }}</p>
+              <p class="complete-status-sub" style="color: var(--voxver-error)">{{ completeError }}</p>
               <button class="form-action-btn" style="margin-top: 16px" @click="completeFiles">
                 {{ $t('common.retry') }}
               </button>
@@ -1380,7 +1380,7 @@ const navItems = [
 }
 
 .form-select {
-  color-scheme: dark;
+  color-scheme: dark light;
 }
 
 .form-textarea {

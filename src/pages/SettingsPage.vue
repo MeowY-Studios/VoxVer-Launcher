@@ -5261,7 +5261,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   color: var(--voxver-text-primary);
   background: transparent;
   outline: none;
-  color-scheme: dark;
+  color-scheme: dark light;
   transition: border-color 0.14s, background 0.14s;
 
   &:focus {

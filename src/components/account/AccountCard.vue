@@ -192,7 +192,7 @@ const shortUuid = computed(() => {
     background: var(--voxver-text-muted);
 
     &.online {
-      background: #22c55e;
+      background: var(--voxver-success);
     }
   }
 }
@@ -225,9 +225,9 @@ const shortUuid = computed(() => {
     }
 
     &.danger {
-      color: #ef4444;
+      color: var(--voxver-error);
       &:hover {
-        background: rgb(239 68 68 / 0.08);
+        background: color-mix(in oklab, var(--voxver-error) 8%, transparent);
       }
     }
   }

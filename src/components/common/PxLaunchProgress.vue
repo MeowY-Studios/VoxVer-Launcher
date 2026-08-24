@@ -444,7 +444,7 @@ defineExpose({
   padding: 8px 12px;
   font-size: 11px;
   color: var(--voxver-text-muted);
-  background: #0a0a18;
+  background: var(--voxver-bg-primary);
   margin: 0;
   white-space: pre-wrap;
   word-break: break-all;

@@ -708,7 +708,7 @@ function generateUUID(): string {
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-md);
   &.acc-profile-active {
-    border-color: #22c55e;
+    border-color: var(--voxver-success);
   }
 }
 

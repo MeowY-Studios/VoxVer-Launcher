@@ -386,7 +386,7 @@ onUnmounted(() => {
 }
 
 .receive-error {
-  color: #ef4444;
+  color: var(--voxver-error);
 }
 
 .receive-progress {

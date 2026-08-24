@@ -334,17 +334,17 @@ onUnmounted(() => {
   animation: pulse 2s infinite;
 }
 .share-icon--transferring {
-  background: rgb(34 197 94 / 0.15);
-  color: #22c55e;
+  background: color-mix(in oklab, var(--voxver-success) 15%, transparent);
+  color: var(--voxver-success);
   animation: bounce 1s infinite;
 }
 .share-icon--success {
-  background: rgb(34 197 94 / 0.15);
-  color: #22c55e;
+  background: color-mix(in oklab, var(--voxver-success) 15%, transparent);
+  color: var(--voxver-success);
 }
 .share-icon--error {
-  background: rgb(239 68 68 / 0.15);
-  color: #ef4444;
+  background: color-mix(in oklab, var(--voxver-error) 15%, transparent);
+  color: var(--voxver-error);
 }
 
 .share-stage-title {

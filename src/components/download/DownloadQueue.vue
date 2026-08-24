@@ -152,7 +152,7 @@ function formatSpeed(bytesPerSec: number): string {
   }
 
   &.error {
-    border-color: rgb(239 68 68 / 0.35);
+    border-color: color-mix(in oklab, var(--voxver-error) 35%, transparent);
   }
 }
 
@@ -216,7 +216,7 @@ function formatSpeed(bytesPerSec: number): string {
   }
 
   &.paused {
-    color: #f59e0b;
+    color: var(--voxver-warning);
   }
 
   &.completed {
@@ -224,7 +224,7 @@ function formatSpeed(bytesPerSec: number): string {
   }
 
   &.failed {
-    color: #ef4444;
+    color: var(--voxver-error);
   }
 }
 
@@ -240,8 +240,8 @@ function formatSpeed(bytesPerSec: number): string {
   transition: all 0.1s;
 
   &:hover {
-    color: #ef4444;
-    background: rgb(239 68 68 / 0.08);
+    color: var(--voxver-error);
+    background: color-mix(in oklab, var(--voxver-error) 8%, transparent);
   }
 }
 
