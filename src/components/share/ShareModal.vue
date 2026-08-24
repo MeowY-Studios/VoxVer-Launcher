@@ -465,4 +465,42 @@ onUnmounted(() => {
   background: var(--voxver-bg-hover);
   color: var(--voxver-text-primary);
 }
+
+/* 按钮样式 */
+.px-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: var(--voxver-radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--voxver-transition-fast);
+  border: none;
+  outline: none;
+}
+
+.px-btn--primary {
+  background: var(--voxver-accent);
+  color: oklch(100% 0 0);
+}
+.px-btn--primary:hover:not(:disabled) {
+  background: var(--voxver-accent-hover);
+}
+.px-btn--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.px-btn--secondary {
+  background: transparent;
+  color: var(--voxver-text-secondary);
+  border: 1px solid var(--voxver-border-color);
+}
+.px-btn--secondary:hover {
+  background: var(--voxver-bg-hover);
+  color: var(--voxver-text-primary);
+  border-color: var(--voxver-border-strong);
+}
 </style>
