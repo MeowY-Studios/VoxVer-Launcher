@@ -283,6 +283,17 @@
   border-radius: var(--voxver-radius-md);
 }
 
+/* * 按钮尺寸 */
+.vox-btn--sm {
+  padding: 6px 10px;
+  font-size: var(--voxver-text-sm);
+}
+
+.vox-btn--lg {
+  padding: 12px 24px;
+  font-size: var(--voxver-text-lg);
+}
+
 .vox-toggle {
   position: relative;
   display: inline-block;
@@ -441,6 +452,14 @@
     opacity: 0.4;
     cursor: not-allowed;
   }
+}
+
+/* * 输入框错误态 */
+.vox-input--error {
+  border-color: var(--voxver-error);
+}
+.vox-input--error:focus {
+  box-shadow: 0 0 0 3px var(--voxver-error-light);
 }
 
 .vox-list-card {
@@ -627,4 +646,141 @@ select.vox-input {
 
 select.vox-input:focus {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%232997ff' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+
+/* ================================================================
+   Progress 进度条
+   ================================================================ */
+.vox-progress {
+  width: 100%;
+  height: 6px;
+  background: var(--voxver-bg-tertiary);
+  border-radius: var(--voxver-radius-full);
+  overflow: hidden;
+}
+
+.vox-progress__bar {
+  height: 100%;
+  background: var(--voxver-primary);
+  border-radius: var(--voxver-radius-full);
+  transition: width var(--voxver-transition-normal);
+}
+
+.vox-progress--sm { height: 4px; }
+.vox-progress--lg { height: 10px; }
+
+.vox-progress--striped .vox-progress__bar {
+  background-image: linear-gradient(
+    45deg,
+    oklch(100% 0 0 / 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    oklch(100% 0 0 / 0.15) 50%,
+    oklch(100% 0 0 / 0.15) 75%,
+    transparent 75%
+  );
+  background-size: 20px 20px;
+  animation: progress-stripes 1s linear infinite;
+}
+
+.vox-progress--indeterminate .vox-progress__bar {
+  width: 30% !important;
+  animation: indeterminate 1.5s ease-in-out infinite;
+}
+
+/* ================================================================
+   Skeleton 骨架屏
+   ================================================================ */
+.vox-skeleton {
+  background: var(--voxver-bg-tertiary);
+  border-radius: var(--voxver-radius-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.vox-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(100% 0 0 / 0.04) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+.vox-skeleton--text {
+  height: 14px;
+  width: 100%;
+}
+
+.vox-skeleton--circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.vox-skeleton--rectangle {
+  height: 120px;
+  width: 100%;
+}
+
+/* ================================================================
+   Badge 徽章
+   ================================================================ */
+.vox-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--voxver-radius-full);
+  font-size: var(--voxver-text-xs);
+  font-weight: var(--voxver-font-medium);
+  line-height: 1.4;
+}
+
+.vox-badge--primary {
+  background: var(--voxver-primary-light);
+  color: var(--voxver-primary);
+}
+
+.vox-badge--success {
+  background: var(--voxver-success-light);
+  color: var(--voxver-success);
+}
+
+.vox-badge--warning {
+  background: var(--voxver-warning-light);
+  color: var(--voxver-warning);
+}
+
+.vox-badge--error {
+  background: var(--voxver-error-light);
+  color: var(--voxver-error);
+}
+
+.vox-badge--info {
+  background: var(--voxver-info-light);
+  color: var(--voxver-info);
+}
+
+.vox-badge--sm {
+  padding: 1px 6px;
+  font-size: 10px;
+}
+
+.vox-badge--lg {
+  padding: 4px 12px;
+  font-size: var(--voxver-text-sm);
+}
+
+.vox-badge--pulse::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2s infinite;
 }

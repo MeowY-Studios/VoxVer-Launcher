@@ -71,6 +71,18 @@
   }
 }
 
+/* * 缩放退出 */
+@keyframes scale-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
 /* * 加载旋转 */
 @keyframes spin {
   from { transform: rotate(0deg); }
@@ -181,6 +193,12 @@
 @keyframes progress-stripes {
   0%   { background-position: 0 0; }
   100% { background-position: 40px 0; }
+}
+
+/* * 进度条不定态 — 加载中 */
+@keyframes indeterminate {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
 }
 
 /* * 徽章脉冲 — 通知红点 */
@@ -295,6 +313,79 @@
 .gpu-accelerated {
   will-change: transform, opacity;
   transform: translateZ(0);
+}
+
+.gpu-transform {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.gpu-opacity {
+  will-change: opacity;
+  transform: translateZ(0);
+}
+
+/* * 缩放退出工具类 */
+.animate-scale-out {
+  animation: scale-out var(--voxver-transition-normal) var(--voxver-ease-out-quart) forwards;
+}
+
+/* * 不定进度条工具类 */
+.animate-indeterminate {
+  animation: indeterminate 1.5s ease-in-out infinite;
+}
+
+/* * 列表项错开入场 */
+.stagger-item:nth-child(1) { animation-delay: 0ms; }
+.stagger-item:nth-child(2) { animation-delay: 50ms; }
+.stagger-item:nth-child(3) { animation-delay: 100ms; }
+.stagger-item:nth-child(4) { animation-delay: 150ms; }
+.stagger-item:nth-child(5) { animation-delay: 200ms; }
+.stagger-item:nth-child(6) { animation-delay: 250ms; }
+.stagger-item:nth-child(7) { animation-delay: 300ms; }
+.stagger-item:nth-child(8) { animation-delay: 350ms; }
+.stagger-item:nth-child(9) { animation-delay: 400ms; }
+.stagger-item:nth-child(10) { animation-delay: 450ms; }
+
+/* * 交互效果工具类 */
+.hover-lift {
+  transition: transform var(--voxver-transition-fast);
+}
+.hover-lift:hover {
+  transform: translateY(-1px);
+}
+
+.press-scale {
+  transition: transform var(--voxver-transition-fast);
+}
+.press-scale:active {
+  transform: scale(0.98);
+}
+
+.hover-lift-press {
+  transition: transform var(--voxver-transition-fast);
+}
+.hover-lift-press:hover {
+  transform: translateY(-1px);
+}
+.hover-lift-press:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.hover-glow {
+  transition: box-shadow var(--voxver-transition-fast);
+}
+.hover-glow:hover {
+  box-shadow: 0 0 20px var(--voxver-primary-light);
+}
+
+.hover-border-glow {
+  transition: border-color var(--voxver-transition-fast),
+              box-shadow var(--voxver-transition-fast);
+}
+.hover-border-glow:hover {
+  border-color: var(--voxver-primary);
+  box-shadow: 0 0 0 3px var(--voxver-primary-light);
 }
 
 /* ! 无障碍：尊重用户减少动画偏好 */
