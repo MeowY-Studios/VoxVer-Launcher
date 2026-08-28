@@ -441,6 +441,15 @@
               </span>
             </div>
           </div>
+          <div class="credit-item">
+            <div class="credit-avatar" style="background:color-mix(in oklab,#6366f1 14%,transparent);color:#6366f1">L</div>
+            <div class="credit-info">
+              <span class="credit-name">Lumin UI/UX</span>
+              <span class="credit-role">
+                <a href="https://github.com/nnkmn/Lumin-UI-UX" target="_blank" style="color:var(--voxver-primary);text-decoration:none;font-size:12px">{{ $t('settings.aboutSection.luminUiux') }}</a>
+              </span>
+            </div>
+          </div>
         </div>
       </section>
 

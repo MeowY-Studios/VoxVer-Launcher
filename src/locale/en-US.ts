@@ -1750,6 +1750,7 @@ export default {
       archReference: 'Modular Architecture Reference (Mohen Studio)',
       xmcl: 'X Minecraft Launcher (XMCL)',
       xmclRole: 'Launcher Core & Toolkits (@xmcl)',
+      luminUiux: 'Design System & UI Component Library',
       releases: 'Releases & Updates',
       docs: 'Documentation',
       gplv3: 'GPLv3 License'
