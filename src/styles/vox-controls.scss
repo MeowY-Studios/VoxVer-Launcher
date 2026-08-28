@@ -1,6 +1,7 @@
 /* ============================================
    VoxVer Global Controls — Impeccable + High-End Visual Design
    Double-Bezel · Magnetic Hover · Quart-Out Motion
+   Merged from Lumin UI/UX (2026-08-28)
    ============================================ */
 
 .vox-sec-title {
@@ -74,6 +75,7 @@
 
 .vox-card-hover {
   transition: background var(--voxver-transition-fast);
+  cursor: pointer;
 
   &:hover {
     background: color-mix(in oklab, var(--voxver-text) 2%, transparent);
@@ -294,6 +296,9 @@
   font-size: var(--voxver-text-lg);
 }
 
+/* ================================================================
+   Toggle 开关
+   ================================================================ */
 .vox-toggle {
   position: relative;
   display: inline-block;
@@ -357,6 +362,9 @@
   }
 }
 
+/* ================================================================
+   Radio 单选按钮
+   ================================================================ */
 .vox-radio-item {
   display: inline-flex;
   align-items: center;
@@ -417,6 +425,9 @@
   }
 }
 
+/* ================================================================
+   Input 输入框
+   ================================================================ */
 .vox-input {
   width: 100%;
   padding: 9px 14px;
@@ -462,6 +473,9 @@
   box-shadow: 0 0 0 3px var(--voxver-error-light);
 }
 
+/* ================================================================
+   List Card 列表卡片
+   ================================================================ */
 .vox-list-card {
   display: flex;
   align-items: center;
@@ -500,7 +514,9 @@
   }
 }
 
-/* * Combobox / Select 组件 — 自定义弹出层 */
+/* ================================================================
+   Select 选择器 — 自定义弹出层
+   ================================================================ */
 .vox-select-wrapper {
   position: relative;
   width: 100%;
@@ -649,6 +665,158 @@ select.vox-input:focus {
 }
 
 /* ================================================================
+   Modal 弹窗 — 沉浸式遮罩 + 比例缩放动画
+   ================================================================ */
+.vox-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--voxver-bg-overlay);
+  backdrop-filter: blur(4px);
+  z-index: var(--voxver-z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--voxver-transition-normal),
+              visibility var(--voxver-transition-normal);
+}
+
+.vox-modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.vox-modal {
+  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-xl);
+  box-shadow: var(--voxver-shadow-xl);
+  max-height: 85vh;
+  overflow-y: auto;
+  transform: scale(0.95);
+  opacity: 0;
+  transition: transform var(--voxver-transition-normal),
+              opacity var(--voxver-transition-normal);
+}
+
+.vox-modal-overlay.open .vox-modal {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.vox-modal--sm { width: 400px; }
+.vox-modal--md { width: 560px; }
+.vox-modal--lg { width: 720px; }
+.vox-modal--xl { width: 900px; }
+
+.vox-modal__header {
+  padding: var(--voxver-space-xl);
+  border-bottom: 1px solid var(--voxver-border-color-light);
+}
+
+.vox-modal__body {
+  padding: var(--voxver-space-xl);
+}
+
+.vox-modal__footer {
+  padding: var(--voxver-space-xl);
+  border-top: 1px solid var(--voxver-border-color-light);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--voxver-space-sm);
+}
+
+/* * 响应式：窄屏弹窗全宽 */
+@media (max-width: 640px) {
+  .vox-modal--sm,
+  .vox-modal--md,
+  .vox-modal--lg,
+  .vox-modal--xl {
+    width: calc(100vw - 32px);
+    max-height: calc(100vh - 64px);
+  }
+}
+
+/* ================================================================
+   Toast 轻提示 — 右下角浮层通知
+   ================================================================ */
+.vox-toast-container {
+  position: fixed;
+  bottom: var(--voxver-space-xl);
+  right: var(--voxver-space-xl);
+  z-index: var(--voxver-z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--voxver-space-sm);
+}
+
+.vox-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--voxver-space-md);
+  padding: var(--voxver-space-md) var(--voxver-space-lg);
+  background: var(--voxver-bg-elevated);
+  border-radius: var(--voxver-radius-md);
+  box-shadow: var(--voxver-shadow-lg);
+  min-width: 300px;
+  max-width: 450px;
+  animation: slide-in-right var(--voxver-transition-normal);
+}
+
+.vox-toast--success { border-left: 3px solid var(--voxver-success); }
+.vox-toast--warning { border-left: 3px solid var(--voxver-warning); }
+.vox-toast--error   { border-left: 3px solid var(--voxver-error); }
+.vox-toast--info    { border-left: 3px solid var(--voxver-info); }
+
+.vox-toast__content {
+  flex: 1;
+}
+
+.vox-toast__title {
+  font-size: 13px;
+  font-weight: var(--voxver-font-medium);
+  color: var(--voxver-text-primary);
+  margin: 0 0 2px;
+}
+
+.vox-toast__message {
+  font-size: 12px;
+  color: var(--voxver-text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.vox-toast__close {
+  background: none;
+  border: none;
+  color: var(--voxver-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--voxver-radius-sm);
+  transition: color var(--voxver-transition-fast), background var(--voxver-transition-fast);
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--voxver-text-primary);
+    background: color-mix(in oklab, var(--voxver-text) 5%, transparent);
+  }
+}
+
+/* * 响应式：窄屏 Toast 全宽 */
+@media (max-width: 640px) {
+  .vox-toast-container {
+    bottom: var(--voxver-space-md);
+    right: var(--voxver-space-md);
+    left: var(--voxver-space-md);
+  }
+
+  .vox-toast {
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+/* ================================================================
    Progress 进度条
    ================================================================ */
 .vox-progress {
@@ -764,6 +932,11 @@ select.vox-input:focus {
 .vox-badge--info {
   background: var(--voxver-info-light);
   color: var(--voxver-info);
+}
+
+.vox-badge--gradient {
+  background: linear-gradient(135deg, var(--voxver-primary), var(--voxver-accent-hover));
+  color: oklch(100% 0 0);
 }
 
 .vox-badge--sm {

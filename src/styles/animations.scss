@@ -1,6 +1,7 @@
 /* ============================================
    VoxVer Animations — Apple Design System
    自然、流畅的微交互动画
+   Merged from Lumin UI/UX (2026-08-28)
    ============================================ */
 
 /* * 淡入淡出 */
@@ -99,6 +100,18 @@
   }
 }
 
+/* * 绿色脉冲 — 联网状态指示 */
+@keyframes pulse-green {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* * 抖动反馈 — 错误提示 */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
@@ -159,20 +172,8 @@
   50%      { transform: translateY(-4px); }
 }
 
-/* * 绿色脉冲 — 联网状态指示 */
-@keyframes pulse-green {
-  0%, 100% {
-    opacity: 0.4;
-    transform: scale(0.9);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 /* * 微下滑入场 — 额外内容展开 */
-@keyframes slideDown {
+@keyframes slide-down-sm {
   from {
     opacity: 0;
     transform: translateY(-4px);
@@ -213,7 +214,43 @@
   }
 }
 
-/* * 动画工具类 */
+/* * 模态框弹入/退出 */
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modal-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+}
+
+/* * 遮罩层淡入/退出 */
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes overlay-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* ================================================================
+   动画工具类
+   ================================================================ */
 .animate-fade-in {
   animation: fade-in var(--voxver-transition-normal) ease-out forwards;
 }
@@ -223,23 +260,27 @@
 }
 
 .animate-slide-up {
-  animation: slide-up var(--voxver-transition-normal) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: slide-up var(--voxver-transition-normal) var(--voxver-ease-out-quart) forwards;
 }
 
 .animate-slide-down {
-  animation: slide-down var(--voxver-transition-normal) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: slide-down var(--voxver-transition-normal) var(--voxver-ease-out-quart) forwards;
 }
 
 .animate-slide-left {
-  animation: slide-left var(--voxver-transition-normal) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: slide-left var(--voxver-transition-normal) var(--voxver-ease-out-quart) forwards;
 }
 
 .animate-slide-right {
-  animation: slide-right var(--voxver-transition-normal) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: slide-right var(--voxver-transition-normal) var(--voxver-ease-out-quart) forwards;
 }
 
 .animate-scale-in {
-  animation: scale-in var(--voxver-transition-normal) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: scale-in var(--voxver-transition-normal) var(--voxver-ease-out-quart) forwards;
+}
+
+.animate-scale-out {
+  animation: scale-out var(--voxver-transition-normal) var(--voxver-ease-out-quart) forwards;
 }
 
 .animate-spin {
@@ -254,42 +295,33 @@
   animation: pulse 2s ease-in-out infinite;
 }
 
+.animate-pulse-green {
+  animation: pulse-green 2s ease-in-out infinite;
+}
+
+.animate-badge-pulse {
+  animation: badge-pulse 1.5s ease-in-out infinite;
+}
+
 .animate-shake {
   animation: shake 0.4s ease-out;
-}
-
-.animate-cursor {
-  animation: cursor-blink 1s step-end infinite;
-}
-
-.animate-dots span {
-  animation: dots 1.4s ease-in-out infinite both;
-  &:nth-child(1) { animation-delay: -0.32s; }
-  &:nth-child(2) { animation-delay: -0.16s; }
-}
-
-.animate-slide-in-right {
-  animation: slide-in-right var(--voxver-transition-normal) cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-.animate-slide-out-right {
-  animation: slide-out-right var(--voxver-transition-fast) cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .animate-bounce {
   animation: bounce 1s ease-in-out infinite;
 }
 
-.animate-pulse-green {
-  animation: pulse-green 2s ease-in-out infinite;
-}
-
-.animate-slide-down-sm {
-  animation: slideDown 0.2s ease forwards;
+.animate-cursor {
+  animation: cursor-blink 1s step-end infinite;
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, var(--voxver-bg-tertiary) 25%, var(--voxver-bg-elevated) 50%, var(--voxver-bg-tertiary) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--voxver-bg-tertiary) 25%,
+    var(--voxver-bg-elevated) 50%,
+    var(--voxver-bg-tertiary) 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }
@@ -298,18 +330,74 @@
   animation: progress-stripes 1s linear infinite;
 }
 
-.animate-badge-pulse {
-  animation: badge-pulse 1.5s ease-in-out infinite;
+.animate-indeterminate {
+  animation: indeterminate 1.5s ease-in-out infinite;
 }
 
-/* * 动画延迟工具类 — 错开入场 */
-@for $i from 1 through 5 {
-  .animate-delay-#{$i} {
-    animation-delay: #{$i * 0.1}s;
-  }
+.animate-dots span {
+  animation: dots 1.4s ease-in-out infinite both;
+  &:nth-child(1) { animation-delay: -0.32s; }
+  &:nth-child(2) { animation-delay: -0.16s; }
+  &:nth-child(3) { animation-delay: 0s; }
 }
 
-/* * GPU 加速 — 将动画提升到合成层 */
+.animate-slide-in-right {
+  animation: slide-in-right var(--voxver-transition-normal) var(--voxver-ease-out-quart) forwards;
+}
+
+.animate-slide-out-right {
+  animation: slide-out-right var(--voxver-transition-fast) var(--voxver-ease-out-quart) forwards;
+}
+
+.animate-slide-down-sm {
+  animation: slide-down-sm 0.2s ease forwards;
+}
+
+.animate-modal-in {
+  animation: modal-in var(--voxver-transition-normal) var(--voxver-ease-out-quart) forwards;
+}
+
+.animate-modal-out {
+  animation: modal-out var(--voxver-transition-normal) var(--voxver-ease-out-quart) forwards;
+}
+
+.animate-overlay-in {
+  animation: overlay-in var(--voxver-transition-normal) ease-out forwards;
+}
+
+.animate-overlay-out {
+  animation: overlay-out var(--voxver-transition-normal) ease-in forwards;
+}
+
+/* ================================================================
+   动画延迟工具类
+   ================================================================ */
+.animate-delay-1 { animation-delay: 0.1s; }
+.animate-delay-2 { animation-delay: 0.2s; }
+.animate-delay-3 { animation-delay: 0.3s; }
+.animate-delay-4 { animation-delay: 0.4s; }
+.animate-delay-5 { animation-delay: 0.5s; }
+.animate-delay-6 { animation-delay: 0.6s; }
+.animate-delay-7 { animation-delay: 0.7s; }
+.animate-delay-8 { animation-delay: 0.8s; }
+.animate-delay-9 { animation-delay: 0.9s; }
+.animate-delay-10 { animation-delay: 1.0s; }
+
+/* * 列表项错开入场 */
+.stagger-item:nth-child(1) { animation-delay: 0ms; }
+.stagger-item:nth-child(2) { animation-delay: 50ms; }
+.stagger-item:nth-child(3) { animation-delay: 100ms; }
+.stagger-item:nth-child(4) { animation-delay: 150ms; }
+.stagger-item:nth-child(5) { animation-delay: 200ms; }
+.stagger-item:nth-child(6) { animation-delay: 250ms; }
+.stagger-item:nth-child(7) { animation-delay: 300ms; }
+.stagger-item:nth-child(8) { animation-delay: 350ms; }
+.stagger-item:nth-child(9) { animation-delay: 400ms; }
+.stagger-item:nth-child(10) { animation-delay: 450ms; }
+
+/* ================================================================
+   GPU 加速
+   ================================================================ */
 .gpu-accelerated {
   will-change: transform, opacity;
   transform: translateZ(0);
@@ -325,29 +413,19 @@
   transform: translateZ(0);
 }
 
-/* * 缩放退出工具类 */
-.animate-scale-out {
-  animation: scale-out var(--voxver-transition-normal) var(--voxver-ease-out-quart) forwards;
-}
+/* ================================================================
+   过渡工具类
+   ================================================================ */
+.transition-none { transition: none; }
+.transition-all { transition: all var(--voxver-transition-normal); }
+.transition-colors { transition: color var(--voxver-transition-fast), background-color var(--voxver-transition-fast), border-color var(--voxver-transition-fast); }
+.transition-opacity { transition: opacity var(--voxver-transition-fast); }
+.transition-shadow { transition: box-shadow var(--voxver-transition-fast); }
+.transition-transform { transition: transform var(--voxver-transition-fast); }
 
-/* * 不定进度条工具类 */
-.animate-indeterminate {
-  animation: indeterminate 1.5s ease-in-out infinite;
-}
-
-/* * 列表项错开入场 */
-.stagger-item:nth-child(1) { animation-delay: 0ms; }
-.stagger-item:nth-child(2) { animation-delay: 50ms; }
-.stagger-item:nth-child(3) { animation-delay: 100ms; }
-.stagger-item:nth-child(4) { animation-delay: 150ms; }
-.stagger-item:nth-child(5) { animation-delay: 200ms; }
-.stagger-item:nth-child(6) { animation-delay: 250ms; }
-.stagger-item:nth-child(7) { animation-delay: 300ms; }
-.stagger-item:nth-child(8) { animation-delay: 350ms; }
-.stagger-item:nth-child(9) { animation-delay: 400ms; }
-.stagger-item:nth-child(10) { animation-delay: 450ms; }
-
-/* * 交互效果工具类 */
+/* ================================================================
+   交互效果工具类
+   ================================================================ */
 .hover-lift {
   transition: transform var(--voxver-transition-fast);
 }
@@ -388,7 +466,9 @@
   box-shadow: 0 0 0 3px var(--voxver-primary-light);
 }
 
-/* ! 无障碍：尊重用户减少动画偏好 */
+/* ================================================================
+   无障碍：尊重用户减少动画偏好
+   ================================================================ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
