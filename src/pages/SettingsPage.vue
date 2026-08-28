@@ -274,7 +274,7 @@
                 </svg>
                 {{ $t('more.checkUpdate') }}
               </button>
-              <a class="action-btn small ghost" href="https://github.com/nnkmn/voxver-launcher" target="_blank">
+              <a class="action-btn small ghost" href="https://github.com/MeowY-Studios/VoxVer-Launcher" target="_blank">
                 {{ $t('more.viewSource') }}
               </a>
             </div>
@@ -385,7 +385,7 @@
             <div class="credit-info">
               <span class="credit-name">Lumin UI/UX</span>
               <span class="credit-role">
-                <a href="https://github.com/nnkmn/Lumin-UI-UX" target="_blank" style="color:var(--voxver-primary);text-decoration:none;font-size:12px">{{ $t('settings.aboutSection.luminUiux') }}</a>
+                <a href="https://github.com/MeowY-Studios/Lumin-UI-UX" target="_blank" style="color:var(--voxver-primary);text-decoration:none;font-size:12px">{{ $t('settings.aboutSection.luminUiux') }}</a>
               </span>
             </div>
           </div>
@@ -458,7 +458,7 @@
         <h3 class="sec-title">{{ $t('settings.aboutSection.relatedLinks') }}</h3>
         <p class="sec-desc">{{ $t('settings.aboutSection.relatedDesc') }}</p>
         <div class="link-grid">
-          <a class="link-item" href="https://github.com/nnkmn/voxver-launcher" target="_blank">
+          <a class="link-item" href="https://github.com/MeowY-Studios/VoxVer-Launcher" target="_blank">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" />
             </svg>
@@ -478,7 +478,7 @@
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17l10-10M7 7h10v10" /></svg>
             </span>
           </a>
-          <a class="link-item" href="https://github.com/nnkmn/voxver-launcher/releases" target="_blank">
+          <a class="link-item" href="https://github.com/MeowY-Studios/VoxVer-Launcher/releases" target="_blank">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
@@ -1701,7 +1701,7 @@
               <p class="sec-desc" style="margin:2px 0 0">{{ $t('settings.contributeTranslationDesc') }}</p>
             </div>
           </div>
-          <a class="action-btn small outline" href="https://github.com/nnkmn/voxver-launcher" target="_blank" rel="noopener" style="flex-shrink:0">
+          <a class="action-btn small outline" href="https://github.com/MeowY-Studios/VoxVer-Launcher" target="_blank" rel="noopener" style="flex-shrink:0">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
             {{ $t('settings.goToTranslate') }}
           </a>
@@ -2728,7 +2728,7 @@
             </div>
             <div class="feedback-card-title">{{ $t('more.issueFeedback') }}</div>
             <p class="feedback-card-desc">{{ $t('more.issueDesc') }}</p>
-            <a class="action-btn outline" href="https://github.com/nnkmn/voxver-launcher/issues" target="_blank">
+            <a class="action-btn outline" href="https://github.com/MeowY-Studios/VoxVer-Launcher/issues" target="_blank">
               {{ $t('more.goToGitHub') }}
             </a>
           </div>
