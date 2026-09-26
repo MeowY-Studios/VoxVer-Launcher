@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.7.2-14b8a6?style=flat-square&labelColor=1e1e2e)
+![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.7.3-14b8a6?style=flat-square&labelColor=1e1e2e)
 ![Electron](https://img.shields.io/badge/Electron-42-478cbf?style=flat-square&logo=electron&logoColor=white)
 ![Vue](https://img.shields.io/badge/Vue-3.5-4db08b?style=flat-square&logo=vuedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6?style=flat-square&logo=typescript&logoColor=white)
@@ -19,7 +19,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 ## 📋 目录
 
 - [📥 下载](#-下载)
-- [🆕 v0.7.2 最近更新](#-v072-最近更新)
+- [🆕 v0.7.3 最近更新](#-v073-最近更新)
 - [✨ 功能概览](#-功能概览)
 - [🖥️ 支持平台](#️-支持平台)
 - [📦 相关文档](#-相关文档)
@@ -30,19 +30,48 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 ## 📥 下载
 
-**[👉 前往 GitHub Releases 下载 v0.7.2](https://github.com/MeowY-Studios/VoxVer-Launcher/releases)**
+**[👉 前往 GitHub Releases 下载 v0.7.3](https://github.com/MeowY-Studios/VoxVer-Launcher/releases)**
 
 ---
 
-## 🆕 v0.7.2 最近更新
+## 🆕 v0.7.3 最近更新
 
-### 🔄 更新检查双链路（新增）
+### 🖥️ 独立版本更新页（新增）
+- 设置页「检查更新」改为跳转**独立全屏更新页**（`/update`）：顶栏返回与窗口控制、横幅 Logo + 版本号、状态胶囊实时反馈（检查中 / 已是最新版本 / 有新版本可用）
+- 页面内直接查看 GitHub 最新 Release 的**发布说明**（Markdown 渲染，内容白名单过滤）
+- 底部操作栏：检查更新 / 下载更新 / 取消下载 / 安装更新，进度条 + 已传输/总量 + 实时速度（MB/s）
+- 检测到更新后状态可恢复：退出重进更新页仍可继续下载或安装
+- 提供直达 GitHub Releases 的外链
+
+### 🌊 水波纹横幅
+- 更新页横幅采用零依赖 WebGL 丝绸水波纹动画（`SilkBackground` 组件），跟随主题色渲染
+
+### 🛠 修复
+- 修复设置页「检查更新」按钮点击无反应的问题
+- 修复已是最新版本时无任何提示的问题（状态胶囊明确展示）
+- 修复下载过程无状态反馈的问题
+
+### ⚙️ 优化
+- 检查更新双链路仲裁：GitHub API 版本对比结论优先，`latest.yml` 滞后时自动兜底
+- 下载支持随时取消（CancellationToken），取消后状态即时复位
+- `builder-util-runtime` 固定 9.5.1，与 electron-updater 内嵌副本对齐，修复跨副本取消令牌失效
+
+---
+
+### v0.7.2 主要内容
+
+<details>
+<summary>展开查看</summary>
+
+#### 🔄 更新检查双链路
 - 检查更新改为 **GitHub API 版本对比链路**：直接比对本地版本与 GitHub 最新 Release，不再依赖 `latest.yml`
 - 点击按钮后的所有结果均有可见反馈：发现新版本弹「新版本可用」弹窗（可下载安装）、版本一致弹「已是最新版本」弹窗、检查失败弹错误详情
 - 按钮增加「检查中」禁用态与 12 秒超时自动恢复
 - 启动时自动检查同样走版本对比链路，检测结果在设置页可恢复展示
 - 下载/安装仍由 electron-updater 执行：元数据未就绪时自动补检后再下载；`latest.yml` 滞后时以 API 对比结论为准
 - 开发模式下版本检测同样可用
+
+</details>
 
 ---
 

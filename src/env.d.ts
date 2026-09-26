@@ -343,8 +343,9 @@ interface ElectronAPI {
     onDependencyProgress: (callback: (data: { modPath: string; depName: string; progress: number }) => void) => () => void
   }
   updater: {
-    check: () => Promise<{ success: boolean; data?: { currentVersion: string; latestVersion: string | null; hasUpdate: boolean; error: string | null } }>
+    check: () => Promise<{ success: boolean; data?: { currentVersion: string; latestVersion: string | null; hasUpdate: boolean; notes: string | null; error: string | null } }>
     download: () => Promise<{ success: boolean }>
+    cancel: () => Promise<{ success: boolean }>
     install: () => Promise<{ success: boolean }>
     getStatus: () => Promise<{ success: boolean; data: unknown }>
     getConfig: () => Promise<{ channel: string; autoCheck: boolean }>

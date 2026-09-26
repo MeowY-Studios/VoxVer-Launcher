@@ -1,15 +1,18 @@
 import { autoUpdater, UpdateInfo } from 'electron-updater'
+import { CancellationToken } from 'builder-util-runtime'
 import { app, net, BrowserWindow, ipcMain } from 'electron'
 import { logger } from '../utils/logger'
 const log = logger.child('Updater')
 
 const GITHUB_LATEST_RELEASE_API = 'https://api.github.com/repos/MeowY-Studios/VoxVer-Launcher/releases/latest'
 
-/** 版本比对结果（点击"检查更新"按钮时返回给渲染端） */
+/** 版本比对结果（"检查更新"入口返回给渲染端） */
 export interface LatestVersionCheckResult {
   currentVersion: string
   latestVersion: string | null
   hasUpdate: boolean
+  /** 最新 Release 的发布说明（GitHub Release body，markdown） */
+  notes: string | null
   error: string | null
 }
 
@@ -53,10 +56,11 @@ export async function checkLatestVersionFromGitHub(): Promise<LatestVersionCheck
       headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'VoxVer-Launcher' }
     })
     if (!res.ok) throw new Error(`GitHub API HTTP ${res.status}`)
-    const data = (await res.json()) as { tag_name?: unknown }
+    const data = (await res.json()) as { tag_name?: unknown; body?: unknown }
     const tag = typeof data.tag_name === 'string' ? data.tag_name : ''
     const latestVersion = parseVersionFromTag(tag)
     if (!latestVersion) throw new Error(`无法解析版本号: ${tag}`)
+    const notes = typeof data.body === 'string' && data.body.trim() ? data.body : null
     const hasUpdate = compareVersions(latestVersion, currentVersion) > 0
     log.info(
       `[updater.checkVersion] current=${currentVersion} latest=${latestVersion} hasUpdate=${hasUpdate}`
@@ -69,14 +73,15 @@ export async function checkLatestVersionFromGitHub(): Promise<LatestVersionCheck
       currentStatus.available = true
       currentStatus.error = null
       currentStatus.version = latestVersion
+      if (notes) currentStatus.releaseNotes = notes
       broadcastStatus()
       checkForUpdates()
     }
-    return { currentVersion, latestVersion, hasUpdate, error: null }
+    return { currentVersion, latestVersion, hasUpdate, notes, error: null }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     log.error('[updater.checkVersion] Failed:', message)
-    return { currentVersion, latestVersion: null, hasUpdate: false, error: message }
+    return { currentVersion, latestVersion: null, hasUpdate: false, notes: null, error: message }
   }
 }
 
@@ -85,6 +90,12 @@ export interface UpdateStatus {
   available: boolean
   downloading: boolean
   downloadProgress: number
+  /** 已下载字节数 */
+  transferred: number
+  /** 总字节数 */
+  total: number
+  /** 下载速度（字节/秒） */
+  bytesPerSecond: number
   downloaded: boolean
   error: string | null
   version: string | null
@@ -97,11 +108,16 @@ let updateChannel: 'stable' | 'beta' = 'stable'
 let autoCheckUpdate = true
 /** GitHub API 链路检测到的更新版本（优先级高于 electron-updater 的 latest.yml 结论） */
 let apiUpdateDetectedVersion: string | null = null
+/** 下载取消令牌（取消下载用） */
+let downloadToken: CancellationToken | null = null
 const currentStatus: UpdateStatus = {
   checking: false,
   available: false,
   downloading: false,
   downloadProgress: 0,
+  transferred: 0,
+  total: 0,
+  bytesPerSecond: 0,
   downloaded: false,
   error: null,
   version: null,
@@ -171,6 +187,9 @@ export function initAutoUpdater(window: BrowserWindow): void {
   autoUpdater.on('download-progress', (progressObj) => {
     currentStatus.downloading = true
     currentStatus.downloadProgress = progressObj.percent
+    currentStatus.transferred = progressObj.transferred
+    currentStatus.total = progressObj.total
+    currentStatus.bytesPerSecond = progressObj.bytesPerSecond
     broadcastStatus()
     log.info(`[updater] Download progress: ${progressObj.percent.toFixed(1)}%`)
   })
@@ -231,11 +250,15 @@ export function startDownload(): void {
   }
   currentStatus.downloading = true
   currentStatus.downloadProgress = 0
+  currentStatus.transferred = 0
+  currentStatus.total = 0
+  currentStatus.bytesPerSecond = 0
   currentStatus.error = null
   broadcastStatus()
   log.info('[updater.download] Initiating download, version:', currentStatus.version)
   log.info('[updater.download] Has cached result:', cachedUpdateCheckResult ? 'yes' : 'no')
 
+  downloadToken = new CancellationToken()
   // 双链路衔接：元数据未就绪时先补一次检查，再启动下载
   const ready = cachedUpdateCheckResult
     ? Promise.resolve(cachedUpdateCheckResult)
@@ -247,19 +270,41 @@ export function startDownload(): void {
         })
 
   ready
-    .then(() => autoUpdater.downloadUpdate())
+    .then(() => autoUpdater.downloadUpdate(downloadToken ?? undefined))
     .then((result) => {
       log.info('[updater.download] Download started, result type:', typeof result)
     })
     .catch((err: unknown) => {
       currentStatus.downloading = false
+      if (downloadToken?.cancelled) {
+        // 用户取消：不作为错误呈现
+        currentStatus.downloadProgress = 0
+        currentStatus.transferred = 0
+        currentStatus.total = 0
+        currentStatus.bytesPerSecond = 0
+        downloadToken = null
+        broadcastStatus()
+        log.info('[updater.download] Download cancelled by user')
+        return
+      }
       currentStatus.error = err instanceof Error ? err.message : String(err)
+      downloadToken = null
       broadcastStatus()
       log.error(
         '[updater.download] Failed to start download:',
         err instanceof Error ? err.message : err
       )
     })
+}
+
+/** 取消当前下载（electron-updater 通过 CancellationToken 取消） */
+export function cancelDownload(): void {
+  if (!downloadToken) {
+    log.warn('[updater.cancel] No download in progress')
+    return
+  }
+  log.info('[updater.cancel] Cancelling download...')
+  downloadToken.cancel()
 }
 
 export function installUpdate(): void {

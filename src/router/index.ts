@@ -77,6 +77,12 @@ const router = createRouter({
       name: 'crash-analysis',
       component: () => import('../pages/CrashAnalysisPage.vue'),
       meta: { title: '崩溃分析' }
+    },
+    {
+      path: '/update',
+      name: 'update',
+      component: () => import('../pages/UpdatePage.vue'),
+      meta: { title: '版本更新' }
     }
   ]
 })

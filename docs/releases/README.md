@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.7.2-14b8a6?style=flat-square&labelColor=1e1e2e)
+![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.7.3-14b8a6?style=flat-square&labelColor=1e1e2e)
 ![Electron](https://img.shields.io/badge/Electron-42-478cbf?style=flat-square&logo=electron&logoColor=white)
 ![Vue](https://img.shields.io/badge/Vue-3.5-4db08b?style=flat-square&logo=vuedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6?style=flat-square&logo=typescript&logoColor=white)
@@ -19,7 +19,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 ## 📋 目录
 
 - [📥 下载](#-下载)
-- [🆕 v0.6.3 最近更新](#-v063-最近更新)
+- [🆕 v0.7.3 最近更新](#-v073-最近更新)
 - [✨ 功能概览](#-功能概览)
 - [🖥️ 支持平台](#️-支持平台)
 - [📦 相关文档](#-相关文档)
@@ -30,26 +30,19 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 ## 📥 下载
 
-**[👉 前往 GitHub Releases 下载 v0.7.2](https://github.com/MeowY-Studios/VoxVer-Launcher/releases)**
+**[👉 前往 GitHub Releases 下载 v0.7.3](https://github.com/MeowY-Studios/VoxVer-Launcher/releases)**
 
 ---
 
-## 🆕 v0.6.3 最近更新
+## 🆕 v0.7.3 最近更新
 
-### 启动器设置独立分类
-- **侧边栏新入口**：版权下方新增"启动器"条目，更新通道与自动检查独立管理
-- **分段芯片**：稳定版(绿) / 测试版(黄) + 开启(绿) / 关闭(红)，右侧状态圆点实时反馈
+### 独立版本更新页
+- 设置页「检查更新」改为跳转独立全屏更新页（`/update`）：横幅 Logo + 版本号 + 状态胶囊、更新内容 Markdown 渲染、底部操作栏（检查更新 / 下载更新 / 取消下载 / 安装更新）
+- 下载进度显示已传输/总量与实时速度，支持随时取消
+- 修复设置页检查更新点击无反应、无更新不提示、下载无反馈的问题
 
-### 更新弹窗重构
-- 新版本自动弹出居中 Modal，版本号绿色高亮 + Markdown 渲染更新日志
-- 弹窗内进度条 + 百分比实时显示，下载完成一键重启
-
-### UI 修复
-- vox-chip 浅色模式文字可见性修复，激活态半透明遮罩 + 纯黑/白文字
-- 侧边栏遮罩不跟随滚动，移除主题色选择器
-
-### i18n 补全
-- zh-CN / en-US key 结构完全对齐，新增 11 + 13 条翻译
+### 水波纹横幅
+- 更新页横幅采用零依赖 WebGL 丝绸水波纹动画，颜色跟随主题色
 
 ---
 
@@ -79,7 +72,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 | 平台 | 状态 | 架构 |
 |------|------|------|
 | Windows 10+ | ✅ 已支持 | x64 |
-| macOS | ⏳ 计划中 | x64 / arm64 |
+| macOS | ✅ 已支持 (CI) | x64 / arm64 |
 | Linux | ⏳ 计划中 | x64 |
 
 ---
@@ -93,7 +86,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 | [🔖 版本说明](docs/releases) | 各版本发布说明与升级指南 |
 | [📢 声明与致谢](NOTICE.md) | 第三方依赖、商标声明 |
 | [⚖️ 协议](LICENSE) | MIT 开源协议全文 |
-| [📝 文档网站](https://voxver.linpork.top) | voxver 文档网站，包含安装指南、使用说明、故障排除等。 |
+| [📝 文档网站](https://voxver.meow-studio.tech) | VoxVer 文档网站，包含安装指南、使用说明、故障排除等。 |
 
 ---
 
@@ -101,9 +94,11 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 > 本项目已从 **MCLA (Minecraft Launcher Alpha)** 正式更名为 **VoxVer Launcher**。
 >
-> - 新仓库地址：[nnkmn/VoxVer-Launcher](https://github.com/nnkmn/VoxVer-Launcher)
+> - 仓库地址：[MeowY-Studios/VoxVer-Launcher](https://github.com/MeowY-Studios/VoxVer-Launcher)
 > - 新 App ID：`com.voxver.launcher`
 > - 所有功能保持不变，仅品牌标识更新。
+>
+> 仓库已由 nnkmn 个人账号迁移至 **MeowY-Studios** 组织，旧地址会自动跳转。
 
 ---
 
@@ -117,6 +112,6 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 <div align="center">
 
-**nnkmn (EccenTri)** — [GitHub](https://github.com/nnkmn)
+**MeowY-Studios (EccenTri)** — [GitHub](https://github.com/MeowY-Studios)
 
 </div>

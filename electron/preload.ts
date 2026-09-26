@@ -615,6 +615,7 @@ const api = {
   updater: {
     check: () => ipcRenderer.invoke('updater:check'),
     download: () => ipcRenderer.invoke('updater:download'),
+    cancel: () => ipcRenderer.invoke('updater:cancel'),
     install: () => ipcRenderer.invoke('updater:install'),
     getStatus: () => ipcRenderer.invoke('updater:status'),
     getConfig: () => ipcRenderer.invoke('updater:get-config'),

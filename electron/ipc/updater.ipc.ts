@@ -2,6 +2,7 @@ import { ipcMain } from 'electron'
 import {
   checkLatestVersionFromGitHub,
   startDownload,
+  cancelDownload,
   installUpdate,
   getUpdateStatus,
   setUpdateChannel,
@@ -18,6 +19,11 @@ export function registerUpdaterHandlers(): void {
 
   ipcMain.handle('updater:download', async () => {
     startDownload()
+    return { success: true }
+  })
+
+  ipcMain.handle('updater:cancel', async () => {
+    cancelDownload()
     return { success: true }
   })
 
