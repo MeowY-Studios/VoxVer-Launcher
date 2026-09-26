@@ -31,6 +31,7 @@ build-log.txt
 .c9/
 .settings/
 .claude/
+.trae/
 
 # ========== 系统文件 ==========
 .DS_Store
