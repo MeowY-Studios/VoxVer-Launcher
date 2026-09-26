@@ -2,8 +2,8 @@
 
 <div align="center">
 
-![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.6.4-14b8a6?style=flat-square&labelColor=1e1e2e)
-![Electron](https://img.shields.io/badge/Electron-33-478cbf?style=flat-square&logo=electron&logoColor=white)
+![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.7.1-14b8a6?style=flat-square&labelColor=1e1e2e)
+![Electron](https://img.shields.io/badge/Electron-42-478cbf?style=flat-square&logo=electron&logoColor=white)
 ![Vue](https://img.shields.io/badge/Vue-3.5-4db08b?style=flat-square&logo=vuedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6?style=flat-square&logo=typescript&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-a78bfa?style=flat-square)
@@ -19,7 +19,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 ## 📋 目录
 
 - [📥 下载](#-下载)
-- [🆕 v0.6.4 最近更新](#-v064-最近更新)
+- [🆕 v0.7.1 最近更新](#-v071-最近更新)
 - [✨ 功能概览](#-功能概览)
 - [🖥️ 支持平台](#️-支持平台)
 - [📦 相关文档](#-相关文档)
@@ -30,19 +30,40 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 ## 📥 下载
 
-**[👉 前往 GitHub Releases 下载 v0.6.4](https://github.com/nnkmn/VoxVer-Launcher/releases)**
+**[👉 前往 GitHub Releases 下载 v0.7.1](https://github.com/MeowY-Studios/VoxVer-Launcher/releases)**
 
 ---
 
-## 🆕 v0.6.4 最近更新
+## 🆕 v0.7.1 最近更新
 
-### 账户管理优化
-- 点击"添加账户"按钮直接跳转到设置页面的"游戏账户与档案"标签页，不再弹出独立的账户管理弹窗，操作更直观流畅
+### 🩺 崩溃分析系统（新增）
+- 游戏异常退出后自动捕获并解析崩溃报告（10 类崩溃特征识别）
+- 新增独立「崩溃分析」页面：历史报告列表、严重程度标签、异常类型与完整堆栈详情
+- 启动页崩溃面板展示异常类型、错误描述、可能原因与建议解决方案
 
-### macOS 系统适配
-- 新增 macOS 双架构构建支持（ARM64 / x64）
-- CI/CD 管道升级，GitHub Actions 自动构建 macOS DMG 安装包
-- Node.js 24 LTS 运行时适配 macOS 26
+### 🎨 Lumin UI/UX 设计系统
+- 合并 [Lumin UI/UX](https://github.com/MeowY-Studios/Lumin-UI-UX)：Modal 弹窗（4 档尺寸 + 响应式）、Toast 通知、Badge 渐变变体与完整动画体系
+- 新增 PxSelect 组件统一替换原生下拉框
+- 全局颜色 Token 化（`--voxver-*` CSS 变量），修复大量深色/浅色主题下的硬编码颜色
+- 页面切换统一 250ms 淡入淡出动画
+
+### 🚀 启动核心与 Mod 生态
+- 集成 XMCL 启动核心，修复 1.16 崩溃与 1.20.1 Forge 自包含版本启动问题
+- Java 版本按 MC 版本自动选择（8 / 11 / 17 / 21 / 25），LWJGL 2/3 自动区分 `java.exe` / `javaw.exe`
+- Forge / NeoForge / Fabric / Quilt 一键安装，支持 OptiFine 与 Fabric API 自动匹配
+- Mod 管理：CurseForge + Modrinth 双源搜索、批量操作、兼容性检查、图标缓存、导出 zip
+- 下载多源切换与超时控制，新增全局下载进度面板
+
+### 🧩 实例与联机
+- 自动导入当前游戏目录中检测到的本地版本
+- P2P 实例分享（WebRTC + 6 位分享码）设置分区独立，新增联机分区
+
+### 🌍 其他
+- **修复关于页在打包版本中空白的问题**（i18n 词条中 `@` 字符触发 `Invalid linked format`）
+- i18n 补全：修复 560+ 处硬编码文本，新增约 300 个词条
+- 仓库迁移至 MeowY-Studios 组织，文档站迁移至 voxver.meow-studio.tech
+- Electron 升级至 42，better-sqlite3 升级至 12，GitHub Actions 运行时升级 Node 24
+- 集成 Codex Security 提交前安全扫描
 
 ---
 
@@ -86,7 +107,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 | [🔖 版本说明](docs/releases) | 各版本发布说明与升级指南 |
 | [📢 声明与致谢](NOTICE.md) | 第三方依赖、商标声明 |
 | [⚖️ 协议](LICENSE) | MIT 开源协议全文 |
-| [📝 文档网站](https://voxver.linpork.top) | voxver 文档网站，包含安装指南、使用说明、故障排除等。 |
+| [📝 文档网站](https://voxver.meow-studio.tech) | VoxVer 文档网站，包含安装指南、使用说明、故障排除等。 |
 
 ---
 
@@ -94,9 +115,11 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 > 本项目已从 **MCLA (Minecraft Launcher Alpha)** 正式更名为 **VoxVer Launcher**。
 >
-> - 新仓库地址：[nnkmn/VoxVer-Launcher](https://github.com/nnkmn/VoxVer-Launcher)
+> - 仓库地址：[MeowY-Studios/VoxVer-Launcher](https://github.com/MeowY-Studios/VoxVer-Launcher)
 > - 新 App ID：`com.voxver.launcher`
 > - 所有功能保持不变，仅品牌标识更新。
+>
+> 仓库已由 nnkmn 个人账号迁移至 **MeowY-Studios** 组织，旧地址会自动跳转。
 
 ---
 
@@ -110,6 +133,6 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 <div align="center">
 
-**nnkmn (EccenTri)** — [GitHub](https://github.com/nnkmn)
+**MeowY-Studios (EccenTri)** — [GitHub](https://github.com/MeowY-Studios)
 
 </div>

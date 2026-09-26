@@ -1830,7 +1830,7 @@ export default {
       koringUi: 'Koring 设置页面排版与内容',
       archReference: '模块化架构参考（墨痕工作室）',
       xmcl: 'X Minecraft Launcher (XMCL)',
-      xmclRole: '启动核心与工具集（@xmcl）',
+      xmclRole: "启动核心与工具集（{'@'}xmcl）",
       luminUiux: '设计系统与 UI 组件库',
       releases: '发布与更新',
       docs: '文档站',

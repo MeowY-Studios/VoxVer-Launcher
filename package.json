@@ -1,6 +1,6 @@
 {
   "name": "voxver-launcher",
-  "version": "0.6.4",
+  "version": "0.7.1",
   "description": "VoxVer Launcher - 一个现代化的 Minecraft 启动器，支持微软正版登录、版本管理、Mod 下载",
   "main": "./out/main/index.js",
   "author": "EccenTri",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nnkmn/VoxVer-Launcher.git"
+    "url": "https://github.com/MeowY-Studios/VoxVer-Launcher.git"
   },
   "scripts": {
     "dev": "npm run build && cross-env NODE_ENV=development electron .",

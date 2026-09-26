@@ -1775,7 +1775,7 @@ export default {
       koringUi: 'Koring Settings Page Design & Content',
       archReference: 'Modular Architecture Reference (Mohen Studio)',
       xmcl: 'X Minecraft Launcher (XMCL)',
-      xmclRole: 'Launcher Core & Toolkits (@xmcl)',
+      xmclRole: "Launcher Core & Toolkits ({'@'}xmcl)",
       luminUiux: 'Design System & UI Component Library',
       releases: 'Releases & Updates',
       docs: 'Documentation',

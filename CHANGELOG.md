@@ -1,5 +1,46 @@
 # 更新日志
 
+## v0.7.1 — 2026-09-26
+
+### 新增功能
+- **崩溃分析系统**：游戏异常退出后自动捕获并解析崩溃报告（10 类崩溃特征）；新增独立「崩溃分析」页面（`/crash-analysis`），提供历史报告列表、严重程度标签、异常类型与堆栈详情；启动页崩溃面板展示错误描述、可能原因与建议解决方案
+- **XMCL 启动核心集成**：基于 @xmcl/* 工具链重写启动流程，修复 1.16 崩溃与 1.20.1 Forge 自包含版本启动问题
+- **Java 自动选择**：按 MC 版本匹配 Java 8/11/17/21/25；LWJGL 2（1.17-）用 `java.exe`、LWJGL 3（1.18+）用 `javaw.exe`
+- **ModLoader 系统**：Forge / NeoForge / Fabric / Quilt 一键安装与互斥切换；OptiFine 与 Fabric API 自动匹配兼容版本；智能动态版本命名
+- **Mod 管理**：CurseForge + Modrinth 双源搜索/下载、Pinia Store、批量操作、兼容性检查与角标、排序、图标缓存、导出 zip
+- **下载系统**：多源切换（BMCLAPI 镜像）与超时控制、IPC 实时进度、全局下载进度面板、缓存
+- **实例管理增强**：检测本地版本并支持导入为托管实例；实例自动导入
+- **P2P 分享与联机**：6 位分享码 + WebRTC 直连分享实例；设置侧栏拆分 P2P / 联机独立分区
+- **Lumin UI/UX 设计系统合并**：Modal 弹窗（4 档尺寸 + 响应式）、Toast 通知（4 种状态）、Badge 渐变变体、modal/overlay 动画关键帧与过渡工具类
+- **PxSelect 组件**：统一替换设置页原生下拉框
+- **i18n 体系**：修复 560+ 处硬编码中文文本，新增约 300 个 locale key，覆盖 33 个文件
+
+### 修复
+- **关于页空白（打包版）**：i18n 词条 `xmclRole` 中的 `@` 字符被 vue-i18n 当作链接消息语法解析，生产构建抛出 `Invalid linked format` 导致整个设置组件卸载；改用 `{'@'}` 字面量转义（中英文同步修复）
+- JVM 参数不再用 Set 去重，保留全部 `--add-opens`，修复 `ClassNotFoundException`；统一 G1GC 替代 CMS GC
+- 类路径去重修复 `Duplicate key`；版本号提取正则锚定开头，避免从整合包名误提取
+- 游戏进程日志捕获（`[Game-STDOUT]`/`[Game-STDERR]`），异常退出转储最后 200 行
+- DownloadStatus 类型缺少 `queued`/`error` 映射导致的编译错误
+- 多处硬编码颜色（`#ef4444`/`#22c55e`/`#f59e0b`/`#fff`/`#0a0a18` 等）替换为 `--voxver-*` CSS 变量，修复深浅色主题兼容性
+- `color-scheme` 统一为 `dark light`，修复下拉框/输入框在浅色主题下的渲染问题
+- 清空游戏目录时清除上次选择版本，修复启动按钮显示失效版本
+- ReceiveModal/ShareModal 缺失按钮样式与导入
+- VersionSettings 孤立选择器清理
+
+### 优化
+- 全局颜色 Token 化（`--voxver-*` 变量 + `color-mix(in oklab, ...)` 替代 rgba 硬编码）
+- 页面切换统一 250ms 淡入淡出动画（enter translateY(8px) / leave translateY(-4px)）
+- GitHub 链接迁移至 MeowY-Studios 组织（7 处），文档站迁移至 voxver.meow-studio.tech
+- 关于页新增 Lumin UI/UX 项目信息致谢项
+
+### 工程
+- 集成 @openai/codex-security pre-commit 安全扫描
+- Electron 42.6.1 + better-sqlite3 12（ABI 146 预编译兼容）
+- GitHub Actions 升级 actions/checkout@v5、setup-node@v5（Node.js 24）
+- electron-vite 构建输出统一 CJS 格式
+
+---
+
 ## v0.6.4 — 2026-07-17
 
 ### 账户管理优化
