@@ -164,18 +164,37 @@
           <line x1="12" y1="17" x2="12.01" y2="17" />
         </svg>
         <h3>{{ $t('launch.gameCrash') }}</h3>
+        <button class="crash-close" @click="dismissCrashReport" :title="$t('common.close')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
       </div>
       <div class="crash-body">
-        <p class="crash-cause"><strong>{{ $t('launch.crashCause') }}</strong>{{ crashReport.cause }}</p>
-        <div v-if="crashReport.recommendedActions?.length" class="crash-actions">
+        <p class="crash-exception">
+          <strong>{{ crashReport.crashCause.exception }}</strong>
+        </p>
+        <p class="crash-message">{{ crashReport.crashCause.message }}</p>
+        <p v-if="crashReport.description" class="crash-desc">{{ crashReport.description }}</p>
+        
+        <div v-if="crashReport.suggestedSolutions?.length" class="crash-actions">
           <strong>{{ $t('launch.suggestedActions') }}</strong>
           <ul>
-            <li v-for="(action, i) in crashReport.recommendedActions" :key="i">{{ action }}</li>
+            <li v-for="(action, i) in crashReport.suggestedSolutions" :key="i">{{ action }}</li>
           </ul>
         </div>
+
+        <div v-if="crashReport.possibleCauses?.length" class="crash-causes">
+          <strong>{{ $t('launch.possibleCauses') }}</strong>
+          <ul>
+            <li v-for="(cause, i) in crashReport.possibleCauses" :key="i">{{ cause }}</li>
+          </ul>
+        </div>
+
         <details class="crash-stack">
           <summary>{{ $t('launch.viewCrashStack') }}</summary>
-          <pre>{{ crashReport.stackTrace?.join('\n') || $t('launch.noStack') }}</pre>
+          <pre>{{ crashReport.crashCause.stackTrace?.join('\n') || crashReport.rawContent || $t('launch.noStack') }}</pre>
         </details>
       </div>
     </section>
@@ -186,6 +205,7 @@
 import { ref, computed, onMounted, onUnmounted, inject, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import type { CrashReport } from '../types/crash'
 import { useVersionsStore, useAccountsStore, useInstancesStore } from '../stores'
 
 const { t, locale } = useI18n()
@@ -210,13 +230,9 @@ let logListener: ((...args: unknown[]) => void) | null = null
 let exitListener: ((data: { code: number; signal: string | null; instanceId?: string }) => void) | null = null
 let progressListener: ((...args: unknown[]) => void) | null = null
 
-// 崩溃报告（简化版）
-interface CrashInfo {
-  cause: string
-  recommendedActions: string[]
-  stackTrace?: string[]
-}
-const crashReport = ref<CrashInfo | null>(null)
+// 崩溃报告（使用统一类型）
+const crashReport = ref<CrashReport | null>(null)
+const crashLoading = ref(false)
 
 // ====== 计算属性 ======
 const mcPathDisplay = computed(() => {
@@ -298,6 +314,34 @@ async function terminateGame() {
   } catch (e) {
     addLog(`[VoxVer] 终止游戏进程失败: ${(e as Error).message || e}`)
   }
+}
+
+// 获取崩溃报告
+async function fetchCrashReport() {
+  const api = window.electronAPI
+  if (!api?.crash?.latest) return
+
+  crashLoading.value = true
+  try {
+    // 获取当前游戏目录
+    const mcPath = await getCurrentMcPath()
+    if (!mcPath) return
+
+    const result = await api.crash.latest(mcPath)
+    if (result?.ok && result.data) {
+      crashReport.value = result.data
+      addLog(`[VoxVer] 崩溃分析: ${result.data.crashCause.exception}`)
+    }
+  } catch (e) {
+    addLog(`[VoxVer] 获取崩溃报告失败: ${(e as Error).message || e}`)
+  } finally {
+    crashLoading.value = false
+  }
+}
+
+// 关闭崩溃面板
+function dismissCrashReport() {
+  crashReport.value = null
 }
 
 /** 检查游戏是否在运行 */
@@ -452,13 +496,15 @@ onMounted(async () => {
 
   // 注册退出监听
   if (window.electronAPI?.game.onExit) {
-    exitListener = (data) => {
+    exitListener = async (data) => {
       isRunning.value = false
       isLaunching.value = false
       addLog(`[VoxVer] 游戏进程退出，退出码: ${data.code}`)
       if (data.code !== 0) {
         hasError.value = true
         statusMessage.value = `${t('launch.gameAbnormalExit')} (exit code ${data.code})`
+        // 尝试获取崩溃报告
+        await fetchCrashReport()
       } else {
         statusMessage.value = t('launch.gameNormalExit')
       }
@@ -779,6 +825,26 @@ onUnmounted(() => {
     font-size: 17px;
     font-weight: 600;
     color: var(--voxver-text-error);
+    flex: 1;
+  }
+}
+
+.crash-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--voxver-text-muted);
+  border-radius: var(--voxver-radius-sm);
+  cursor: pointer;
+  transition: all var(--voxver-transition-fast);
+
+  &:hover {
+    background: color-mix(in oklab, var(--voxver-text) 5%, transparent);
+    color: var(--voxver-text-primary);
   }
 }
 
@@ -787,17 +853,39 @@ onUnmounted(() => {
   color: var(--voxver-text-secondary);
   font-size: 13.5px;
 
-  .crash-cause {
+  .crash-exception {
     color: var(--voxver-text-error);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .crash-message {
+    color: var(--voxver-text-secondary);
+    margin-bottom: 8px;
+    word-break: break-word;
+  }
+
+  .crash-desc {
+    color: var(--voxver-text-muted);
+    font-size: 12.5px;
     margin-bottom: 10px;
   }
 
-  .crash-actions {
+  .crash-actions,
+  .crash-causes {
+    margin-top: 10px;
+
+    strong {
+      color: var(--voxver-text-primary);
+      font-size: 13px;
+    }
+
     ul {
       margin: 8px 0;
       padding-left: 20px;
       li {
         margin: 4px 0;
+        color: var(--voxver-text-secondary);
       }
     }
   }

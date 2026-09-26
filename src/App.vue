@@ -984,7 +984,22 @@ onMounted(async () => {
   {
     const savedDisplayName = localStorage.getItem('voxver_last_version_name')
     const lastId = localStorage.getItem('voxver_last_version')
-    if (savedDisplayName && lastId) {
+    // 检查 .minecraft 路径是否有效（用户配置了文件夹）
+    let hasValidPath = false
+    try {
+      const foldersList = await window.electronAPI?.folders?.list?.()
+      hasValidPath = !!(minecraftPath.value && foldersList && foldersList.length > 0)
+    } catch {
+      hasValidPath = !!minecraftPath.value
+    }
+    // 如果没有有效的 .minecraft 路径，清除版本选择
+    if (!hasValidPath) {
+      selectedVersionId.value = ''
+      selectedVersion.value = t('home.downloadFirst')
+      userHasSelectedVersion.value = false
+      localStorage.removeItem('voxver_last_version')
+      localStorage.removeItem('voxver_last_version_name')
+    } else if (savedDisplayName && lastId) {
       // * 优先用精确保存的版本名恢复
       const match = versions.value.find((v) => v.id === lastId)
       if (match) {

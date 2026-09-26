@@ -3229,6 +3229,9 @@ async function removeFolder(path: string) {
     } else {
       currentFolderPath.value = ''
       currentFolderName.value = ''
+      // 清除版本选择
+      localStorage.removeItem('voxver_last_version')
+      localStorage.removeItem('voxver_last_version_name')
     }
   }
 }

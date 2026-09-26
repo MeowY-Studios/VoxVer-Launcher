@@ -331,6 +331,11 @@ async function removeFolder(path: string) {
   if (api?.folders) {
     await api.folders.remove(path)
   }
+  // 如果没有文件夹了，清除版本选择
+  if (folders.value.length === 0) {
+    localStorage.removeItem('voxver_last_version')
+    localStorage.removeItem('voxver_last_version_name')
+  }
 }
 
 async function createMinecraftFolder() {

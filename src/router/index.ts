@@ -71,6 +71,12 @@ const router = createRouter({
       name: 'mod-detail',
       component: () => import('../pages/ModDetailPage.vue'),
       meta: { title: '资源详情' }
+    },
+    {
+      path: '/crash-analysis',
+      name: 'crash-analysis',
+      component: () => import('../pages/CrashAnalysisPage.vue'),
+      meta: { title: '崩溃分析' }
     }
   ]
 })

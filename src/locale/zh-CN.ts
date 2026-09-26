@@ -330,6 +330,7 @@ export default {
     gameCrash: '游戏崩溃',
     crashCause: '原因：',
     suggestedActions: '建议操作：',
+    possibleCauses: '可能原因：',
     viewCrashStack: '查看崩溃堆栈',
     noStack: '无',
     detecting: '正在检测...',
@@ -885,6 +886,29 @@ export default {
     }
   },
 
+  crashAnalysis: {
+    title: '崩溃分析',
+    description: '查看和分析游戏崩溃报告，帮助诊断问题',
+    totalCrashes: '共 {count} 条崩溃记录',
+    noCrashes: '暂无崩溃记录',
+    noCrashesHint: '当游戏崩溃时，系统会自动记录崩溃报告',
+    crashDetail: '崩溃详情',
+    basicInfo: '基本信息',
+    exception: '异常类型',
+    version: '游戏版本',
+    javaVersion: 'Java 版本',
+    os: '操作系统',
+    errorMessage: '错误信息',
+    possibleCauses: '可能原因',
+    suggestedSolutions: '建议解决方案',
+    stackTrace: '堆栈信息',
+    noStackTrace: '暂无堆栈信息',
+    severityLow: '低',
+    severityMedium: '中',
+    severityHigh: '高',
+    severityCritical: '严重'
+  },
+
   instance: {
     instance: '实例',
     instances: '实例',
@@ -1034,6 +1058,8 @@ export default {
     importSuccess: '导入成功！',
     importToManagedSuccess: '「{name}」已导入到实例列表',
     importAsManaged: '导入为已管理实例',
+    autoImport: '自动导入',
+    autoImportSuccess: '已自动导入 {count} 个实例',
     openFolderFailed: '打开文件夹失败',
     createFailed: '创建实例失败',
     loadHistoryFailed: '加载启动历史失败',

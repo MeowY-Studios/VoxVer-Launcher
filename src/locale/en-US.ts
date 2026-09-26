@@ -329,6 +329,7 @@ export default {
     gameCrash: 'Game Crash',
     crashCause: 'Cause: ',
     suggestedActions: 'Suggested Actions: ',
+    possibleCauses: 'Possible Causes: ',
     viewCrashStack: 'View Crash Stack',
     noStack: 'None',
     detecting: 'Detecting...',
@@ -879,6 +880,29 @@ export default {
     }
   },
 
+  crashAnalysis: {
+    title: 'Crash Analysis',
+    description: 'View and analyze game crash reports to help diagnose issues',
+    totalCrashes: '{count} crash records',
+    noCrashes: 'No crash records',
+    noCrashesHint: 'Crash reports will be automatically recorded when the game crashes',
+    crashDetail: 'Crash Detail',
+    basicInfo: 'Basic Info',
+    exception: 'Exception',
+    version: 'Game Version',
+    javaVersion: 'Java Version',
+    os: 'Operating System',
+    errorMessage: 'Error Message',
+    possibleCauses: 'Possible Causes',
+    suggestedSolutions: 'Suggested Solutions',
+    stackTrace: 'Stack Trace',
+    noStackTrace: 'No stack trace available',
+    severityLow: 'Low',
+    severityMedium: 'Medium',
+    severityHigh: 'High',
+    severityCritical: 'Critical'
+  },
+
   instance: {
     instance: 'Instance',
     instances: 'Instances',
@@ -1029,6 +1053,8 @@ export default {
     importSuccess: 'Import successful!',
     importToManagedSuccess: '「{name}」 has been imported to your instance list',
     importAsManaged: 'Import as Managed Instance',
+    autoImport: 'Auto Import',
+    autoImportSuccess: 'Auto-imported {count} instances',
     openFolderFailed: 'Failed to open folder',
     createFailed: 'Failed to create instance',
     loadHistoryFailed: 'Failed to load launch history',

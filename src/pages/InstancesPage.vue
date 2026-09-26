@@ -985,8 +985,34 @@ async function pickMcFolder() {
     if (api?.folders?.add) await api.folders.add(selected)
     if (api?.folders?.setLast) await api.folders.setLast(selected)
     await rescanVersions()
+    // 自动导入扫描到的所有版本
+    await autoImportDetectedVersions()
   } catch (e) {
     console.error('选择 .minecraft 文件夹失败:', e)
+  }
+}
+
+// 自动导入扫描到的所有版本
+async function autoImportDetectedVersions() {
+  const versionsToImport = [...pendingImportList.value]
+  if (versionsToImport.length === 0) return
+
+  let importedCount = 0
+  for (const dv of versionsToImport) {
+    try {
+      await createInstanceFromDetected(dv, true) // 第二个参数表示静默模式
+      importedCount++
+    } catch {
+      // 单个版本导入失败不影响其他版本
+    }
+  }
+
+  if (importedCount > 0) {
+    window.electronAPI?.notification?.send({
+      title: t('instance.autoImport'),
+      body: (t('instance.autoImportSuccess') as string).replace('{count}', String(importedCount)),
+      type: 'success'
+    })
   }
 }
 
@@ -1021,7 +1047,7 @@ async function openDetectedFolder(dv: DetectedVersion) {
   }
 }
 
-async function createInstanceFromDetected(dv: DetectedVersion) {
+async function createInstanceFromDetected(dv: DetectedVersion, silent = false) {
   try {
     // 仅使用用户显式选择过的路径（folders.last / path.custom），不再回落到 C 盘系统默认
     let customPath = ''
@@ -1055,13 +1081,17 @@ async function createInstanceFromDetected(dv: DetectedVersion) {
     })
 
     await loadInstances()
-    window.electronAPI?.notification?.send({
-      title: t('instance.importInstance'),
-      body: (t('instance.importToManagedSuccess') as string).replace('{name}', dv.id),
-      type: 'success'
-    })
+    if (!silent) {
+      window.electronAPI?.notification?.send({
+        title: t('instance.importInstance'),
+        body: (t('instance.importToManagedSuccess') as string).replace('{name}', dv.id),
+        type: 'success'
+      })
+    }
   } catch {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('instance.createFailed'), type: 'error' })
+    if (!silent) {
+      window.electronAPI?.notification?.send({ title: t('common.error'), body: t('instance.createFailed'), type: 'error' })
+    }
   }
 }
 

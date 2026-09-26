@@ -304,11 +304,11 @@ interface ElectronAPI {
     setLast: (path: string) => Promise<void>
   }
   crash: {
-    parse: (logPath: string, instanceId: string) => Promise<unknown>
-    diagnose: (logPath: string, instanceId: string) => Promise<unknown>
-    list: (gameDir: string) => Promise<unknown[]>
-    latest: (gameDir: string) => Promise<unknown>
-    onCrash: (callback: (data: unknown) => void) => () => void
+    parse: (logPath: string, instanceId: string) => Promise<{ ok: boolean; data: import('./types/crash').CrashReport | null; error?: string }>
+    diagnose: (logPath: string, instanceId: string) => Promise<{ ok: boolean; data: import('./types/crash').CrashDiagnosis | null; error?: string }>
+    list: (gameDir: string) => Promise<{ ok: boolean; data: import('./types/crash').CrashHistoryItem[]; error?: string }>
+    latest: (gameDir: string) => Promise<{ ok: boolean; data: import('./types/crash').CrashReport | null; error?: string }>
+    onCrash: (callback: (data: import('./types/crash').CrashReport) => void) => () => void
   }
   notification: {
     send: (payload: unknown) => Promise<void>
