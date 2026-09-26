@@ -9,7 +9,8 @@ node_modules/
 # ========== 构建输出 ==========
 out/
 dist/
-build/                         
+build/
+build-demo/
 
 # ========== 开发日志 ==========
 *.log

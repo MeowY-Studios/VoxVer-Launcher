@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron'
 import {
-  checkForUpdates,
+  checkLatestVersionFromGitHub,
   startDownload,
   installUpdate,
   getUpdateStatus,
@@ -12,8 +12,8 @@ import {
 
 export function registerUpdaterHandlers(): void {
   ipcMain.handle('updater:check', async () => {
-    checkForUpdates()
-    return { success: true }
+    const data = await checkLatestVersionFromGitHub()
+    return { success: true, data }
   })
 
   ipcMain.handle('updater:download', async () => {

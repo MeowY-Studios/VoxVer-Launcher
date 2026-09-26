@@ -266,13 +266,13 @@
           </div>
           <div class="about-update-row">
             <div class="about-update-actions">
-              <button class="action-btn small outline" @click="checkForUpdate">
+              <button class="action-btn small outline" :disabled="updateStatus.checking" @click="checkForUpdate">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
                   <polyline points="7 10 12 15 17 10" />
                   <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
-                {{ $t('more.checkUpdate') }}
+                {{ updateStatus.checking ? $t('update.checking') : $t('more.checkUpdate') }}
               </button>
               <a class="action-btn small ghost" href="https://github.com/MeowY-Studios/VoxVer-Launcher" target="_blank">
                 {{ $t('more.viewSource') }}
@@ -294,6 +294,22 @@
           </div>
           <div class="modal-footer">
             <button class="btn vox-btn vox-btn--secondary" @click="showUpdateErrModal = false">{{ $t('common.close') }}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 已是最新版本弹窗 -->
+      <div v-if="showUpdateUpToDateModal" class="modal-overlay">
+        <div class="modal-box update-error-modal">
+          <div class="modal-header">
+            <h4>{{ $t('update.noUpdates') }}</h4>
+            <button class="modal-close" @click="showUpdateUpToDateModal = false">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p class="update-err-msg">{{ $t('update.currentIsLatest', { version: upToDateVersion }) }}</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn vox-btn vox-btn--secondary" @click="showUpdateUpToDateModal = false">{{ $t('common.close') }}</button>
           </div>
         </div>
       </div>
@@ -3644,6 +3660,8 @@ const updateStatus = ref({
 const updateChannel = ref('stable')
 const autoCheckUpdate = ref(true)
 const showUpdateErrModal = ref(false)
+const showUpdateUpToDateModal = ref(false)
+const upToDateVersion = ref('')
 const showUpdateAvailableModal = ref(false)
 const showEmailModal = ref(false)
 
@@ -4442,14 +4460,65 @@ async function exportDiagnostics() {
 }
 
 // ====== 更新检查 ======
+let updateCheckTimer: ReturnType<typeof setTimeout> | null = null
+
+function clearUpdateCheckTimer(): void {
+  if (updateCheckTimer) {
+    clearTimeout(updateCheckTimer)
+    updateCheckTimer = null
+  }
+}
+
 async function checkForUpdate() {
+  updateStatus.value.checking = true
+  updateStatus.value.error = null
+  // GitHub API 长时间无响应时的兜底恢复
+  clearUpdateCheckTimer()
+  updateCheckTimer = setTimeout(() => {
+    updateStatus.value.checking = false
+  }, 12000)
   try {
-    updateStatus.value.checking = true
-    updateStatus.value.error = null
-    await window.electronAPI?.updater?.check()
+    const res = await window.electronAPI?.updater?.check()
+    clearUpdateCheckTimer()
+    updateStatus.value.checking = false
+    const d = res?.success ? res.data : undefined
+    if (!d) {
+      updateStatus.value.error = t('update.checkFailed')
+      showUpdateErrModal.value = true
+      return
+    }
+    if (d.error) {
+      updateStatus.value.error = d.error
+      showUpdateErrModal.value = true
+      return
+    }
+    if (d.hasUpdate && d.latestVersion) {
+      // 有新版本：打开更新弹窗（后续下载/安装由 electron-updater 事件驱动）
+      updateStatus.value = {
+        ...updateStatus.value,
+        checked: true,
+        available: true,
+        error: null,
+        version: d.latestVersion
+      }
+      showUpdateAvailableModal.value = true
+    } else {
+      // 版本一致：弹窗提示已是最新版本
+      updateStatus.value = {
+        ...updateStatus.value,
+        checked: true,
+        available: false,
+        error: null,
+        version: d.currentVersion
+      }
+      upToDateVersion.value = d.currentVersion
+      showUpdateUpToDateModal.value = true
+    }
   } catch (e: unknown) {
+    clearUpdateCheckTimer()
     updateStatus.value.checking = false
     updateStatus.value.error = (e as Error).message
+    showUpdateErrModal.value = true
   }
 }
 
@@ -4729,6 +4798,23 @@ onMounted(async () => {
   await instancesStore.fetchInstances()
   const unsubUpdate = setupUpdateListener()
   checkAppPermissions()
+
+  // 恢复启动时自动检查的结果（状态广播可能发生在本页挂载之前）
+  try {
+    const st = await window.electronAPI?.updater?.getStatus()
+    const d = st?.data as UpdateStatusPayload | undefined
+    if (d?.available && !d.downloading && !d.downloaded && !d.error) {
+      updateStatus.value = {
+        ...updateStatus.value,
+        checked: true,
+        available: true,
+        error: null,
+        version: d.version ?? null,
+        releaseNotes: d.releaseNotes ?? null
+      }
+      showUpdateAvailableModal.value = true
+    }
+  } catch { /* ignore */ }
 
   onUnmounted(() => {
     unsubUpdate()

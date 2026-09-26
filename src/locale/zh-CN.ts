@@ -2217,6 +2217,7 @@ export default {
     remindLater: '稍后提醒',
     available: '有可用更新',
     noUpdates: '已是最新版本',
+    currentIsLatest: '当前版本 v{version} 已是最新版本',
     checking: '检查中...',
     downloading: '正在下载...',
     installing: '安装中...',

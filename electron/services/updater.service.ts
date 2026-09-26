@@ -1,7 +1,84 @@
 import { autoUpdater, UpdateInfo } from 'electron-updater'
-import { BrowserWindow, ipcMain } from 'electron'
+import { app, net, BrowserWindow, ipcMain } from 'electron'
 import { logger } from '../utils/logger'
 const log = logger.child('Updater')
+
+const GITHUB_LATEST_RELEASE_API = 'https://api.github.com/repos/MeowY-Studios/VoxVer-Launcher/releases/latest'
+
+/** 版本比对结果（点击"检查更新"按钮时返回给渲染端） */
+export interface LatestVersionCheckResult {
+  currentVersion: string
+  latestVersion: string | null
+  hasUpdate: boolean
+  error: string | null
+}
+
+/** 从 tag（如 VoxVer-v0.7.1 / v0.7.1 / 0.7.1）中提取语义化版本号 */
+function parseVersionFromTag(tag: string): string | null {
+  const m = /\d+\.\d+\.\d+(?:-[0-9A-Za-z.]+)?/.exec(tag)
+  return m ? m[0] : null
+}
+
+/**
+ * 比较 a 与 b：a 更新返回 1，相同返回 0，b 更新返回 -1。
+ * 支持 "0.7.1" / "0.10.2-beta.1" 形式；数值相同时带预发布后缀的视为更低。
+ */
+function compareVersions(a: string, b: string): number {
+  const sa = a.split('.')
+  const sb = b.split('.')
+  const len = Math.max(sa.length, sb.length)
+  for (let i = 0; i < len; i++) {
+    const segA = sa[i] ?? '0'
+    const segB = sb[i] ?? '0'
+    const numA = parseInt(/^\d+/.exec(segA)?.[0] ?? '0', 10)
+    const numB = parseInt(/^\d+/.exec(segB)?.[0] ?? '0', 10)
+    if (numA !== numB) return numA > numB ? 1 : -1
+    const suffixA = segA.slice((/^\d+/.exec(segA)?.[0] ?? '').length)
+    const suffixB = segB.slice((/^\d+/.exec(segB)?.[0] ?? '').length)
+    if (!suffixA !== !suffixB) return suffixA ? -1 : 1
+    if (suffixA && suffixB && suffixA !== suffixB) return suffixA > suffixB ? 1 : -1
+  }
+  return 0
+}
+
+/**
+ * 通过 GitHub API 直接对比本地版本与最新 Release 版本。
+ * 不依赖 latest.yml，作为"检查更新"按钮的可靠入口；
+ * 发现有新版本时同步触发 electron-updater 检查，为下载/安装做准备。
+ */
+export async function checkLatestVersionFromGitHub(): Promise<LatestVersionCheckResult> {
+  const currentVersion = app.getVersion()
+  try {
+    const res = await net.fetch(GITHUB_LATEST_RELEASE_API, {
+      headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'VoxVer-Launcher' }
+    })
+    if (!res.ok) throw new Error(`GitHub API HTTP ${res.status}`)
+    const data = (await res.json()) as { tag_name?: unknown }
+    const tag = typeof data.tag_name === 'string' ? data.tag_name : ''
+    const latestVersion = parseVersionFromTag(tag)
+    if (!latestVersion) throw new Error(`无法解析版本号: ${tag}`)
+    const hasUpdate = compareVersions(latestVersion, currentVersion) > 0
+    log.info(
+      `[updater.checkVersion] current=${currentVersion} latest=${latestVersion} hasUpdate=${hasUpdate}`
+    )
+    if (hasUpdate) {
+      // 双链路：API 对比结论写入共享状态并广播（供渲染端各页面感知），
+      // 同时触发 electron-updater 检查，为下载/安装链路准备元数据
+      apiUpdateDetectedVersion = latestVersion
+      currentStatus.checking = false
+      currentStatus.available = true
+      currentStatus.error = null
+      currentStatus.version = latestVersion
+      broadcastStatus()
+      checkForUpdates()
+    }
+    return { currentVersion, latestVersion, hasUpdate, error: null }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    log.error('[updater.checkVersion] Failed:', message)
+    return { currentVersion, latestVersion: null, hasUpdate: false, error: message }
+  }
+}
 
 export interface UpdateStatus {
   checking: boolean
@@ -18,6 +95,8 @@ let mainWindow: BrowserWindow | null = null
 let cachedUpdateCheckResult: Awaited<ReturnType<typeof autoUpdater.checkForUpdates>> | null = null
 let updateChannel: 'stable' | 'beta' = 'stable'
 let autoCheckUpdate = true
+/** GitHub API 链路检测到的更新版本（优先级高于 electron-updater 的 latest.yml 结论） */
+let apiUpdateDetectedVersion: string | null = null
 const currentStatus: UpdateStatus = {
   checking: false,
   available: false,
@@ -74,6 +153,15 @@ export function initAutoUpdater(window: BrowserWindow): void {
   })
 
   autoUpdater.on('update-not-available', () => {
+    // API 链路已确认有更新时，以 API 结论为准（latest.yml 可能滞后）
+    if (apiUpdateDetectedVersion) {
+      currentStatus.checking = false
+      currentStatus.available = true
+      currentStatus.version = apiUpdateDetectedVersion
+      broadcastStatus()
+      log.info('[updater] latest.yml stale, keep API-detected version:', apiUpdateDetectedVersion)
+      return
+    }
     currentStatus.checking = false
     currentStatus.available = false
     broadcastStatus()
@@ -148,8 +236,18 @@ export function startDownload(): void {
   log.info('[updater.download] Initiating download, version:', currentStatus.version)
   log.info('[updater.download] Has cached result:', cachedUpdateCheckResult ? 'yes' : 'no')
 
-  autoUpdater
-    .downloadUpdate()
+  // 双链路衔接：元数据未就绪时先补一次检查，再启动下载
+  const ready = cachedUpdateCheckResult
+    ? Promise.resolve(cachedUpdateCheckResult)
+    : autoUpdater
+        .checkForUpdates()
+        .then((result) => {
+          cachedUpdateCheckResult = result
+          return result
+        })
+
+  ready
+    .then(() => autoUpdater.downloadUpdate())
     .then((result) => {
       log.info('[updater.download] Download started, result type:', typeof result)
     })

@@ -42,7 +42,7 @@ import {
 } from './ipc'
 import { CrashService } from './services/crash.service'
 import { ModService } from './services/mod.service'
-import { initAutoUpdater, checkForUpdates } from './services/updater.service'
+import { initAutoUpdater, checkLatestVersionFromGitHub } from './services/updater.service'
 import { cleanupShareOnExit } from './ipc/share.ipc'
 import {
   setHotkeyActionCallback,
@@ -381,9 +381,9 @@ app.whenReady().then(() => {
       writeLog('[startup] xuid 回填失败:', (e as Error).message)
     }
 
-    // 自动更新检测：渲染端就绪后 2s 触发，避免抢占首屏资源
+    // 自动更新检测：渲染端就绪后 2s 触发（GitHub API 对比链路，检出更新后联动 electron-updater）
     setTimeout(() => {
-      if (win && !win.isDestroyed()) checkForUpdates()
+      if (win && !win.isDestroyed()) checkLatestVersionFromGitHub()
     }, 2000)
   })
 

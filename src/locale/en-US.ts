@@ -2167,6 +2167,7 @@ export default {
     remindLater: 'Remind Me Later',
     available: 'Update Available',
     noUpdates: 'Up to Date',
+    currentIsLatest: 'You are on the latest version (v{version})',
     checking: 'Checking...',
     downloading: 'Downloading...',
     installing: 'Installing...',
