@@ -147,6 +147,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 | 文档 | 说明 |
 |------|------|
+| [📘 用户手册](docs/USER_GUIDE.md) | 安装、登录、版本下载、Mod、实例、设置与故障排除 |
 | [📄 开发指南](docs/dev/README.md) | 技术栈、项目结构、快速开始、数据库、认证流程、编码规范 |
 | [📜 更新日志](CHANGELOG.md) | 各版本详细变更记录 |
 | [🔖 版本说明](docs/releases) | 各版本发布说明与升级指南 |

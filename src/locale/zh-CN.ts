@@ -96,6 +96,15 @@ export default {
     tip: '提示',
     unknownError: '未知错误',
   },
+  time: {
+    justNow: '刚刚',
+    minutesAgo: '{n}分钟前',
+    hoursAgo: '{n}小时前',
+    daysAgo: '{n}天前',
+    weeksAgo: '{n}周前',
+    monthsAgo: '{n}个月前',
+    yearsAgo: '{n}年前'
+  },
   home: {
     welcomeTip: '在左侧选择版本后点击「启动游戏」按钮',
     recent: '最近使用',
@@ -1096,6 +1105,8 @@ export default {
     scanFailed: '扫描失败',
     invalidDirectory: '目录无效',
     cannotGetMinecraftDir: '无法获取 .minecraft 目录',
+    defaultName: '新实例',
+    deleteKeepFilesConfirm: '只删除实例记录，保留游戏文件',
     importFailed: '导入失败',
     exportInstanceTitle: '导出实例',
     voxVerExportPackage: 'VoxVer 导出包',

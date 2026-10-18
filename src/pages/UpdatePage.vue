@@ -606,13 +606,7 @@ onUnmounted(() => {
   border: 2px solid var(--voxver-bg-tertiary);
   border-top-color: var(--voxver-accent, #14b8a6);
   border-radius: 50%;
-  animation: voxver-update-spin 0.8s linear infinite;
-}
-
-@keyframes voxver-update-spin {
-  to {
-    transform: rotate(360deg);
-  }
+  animation: spin 0.8s linear infinite;
 }
 
 .notes-body {

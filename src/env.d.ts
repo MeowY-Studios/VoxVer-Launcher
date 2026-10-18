@@ -2,12 +2,6 @@
 
 import type { ShareSession, ShareImportResult, ShareStartResult } from './types/ipc'
 
-interface IpcResult<T = void> {
-  ok: boolean
-  data?: T
-  error?: string
-}
-
 interface DownloadProgress {
   taskId: string
   versionId: string
@@ -40,12 +34,6 @@ export interface ScanMinecraftResult {
   loaderVersion?: string
   modsCount?: number
   configCount?: number
-}
-
-declare module '*.vue' {
-  import type { DefineComponent } from 'vue'
-  const component: DefineComponent<{}, {}, Record<string, unknown>>
-  export default component
 }
 
 /** IPC 通用响应格式 */

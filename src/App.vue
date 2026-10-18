@@ -845,7 +845,6 @@ const versions = ref<VersionItem[]>([])
 
 // * 扫描本地 .minecraft/versions 目录获取已安装版本
 async function loadLocalInstalledVersions() {
-  const instancesStore = useInstancesStore()
   await instancesStore.fetchInstances()
 
   // * 优先：使用实例数据库中的实例（更准确的路径信息）
@@ -881,43 +880,7 @@ async function loadLocalInstalledVersions() {
   }
 }
 
-// * Store 版本变化时同步到 versions（仅执行一次，避免热重载重复触发）
-watch(
-  () => versionsStore.versions,
-  (storeVersions) => {
-    if (storeVersions.length) {
-      // * 优先用本地已安装版本（已有数据则跳过）
-      if (versions.value.length) return
-
-      versions.value = storeVersions.slice(0, 20).map((v) => ({
-        id: v.id,
-        name: v.name,
-        loader: ''
-      }))
-
-      // * 优先用精确保存的版本名恢复（处理带 loader 的版本）
-      const savedDisplayName = localStorage.getItem('voxver_last_version_name')
-      const lastId = localStorage.getItem('voxver_last_version')
-      if (savedDisplayName && lastId) {
-        // * 尝试在版本列表中匹配
-        const match = versions.value.find((v) => v.id === lastId)
-        if (match) {
-          selectedVersionId.value = lastId
-          selectedVersion.value = `${match.name}${match.loader ? '-' + match.loader : ''}`
-          userHasSelectedVersion.value = true
-          versionsStore.setCurrentVersion(lastId)
-        } else {
-          // ! 保存的版本不在列表中，保持当前选择（不要 fallback）
-          userHasSelectedVersion.value = true
-        }
-      } else if (!userHasSelectedVersion.value && versions.value.length) {
-        // * 从未选择过版本 + 有版本列表 → 选第一个
-        selectVersion(versions.value[0])
-      }
-    }
-  },
-  { immediate: true, once: true }
-)
+// * 版本数据加载完成后，统一在 onMounted 中恢复/初始化选择（不在此处监听，避免重复逻辑）
 
 // * 下载页分类
 const dlActiveCat = ref('vanilla')
@@ -1023,16 +986,12 @@ onMounted(async () => {
     }
   }
 
-  // * 如果没有本地版本，fallback 到远程版本列表
-  if (!versions.value.length) {
-    versionsStore.fetchVersions()
-  }
-
   // * 加载账号列表
   accountsStore.fetchAccounts()
 
-  // * 没有找到任何版本时，清除之前的选择并提示用户下载
+  // * 没有本地版本时：清除选择并提示下载，同时拉取远程版本列表兜底
   if (!versions.value.length) {
+    versionsStore.fetchVersions()
     selectedVersionId.value = ''
     selectedVersion.value = t('home.downloadFirst')
     userHasSelectedVersion.value = false
@@ -1147,11 +1106,6 @@ async function handleLaunch() {
     selectedVersionId.value.includes('\\') || selectedVersionId.value.includes('/')
       ? selectedVersionId.value.split(/[\\/]/).pop() || selectedVersionId.value // * 如果是完整路径，提取文件夹名作为版本ID
       : selectedVersionId.value
-
-  // * 监听启动进度
-  if (window.electronAPI?.game.onProgress) {
-    window.electronAPI.game.onProgress((progress) => {})
-  }
 
   try {
     const result = await window.electronAPI?.game.launch(currentInstanceId.value, accountId, versionId)

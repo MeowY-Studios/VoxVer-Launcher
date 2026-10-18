@@ -3,6 +3,12 @@
  * Mock electronAPI / localStorage / matchMedia
  */
 import { vi } from 'vitest'
+import type { Composer } from 'vue-i18n'
+import { setI18n } from '../src/utils/i18n'
+import i18n from '../src/locale/i18n'
+
+// * 初始化 i18n（供 $t 在 store/工具函数等非组件上下文使用）
+setI18n(i18n.global as unknown as Composer)
 
 // ====== Mock electronAPI ======
 Object.defineProperty(window, 'electronAPI', {
@@ -95,7 +101,8 @@ Object.defineProperty(window, 'electronAPI', {
       uninstall: vi.fn().mockResolvedValue(true)
     },
     modloader: {
-      getLoaders: vi.fn().mockResolvedValue({ fabric: [], forge: [] })
+      getLoaders: vi.fn().mockResolvedValue({ fabric: [], forge: [] }),
+      getVersions: vi.fn().mockResolvedValue({ ok: true, data: [] })
     },
     externalLauncher: {
       scan: vi.fn().mockResolvedValue({ ok: true, launchers: [] }),

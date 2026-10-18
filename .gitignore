@@ -18,7 +18,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-build-log.txt                 
+build-log.txt
 
 # ========== IDE / 编辑器 ==========
 .idea/
@@ -68,14 +68,14 @@ coverage/
 .agents/
 
 # ========== Electron 专属 ==========
-electron-builder.yml.bak      
-electron-builder.env          
-release/                       
+electron-builder.yml.bak
+electron-builder.env
+release/
 
 # ========== 图像资源（非源文件）==========
 # *.ico 在根目录忽略，但 resources/icons/ 中的应用图标需要提交
 /*.ico
-40348278.jpg                  
+40348278.jpg
 
 # ========== 操作系统 ==========
 $RECYCLE.BIN/
@@ -94,6 +94,7 @@ SECURITY_REVIEW.md
 skills-lock.json
 PROJECT_ANALYSIS_*.md
 ANY_TYPE_CLEANUP.md
+TEST_REPORT.md
 
 
 # ========== 备份目录（不上传）==========

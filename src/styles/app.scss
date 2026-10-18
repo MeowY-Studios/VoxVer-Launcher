@@ -23,8 +23,10 @@
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 14px;
   flex-shrink: 0;
+  -webkit-app-region: drag;
   -webkit-user-select: none;
   user-select: none;
   position: relative;
@@ -47,15 +49,6 @@
   );
   pointer-events: none;
   z-index: var(--voxver-z-base);
-}
-
-.electron .titlebar,
-.titlebar {
-  -webkit-app-region: drag;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
 }
 
 .brand {
@@ -580,18 +573,6 @@
   }
 }
 
-.auth-links {
-  display: flex;
-  gap: 14px;
-  .auth-link {
-    font-size: 11.5px;
-    color: var(--voxver-text-muted);
-    text-decoration: none;
-    transition: color var(--voxver-transition-fast);
-    &:hover { color: var(--voxver-primary-500); }
-  }
-}
-
 /* ================================================================
    Offline Auth — 离线模式
    ================================================================ */
@@ -614,37 +595,6 @@
   svg {
     width: 100%; height: 100%;
     image-rendering: pixelated;
-  }
-}
-
-.offline-input-wrap {
-  width: 100%;
-  .offline-label {
-    display: block;
-    font-size: 11.5px;
-    font-weight: 400;
-    color: var(--voxver-text-muted);
-    margin-bottom: 4px;
-  }
-  .offline-input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--voxver-border-color);
-    border-radius: var(--voxver-radius-md);
-    font-size: 14px;
-    font-weight: 600;
-    text-align: left;
-    color: var(--voxver-text-primary);
-    background: var(--voxver-bg-elevated);
-    outline: none;
-    transition:
-      border-color var(--voxver-transition-fast),
-      box-shadow var(--voxver-transition-fast);
-    &::placeholder { color: var(--voxver-text-muted); font-weight: 400; }
-    &:focus {
-      border-color: var(--voxver-primary-400);
-      box-shadow: var(--voxver-input-focus-shadow);
-    }
   }
 }
 

@@ -47,14 +47,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-
-export interface PxConfirmProps {
-  title: string
-  message: string
-  confirmText?: string
-  cancelText?: string
-  type?: 'danger' | 'warning' | 'info'
-}
+import type { PxConfirmProps } from './PxConfirm.types'
 
 withDefaults(defineProps<PxConfirmProps>(), {
   confirmText: 'OK',

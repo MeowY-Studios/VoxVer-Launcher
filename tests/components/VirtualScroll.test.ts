@@ -3,8 +3,12 @@
  * 覆盖：渲染、props、slots、空列表、暴露方法
  */
 import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, config } from '@vue/test-utils'
 import VirtualScroll from '../../src/components/common/VirtualScroll.vue'
+import i18n from '../../src/locale/i18n'
+
+// * 组件模板使用 $t，全局注入 i18n 插件
+config.global.plugins = [i18n]
 
 function createItems(count: number) {
   return Array.from({ length: count }, (_, i) => ({

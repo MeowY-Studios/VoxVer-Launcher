@@ -172,28 +172,33 @@ describe('versions store - fetchVersions', () => {
 
 describe('versions store - fetchModLoaderVersions', () => {
   it('应获取并映射 Fabric 和 Forge 版本', async () => {
-    vi.mocked(window.electronAPI.modloader.getLoaders).mockResolvedValueOnce({
-      fabric: [
-        { id: 'f-1', version: '0.15.0', stable: true },
-        { id: 'f-2', version: '0.14.0', stable: false }
-      ],
-      forge: [{ id: 'fg-1', version: '47.1.0', stable: true }]
+    // * 契约：modloader.getVersions(mcVersion, loaderType) → { ok, data: string[] }
+    vi.mocked(window.electronAPI.modloader.getVersions).mockResolvedValueOnce({
+      ok: true,
+      data: ['0.15.0', '0.14.0']
+    } as any)
+    vi.mocked(window.electronAPI.modloader.getVersions).mockResolvedValueOnce({
+      ok: true,
+      data: ['47.1.0']
     } as any)
 
     const store = freshStore()
     await store.fetchModLoaderVersions('1.20.1')
 
     expect(store.fabricVersions).toHaveLength(2)
+    expect(store.fabricVersions[0].id).toBe('0.15.0')
+    expect(store.fabricVersions[0].name).toBe('Fabric 0.15.0')
     expect(store.fabricVersions[0].version).toBe('0.15.0')
     expect(store.fabricVersions[0].stable).toBe(true)
-    expect(store.fabricVersions[1].stable).toBe(false)
+    expect(store.fabricVersions[1].version).toBe('0.14.0')
 
     expect(store.forgeVersions).toHaveLength(1)
     expect(store.forgeVersions[0].version).toBe('47.1.0')
+    expect(store.forgeVersions[0].name).toBe('Forge 47.1.0')
   })
 
-  it('无 getLoaders 方法时应静默处理', async () => {
-    // 如果 modloader.getLoaders 不存在，不会崩溃
+  it('无 getVersions 方法时应静默处理', async () => {
+    // 如果 modloader.getVersions 不存在，不会崩溃
     const store = freshStore()
     await store.fetchModLoaderVersions('1.20.1')
     expect(store.loading).toBe(false)

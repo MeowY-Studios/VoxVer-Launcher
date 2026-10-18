@@ -171,7 +171,7 @@ describe('download store - 版本下载任务', () => {
     const task = store.versionTasks.get('1.20.1')
     expect(task?.phase).toBe('failed')
     expect(task?.error).toBe('403 Forbidden')
-    expect(task?.phaseLabel).toBe('失败: 403 Forbidden')
+    expect(task?.phaseLabel).toBe('下载失败: 403 Forbidden')
   })
 
   it('removeVersionTask 应移除任务', () => {

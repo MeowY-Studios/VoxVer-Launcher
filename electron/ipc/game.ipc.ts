@@ -24,6 +24,11 @@ import { validateVersionId } from '../utils/path-validation'
 import { logger } from '../utils/logger'
 const log = logger.child('Game-IPC')
 
+/** 版本清单结构（Mojang/BMCLAPI version_manifest） */
+interface VersionManifest {
+  versions: Array<{ id: string; url: string }>
+}
+
 /** 简单流式下载（用于下载 MC 版本文件到本地） */
 async function downloadFile(url: string, destPath: string): Promise<void> {
   const response = await fetch(url)
@@ -325,13 +330,13 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
 
         // 1. 获取版本清单（多线路切换），找到该版本的 URL
         log.error('[versions:download] Step1 获取版本清单...')
-        let manifest: { versions: Array<{ id: string; url: string }> } | null = null
+        let manifest: VersionManifest | null = null
         let usedMirror = ''
         for (const mirror of MIRRORS) {
           try {
             const manifestRes = await fetch(`${mirror}/mc/game/version_manifest.json`)
             if (!manifestRes.ok) throw new Error(`HTTP ${manifestRes.status}`)
-            manifest = (await manifestRes.json()) as typeof manifest
+            manifest = (await manifestRes.json()) as VersionManifest
             usedMirror = mirror
             break
           } catch (e) {
@@ -504,12 +509,12 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
 
       try {
         // 1. 获取版本清单（多线路切换），找到该版本的 URL
-        let manifest: { versions: Array<{ id: string; url: string }> } | null = null
+        let manifest: VersionManifest | null = null
         for (const mirror of MIRRORS) {
           try {
             const manifestRes = await fetch(`${mirror}/mc/game/version_manifest.json`)
             if (!manifestRes.ok) throw new Error(`HTTP ${manifestRes.status}`)
-            manifest = (await manifestRes.json()) as typeof manifest
+            manifest = (await manifestRes.json()) as VersionManifest
             break
           } catch (e) {
             log.warn(`[versions:download-server] 镜像 ${mirror} 失败: ${(e as Error).message}`)

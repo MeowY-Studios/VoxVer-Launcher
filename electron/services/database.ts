@@ -183,22 +183,6 @@ function createTables(): void {
     )
   `)
 
-  // P2P 分享历史表
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS share_history (
-      id TEXT PRIMARY KEY,
-      type TEXT NOT NULL CHECK(type IN ('sender', 'receiver')),
-      instance_name TEXT NOT NULL,
-      mc_version TEXT,
-      loader_type TEXT,
-      share_code TEXT NOT NULL,
-      file_size INTEGER DEFAULT 0,
-      status TEXT NOT NULL DEFAULT 'completed',
-      error_msg TEXT,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    )
-  `)
-
   // 分享/接收历史表
   db.exec(`
     CREATE TABLE IF NOT EXISTS share_history (

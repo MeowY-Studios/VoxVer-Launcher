@@ -1,5 +1,31 @@
 # 更新日志
 
+## v0.7.3 质量修复批次 — 2026-10-11
+
+### 修复
+- **i18n 相对时间显示原始键名**：`formatRelativeTime` 引用的 `time.*` 键在语言包中整体缺失，界面直接显示 `time.minutesAgo` 等原始键名；补齐 zh-CN `time` 段与 instance 删除确认文案（R-15）
+- **中英文文案键不一致**：补齐 en-US 约 58 个仅存在于 zh-CN 的差异键（common/version/instance/download/types 五组），英文界面不再出现键名（R-16）
+- **share_history 表 schema 冲突**：删除重复的第一版建表语句（`type IN ('sender','receiver')`），保留与实际写入值（`'share'`/`'receive'`）一致且含 status CHECK 约束的正确 schema（R-17）
+- **tsc 真实类型错误**：game.ipc.ts 两处 `as typeof manifest` 自引用致变量收窄为 `null`（`Property 'versions' does not exist on type 'never'`）与隐式 any；新增 `VersionManifest` 接口显式标注（R-18）
+- **PxConfirmProps 无法具名导入**：从 `<script setup>` 内 `export interface` 外移至独立的 `PxConfirm.types.ts`（R-20）
+- **eslint 环境损坏**：补装缺失的 `vue-eslint-parser`（eslint-plugin-vue 的 peer 依赖），lint 流程恢复可用
+- **36 例单元测试失败 → 278/278 全绿**：测试基建初始化 i18n、versions.store 测试对齐真实 IPC 契约、断言文案同步（R-01~R-07）
+
+### 优化
+- **动画样式精简**：animations.scss 从 480 行精简至约 90 行，删除 19 组零引用 `@keyframes` 与全部零引用工具类；保留组件实际使用的 7 组动画；`prefers-reduced-motion` 去重（R-10~R-12）
+- **样式死代码清理**：app.scss 删除无对应模板元素的 `.auth-links`/`.offline-input-wrap`，合并 `.titlebar` 重复定义（R-08/R-09）
+- **App.vue 冗余逻辑清理**：删除空转 watch、合并重复空判断、删除重复 store 声明与空回调监听器（R-13）
+- **versions.store 运行时抛错修复**：非 setup 上下文调用 `useI18n()` 改为统一 `$t` 访问（R-01）
+- **loader 显示语义对齐**：`LOADER_NAMES.vanilla` 值与 i18n loaderLabels 统一（R-14）
+
+### 工程
+- **tsc 双配置恢复 exit 0**：`.vue` shim 从模块文件（env.d.ts）抽出为独立的 `shims-vue.d.ts` 全局声明，修复约 25 处 TS2307（R-19）
+- **类型基线对齐**：`@types/node` ^20 → ^24.19.2，与 engines `node>=24` 一致（R-21）
+- 测试 setup 全局初始化 i18n，modloader mock 补充 `getVersions`（R-03）
+
+### 文档
+- TEST_REPORT.md 新增第 12 节「系统性优化记录」（R-01~R-21）、F-01~F-05 状态同步、4.2 类型检查复测结论更新
+
 ## v0.7.3 — 2026-09-26
 
 ### 新增功能

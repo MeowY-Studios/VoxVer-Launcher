@@ -117,7 +117,7 @@ export function formatVersion(mcVersion: string, loaderType?: string, loaderVer?
 
 /** 加载器名称映射（用于显示） */
 export const LOADER_NAMES: Record<string, string> = {
-  vanilla: 'vanilla',
+  vanilla: '原版',
   fabric: 'Fabric',
   forge: 'Forge',
   neoforge: 'NeoForge',

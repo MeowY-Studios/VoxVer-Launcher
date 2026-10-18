@@ -1,6 +1,6 @@
 import { createApp, h } from 'vue'
 import PxConfirm from '@/components/common/PxConfirm.vue'
-import type { PxConfirmProps } from '@/components/common/PxConfirm.vue'
+import type { PxConfirmProps } from '@/components/common/PxConfirm.types'
 
 type ConfirmOptions = Omit<PxConfirmProps, 'confirmText' | 'cancelText'> & {
   confirmText?: string
