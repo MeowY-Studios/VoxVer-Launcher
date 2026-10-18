@@ -453,8 +453,8 @@
     <!-- 版本选择弹窗 -->
     <VersionSelect v-model:visible="showVersionSelectModal" @select="onVersionSelect" />
 
-    <!-- 账户管理抽屉 -->
-    <AccountManager v-model:visible="showAccountManager" />
+    <!-- 微软登录弹窗（Device Flow，原地添加在线账户） -->
+    <MicrosoftLoginModal v-model="showMsLoginModal" @logged-in="onMsLoggedIn" />
 
     <!-- 全局悬浮下载面板 -->
     <DownloadFloat />
@@ -526,8 +526,8 @@ import { ref, computed, onMounted, provide, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import VersionSettings from './components/VersionSettings.vue'
 import VersionSelect from './components/VersionSelect.vue'
-import AccountManager from './components/AccountManager.vue'
 import DownloadFloat from './components/DownloadFloat.vue'
+import MicrosoftLoginModal from './components/auth/MicrosoftLoginModal.vue'
 import PxModal from './components/common/PxModal.vue'
 import PxLaunchProgress from './components/common/PxLaunchProgress.vue'
 import { useVersionsStore, useAccountsStore, useInstancesStore, useDownloadStore, useAppStore } from './stores'
@@ -696,11 +696,17 @@ const offlineNameInput = ref<HTMLInputElement | null>(null)
 // * 版本设置弹窗
 const showVersionSettings = ref(false)
 
-// * 账户管理抽屉
-const showAccountManager = ref(false)
-
 // * 版本选择弹窗（PCL2 风格）
 const showVersionSelectModal = ref(false)
+
+// * 微软登录弹窗（主界面「添加新账号」原地触发）
+const showMsLoginModal = ref(false)
+
+/** 微软登录成功后刷新账户列表与头像 */
+async function onMsLoggedIn() {
+  await accountsStore.fetchAccounts()
+  await loadSkin()
+}
 
 // * 标记用户是否已手动选择过版本（用于区分首次加载 vs store版本更新）
 const userHasSelectedVersion = ref(false)
@@ -742,7 +748,8 @@ function toggleOfflineAccountDropdown() {
 // * 统一账号选择逻辑
 function handleAccountSelectValue(value: string) {
   if (value === 'add') {
-    goToAccountSettings()
+    // * 原地弹出微软登录窗，不跳转页面
+    showMsLoginModal.value = true
     return
   }
   const targetAccount = accountsStore.accounts.find((a) => a.id === value)
@@ -1091,11 +1098,11 @@ async function handleLaunch() {
     return
   }
   if (!accountsStore.activeAccount) {
-    window.electronAPI?.notification?.send({
-      title: t('common.tip'),
-      body: t('auth.pleaseAddAccount'),
-      type: 'warning'
-    })
+    if (await pxConfirm({ title: t('common.tip'), message: t('auth.pleaseAddAccount'), type: 'warning', confirmText: t('common.confirm') })) {
+      // * 跳转到设置页的「游戏账户与档案」区块
+      settingsActive.value = 'profile'
+      router.push('/settings')
+    }
     return
   }
 

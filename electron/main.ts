@@ -53,11 +53,6 @@ import { logger } from './utils/logger'
 
 const log = logger.child('Main')
 
-/** 判断是否为开发环境 */
-function isDev(): boolean {
-  return process.env.NODE_ENV === 'development' || !app.isPackaged
-}
-
 // 加载 .env（开发/未打包时均需；打包后 .env 不存在则静默跳过）
 try { require('dotenv').config() } catch { /* 无 .env 文件或 dotenv 未安装 */ }
 
@@ -240,7 +235,8 @@ app.whenReady().then(() => {
 
   // 注册自定义协议
   if (process.platform === 'win32') {
-    app.setAppUserModelId(isDev() ? process.execPath : 'com.voxver.launcher')
+    // * 统一使用 appId，使 dev 模式下任务栏也显示应用图标而非 electron.exe 默认图标
+    app.setAppUserModelId('com.voxver.launcher')
     app.setAsDefaultProtocolClient(PROTOCOL_NAME)
   } else {
     app.setAsDefaultProtocolClient(PROTOCOL_NAME)

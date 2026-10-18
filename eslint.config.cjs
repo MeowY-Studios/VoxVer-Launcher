@@ -25,6 +25,40 @@ module.exports = tseslint.config(
     languageOptions: {
       parserOptions: {
         parser: tseslint.parser
+      },
+      // * 渲染进程浏览器环境全局（未安装 globals 包，按需声明）
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        navigator: 'readonly',
+        location: 'readonly',
+        localStorage: 'readonly',
+        sessionStorage: 'readonly',
+        console: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        requestAnimationFrame: 'readonly',
+        cancelAnimationFrame: 'readonly',
+        fetch: 'readonly',
+        URL: 'readonly',
+        Blob: 'readonly',
+        FileReader: 'readonly',
+        FormData: 'readonly',
+        Image: 'readonly',
+        HTMLElement: 'readonly',
+        HTMLInputElement: 'readonly',
+        HTMLDivElement: 'readonly',
+        Element: 'readonly',
+        Node: 'readonly',
+        Event: 'readonly',
+        CustomEvent: 'readonly',
+        KeyboardEvent: 'readonly',
+        MouseEvent: 'readonly',
+        AbortController: 'readonly',
+        alert: 'readonly',
+        confirm: 'readonly'
       }
     }
   },

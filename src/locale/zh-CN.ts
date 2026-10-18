@@ -94,7 +94,7 @@ export default {
     copied: '已复制',
     retry: '重试',
     tip: '提示',
-    unknownError: '未知错误',
+    unknownError: '未知错误'
   },
   time: {
     justNow: '刚刚',
@@ -174,9 +174,14 @@ export default {
     invalidate: '失效',
     accountManager: '账户管理',
     loggedIn: '已登录',
+    active: '当前使用',
+    skin3dPreview: '3D 皮肤展示',
+    noSkin: '暂无皮肤',
     notLoggedIn: '未登录',
     skin: '皮肤',
     loginTip: '使用微软账户登录以访问多人游戏服务器',
+    tabOnline: '在线',
+    tabOffline: '离线',
     offlineAccount: '离线账户',
     playerName: '玩家名称',
     playerNamePlaceholder: '输入玩家名（2-16 个字符）',
@@ -573,7 +578,8 @@ export default {
       voxverPersonalizationDesc: '功能隐藏设置、主页、背景音乐和图片',
       packResources: '打包资源文件，以避免在导入时下载',
       modrinthOnly: '仅从 Modrinth 下载资源文件',
-      advancedExportTip: '配置文件中含有更多高级选项，例如精准控制导出的文件、设置整合包存放位置等。\n要修改这些选项，请先点击「保存配置」，在编辑配置文件后再导入。',
+      advancedExportTip:
+        '配置文件中含有更多高级选项，例如精准控制导出的文件、设置整合包存放位置等。\n要修改这些选项，请先点击「保存配置」，在编辑配置文件后再导入。',
       startExport: '开始导出',
       checkingMissing: '正在检测缺失文件...',
       allComplete: '所有文件完整，无需补全',
@@ -620,7 +626,6 @@ export default {
   },
 
   modloader: {
-
     install: '安装 ModLoader',
     selectMinecraftVersion: '选择 Minecraft 版本',
     selectModLoader: '选择 ModLoader',
@@ -664,18 +669,32 @@ export default {
     openSource: '开源项目使用',
     copyright: '版权声明',
     copyrightText1: 'VoxVer Launcher 是一个开源的非官方 Minecraft 启动器项目，仅供学习与交流使用。',
-    copyrightText2: 'Minecraft 相关名称、图案及商标归 Mojang Studios 与 Microsoft 所有。 本项目与 Mojang Studios 及 Microsoft 之间不存在任何关联关系。',
-    copyrightText3: 'VoxVer Launcher 开源项目及其官方衍生程序均循 GNU General Public License 3.0（GPLv3）协议开源。',
+    copyrightText2:
+      'Minecraft 相关名称、图案及商标归 Mojang Studios 与 Microsoft 所有。 本项目与 Mojang Studios 及 Microsoft 之间不存在任何关联关系。',
+    copyrightText3:
+      'VoxVer Launcher 开源项目及其官方衍生程序均循 GNU General Public License 3.0（GPLv3）协议开源。',
     viewGplv3: '查看 GPLv3 许可证',
     viewMit: '查看 MIT 许可证',
     help: '帮助',
     helpSubtitle: '常见问题与使用指南',
     faq: [
-      { q: '如何安装 Mod？', a: '在下载页面选择对应游戏版本的 Mod，点击安装即可。支持 CurseForge 和 Modrinth 源。' },
-      { q: '启动游戏时提示 Java 未找到？', a: '请前往「设置 → 启动选项 → 游戏 Java」中手动选择或检测 Java 安装路径。' },
+      {
+        q: '如何安装 Mod？',
+        a: '在下载页面选择对应游戏版本的 Mod，点击安装即可。支持 CurseForge 和 Modrinth 源。'
+      },
+      {
+        q: '启动游戏时提示 Java 未找到？',
+        a: '请前往「设置 → 启动选项 → 游戏 Java」中手动选择或检测 Java 安装路径。'
+      },
       { q: '如何导入整合包？', a: '在「设置 → 其他 → 整合包工具」中选择导入 .mrpack 文件即可。' },
-      { q: '如何备份数据？', a: '在「设置 → 其他 → 数据备份与恢复」中创建备份，可用于迁移或恢复。' },
-      { q: '启动器卡顿或显示异常？', a: '尝试在「个性化」中调整界面不透明度、关闭动画或特效。也可以在「开发者选项」中打开调试模式查看日志。' }
+      {
+        q: '如何备份数据？',
+        a: '在「设置 → 其他 → 数据备份与恢复」中创建备份，可用于迁移或恢复。'
+      },
+      {
+        q: '启动器卡顿或显示异常？',
+        a: '尝试在「个性化」中调整界面不透明度、关闭动画或特效。也可以在「开发者选项」中打开调试模式查看日志。'
+      }
     ],
     feedback: '反馈',
     feedbackSubtitle: '遇到问题或有建议？告诉我们',
@@ -696,10 +715,13 @@ export default {
     fontLicense: '字体授权',
     voxverAttribution: 'VoxVer 归属',
     viewSilLicense: 'SIL Open Font License 1.1',
-    licenseDesc: 'VoxVer Launcher 是遵循 GNU General Public License v3.0（GPLv3）协议发行的开源软件。您可以自由使用、修改和分发本软件，但必须遵守 GPLv3 协议的条款。',
-    fontLicenseText: '本软件使用的 Noto Sans SC 字体基于 SIL Open Font License 1.1 协议发布。部分界面图标来源于 Lucide 图标库，基于 MIT 协议使用。',
+    licenseDesc:
+      'VoxVer Launcher 是遵循 GNU General Public License v3.0（GPLv3）协议发行的开源软件。您可以自由使用、修改和分发本软件，但必须遵守 GPLv3 协议的条款。',
+    fontLicenseText:
+      '本软件使用的 Noto Sans SC 字体基于 SIL Open Font License 1.1 协议发布。部分界面图标来源于 Lucide 图标库，基于 MIT 协议使用。',
     attributionText1: 'VoxVer Launcher 由 VoxVer Launcher Team（Meow Studio）开发与维护。',
-    attributionText2: 'Minecraft 是 Mojang Studios 的商标。本项目与 Mojang Studios 及 Microsoft 之间不存在任何关联关系。',
+    attributionText2:
+      'Minecraft 是 Mojang Studios 的商标。本项目与 Mojang Studios 及 Microsoft 之间不存在任何关联关系。'
   },
 
   mod: {
@@ -1166,7 +1188,7 @@ export default {
     checkUpdates: '检查更新',
     checkingUpdates: '正在检查...',
     modUpdatesFound: '发现 {count} 个可更新的 Mod',
-    modNoUpdates: '所有 Mod 已是最新版本',
+    modNoUpdates: '所有 Mod 已是最新版本'
   },
 
   p2p: {
@@ -1371,7 +1393,7 @@ export default {
       utility: '实用',
       qol: 'QoL',
       mechanics: '机制',
-      adventureDatapack: '冒险',
+      adventureDatapack: '冒险'
     },
     searchTask: '搜索任务...',
     totalTasks: '总任务',
@@ -1438,7 +1460,8 @@ export default {
     currentChannel: '当前',
     autoCheckOn: '已开启',
     autoCheckOff: '已关闭',
-    permWarning: '启动器位于系统保护目录，下载和更新可能因权限不足而失败。建议移动到用户目录（如桌面）。',
+    permWarning:
+      '启动器位于系统保护目录，下载和更新可能因权限不足而失败。建议移动到用户目录（如桌面）。',
     permAdminOk: '已以管理员身份运行，权限正常',
     downloadSources: '镜像测速',
     downloadConcurrent: '同时下载数',
@@ -1745,7 +1768,8 @@ export default {
     localFile: '读取本地文件',
     onlineUpdate: '联网更新',
     features: '功能隐藏',
-    featuresDesc: '你可以隐藏不需要的页面或关闭特定功能。在任意界面按 F12 可以暂时显示被隐藏的功能。',
+    featuresDesc:
+      '你可以隐藏不需要的页面或关闭特定功能。在任意界面按 F12 可以暂时显示被隐藏的功能。',
     featuresWarning: '关闭功能隐藏设置，千万别忘了，要不然设置就改不回来了……',
     hotkeyDesc: '设置全局快捷键，在任何时候按下都可执行对应操作。格式示例：',
     launchGameDesc: '在任何窗口按下都可快速启动选中的实例',
@@ -1798,7 +1822,7 @@ export default {
     resetSettings: '重置所有设置',
     clearDownloadCacheSuccess: '下载缓存已清除',
     clearVersionCacheSuccess: '版本缓存已清除',
-    clearCacheManually: '请手动到{type}目录清理', 
+    clearCacheManually: '请手动到{type}目录清理',
     version: '版本',
     modpack: '整合包工具',
     home: {
@@ -1951,7 +1975,8 @@ export default {
     },
     devOptions: {
       debugDiag: '调试与诊断',
-      debugDiagDesc: '调试模式会记录更详细的日志，便于排查问题。导出诊断日志可将日志打包，方便提交 Bug 报告。',
+      debugDiagDesc:
+        '调试模式会记录更详细的日志，便于排查问题。导出诊断日志可将日志打包，方便提交 Bug 报告。',
       debugModeDesc: '记录 DEBUG 级别日志（重启后生效）',
       exportDiagDesc: '将日志和应用信息打包为 .zip，用于 Bug 报告',
       exporting: '导出中...',
@@ -2285,9 +2310,9 @@ export default {
     custom: '自定义',
     updateProxy: '更新代理',
     showDetail: '查看详情',
-    downloaded: '更新已下载，重启生效', 
+    downloaded: '更新已下载，重启生效',
     viewDetail: '查看详情',
-    upToDate: '已是最新版本', 
+    upToDate: '已是最新版本',
     downloadFailed: '下载失败',
     retry: '重新下载',
     updateTimeout: '更新超时',

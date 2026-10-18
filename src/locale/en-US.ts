@@ -165,21 +165,29 @@ export default {
     invalidate: 'Invalidate',
     accountManager: 'Account Manager',
     loggedIn: 'Logged In',
+    active: 'Active',
+    skin3dPreview: '3D Skin Preview',
+    noSkin: 'No skin',
     notLoggedIn: 'Not Logged In',
     skin: 'Skin',
     loginTip: 'Sign in with Microsoft account to access multiplayer servers',
+    tabOnline: 'Online',
+    tabOffline: 'Offline',
     offlineAccount: 'Offline Account',
     playerName: 'Player Name',
     playerNamePlaceholder: 'Enter player name (2-16 characters)',
     uuid: 'UUID',
     uuidPlaceholder: 'Leave empty to auto-generate',
     saveOfflineAccount: 'Save Offline Account',
-    offlineModeHint: 'Offline mode cannot join servers requiring premium verification, but can play singleplayer and some servers.',
+    offlineModeHint:
+      'Offline mode cannot join servers requiring premium verification, but can play singleplayer and some servers.',
     buyOfficial: 'Buy Official',
     goOfficialSite: 'Go to Official Site',
-    deviceFlowHint: 'Browser has opened the verification page automatically. Please enter the code below:',
+    deviceFlowHint:
+      'Browser has opened the verification page automatically. Please enter the code below:',
     copyAndOpenBrowser: 'Copy & Open Browser',
-    deviceFlowTip: 'Complete Microsoft login after entering the code. This window will update automatically.',
+    deviceFlowTip:
+      'Complete Microsoft login after entering the code. This window will update automatically.',
     waitingAuthorization: 'Waiting for authorization...',
     loginSuccess: 'Login successful, welcome',
     unknownUser: 'Unknown user',
@@ -353,7 +361,8 @@ export default {
     openFolder: 'Open Folder',
     missingFilesTitle: 'Missing Files Download',
     missingFilesMessage: 'Detected {count} missing files. Download and launch game?',
-    missingFilesHint: 'Click "Download & Launch" to automatically download missing files and start the game.',
+    missingFilesHint:
+      'Click "Download & Launch" to automatically download missing files and start the game.',
     cancelDownload: 'Cancel',
     confirmDownload: 'Download & Launch',
     noVersionConfirm: 'No game version available. Go to the download page?',
@@ -504,7 +513,8 @@ export default {
       exportLaunchScript: 'Export Launch Script',
       completeFiles: 'Complete Files',
       deleteVersion: 'Delete Version',
-      settingsTip: 'These settings only apply to this game version and do not affect other versions.',
+      settingsTip:
+        'These settings only apply to this game version and do not affect other versions.',
       launchOptions: 'Launch Options',
       versionIsolationLabel: 'Version Isolation',
       enabledBtn: 'Enabled',
@@ -564,7 +574,8 @@ export default {
       voxverPersonalizationDesc: 'Feature hiding settings, homepage, background music and images',
       packResources: 'Package resource files to avoid downloading on import',
       modrinthOnly: 'Only download resource files from Modrinth',
-      advancedExportTip: 'The config file contains more advanced options, such as precise file export control and modpack storage location settings.\nTo modify these options, click "Save Config" first, then import after editing the config file.',
+      advancedExportTip:
+        'The config file contains more advanced options, such as precise file export control and modpack storage location settings.\nTo modify these options, click "Save Config" first, then import after editing the config file.',
       startExport: 'Start Export',
       checkingMissing: 'Checking for missing files...',
       allComplete: 'All files are complete, no completion needed',
@@ -583,7 +594,8 @@ export default {
       newNamePlaceholder: 'Enter new name',
       editVersionDescTitle: 'Edit Version Description',
       newDescPlaceholder: 'Enter description (supports multiple lines)',
-      deleteConfirm: 'Are you sure you want to delete version "{name}"?\nThis will delete the version folder and all its files. This cannot be undone!',
+      deleteConfirm:
+        'Are you sure you want to delete version "{name}"?\nThis will delete the version folder and all its files. This cannot be undone!',
       deleteConfirmAgain: 'Confirm again: This action is irreversible!',
       selectExportPath: 'Select Export Save Location',
       mclaPack: 'MCLA Modpack',
@@ -653,19 +665,37 @@ export default {
     credits: 'Credits',
     openSource: 'Open Source Projects Used',
     copyright: 'Copyright',
-    copyrightText1: 'VoxVer Launcher is an open source unofficial Minecraft launcher project for learning and communication purposes only.',
-    copyrightText2: 'Minecraft related names, logos and trademarks are owned by Mojang Studios and Microsoft. This project has no affiliation with Mojang Studios or Microsoft.',
-    copyrightText3: 'VoxVer open source project and its official derivatives are licensed under GNU General Public License 3.0 (GPLv3).',
+    copyrightText1:
+      'VoxVer Launcher is an open source unofficial Minecraft launcher project for learning and communication purposes only.',
+    copyrightText2:
+      'Minecraft related names, logos and trademarks are owned by Mojang Studios and Microsoft. This project has no affiliation with Mojang Studios or Microsoft.',
+    copyrightText3:
+      'VoxVer open source project and its official derivatives are licensed under GNU General Public License 3.0 (GPLv3).',
     viewGplv3: 'View GPLv3 License',
     viewMit: 'View MIT License',
     help: 'Help',
     helpSubtitle: 'FAQ & User Guide',
     faq: [
-      { q: 'How to install Mods?', a: 'Go to the Downloads page, select the Mod matching your game version, and click install. Both CurseForge and Modrinth sources are supported.' },
-      { q: 'Java not found when launching?', a: 'Go to Settings → Launch Options → Game Java to manually select or detect your Java installation path.' },
-      { q: 'How to import modpacks?', a: 'Go to Settings → Other → Modpack Tools and select Import .mrpack file.' },
-      { q: 'How to backup data?', a: 'Go to Settings → Other → Data Backup & Restore to create a backup for migration or recovery.' },
-      { q: 'Launcher lags or displays abnormally?', a: 'Try adjusting interface opacity, disabling animations or effects in Personalization. You can also enable Debug Mode in Developer Options to view logs.' }
+      {
+        q: 'How to install Mods?',
+        a: 'Go to the Downloads page, select the Mod matching your game version, and click install. Both CurseForge and Modrinth sources are supported.'
+      },
+      {
+        q: 'Java not found when launching?',
+        a: 'Go to Settings → Launch Options → Game Java to manually select or detect your Java installation path.'
+      },
+      {
+        q: 'How to import modpacks?',
+        a: 'Go to Settings → Other → Modpack Tools and select Import .mrpack file.'
+      },
+      {
+        q: 'How to backup data?',
+        a: 'Go to Settings → Other → Data Backup & Restore to create a backup for migration or recovery.'
+      },
+      {
+        q: 'Launcher lags or displays abnormally?',
+        a: 'Try adjusting interface opacity, disabling animations or effects in Personalization. You can also enable Debug Mode in Developer Options to view logs.'
+      }
     ],
     feedback: 'Feedback',
     feedbackSubtitle: 'Got issues or suggestions? Let us know',
@@ -686,10 +716,14 @@ export default {
     fontLicense: 'Font License',
     voxverAttribution: 'VoxVer Attribution',
     viewSilLicense: 'SIL Open Font License 1.1',
-    licenseDesc: 'VoxVer Launcher is open-source software released under the GNU General Public License v3.0 (GPLv3). You are free to use, modify, and distribute this software in accordance with the terms of the GPLv3 license.',
-    fontLicenseText: 'The Noto Sans SC font used in this software is released under the SIL Open Font License 1.1. Some interface icons are from the Lucide icon library, used under the MIT license.',
-    attributionText1: 'VoxVer Launcher is developed and maintained by the VoxVer Launcher Team (Meow Studio).',
-    attributionText2: 'Minecraft is a trademark of Mojang Studios. This project has no affiliation with Mojang Studios or Microsoft.'
+    licenseDesc:
+      'VoxVer Launcher is open-source software released under the GNU General Public License v3.0 (GPLv3). You are free to use, modify, and distribute this software in accordance with the terms of the GPLv3 license.',
+    fontLicenseText:
+      'The Noto Sans SC font used in this software is released under the SIL Open Font License 1.1. Some interface icons are from the Lucide icon library, used under the MIT license.',
+    attributionText1:
+      'VoxVer Launcher is developed and maintained by the VoxVer Launcher Team (Meow Studio).',
+    attributionText2:
+      'Minecraft is a trademark of Mojang Studios. This project has no affiliation with Mojang Studios or Microsoft.'
   },
 
   mod: {
@@ -1059,7 +1093,8 @@ export default {
     createInstanceBtn: 'Create Instance',
     // Import instance modal
     importExistingInstance: 'Import Existing Instance',
-    selectDirectoryHint: 'Select a directory containing Minecraft game data (versions, libraries, mods, etc.)',
+    selectDirectoryHint:
+      'Select a directory containing Minecraft game data (versions, libraries, mods, etc.)',
     directoryPath: 'Directory Path',
     directoryPlaceholder: 'Click select button to choose directory...',
     scanningDirectory: 'Scanning directory...',
@@ -1077,7 +1112,8 @@ export default {
     createFailed: 'Failed to create instance',
     loadHistoryFailed: 'Failed to load launch history',
     favoriteOnly: 'Favorites only',
-    noCustomPathHint: 'Please select a .minecraft folder in Settings first. The system default path was not scanned.',
+    noCustomPathHint:
+      'Please select a .minecraft folder in Settings first. The system default path was not scanned.',
     noCustomPathTitle: 'No .minecraft folder configured',
     // Empty state
     noMatchingInstances: 'No matching instances',
@@ -1429,7 +1465,8 @@ export default {
     currentChannel: 'Current',
     autoCheckOn: 'Enabled',
     autoCheckOff: 'Disabled',
-    permWarning: 'Launcher is in a system-protected directory. Downloads and updates may fail due to insufficient permissions. It is recommended to move to a user directory (e.g. Desktop).',
+    permWarning:
+      'Launcher is in a system-protected directory. Downloads and updates may fail due to insufficient permissions. It is recommended to move to a user directory (e.g. Desktop).',
     permAdminOk: 'Running as administrator, permissions are OK.',
     downloadSources: 'Speed Test',
     downloadConcurrent: 'Concurrent Downloads',
@@ -1580,7 +1617,8 @@ export default {
     openCacheDirDesc: 'Stores temporary cache files',
     openTempDir: 'Temp Directory',
     openTempDirDesc: 'Stores download temp files',
-    clearCacheDesc: 'Clear launcher cache and temp files. Won\'t affect your game saves or accounts.',
+    clearCacheDesc:
+      "Clear launcher cache and temp files. Won't affect your game saves or accounts.",
     clearCacheBtn: 'Clear Cache',
     clearing: 'Clearing...',
     cacheCleared: 'Cache cleared',
@@ -1591,13 +1629,16 @@ export default {
     networkLogging: 'Network Request Logging',
     networkLoggingDesc: 'Log all network request details to console',
     skipCorsCheck: 'Skip CORS Check',
-    skipCorsCheckDesc: 'Skip cross-origin security checks in dev mode (not recommended for production)',
+    skipCorsCheckDesc:
+      'Skip cross-origin security checks in dev mode (not recommended for production)',
     devEnvInfo: 'Runtime Environment',
     devEnvInfoDesc: 'Current launcher runtime environment and version info',
     devResetSettings: 'Reset Launcher',
-    devResetSettingsDesc: 'Clear all settings and restore to defaults. This action cannot be undone.',
+    devResetSettingsDesc:
+      'Clear all settings and restore to defaults. This action cannot be undone.',
     devResetBtn: 'Reset to Defaults',
-    devResetConfirm: 'Are you sure you want to reset all settings? This cannot be undone. The launcher will restart automatically after reset.',
+    devResetConfirm:
+      'Are you sure you want to reset all settings? This cannot be undone. The launcher will restart automatically after reset.',
     devAppVersion: 'App Version',
     electronVersion: 'Electron',
     chromeVersion: 'Chrome',
@@ -1673,7 +1714,8 @@ export default {
     maxMemory: 'Maximum Memory',
     memoryHint: 'Recommended not to exceed 80% of available system memory',
     offlineSkin: 'Offline Skin',
-    skinWarning: 'Due to technical issues, this feature only guarantees compatibility for versions before 1.19.2!',
+    skinWarning:
+      'Due to technical issues, this feature only guarantees compatibility for versions before 1.19.2!',
     skinSave: 'Save Skin',
     skinRefresh: 'Refresh',
     officialPlayerName: 'Official Player Name',
@@ -1736,8 +1778,10 @@ export default {
     localFile: 'Read Local File',
     onlineUpdate: 'Online Update',
     features: 'Feature Hiding',
-    featuresDesc: 'You can hide unnecessary pages or disable specific features. Press F12 in any interface to temporarily show hidden features.',
-    featuresWarning: 'Remember to keep the feature hiding settings visible, otherwise you won\'t be able to change the settings back...',
+    featuresDesc:
+      'You can hide unnecessary pages or disable specific features. Press F12 in any interface to temporarily show hidden features.',
+    featuresWarning:
+      "Remember to keep the feature hiding settings visible, otherwise you won't be able to change the settings back...",
     hotkeyDesc: 'Set global hotkeys that can execute actions at any time. Format examples:',
     launchGameDesc: 'Quickly launch selected instance from any window',
     toggleWindowDesc: 'Hide or show the launcher main window',
@@ -1789,7 +1833,7 @@ export default {
     resetSettings: 'Reset All Settings',
     clearDownloadCacheSuccess: 'Download cache cleared',
     clearVersionCacheSuccess: 'Version cache cleared',
-    clearCacheManually: 'Please manually clean the {type} directory', 
+    clearCacheManually: 'Please manually clean the {type} directory',
     version: 'Version',
     modpack: 'Modpack Tools',
     home: {
@@ -1819,13 +1863,15 @@ export default {
     },
     aboutSection: {
       projectInfo: 'Project Info',
-      projectDesc: 'VoxVer Launcher is an open-source unofficial Minecraft launcher, for learning and communication purposes only.',
+      projectDesc:
+        'VoxVer Launcher is an open-source unofficial Minecraft launcher, for learning and communication purposes only.',
       teamRole: 'Development & Maintenance (Meow Studio)',
       licenseRole: 'Open Source License',
       relatedLinks: 'Related Links',
       relatedDesc: 'Learn more about VoxVer Launcher.',
       acknowledgements: 'Acknowledgements',
-      acknowledgementsDesc: 'Thanks to the following organizations and communities for their support.',
+      acknowledgementsDesc:
+        'Thanks to the following organizations and communities for their support.',
       minecraftCreator: 'Creator of Minecraft',
       msSupport: 'Technology & Ecosystem Support',
       ossCommunity: 'Open Source Community Contributors',
@@ -1859,7 +1905,8 @@ export default {
       launchCommand: 'Launch Command',
       launchCommandPlaceholder: 'Launch command will be generated when the game starts...',
       debug: 'Debug',
-      debugModeDesc: 'When enabled, detailed logs will be output to the console, which may affect performance'
+      debugModeDesc:
+        'When enabled, detailed logs will be output to the console, which may affect performance'
     },
     interface: {
       desc: 'Customize the title bar, homepage layout and feature visibility.'
@@ -1870,7 +1917,8 @@ export default {
     security: {
       desc: 'Configure security scanning for downloaded files to protect your game environment from malicious code.',
       modScan: 'Mod Security Scan',
-      modScanDesc: 'Scan downloaded mods and resource files to detect potential malicious code and suspicious behavior.',
+      modScanDesc:
+        'Scan downloaded mods and resource files to detect potential malicious code and suspicious behavior.',
       enableScan: 'Enable Security Scan',
       enableScanDesc: 'Automatically scan mod files after download',
       scanEngine: 'Scan Engine',
@@ -1884,11 +1932,13 @@ export default {
       sensitivityStandard: 'Standard',
       sensitivityStrict: 'Strict',
       integrityCheck: 'File Integrity Check',
-      integrityCheckDesc: 'Verify file SHA256 hash after download to ensure the file has not been tampered with.',
+      integrityCheckDesc:
+        'Verify file SHA256 hash after download to ensure the file has not been tampered with.',
       enableHashCheck: 'Enable Hash Check',
       enableHashCheckDesc: 'Compare downloaded file hash with server record',
       autoQuarantine: 'Auto Quarantine Suspicious Files',
-      autoQuarantineDesc: 'Automatically move files to quarantine on risk detection, skip installation',
+      autoQuarantineDesc:
+        'Automatically move files to quarantine on risk detection, skip installation',
       trustedSources: 'Trusted Download Sources',
       trustedSourcesDesc: 'Files from these sources skip some security checks.',
       modrinthDesc: 'Open-source Minecraft mod distribution platform',
@@ -1942,7 +1992,8 @@ export default {
     },
     devOptions: {
       debugDiag: 'Debug & Diagnostics',
-      debugDiagDesc: 'Debug mode records more detailed logs for troubleshooting. Export diagnostics to package logs for bug reports.',
+      debugDiagDesc:
+        'Debug mode records more detailed logs for troubleshooting. Export diagnostics to package logs for bug reports.',
       debugModeDesc: 'Record DEBUG level logs (effective after restart)',
       exportDiagDesc: 'Package logs and app info into a .zip for bug reports',
       exporting: 'Exporting...',
@@ -2099,8 +2150,7 @@ export default {
     modpackCreateErrorBody: 'Create modpack failed: {error}',
     modpackImportErrorBody: 'Import modpack failed: {error}',
     backupErrorBody: 'Backup failed: {error}',
-    backupRestoreErrorBody: 'Restore failed: {error}',
-
+    backupRestoreErrorBody: 'Restore failed: {error}'
   },
 
   backup: {
@@ -2209,7 +2259,7 @@ export default {
     daysAgo: '{n} days ago',
     weeksAgo: '{n} weeks ago',
     monthsAgo: '{n} months ago',
-    yearsAgo: '{n} years ago',
+    yearsAgo: '{n} years ago'
   },
 
   update: {
@@ -2244,7 +2294,7 @@ export default {
       cancelDownload: 'Cancel Download',
       installUpdate: 'Install Update',
       retry: 'Retry',
-      releaseNotes: 'What\'s New',
+      releaseNotes: "What's New",
       versionLabel: 'v{version}',
       loadingNotes: 'Loading release notes...',
       noNotes: 'No release notes available',
@@ -2285,7 +2335,7 @@ export default {
     checkFailed: 'Update check failed',
     viewDetail: 'View Details',
     upToDate: 'Up to date',
-    newVersion: 'New version available', 
+    newVersion: 'New version available',
     downloadFailed: 'Download Failed',
     retry: 'Retry',
     updateTimeout: 'Update Timeout',
@@ -2336,7 +2386,7 @@ export default {
     cleanupOldVersions: 'Cleanup Old Versions',
     cleanupDownloads: 'Cleanup Downloads',
     cleanupOnInstall: 'Cleanup on Install',
-    cleanupOnStartup: 'Cleanup on Startup', 
+    cleanupOnStartup: 'Cleanup on Startup'
   },
   component: {
     // VersionSelect
@@ -2353,7 +2403,8 @@ export default {
     noInstalledVersions: 'No installed versions in current folder',
     releaseVersion: 'Release',
     deleteVersion: 'Delete Version',
-    deleteVersionConfirm: 'Confirm delete version {id}? This only removes it from the list and will not delete game files.',
+    deleteVersionConfirm:
+      'Confirm delete version {id}? This only removes it from the list and will not delete game files.',
     detecting: 'Detecting...',
     noElectronEnv: 'Electron environment not detected',
     notFoundFolder: '.minecraft folder not found',

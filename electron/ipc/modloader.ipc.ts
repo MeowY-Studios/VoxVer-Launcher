@@ -5,10 +5,11 @@
  * 并通过 webContents.send('modloader:progress', ...) 推送安装进度
  */
 import { ipcMain, BrowserWindow } from 'electron'
+import { promises as fs } from 'fs'
+import * as path from 'path'
 import { ModLoaderService } from '../services/modloader.service'
-import type { InstallationProgress } from '../services/modloader.service'
+import type { InstallationProgress } from '../adapters/loaders/ILoaderAdapter'
 import { getInstanceById } from '../services/instances'
-import type { GameInstance } from '../types/adapter.types'
 
 let mainWindow: BrowserWindow | null = null
 let service: ModLoaderService | null = null
@@ -47,9 +48,6 @@ async function getModLoaderStatus(instance: {
 }): Promise<{ installed: boolean; version: string }> {
   const { gameDir, loaderType, loaderVersion } = instance
   if (!gameDir || !loaderType) return { installed: false, version: '' }
-
-  const { promises: fs } = require('fs')
-  const path = require('path')
 
   try {
     if (loaderType === 'fabric') {
@@ -111,7 +109,10 @@ export function registerModLoaderHandlers(
   // ── 安装 ModLoader（带进度推送）────────────────────────────
   ipcMain.handle(
     'modloader:install',
-    async (_event, payload: { instanceId: string; loaderType: string; loaderVersion?: string; gameDir: string }) => {
+    async (
+      _event,
+      payload: { instanceId: string; loaderType: string; loaderVersion?: string; gameDir: string }
+    ) => {
       const { instanceId, loaderType, loaderVersion, gameDir } = payload
 
       try {

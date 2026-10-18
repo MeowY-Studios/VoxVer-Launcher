@@ -17,339 +17,318 @@
       </h2>
     </div>
 
-    <!-- 微软正版账户 -->
-    <section class="account-section vox-card">
-      <div class="section-header">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="#00a4ef" style="flex-shrink: 0">
-          <rect width="24" height="24" rx="4" />
-          <text x="5" y="17.5" font-size="14" font-weight="bold" fill="#fff">M</text>
-        </svg>
-        <span class="section-title">{{ $t('auth.microsoftAccount') }}</span>
-        <span class="status-badge" :class="msAccount ? 'success' : 'default'">
-          {{ msAccount ? $t('auth.loggedIn') : $t('auth.notLoggedIn') }}
-        </span>
-      </div>
-
-      <!-- 已登录状态 -->
-      <div class="section-body" v-if="msAccount">
-        <div class="profile-row">
-          <img v-if="skinDataUrl" :src="skinDataUrl" class="profile-avatar" :alt="$t('auth.skin')" />
-          <div
-            v-else-if="skinError"
-            class="profile-avatar placeholder skin-error"
-            :title="skinError"
-          >
-            {{ msAccount.name[0]?.toUpperCase() }}
-          </div>
-          <div v-else class="profile-avatar placeholder loading-skin">
-            <span>{{ msAccount.name[0]?.toUpperCase() }}</span>
-          </div>
-          <div class="profile-info">
-            <p class="profile-name">{{ msAccount.name }}</p>
-            <p class="profile-uuid">{{ msAccount.uuid }}</p>
-            <p v-if="skinError" class="skin-error-text">{{ $t('auth.skin') }}: {{ skinError }}</p>
-          </div>
-        </div>
-        <button class="vox-btn vox-btn--destructive" @click="logoutMicrosoft">
-          {{ $t('auth.logout') }}
-        </button>
-      </div>
-
-      <!-- 未登录状态 -->
-      <div class="section-body empty-body" v-else>
-        <p>{{ $t('auth.loginTip') }}</p>
-        <button class="vox-btn vox-btn--primary" @click="startMicrosoftLogin" :disabled="loginState !== 'idle'">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="#00a4ef">
-            <rect width="24" height="24" rx="4" />
-            <text x="5" y="17.5" font-size="14" font-weight="bold" fill="#fff">M</text>
-          </svg>
-          {{ $t('auth.signInWithMicrosoft') }}
-        </button>
-      </div>
-    </section>
-
-    <!-- 离线账户 -->
-    <section class="account-section offline vox-card">
-      <div class="section-header">
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          style="flex-shrink: 0; color: var(--voxver-text-muted)"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <path d="M2 12h20" />
-          <path
-            d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"
-          />
-        </svg>
-        <span class="section-title">{{ $t('auth.offlineAccount') }}</span>
-      </div>
-
-      <div class="section-body">
-        <div class="form-group">
-          <label>{{ $t('auth.playerName') }}</label>
-          <input
-            type="text"
-            class="vox-input"
-            v-model="offlineName"
-            :placeholder="$t('auth.playerNamePlaceholder')"
-            maxlength="16"
-          />
-        </div>
-
-        <div class="form-group">
-          <label>{{ $t('auth.uuid') }}（{{ $t('common.optional') }}）</label>
-          <div class="input-row">
-            <input
-              type="text"
-              class="vox-input"
-              v-model="offlineUuid"
-              :placeholder="$t('auth.uuidPlaceholder')"
-            />
-            <button class="vox-btn" @click="offlineUuid = generateUUID()">{{ $t('common.generate') }}</button>
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <span v-if="offlineError" class="form-error">{{ offlineError }}</span>
-          <button class="vox-btn vox-btn--primary" @click="saveOffline" :disabled="savingOffline">
-            {{ savingOffline ? $t('common.saving') : $t('auth.saveOfflineAccount') }}
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 提示 -->
-    <aside class="hint-box">
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
+    <!-- 在线 / 离线 切换器 -->
+    <div class="account-tabs">
+      <button
+        class="tab-btn"
+        :class="{ active: activeTab === 'online' }"
+        @click="activeTab = 'online'"
       >
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>
-      <span>{{ $t('auth.offlineModeHint') }}</span>
-    </aside>
-
-    <!-- 外链入口 -->
-    <div class="external-links">
-      <a
-        class="vox-btn ext-link-btn"
-        href="https://www.xbox.com/zh-cn/games/store/minecraft-java-bedrock-edition-for-pc/9nxp44l49shj"
-        target="_blank"
-        rel="noopener"
+        {{ $t('auth.tabOnline') }}
+      </button>
+      <button
+        class="tab-btn"
+        :class="{ active: activeTab === 'offline' }"
+        @click="activeTab = 'offline'"
       >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-          <line x1="3" y1="6" x2="21" y2="6" />
-          <path d="M16 10a4 4 0 01-8 0" />
-        </svg>
-        {{ $t('auth.buyOfficial') }}
-      </a>
-      <a
-        class="vox-btn ext-link-btn"
-        href="https://www.minecraft.net/zh-hans"
-        target="_blank"
-        rel="noopener"
-      >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <line x1="2" y1="12" x2="22" y2="12" />
-          <path
-            d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"
-          />
-        </svg>
-        {{ $t('auth.goOfficialSite') }}
-      </a>
+        {{ $t('auth.tabOffline') }}
+      </button>
     </div>
 
-    <!-- ===== Microsoft OAuth Device Flow 弹窗 ===== -->
-    <Teleport to="body">
-      <div class="modal-overlay" v-if="loginState !== 'idle'" @click.self="cancelLogin">
-        <div class="modal-card vox-card">
-          <!-- 标题栏 -->
-          <div class="modal-header">
-            <span class="modal-title">{{ $t('auth.signInWithMicrosoft') }}</span>
-            <button class="modal-close" @click="cancelLogin">✕</button>
-          </div>
+    <Transition name="tab-fade" mode="out-in">
+      <!-- 在线面板 -->
+      <div v-if="activeTab === 'online'" key="online" class="account-panel">
+        <div class="online-layout">
+          <!-- 微软账户卡片 -->
+          <section class="account-section vox-card">
+            <div class="section-header">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#00a4ef" style="flex-shrink: 0">
+                <rect width="24" height="24" rx="4" />
+                <text x="5" y="17.5" font-size="14" font-weight="bold" fill="#fff">M</text>
+              </svg>
+              <span class="section-title">{{ $t('auth.microsoftAccount') }}</span>
+              <span class="status-badge" :class="msAccounts.length > 0 ? 'success' : 'default'">
+                {{ msAccounts.length > 0 ? $t('auth.loggedIn') : $t('auth.notLoggedIn') }}
+              </span>
+            </div>
 
-          <!-- 内容区 -->
-          <div class="modal-body">
-            <!-- 等待用户访问链接阶段 -->
-            <template v-if="loginState === 'waiting_user'">
-              <div class="device-flow">
-                <p class="device-flow-hint">{{ $t('auth.deviceFlowHint') }}</p>
-                <div class="device-code-box">
-                  <span class="device-code">{{ deviceCodeInfo.userCode }}</span>
-                  <button class="vox-btn" @click="copyCode">
-                    {{ codeCopied ? $t('common.copied') : $t('auth.copyAndOpenBrowser') }}
+            <!-- 已登录账户卡堆（当前使用在最上，点击后面卡片切换） -->
+            <div class="card-stack" :style="{ height: stackHeight }" v-if="msAccounts.length > 0">
+              <div
+                v-for="(acc, i) in stackedAccounts"
+                :key="acc.id"
+                class="profile-item id-card"
+                :class="{ active: i === 0, clickable: i !== 0 }"
+                :style="cardStyle(i)"
+                @click="switchAccount(acc)"
+                @mouseenter="hoverIndex = i"
+                @mouseleave="hoverIndex = -1"
+              >
+                <div class="bc-top">
+                  <img
+                    v-if="avatarSrc(acc) && !skinLoadFailed[acc.uuid]"
+                    :src="avatarSrc(acc)"
+                    class="profile-avatar"
+                    :alt="$t('auth.skin')"
+                    @error="skinLoadFailed[acc.uuid] = true"
+                  />
+                  <div v-else class="profile-avatar placeholder">
+                    {{ acc.name[0]?.toUpperCase() }}
+                  </div>
+                  <span v-if="acc.isActive === 1" class="active-badge">{{
+                    $t('auth.active')
+                  }}</span>
+                </div>
+                <p class="bc-uuid">{{ acc.uuid }}</p>
+                <div class="bc-bottom">
+                  <p class="profile-name">{{ acc.name }}</p>
+                  <button
+                    class="vox-btn vox-btn--destructive bc-logout"
+                    @click.stop="logoutMicrosoft(acc.id)"
+                  >
+                    {{ $t('auth.logout') }}
                   </button>
                 </div>
-                <p class="device-flow-tip">{{ $t('auth.deviceFlowTip') }}</p>
-                <div class="loader-row">
-                  <span class="loader"></span>
-                  <span class="loader-text">{{ $t('auth.waitingAuthorization') }}</span>
-                </div>
               </div>
-            </template>
+            </div>
 
-            <!-- 处理中阶段 -->
-            <template v-else-if="loginState === 'processing'">
-              <div class="processing">
-                <span class="loader loader-lg"></span>
-                <p class="processing-text">{{ loginProgressText }}</p>
-              </div>
-            </template>
+            <!-- 未登录状态 -->
+            <div class="section-body empty-body" v-else>
+              <p>{{ $t('auth.loginTip') }}</p>
+            </div>
 
-            <!-- 成功阶段 -->
-            <template v-else-if="loginState === 'done'">
-              <div class="result-box success">
-                <svg
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--voxver-success)"
-                  stroke-width="2.5"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="9 12 11 14 15 10" />
+            <!-- 登录 / 添加账户按钮 -->
+            <div class="section-footer">
+              <button class="vox-btn vox-btn--primary" @click="showLoginModal = true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#00a4ef">
+                  <rect width="24" height="24" rx="4" />
+                  <text x="5" y="17.5" font-size="14" font-weight="bold" fill="#fff">M</text>
                 </svg>
-                <p>{{ $t('auth.loginSuccess') }} {{ newAccountName }}！</p>
-              </div>
-            </template>
+                {{
+                  msAccounts.length > 0
+                    ? $t('auth.addAnotherMicrosoftAccount')
+                    : $t('auth.signInWithMicrosoft')
+                }}
+              </button>
+            </div>
+          </section>
 
-            <!-- 错误阶段 -->
-            <template v-else-if="loginState === 'error'">
-              <div class="result-box error-box">
-                <svg
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--voxver-error)"
-                  stroke-width="2.5"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="8" x2="12" y2="16" />
-                  <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-                <p>{{ loginError }}</p>
-                <button
-                  class="vox-btn vox-btn--primary"
-                  style="margin-top: 12px"
-                  @click="startMicrosoftLogin"
-                >
-                  {{ $t('common.retry') }}
-                </button>
-              </div>
-            </template>
-          </div>
-
-          <!-- 底部按钮 -->
-          <div class="modal-footer">
-            <button v-if="loginState === 'done'" class="vox-btn vox-btn--primary" @click="closeModal">
-              {{ $t('common.finish') }}
-            </button>
-            <button v-else-if="loginState === 'error'" class="vox-btn" @click="closeModal">
-              {{ $t('common.close') }}
-            </button>
-            <button v-else class="vox-btn" @click="cancelLogin">{{ $t('common.cancel') }}</button>
-          </div>
+          <!-- 3D 皮肤展示（当前使用账户） -->
+          <section class="skin-3d-section vox-card">
+            <div class="section-header">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                style="flex-shrink: 0"
+              >
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span class="section-title">{{ $t('auth.skin3dPreview') }}</span>
+            </div>
+            <Transition name="skin-swap">
+              <SkinViewer3D :key="activeSkinUuid" :skin="activeSkinRaw" />
+            </Transition>
+          </section>
         </div>
       </div>
-    </Teleport>
+
+      <!-- 离线路板 -->
+      <div v-else key="offline" class="account-panel">
+        <!-- 离线账户 -->
+        <section class="account-section offline vox-card">
+          <div class="section-header">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              style="flex-shrink: 0; color: var(--voxver-text-muted)"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M2 12h20" />
+              <path
+                d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"
+              />
+            </svg>
+            <span class="section-title">{{ $t('auth.offlineAccount') }}</span>
+          </div>
+
+          <div class="section-body">
+            <div class="form-group">
+              <label>{{ $t('auth.playerName') }}</label>
+              <input
+                type="text"
+                class="vox-input"
+                v-model="offlineName"
+                :placeholder="$t('auth.playerNamePlaceholder')"
+                maxlength="16"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>{{ $t('auth.uuid') }}（{{ $t('common.optional') }}）</label>
+              <div class="input-row">
+                <input
+                  type="text"
+                  class="vox-input"
+                  v-model="offlineUuid"
+                  :placeholder="$t('auth.uuidPlaceholder')"
+                />
+                <button class="vox-btn" @click="offlineUuid = generateUUID()">
+                  {{ $t('common.generate') }}
+                </button>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <span v-if="offlineError" class="form-error">{{ offlineError }}</span>
+              <button
+                class="vox-btn vox-btn--primary"
+                @click="saveOffline"
+                :disabled="savingOffline"
+              >
+                {{ savingOffline ? $t('common.saving') : $t('auth.saveOfflineAccount') }}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 提示 -->
+        <aside class="hint-box">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span>{{ $t('auth.offlineModeHint') }}</span>
+        </aside>
+
+        <!-- 外链入口（正版引导，置于离线路板内） -->
+        <div class="external-links">
+          <a
+            class="vox-btn ext-link-btn"
+            href="https://www.xbox.com/zh-cn/games/store/minecraft-java-bedrock-edition-for-pc/9nxp44l49shj"
+            target="_blank"
+            rel="noopener"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <path d="M16 10a4 4 0 01-8 0" />
+            </svg>
+            {{ $t('auth.buyOfficial') }}
+          </a>
+          <a
+            class="vox-btn ext-link-btn"
+            href="https://www.minecraft.net/zh-hans"
+            target="_blank"
+            rel="noopener"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="2" y1="12" x2="22" y2="12" />
+              <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 014-10z" />
+            </svg>
+            {{ $t('auth.goOfficialSite') }}
+          </a>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- ===== Microsoft 登录弹窗（Device Flow） ===== -->
+    <MicrosoftLoginModal v-model="showLoginModal" @logged-in="onLoggedIn" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAccountsStore } from '../stores/accounts.store'
-import type { Account } from '../types/account'
+import MicrosoftLoginModal from '../components/auth/MicrosoftLoginModal.vue'
+import SkinViewer3D from '../components/auth/SkinViewer3D.vue'
 
 const { t } = useI18n()
 const accountsStore = useAccountsStore()
 
-// * ====== 微软账户状态 ======
-const msAccount = ref(
-  accountsStore.activeAccount?.type === 'microsoft' ? accountsStore.activeAccount : null
-)
-const skinDataUrl = ref<string | null>(null)
-const skinError = ref<string | null>(null)
+// * ====== 微软登录弹窗显隐 ======
+const showLoginModal = ref(false)
 
-// * ====== 登录流程状态 ======
-type LoginState = 'idle' | 'waiting_user' | 'processing' | 'done' | 'error'
-const loginState = ref<LoginState>('idle')
-const loginProgressText = ref('')
-const loginError = ref('')
-const newAccountName = ref('')
-const deviceCodeInfo = ref({ userCode: '', verificationUri: '', message: '' })
-const codeCopied = ref(false)
-
-// * ====== 离线账户状态 ======
-const offlineName = ref('Steve')
-const offlineUuid = ref('')
-const savingOffline = ref(false)
-const offlineError = ref('')
-
-// * ====== 监听登录进度推送 ======
-let progressUnlisten: (() => void) | null = null
-
-onMounted(async () => {
+/** 登录成功后刷新账户列表（皮肤头像由 watch msAccounts 自动补载） */
+async function onLoggedIn() {
   await accountsStore.fetchAccounts()
-  await syncMsAccount()
+}
 
-  // * 监听来自主进程的登录进度
-  progressUnlisten = window.electronAPI?.account.onLoginProgress((payload) => {
-    handleLoginProgress(payload.stage, payload.detail)
-  })
+// * ====== 在线/离线路板切换状态 ======
+const activeTab = ref<'online' | 'offline'>('online')
+
+// * ====== 微软账户状态（支持多账户） ======
+const msAccounts = computed(() => accountsStore.accounts.filter((a) => a.type === 'microsoft'))
+
+// * ====== 账户皮肤（本地缓存，raw 为完整皮肤，head 为裁剪头像，按 uuid 索引） ======
+const rawSkinUrls = ref<Record<string, string>>({})
+const skinDataUrls = ref<Record<string, string>>({})
+const skinLoadFailed = ref<Record<string, boolean>>({})
+
+/** 当前使用账户的完整皮肤（供右侧 3D 展示） */
+const activeSkinRaw = computed(() => {
+  const active = msAccounts.value.find((a) => a.isActive === 1)
+  return active ? rawSkinUrls.value[active.uuid] || '' : ''
 })
 
-onUnmounted(() => {
-  progressUnlisten?.()
-})
+/** 当前使用账户 uuid（作为 3D 组件 key，切换时触发左右滑动过渡） */
+const activeSkinUuid = computed(
+  () => msAccounts.value.find((a) => a.isActive === 1)?.uuid ?? 'none'
+)
 
-async function syncMsAccount() {
-  const active = accountsStore.accounts.find((a) => a.isActive === 1)
-  msAccount.value = active?.type === 'microsoft' ? (active as Account) : null
-  skinDataUrl.value = null
-  skinError.value = null
-  if (msAccount.value?.uuid) {
-    const result = await window.electronAPI?.account.getSkinDataUrl(msAccount.value.uuid)
-    if (result?.ok) {
-      // * 裁剪出皮肤头部，放大皮肤头部，放大显示
-      skinDataUrl.value = await cropSkinHead(result.data || '')
-    } else if (result?.error) {
-      skinError.value = result.error || ''  
+/** 为所有微软账户加载本地皮肤 */
+async function loadAccountSkins() {
+  for (const acc of msAccounts.value) {
+    if (!acc.uuid || skinDataUrls.value[acc.uuid]) continue
+    const result = await window.electronAPI?.account.getSkinDataUrl(acc.uuid)
+    if (result?.ok && result.data) {
+      rawSkinUrls.value[acc.uuid] = result.data
+      skinDataUrls.value[acc.uuid] = await cropSkinHead(result.data)
+      // * 本地缓存加载成功，清除此前的失败标记（首渲染时兜底源可能 404）
+      delete skinLoadFailed.value[acc.uuid]
     }
   }
 }
 
-/** 从完整皮肤图中裁剪头像区域（8x8 头部像素） */
+/** 头像地址：优先本地缓存 dataUrl，兜底仅接受 http(s) 远程 skin_url（DB 老数据可能是本地路径） */
+function avatarSrc(acc: { uuid: string; skin_url: string | null }): string {
+  if (skinDataUrls.value[acc.uuid]) return skinDataUrls.value[acc.uuid]
+  return acc.skin_url?.startsWith('http') ? acc.skin_url : ''
+}
+
+/** 从完整皮肤图中裁剪头像区域（8x8 头部像素并放大） */
 async function cropSkinHead(skinDataUrl: string): Promise<string> {
   return new Promise((resolve) => {
     const img = new Image()
@@ -363,126 +342,94 @@ async function cropSkinHead(skinDataUrl: string): Promise<string> {
       ctx.imageSmoothingEnabled = false
       // * Minecraft 皮肤脸部在 (8, 8) 位置，8x8 像素
       ctx.drawImage(img, 8, 8, SIZE, SIZE, 0, 0, canvasSize, canvasSize)
-      const result = canvas.toDataURL('image/png')
-      resolve(result)
+      resolve(canvas.toDataURL('image/png'))
     }
-    img.onerror = (e) => {
-      resolve(skinDataUrl)
-    }
+    img.onerror = () => resolve(skinDataUrl)
     img.src = skinDataUrl
   })
 }
 
-// * ====== 处理进度事件 ======
-function handleLoginProgress(stage: string, detail?: string) {
-  switch (stage) {
-    case 'device_code':
-      loginState.value = 'processing'
-      loginProgressText.value = t('auth.fetchingDeviceCode')
-      break
-    case 'waiting_user': {
-      try {
-        const info = JSON.parse(detail || '{}')
-        deviceCodeInfo.value = {
-          userCode: info.userCode || '',
-          verificationUri: info.verificationUri || 'https://microsoft.com/link',
-          message: info.message || ''
-        }
-        loginState.value = 'waiting_user'
-      } catch {
-        loginState.value = 'waiting_user'
-      }
-      break
+// * ====== 离线账户状态 ======
+const offlineName = ref('Steve')
+const offlineUuid = ref('')
+const savingOffline = ref(false)
+const offlineError = ref('')
+
+onMounted(async () => {
+  await accountsStore.fetchAccounts()
+  await loadAccountSkins()
+})
+
+// * 账户列表变化时（登录新增/退出删除），为新账户补充皮肤头像
+watch(msAccounts, () => {
+  void loadAccountSkins()
+})
+
+// * ====== 退出指定微软账户 ======
+async function logoutMicrosoft(id: string) {
+  await accountsStore.deleteAccount(id)
+}
+
+/** 点击卡片循环左移：该卡到最前，原先排它前面的卡按序移到尾部（ABC 点 B → BCA） */
+async function switchAccount(acc: { id: string; isActive: number }) {
+  if (acc.isActive === 1) return
+  lastManualAt = Date.now()
+  const i = displayOrder.value.indexOf(acc.id)
+  if (i > 0) {
+    displayOrder.value = [...displayOrder.value.slice(i), ...displayOrder.value.slice(0, i)]
+  }
+  await accountsStore.setActive(acc.id)
+}
+
+// * ====== 卡堆（循环顺序：点哪张哪张到最前，前面的卡按序移到尾部，ABC→BCA→CAB） ======
+const CARD_HEIGHT = 162
+const CARD_OFFSET = 24
+const HOVER_LIFT = 12
+const hoverIndex = ref(-1)
+
+/** 显示顺序（账户 id，头部 = 卡堆最前）；与 isActive 解耦，切换时循环左移 */
+const displayOrder = ref<string[]>([])
+/** 最近一次手动切换时间戳：时间窗内 store 刷新不触发激活卡置顶，避免连点乱序 */
+let lastManualAt = 0
+
+/** 账户列表变化时同步顺序：移除已删、追加新增；外部激活（如新登录）时置顶 */
+watch(
+  msAccounts,
+  (list) => {
+    const ids = list.map((a) => a.id)
+    const kept = displayOrder.value.filter((id) => ids.includes(id))
+    const added = ids.filter((id) => !kept.includes(id))
+    displayOrder.value = [...kept, ...added]
+    const activeId = list.find((a) => a.isActive === 1)?.id
+    if (activeId && displayOrder.value[0] !== activeId && Date.now() - lastManualAt > 800) {
+      displayOrder.value = [activeId, ...displayOrder.value.filter((id) => id !== activeId)]
     }
-    case 'token_received':
-      loginState.value = 'processing'
-      loginProgressText.value = t('auth.tokenReceivedVerifyingXbox')
-      break
-    case 'xbox_live':
-      loginProgressText.value = detail || t('auth.connectingXboxLive')
-      break
-    case 'xsts':
-      loginProgressText.value = detail || t('auth.fetchingXstsToken')
-      break
-    case 'minecraft':
-      loginProgressText.value = detail || t('auth.verifyingMinecraft')
-      break
-    case 'profile':
-      loginProgressText.value = detail || t('auth.fetchingProfile')
-      break
-    case 'saving':
-      loginProgressText.value = t('auth.savingAccount')
-      break
-    case 'done':
-      loginState.value = 'done'
-      break
-    case 'error':
-      loginState.value = 'error'
-      loginError.value = detail || t('auth.loginFailedRetry')
-      break
-    case 'timeout':
-      loginState.value = 'error'
-      loginError.value = t('auth.deviceCodeExpired')
-      break
-    case 'cancelled':
-      loginState.value = 'idle'
-      break
+  },
+  { immediate: true }
+)
+
+/** 按显示顺序排列的账户卡片 */
+const stackedAccounts = computed(() =>
+  displayOrder.value
+    .map((id) => msAccounts.value.find((a) => a.id === id))
+    .filter((a): a is NonNullable<typeof a> => Boolean(a))
+)
+
+/** 卡堆总高：一张完整卡 + 后面每张卡露出的边缘 */
+const stackHeight = computed(
+  () => `${CARD_HEIGHT + Math.max(0, stackedAccounts.value.length - 1) * CARD_OFFSET}px`
+)
+
+/** 每张卡的堆叠位置：最前卡位置最低且层级最高，后面的卡向上偏移露出顶边；悬停上抬方便点击 */
+function cardStyle(i: number) {
+  const n = stackedAccounts.value.length
+  const baseY = (n - 1 - i) * CARD_OFFSET
+  const lift = hoverIndex.value === i && i !== 0 ? HOVER_LIFT : 0
+  return {
+    transform: `translateY(${baseY - lift}px) scale(${1 - i * 0.03})`,
+    zIndex: n - i,
+    filter: i === 0 ? 'none' : 'brightness(0.93)'
   }
-}
-
-// * ====== 开始 Microsoft 登录 ======
-async function startMicrosoftLogin() {
-  loginState.value = 'processing'
-  loginProgressText.value = t('auth.initializing')
-  loginError.value = ''
-  newAccountName.value = ''
-  codeCopied.value = false
-
-  const result = await window.electronAPI?.account.loginMicrosoft()
-
-  if (result?.ok && result.data) {
-    newAccountName.value = result.data.name || t('auth.newAccount')
-    loginState.value = 'done'
-    await accountsStore.fetchAccounts()
-    await syncMsAccount()
-  } else if (result?.error === 'LOGIN_CANCELLED') {
-    loginState.value = 'idle'
-  } else {
-    loginState.value = 'error'
-    loginError.value = result?.error || t('auth.loginFailedRetry')
-  }
-}
-
-// * ====== 取消登录 ======
-async function cancelLogin() {
-  await window.electronAPI?.account.cancelLogin()
-  loginState.value = 'idle'
-}
-
-function closeModal() {
-  loginState.value = 'idle'
-}
-
-// * ====== 退出微软账户 ======
-async function logoutMicrosoft() {
-  if (!msAccount.value) return
-  await accountsStore.deleteAccount(msAccount.value.id)
-  msAccount.value = null
-}
-
-// * ====== 复制设备码并打开浏览器 ======
-async function copyCode() {
-  try {
-    await navigator.clipboard.writeText(deviceCodeInfo.value.userCode)
-    codeCopied.value = true
-    setTimeout(() => {
-      codeCopied.value = false
-    }, 2000)
-  } catch {
-    // ! 不支持 clipboard，继续打开浏览器
-  }
-  // * 直接用 window.open 打开浏览器，不依赖主进程
-  window.open(deviceCodeInfo.value.verificationUri, '_blank')
 }
 
 // * ====== 保存离线账户 ======
@@ -498,12 +445,11 @@ async function saveOffline() {
     const result = await window.electronAPI?.account.loginOffline(name)
     if (result?.ok) {
       await accountsStore.fetchAccounts()
-      syncMsAccount()
     } else {
-      offlineError.value = result?.error || t('auth.saveFailed') as string
+      offlineError.value = result?.error || (t('auth.saveFailed') as string)
     }
   } catch (e: unknown) {
-    offlineError.value = (e as Error).message || t('auth.saveFailed') as string
+    offlineError.value = (e as Error).message || (t('auth.saveFailed') as string)
   } finally {
     savingOffline.value = false
   }
@@ -527,6 +473,57 @@ function generateUUID(): string {
 
 .page-header {
   margin-bottom: 20px;
+}
+
+/* * ====== 在线/离线 切换器 ====== */
+.account-tabs {
+  display: flex;
+  gap: 4px;
+  width: fit-content;
+  margin-bottom: 16px;
+  padding: 4px;
+  background: color-mix(in oklab, var(--voxver-text) 5%, transparent);
+  border-radius: var(--voxver-radius-md);
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  padding: 8px 20px;
+  font-size: 13px;
+  color: var(--voxver-text-secondary);
+  border-radius: var(--voxver-radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--voxver-transition-fast);
+
+  &:hover {
+    color: var(--voxver-text-primary);
+    background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  }
+
+  &.active {
+    background: var(--voxver-primary);
+    color: #fff;
+    font-weight: 500;
+    box-shadow: 0 1px 2px var(--voxver-shadow-sm);
+  }
+}
+
+/* * ====== 面板切换过渡 ====== */
+.tab-fade-enter-active,
+.tab-fade-leave-active {
+  transition:
+    opacity var(--voxver-transition-fast) var(--voxver-ease-out-quart),
+    transform var(--voxver-transition-fast) var(--voxver-ease-out-quart);
+}
+.tab-fade-enter-from,
+.tab-fade-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
 }
 
 /* * ====== 账户区块（视觉样式由 .vox-card 提供） ====== */
@@ -585,11 +582,196 @@ function generateUUID(): string {
 }
 
 /* * ====== 资料行 ====== */
-.profile-row {
+.profile-item {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  margin-bottom: 14px;
+  padding: 10px 0;
+
+  & + & {
+    border-top: 1px solid var(--voxver-border-color);
+  }
+}
+
+/* * ====== 身份卡堆（银行卡风格，当前使用在最上，点击后面的卡切换） ====== */
+.card-stack {
+  position: relative;
+  padding: 0 16px 16px;
+}
+
+.profile-item.id-card {
+  position: absolute;
+  top: 0;
+  left: 16px;
+  right: 16px;
+  height: 162px;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border: 1px solid var(--voxver-border-color);
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--voxver-primary) 16%, var(--voxver-bg-elevated)) 0%,
+    var(--voxver-bg-elevated) 65%
+  );
+  overflow: hidden;
+  transform-origin: top center;
+  /* * 切换卡片时的抽卡/落卡动画：弹性缓出让位移与缩放可感 */
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.5s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  /* * 卡面高光 */
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -25%;
+    width: 65%;
+    height: 130%;
+    background: radial-gradient(ellipse, rgba(255, 255, 255, 0.09), transparent 70%);
+    pointer-events: none;
+  }
+
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--voxver-primary);
+    }
+  }
+
+  &.active {
+    border-color: var(--voxver-success);
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--voxver-success) 18%, var(--voxver-bg-elevated)) 0%,
+      var(--voxver-bg-elevated) 65%
+    );
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
+  }
+}
+
+/* * 银行卡结构：顶部头像/徽标、卡号式 UUID、底部姓名/退出 */
+.bc-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.bc-uuid {
+  margin: 10px 0 8px;
+  font-family: monospace;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: var(--voxver-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bc-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+
+  .profile-name {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--voxver-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.bc-logout {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  font-size: 12px;
+}
+
+/* * 在线面板左右分栏：账户列表 + 3D 皮肤展示（两列等高） */
+.online-layout {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  width: 800px;
+}
+
+.online-layout .account-section {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+
+  /* * 按钮贴底，与右列等高时底部对齐 */
+  .section-footer {
+    margin-top: auto;
+  }
+}
+
+.skin-3d-section {
+  position: relative;
+  width: 190px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .skin-viewer {
+    flex: 1;
+  }
+}
+
+/* * 3D 皮肤左右切换：新模型从右滑入，旧模型向左滑出 */
+.skin-swap-enter-active,
+.skin-swap-leave-active {
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.45s ease;
+}
+
+.skin-swap-enter-from {
+  transform: translateX(70px);
+  opacity: 0;
+}
+
+.skin-swap-leave-to {
+  transform: translateX(-70px);
+  opacity: 0;
+}
+
+/* * 离场元素脱离文档流，避免与入场元素互相挤压 */
+.skin-swap-leave-active {
+  position: absolute;
+  inset: 0;
+}
+
+.active-badge {
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--voxver-success);
+  background: color-mix(in oklab, var(--voxver-success) 15%, transparent);
+  border-radius: var(--voxver-radius-xs);
+}
+
+.section-footer {
+  padding: 0 16px 16px;
+
+  .vox-btn {
+    width: 100%;
+  }
 }
 
 .profile-avatar {
@@ -610,24 +792,6 @@ function generateUUID(): string {
   }
 }
 
-.loading-skin span {
-  animation: pulse 1s ease-in-out infinite;
-  font-size: 20px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.skin-error {
-  background: var(--voxver-error) !important;
-  cursor: help;
-}
-
-.skin-error-text {
-  margin: 2px 0 0 !important;
-  font-size: 10px !important;
-  color: var(--voxver-error) !important;
-}
-
 img.profile-avatar {
   width: 48px;
   height: 48px;
@@ -637,21 +801,6 @@ img.profile-avatar {
   border: 2px solid var(--voxver-border-color);
   image-rendering: pixelated;
   background: #8b5e3c;
-}
-
-.profile-info {
-  .profile-name {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--voxver-text-primary);
-  }
-  .profile-uuid {
-    margin: 2px 0 0;
-    font-size: 11px;
-    color: var(--voxver-text-muted);
-    font-family: monospace;
-  }
 }
 
 /* * ====== 表单 ====== */
@@ -708,152 +857,6 @@ img.profile-avatar {
   }
 }
 
-/* * ====== OAuth 弹窗 ====== */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgb(0 0 0 / 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: var(--voxver-z-overlay);
-  backdrop-filter: blur(2px);
-}
-
-.modal-card {
-  width: 420px;
-  max-width: calc(100vw - 32px);
-  border: 1px solid var(--voxver-border-color);
-  overflow: hidden;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--voxver-border-color);
-
-  .modal-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--voxver-text-primary);
-  }
-  .modal-close {
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    color: var(--voxver-text-muted);
-    padding: 2px 6px;
-    border-radius: var(--voxver-radius-xs);
-    line-height: 1;
-
-    &:hover {
-      background: color-mix(in oklab, var(--voxver-text) 8%, transparent);
-    }
-  }
-}
-
-.modal-body {
-  padding: 20px 18px;
-  min-height: 120px;
-}
-
-.modal-footer {
-  padding: 12px 18px;
-  border-top: 1px solid var(--voxver-border-color);
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-/* * ====== Device Flow 内容 ====== */
-.device-flow {
-  text-align: center;
-
-  .device-flow-hint {
-    font-size: 13px;
-    color: var(--voxver-text-secondary);
-    margin: 0 0 10px;
-  }
-
-  .device-code-box {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-
-  .device-code {
-    font-size: 26px;
-    font-weight: 900;
-    letter-spacing: 4px;
-    color: var(--voxver-text-primary);
-    font-family: 'Courier New', monospace;
-    background: color-mix(in oklab, var(--voxver-text) 6%, transparent);
-    border: 1px solid var(--voxver-border-color);
-    border-radius: var(--voxver-radius-md);
-    padding: 6px 18px;
-  }
-
-  .device-flow-tip {
-    font-size: 12px;
-    color: var(--voxver-text-muted);
-    margin: 0 0 14px;
-  }
-
-  .loader-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    color: var(--voxver-text-secondary);
-    font-size: 12px;
-  }
-}
-
-/* * ====== 处理中 ====== */
-.processing {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  padding: 10px 0;
-
-  .processing-text {
-    font-size: 13px;
-    color: var(--voxver-text-secondary);
-    margin: 0;
-  }
-}
-
-/* * ====== 结果 ====== */
-.result-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 0;
-  text-align: center;
-
-  p {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-  }
-
-  &.success p {
-    color: var(--voxver-success);
-  }
-  &.error-box p {
-    color: var(--voxver-error);
-    font-size: 13px;
-    font-weight: 400;
-  }
-}
-
 /* * ====== 外链入口 ====== */
 .external-links {
   display: flex;
@@ -876,24 +879,4 @@ img.profile-avatar {
     }
   }
 }
-
-/* * ====== Loading Spinner ====== */
-.loader {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--voxver-border-color);
-  border-top-color: var(--voxver-primary);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  flex-shrink: 0;
-
-  &.loader-lg {
-    width: 32px;
-    height: 32px;
-    border-width: 3px;
-  }
-}
-
-
 </style>
