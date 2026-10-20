@@ -78,57 +78,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 ---
 
-### v0.7.2 主要内容
-
-<details>
-<summary>展开查看</summary>
-
-#### 🔄 更新检查双链路
-- 检查更新改为 **GitHub API 版本对比链路**：直接比对本地版本与 GitHub 最新 Release，不再依赖 `latest.yml`
-- 点击按钮后的所有结果均有可见反馈：发现新版本弹「新版本可用」弹窗（可下载安装）、版本一致弹「已是最新版本」弹窗、检查失败弹错误详情
-- 按钮增加「检查中」禁用态与 12 秒超时自动恢复
-- 启动时自动检查同样走版本对比链路，检测结果在设置页可恢复展示
-- 下载/安装仍由 electron-updater 执行：元数据未就绪时自动补检后再下载；`latest.yml` 滞后时以 API 对比结论为准
-- 开发模式下版本检测同样可用
-
-</details>
-
----
-
-### v0.7.1 主要内容
-
-<details>
-<summary>展开查看</summary>
-
-#### 🩺 崩溃分析系统
-- 游戏异常退出后自动捕获并解析崩溃报告（10 类崩溃特征识别）
-- 新增独立「崩溃分析」页面；启动页崩溃面板展示异常详情
-
-### 🎨 Lumin UI/UX 设计系统
-- 合并 [Lumin UI/UX](https://github.com/MeowY-Studios/Lumin-UI-UX)：Modal 弹窗（4 档尺寸 + 响应式）、Toast 通知、Badge 渐变变体与完整动画体系
-- 新增 PxSelect 组件统一替换原生下拉框
-- 全局颜色 Token 化（`--voxver-*` CSS 变量），修复大量深色/浅色主题下的硬编码颜色
-- 页面切换统一 250ms 淡入淡出动画
-
-### 🚀 启动核心与 Mod 生态
-- 集成 XMCL 启动核心，修复 1.16 崩溃与 1.20.1 Forge 自包含版本启动问题
-- Java 版本按 MC 版本自动选择（8 / 11 / 17 / 21 / 25），LWJGL 2/3 自动区分 `java.exe` / `javaw.exe`
-- Forge / NeoForge / Fabric / Quilt 一键安装，支持 OptiFine 与 Fabric API 自动匹配
-- Mod 管理：CurseForge + Modrinth 双源搜索、批量操作、兼容性检查、图标缓存、导出 zip
-- 下载多源切换与超时控制，新增全局下载进度面板
-
-### 🧩 实例与联机
-- 自动导入当前游戏目录中检测到的本地版本
-- P2P 实例分享（WebRTC + 6 位分享码）设置分区独立，新增联机分区
-
-### 🌍 其他
-- **修复关于页在打包版本中空白的问题**（i18n 词条中 `@` 字符触发 `Invalid linked format`）
-- i18n 补全：修复 560+ 处硬编码文本，新增约 300 个词条
-- 仓库迁移至 MeowY-Studios 组织，文档站迁移至 voxver.meow-studio.tech
-- Electron 升级至 42，better-sqlite3 升级至 12，GitHub Actions 运行时升级 Node 24
-- 集成 Codex Security 提交前安全扫描
-
-</details>
+**[📜 查看完整版本更新历史](https://voxver.meow-studio.tech/guide/changelog.html)**
 
 ---
 
@@ -140,7 +90,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 | **游戏启动** | 完整 JVM 启动流程、文件完整性校验、多源下载（官方源 + BMCLAPI）、进度实时推送、自定义 .minecraft 路径 |
 | **版本管理** | BMCLAPI 版本列表、正式版/快照/远古版、一键安装/删除 |
 | **ModLoader** | Fabric / Forge / NeoForge / Quilt 一键安装 |
-| **Mod 生态** | CurseForge + Modrinth 双源搜索/下载、本地管理、自动更新检测、依赖管理 |
+| **Mod 生态** | Modrinth 搜索/下载、本地管理、自动更新检测、依赖管理；CurseForge 源待推出（API Key 申请审核中） |
 | **实例系统** | 独立管理每个版本的 Mod/配置/存档、导入/导出（.mcla 格式） |
 | **主题系统** | 浅色/深色切换、背景自定义、主题色自定义、字号/动画/特效/音效设置 |
 | **国际化** | 中文 / English 双语切换 |
@@ -158,7 +108,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 | 平台 | 状态 | 架构 |
 |------|------|------|
 | Windows 10+ | ✅ 已支持 | x64 |
-| macOS | ✅ 已支持 (CI) | x64 / arm64 |
+| macOS | ⏳ 计划中 | x64 / arm64 |
 | Linux | ⏳ 计划中 | x64 |
 
 ---
