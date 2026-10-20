@@ -102,7 +102,7 @@
             </div>
             <div class="fp-task-footer">
               <span class="fp-pct">{{ task.progress }}%</span>
-              <button class="fp-cancel-btn" @click="cancelDownload(task.id)" :title="$t('common.cancel')">
+              <button class="fp-cancel-btn" @click="cancelDownload(task)" :title="$t('common.cancel')">
                 <svg
                   width="10"
                   height="10"
@@ -138,7 +138,7 @@
                 </svg>
                 {{ $t('download.completed') }}
               </div>
-              <button class="fp-task-dismiss" @click="dismiss(task.id)">{{ $t('component.remove') }}</button>
+              <button class="fp-task-dismiss" @click="dismiss(task)">{{ $t('component.remove') }}</button>
           </div>
 
           <!-- 失败的任务 -->
@@ -163,7 +163,7 @@
                 </svg>
                 {{ $t('download.failed') }}
               </div>
-              <button class="fp-task-dismiss" @click="dismiss(task.id)">{{ $t('component.remove') }}</button>
+              <button class="fp-task-dismiss" @click="dismiss(task)">{{ $t('component.remove') }}</button>
           </div>
         </div>
 
@@ -178,7 +178,7 @@
 import { computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useDownloadStore } from '../stores/download.store'
+import { useDownloadStore, type UnifiedTask } from '../stores/download.store'
 
 const { t } = useI18n()
 
@@ -186,7 +186,7 @@ const router = useRouter()
 const route = useRoute()
 const store = useDownloadStore()
 
-const allTasks = computed(() => Array.from(store.versionTasks.values()))
+const allTasks = computed(() => store.unifiedTasks)
 
 const hasAny = computed(() => allTasks.value.length > 0)
 const activeCount = computed(
@@ -218,18 +218,32 @@ function close() {
   store.showFloatPanel = false
 }
 
-function dismiss(versionId: string) {
-  store.removeVersionTask(versionId)
+function dismiss(task: UnifiedTask) {
+  if (task._type === 'version') {
+    store.removeVersionTask(task.id)
+  }
 }
 
 function clearCompleted() {
-  completedTasks.value.forEach((t) => store.removeVersionTask(t.id))
-  failedTasks.value.forEach((t) => store.removeVersionTask(t.id))
+  completedTasks.value.forEach((t) => {
+    if (t._type === 'version') {
+      store.removeVersionTask(t.id)
+    }
+  })
+  failedTasks.value.forEach((t) => {
+    if (t._type === 'version') {
+      store.removeVersionTask(t.id)
+    }
+  })
 }
 
-async function cancelDownload(id: string) {
-  await window.electronAPI?.download?.cancelDownload?.(id)
-  store.removeVersionTask(id)
+async function cancelDownload(task: UnifiedTask) {
+  await window.electronAPI?.download?.cancelDownload?.(task.id)
+  if (task._type === 'version') {
+    store.removeVersionTask(task.id)
+  } else {
+    await store.refreshQueue()
+  }
 }
 
 // 进入下载管理页面时自动隐藏浮动面板

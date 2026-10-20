@@ -72,7 +72,8 @@ export const useModsStore = defineStore('mods', () => {
           fileSize: m.fileSize || 0,
           dependencies: m.dependencies || [],
           dependsOn: m.dependsOn || [],
-          installedAt: m.installedAt || ''
+          installedAt: m.installedAt || '',
+          logoUrl: m.logoUrl || ''
         }))
       } else {
         mods.value = []

@@ -106,6 +106,7 @@ type LaunchPhase =
   | 'checking-files'
   | 'downloading-files'
   | 'launching-process'
+  | 'waiting-window'
   | 'running'
   | 'error'
 
@@ -122,13 +123,15 @@ const phases = ref<PhaseDef[]>([
   { id: 'downloading-files', label: t('component.launchProgressDownloadFiles'), detail: t('component.launchProgressDownloadingFiles'), done: false },
   { id: 'validating-java', label: t('component.launchProgressValidateJava'), detail: t('component.launchProgressValidatingJava'), done: false },
   { id: 'launching-process', label: t('component.launchProgressLaunchProcess'), detail: t('component.launchProgressLaunchingProcess'), done: false },
+  { id: 'waiting-window', label: t('component.launchProgressWaitWindow'), detail: t('component.launchProgressWaitingWindow'), done: false },
   { id: 'running', label: t('component.launchProgressGameRunning'), detail: t('component.launchProgressGameLaunched'), done: false }
 ])
 
-// 只显示已完成 + 当前进行中的阶段，不预显示未来的阶段
+// 只显示当前进行中的阶段：已加载完成的步骤不再保留展示，避免列表堆积
 const visiblePhases = computed(() => {
   if (phase.value === 'idle') return []
-  return phases.value.filter((p) => p.done || p.id === phase.value)
+  // error 时保留显示当前出错阶段，便于定位问题
+  return phases.value.filter((p) => p.id === phase.value && (!p.done || phase.value === 'error'))
 })
 
 
@@ -177,6 +180,7 @@ onMounted(() => {
           'downloading-files',
           'validating-java',
           'launching-process',
+          'waiting-window',
           'running'
         ]
         const currentIdx = phaseOrder.indexOf(newPhase)

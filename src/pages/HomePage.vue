@@ -8,9 +8,6 @@
           <div class="hero-icon">
             <img src="/Alogo.png" alt="VoxVer" class="hero-logo-img" />
           </div>
-          <div class="hero-text">
-            <h1 class="hero-title">{{ $t('home.welcomeTip') }}</h1>
-          </div>
 
         </div>
       </div>
@@ -114,8 +111,9 @@ onUnmounted(() => {
 }
 
 /* * ===== Hero 卡片 ===== */
+/* * 不设底色：无论浅色/深色模式，额外底色都会在页面背景上形成突兀色块 */
 .bento-card--hero {
-  background: var(--voxver-bg-tertiary);
+  background: transparent;
 }
 
 .hero-content {
@@ -135,14 +133,6 @@ onUnmounted(() => {
     object-fit: contain;
     display: block;
   }
-}
-
-.hero-title {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--voxver-text-primary);
-  letter-spacing: -0.01em;
 }
 
 .hero-desc {

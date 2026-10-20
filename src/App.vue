@@ -522,7 +522,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { ref, computed, onMounted, provide, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, provide, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import VersionSettings from './components/VersionSettings.vue'
 import VersionSelect from './components/VersionSelect.vue'
@@ -532,11 +532,27 @@ import PxModal from './components/common/PxModal.vue'
 import PxLaunchProgress from './components/common/PxLaunchProgress.vue'
 import { useVersionsStore, useAccountsStore, useInstancesStore, useDownloadStore, useAppStore } from './stores'
 import { useConfirm } from './composables/useConfirm'
+import { useToast } from './composables/useToast'
 
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
 const { confirm: pxConfirm } = useConfirm()
+const { toast } = useToast()
+
+/**
+ * * 剥离 Electron IPC 异常的英文包装（Error invoking remote method 'xxx': Error: ...），
+ * * 只保留主进程抛出的原始错误信息，避免中英文混杂的报错直接展示给用户
+ */
+function sanitizeErrorMessage(message: string): string {
+  return message.replace(/Error invoking remote method '[^']+':\s*(?:Error:\s*)?/g, '')
+}
+
+let offNotificationListener: (() => void) | null = null
+onUnmounted(() => {
+  offNotificationListener?.()
+  offNotificationListener = null
+})
 const currentRoute = computed(() => route.path)
 const isElectron = ref(false)
 const appVersion = ref('0.6.0')
@@ -877,7 +893,7 @@ async function loadLocalInstalledVersions() {
       if (result?.ok && result.data?.length) {
         versions.value = (result.data as { id: string; baseVersion?: string; loaderInfo?: string }[]).map((v) => ({
           id: v.id,
-          name: v.baseVersion || v.id,
+          name: v.id,
           loader: v.loaderInfo || ''
         }))
       }
@@ -895,11 +911,30 @@ const dlActiveCat = ref('vanilla')
 // * 设置页分类
 const settingsActive = ref('home')
 
+// * 每次进入设置页时重置侧栏选中到主页
+watch(() => route.path, (path) => {
+  if (path === '/settings') {
+    settingsActive.value = 'home'
+  }
+})
+
 provide('settingsActive', settingsActive)
 provide('dlActiveCat', dlActiveCat)
 
 onMounted(async () => {
   isElectron.value = !!window.electronAPI
+
+  // * 全局通知改用应用内弹窗展示（主进程推送 notification:new）
+  if (window.electronAPI?.notification?.onNotify) {
+    offNotificationListener = window.electronAPI.notification.onNotify((item) => {
+      const title = sanitizeErrorMessage(item.title)
+      const body = sanitizeErrorMessage(item.body)
+      toast({
+        message: body ? `${title}：${body}` : title,
+        type: item.type
+      })
+    })
+  }
 
   // * 获取平台信息（影响窗口控制按钮样式）
   if (window.electronAPI?.app?.getRuntimeInfo) {
@@ -1005,6 +1040,9 @@ onMounted(async () => {
     localStorage.removeItem('voxver_last_version')
     localStorage.removeItem('voxver_last_version_name')
   }
+
+  // * 全局注册下载事件监听器（确保任何页面触发下载都能收到进度）
+  try { downloadStore.attachDownloadListeners() } catch { /* 忽略注册失败 */ }
 
   // * 监听版本下载进度事件（始终注册）
   const api = window.electronAPI
@@ -1126,8 +1164,8 @@ async function handleLaunch() {
         )
         if (!dlResult?.success) {
           window.electronAPI?.notification?.send({
-            title: t('common.error'),
-            body: t('launch.downloadAndLaunchFailed', { error: dlResult?.error || t('common.unknownError') }),
+            title: t('launch.downloadAndLaunchFailedTitle'),
+            body: dlResult?.error || t('common.unknownError'),
             type: 'error'
           })
         } else if (dlResult?.pid) {
@@ -1141,15 +1179,15 @@ async function handleLaunch() {
       }
     } else {
       window.electronAPI?.notification?.send({
-        title: t('common.error'),
-        body: t('launch.launchFailedWithError', { error: result?.error || t('common.unknownError') }),
+        title: t('launch.launchFailed'),
+        body: result?.error || t('common.unknownError'),
         type: 'error'
       })
     }
   } catch (e: unknown) {
     window.electronAPI?.notification?.send({
-      title: t('common.error'),
-      body: t('launch.launchException', { error: (e as Error).message }),
+      title: t('launch.launchFailed'),
+      body: (e as Error).message || t('common.unknownError'),
       type: 'error'
     })
   } finally {

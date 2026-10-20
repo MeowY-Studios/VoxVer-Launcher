@@ -34,7 +34,7 @@
   border-radius: var(--voxver-radius-lg);
 
   /* * Inner highlight — 玻璃感的顶部微反光 */
-  box-shadow: inset 0 1px 1px oklch(100% 0 0 / 0.06);
+  box-shadow: var(--voxver-card-highlight);
 
   /* * Outer Shell — hairline 边框 + 微背景 */
   &::before {
@@ -53,7 +53,7 @@
   background: var(--voxver-bg-tertiary);
   border-radius: var(--voxver-radius-md);
   border: 1px solid var(--voxver-border-color-light);
-  box-shadow: inset 0 1px 1px oklch(100% 0 0 / 0.04);
+  box-shadow: var(--voxver-card-highlight-subtle);
 }
 
 /* * Double-Bezel 完整版 — 需要 wrapper 配合 */
@@ -68,7 +68,7 @@
   > .vox-card__inner {
     background: var(--voxver-bg-secondary);
     border-radius: var(--voxver-radius-lg);
-    box-shadow: inset 0 1px 1px oklch(100% 0 0 / 0.06);
+    box-shadow: var(--voxver-card-highlight);
     padding: var(--voxver-space-lg);
   }
 }

@@ -137,7 +137,7 @@
                     </svg>
                     <p>{{ $t('component.noInstalledVersions') }}</p>
                   </div>
-                  <div v-for="ver in installedVersions" :key="ver.id" class="installed-ver-item">
+                  <div v-for="ver in installedVersions" :key="ver.id" class="installed-ver-item" @click="selectActive(ver)">
                     <div class="iv-check">
                       <input type="radio" name="activeVersion" :checked="ver.isActive" @change="selectActive(ver)" />
                     </div>
@@ -147,7 +147,7 @@
                         {{ $t('component.releaseVersion') }} {{ ver.baseVersion }} {{ ver.loaderInfo || '' }}
                       </p>
                     </div>
-                    <button class="iv-remove" :title="$t('component.deleteVersion')" @click="removeVersion(ver.id)">
+                    <button class="iv-remove" :title="$t('component.deleteVersion')" @click.stop="removeVersion(ver.id)">
                       🗑
                     </button>
                   </div>
@@ -890,6 +890,7 @@ async function removeVersion(id: string) {
   padding: 9px 8px;
   border-radius: var(--voxver-radius-md);
   transition: background 0.12s;
+  cursor: pointer;
 
   &:hover {
     background: var(--voxver-bg-hover);

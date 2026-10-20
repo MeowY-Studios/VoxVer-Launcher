@@ -34,9 +34,7 @@ function mountHome() {
 describe('HomePage - 渲染', () => {
   it('应渲染欢迎卡片', () => {
     const wrapper = mountHome()
-    expect(wrapper.find('.hero-title').exists()).toBe(true)
-    // home.welcomeTip 文本
-    expect(wrapper.text()).toContain('在左侧选择版本')
+    expect(wrapper.find('.hero-logo-img').exists()).toBe(true)
   })
 
   it('应渲染 Bento Grid 布局', () => {

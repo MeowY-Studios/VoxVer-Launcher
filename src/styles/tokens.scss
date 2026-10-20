@@ -29,8 +29,8 @@
   --voxver-bg-elevated: oklch(21% 0.007 252);
   --voxver-bg-input: oklch(17% 0.006 252);
   --voxver-bg-overlay: oklch(8% 0.005 252 / 0.85);
-  --voxver-bg-hover: oklch(100% 0 0 / 0.05);
-  --voxver-bg-active: oklch(100% 0 0 / 0.08);
+  --voxver-bg-hover: oklch(100% 0 0 / 0.08);
+  --voxver-bg-active: oklch(100% 0 0 / 0.12);
 
   /** 文字色阶 */
   --voxver-text: oklch(96% 0.002 252);
@@ -65,10 +65,10 @@
   --voxver-info: oklch(65% 0.19 252);
   --voxver-info-light: oklch(65% 0.19 252 / 0.15);
 
-  /** 阴影 — 柔和环境阴影系列 */
-  --voxver-shadow-sm: 0 1px 3px oklch(0% 0 0 / 0.3);
-  --voxver-shadow-md: 0 4px 12px oklch(0% 0 0 / 0.35);
-  --voxver-shadow-lg: 0 8px 32px oklch(0% 0 0 / 0.4);
+  /** 阴影 — 品牌色辉光系列（暗色背景下黑阴影不可见，改用辉光） */
+  --voxver-shadow-sm: 0 1px 4px oklch(65% 0.19 252 / 0.12);
+  --voxver-shadow-md: 0 4px 14px oklch(65% 0.19 252 / 0.16);
+  --voxver-shadow-lg: 0 8px 36px oklch(65% 0.19 252 / 0.2);
 
   /** 组件专用变量 */
   --voxver-titlebar-bg: oklch(9% 0.005 252 / 0.85);
@@ -85,12 +85,19 @@
   --voxver-progress-bg: oklch(65% 0.19 252);
 
   /** 玻璃态背景 — 主题感知半透明色 */
-  --voxver-glass-sidebar: oklch(14% 0.006 252 / 0.78);
-  --voxver-glass-content: oklch(15% 0.006 252 / 0.72);
-  --voxver-glass-raised: oklch(21% 0.007 252 / 0.85);
-  --voxver-glass-input: oklch(21% 0.007 252 / 0.72);
+  --voxver-glass-sidebar: oklch(18% 0.006 252 / 0.84);
+  --voxver-glass-content: oklch(19% 0.006 252 / 0.78);
+  --voxver-glass-raised: oklch(24% 0.007 252 / 0.88);
+  --voxver-glass-input: oklch(23% 0.007 252 / 0.82);
   --voxver-brand-color: oklch(96% 0.002 252);
-  --voxver-hover-overlay: oklch(100% 0 0 / 0.06);
+  --voxver-hover-overlay: oklch(100% 0 0 / 0.08);
+
+  /** 卡片内高光 — 暗色用白光泽 */
+  --voxver-card-highlight: inset 0 1px 1px oklch(100% 0 0 / 0.06);
+  --voxver-card-highlight-subtle: inset 0 1px 1px oklch(100% 0 0 / 0.04);
+
+  /** Titlebar 品牌色辉光 */
+  --voxver-titlebar-glow: oklch(65% 0.19 252 / 0.06);
 
   /** 扩展色阶 */
   --voxver-primary-100: oklch(65% 0.19 252 / 0.06);
@@ -111,7 +118,7 @@
   --voxver-gradient-success: linear-gradient(135deg, oklch(68% 0.19 142), oklch(66% 0.18 142));
   --voxver-launch-gradient: linear-gradient(135deg, oklch(65% 0.19 252), oklch(72% 0.15 252));
   --voxver-shadow-glow-primary: 0 0 20px oklch(65% 0.19 252 / 0.15);
-  --voxver-shadow-xl: 0 12px 48px oklch(0% 0 0 / 0.5);
+  --voxver-shadow-xl: 0 12px 48px oklch(65% 0.19 252 / 0.22);
   --voxver-scrollbar-track: transparent;
   --voxver-scrollbar-thumb: oklch(100% 0 0 / 0.1);
   --voxver-scrollbar-thumb-hover: oklch(100% 0 0 / 0.2);

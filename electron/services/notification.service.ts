@@ -1,10 +1,7 @@
 /**
- * 系统通知服务
- * 支持 Windows/macOS 原生通知
+ * 应用内通知服务
+ * 通知由渲染进程以应用内弹窗展示，不使用 Windows/macOS 原生系统弹窗
  */
-import { Notification, BrowserWindow } from 'electron'
-import { logger } from '../utils/logger'
-const log = logger.child('Notification')
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'error'
 
@@ -35,10 +32,10 @@ const MAX_HISTORY = 100
 let onNotifyCallback: ((item: NotificationItem) => void) | null = null
 
 /**
- * 发送原生系统通知
+ * 发送应用内通知
  */
 export function notify(options: NotificationOptions): NotificationItem {
-  const { title, body, type = 'info', silent = false, route } = options
+  const { title, body, type = 'info', route } = options
 
   // 构建通知项
   const item: NotificationItem = {
@@ -55,32 +52,9 @@ export function notify(options: NotificationOptions): NotificationItem {
   history.unshift(item)
   if (history.length > MAX_HISTORY) history.splice(MAX_HISTORY)
 
-  // 调用回调（供前端 UI 使用）
+  // 调用回调（供前端 UI 展示应用内弹窗）
   if (onNotifyCallback) {
     onNotifyCallback(item)
-  }
-
-  // 发送原生通知
-  if (Notification.isSupported()) {
-    try {
-      const notification = new Notification({
-        title,
-        body,
-        silent
-      })
-
-      notification.on('click', () => {
-        // 点击通知：将路由推入渲染进程
-        const wins = BrowserWindow.getAllWindows()
-        if (wins.length > 0 && !wins[0].isDestroyed()) {
-          wins[0].webContents.send('notification:clicked', { id: item.id, route: item.route })
-        }
-      })
-
-      notification.show()
-    } catch (e) {
-      log.warn('[Notification] 发送失败:', e)
-    }
   }
 
   return item

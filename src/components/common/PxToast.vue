@@ -1,6 +1,6 @@
 <template>
   <Transition name="px-toast">
-    <div v-if="visible" :class="['px-toast', `px-toast--${type}`]" role="status" :aria-live="'polite'">
+    <div v-if="visible" :class="['px-toast', `px-toast--${type}`]" :role="type === 'error' ? 'alert' : 'status'" :aria-live="type === 'error' ? 'assertive' : 'polite'">
       <!-- Icon -->
       <svg v-if="type === 'success'" class="px-toast__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
@@ -23,12 +23,20 @@
       </svg>
 
       <span class="px-toast__message">{{ message }}</span>
+
+      <!-- 手动关闭按钮（报错弹窗必须手动关闭，避免用户错过错误信息） -->
+      <button v-if="manualClose" class="px-toast__close" type="button" aria-label="关闭" @click="close">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
     </div>
   </Transition>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 export interface PxToastProps {
   message: string
@@ -48,13 +56,22 @@ const emit = defineEmits<{
 const visible = ref(false)
 let timer: ReturnType<typeof setTimeout> | null = null
 
+// * 报错弹窗不允许自动消失，必须手动关闭，避免用户错过错误信息
+const manualClose = computed(() => props.type === 'error')
+
+function close(): void {
+  if (timer) {
+    clearTimeout(timer)
+    timer = null
+  }
+  visible.value = false
+  setTimeout(() => emit('done'), 300)
+}
+
 onMounted(() => {
   visible.value = true
-  if (props.duration > 0) {
-    timer = setTimeout(() => {
-      visible.value = false
-      setTimeout(() => emit('done'), 300)
-    }, props.duration)
+  if (!manualClose.value && props.duration > 0) {
+    timer = setTimeout(close, props.duration)
   }
 })
 
@@ -109,6 +126,29 @@ onUnmounted(() => {
 }
 
 .px-toast__message {
+  color: var(--voxver-text-primary);
+}
+
+.px-toast__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 2px;
+  padding: 2px;
+  border: none;
+  border-radius: var(--voxver-radius-full);
+  background: transparent;
+  color: var(--voxver-text-secondary);
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    background var(--voxver-transition-fast),
+    color var(--voxver-transition-fast);
+}
+
+.px-toast__close:hover {
+  background: color-mix(in oklab, var(--voxver-text-secondary) 18%, transparent);
   color: var(--voxver-text-primary);
 }
 

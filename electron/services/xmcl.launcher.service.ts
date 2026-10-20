@@ -17,7 +17,7 @@ import {
 } from '@xmcl/installer'
 import type { Options as InstallerOptions, LibraryOptions as InstallerLibraryOptions } from '@xmcl/installer'
 import { Agent, interceptors } from 'undici'
-import { ChildProcess } from 'child_process'
+import { ChildProcess, execFile } from 'child_process'
 import { BrowserWindow } from 'electron'
 import * as fs from 'fs'
 import { join, dirname } from 'path'
@@ -31,6 +31,8 @@ import {
 import { getDatabase } from './database'
 import { logger } from '../utils/logger'
 import { validatePathSafe } from '../utils/path-validation'
+import { detectVersionInfo, formatLoaderInfo } from '../utils/version-meta'
+import { ensureI18nModEnabledByChanges } from './i18n.mod.service'
 const log = logger.child('XMCL')
 
 // BMCLAPI 镜像配置（多线路）
@@ -769,8 +771,7 @@ function compareMcVersions(a: string, b: string): number {
   return 0
 }
 
-async function resolveJavaPath(versionId: string, javaPath?: string): Promise<string> {
-  const baseVersion = extractBaseVersion(versionId)
+async function resolveJavaPath(versionId: string, baseVersion: string, javaPath?: string): Promise<string> {
   const recommendedMajor = recommendedJavaMajor(baseVersion)
   const maxMajor = maxJavaMajor(baseVersion)
 
@@ -826,19 +827,20 @@ async function resolveJavaPath(versionId: string, javaPath?: string): Promise<st
   throw new Error(`未找到兼容的 Java 运行环境（需要 Java ${recommendedMajor}-${maxMajor}）`)
 }
 
-function extractBaseVersion(versionId: string): string {
-  const match = versionId.match(/^\d+\.\d+(?:\.\d+)?/)
-  return match ? match[0] : versionId
-}
-
 function calculateMaxMemory(requested?: number): number {
   const totalMem = os.totalmem() / (1024 * 1024)
   const availableMem = Math.floor(totalMem * 0.6)
-  
-  let maxMem = requested || 4096
+
+  // 智能默认：取系统内存的 50%，底限 4096MB，上限为 availableMem（60%）
+  const smartDefault = Math.min(
+    Math.max(4096, Math.floor(totalMem * 0.5)),
+    availableMem
+  )
+
+  let maxMem = requested || smartDefault
   if (maxMem > availableMem) {
     maxMem = Math.max(512, availableMem)
-    log.warn(`[calculateMaxMemory] 内存配置 ${requested}MB 超过系统可用，限制为 ${maxMem}MB`)
+    log.warn(`[calculateMaxMemory] 内存配置 ${requested || maxMem}MB 超过系统可用，限制为 ${maxMem}MB`)
   }
   return maxMem
 }
@@ -911,6 +913,79 @@ function prepareInstanceDir(sharedGamePath: string, instancePath: string): void 
   }
 }
 
+/**
+ * 检测指定 PID 的进程是否已创建可见的游戏窗口（Windows：查询主窗口标题）
+ * 检测失败时返回 false（继续等待），最终由超时兜底
+ */
+function hasVisibleGameWindow(pid: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    execFile(
+      'powershell.exe',
+      [
+        '-NoProfile',
+        '-NonInteractive',
+        '-Command',
+        `(Get-Process -Id ${pid} -ErrorAction SilentlyContinue).MainWindowTitle`
+      ],
+      { windowsHide: true, timeout: 8000, encoding: 'utf-8' },
+      (err, stdout) => {
+        if (err) {
+          resolve(false)
+          return
+        }
+        resolve(String(stdout ?? '').trim().length > 0)
+      }
+    )
+  })
+}
+
+/**
+ * 等待游戏窗口出现后再通知前端进入运行状态
+ * 大型整合包 mod 加载需要数分钟，进程创建 ≠ 游戏画面出现；
+ * 窗口出现前前端保持"正在加载"，窗口出现后才发送 running 并结束加载显示
+ */
+async function waitForGameWindow(
+  mainWindow: BrowserWindow,
+  proc: ChildProcess,
+  abort: { flag: boolean },
+  versionId: string
+): Promise<void> {
+  const pid = proc.pid
+  const sendRunning = (): void => {
+    mainWindow.webContents.send('game:progress', {
+      phase: 'running',
+      message: '游戏画面已出现',
+      detail: `版本: ${versionId}，PID: ${pid ?? 'unknown'}`
+    })
+    log.info(`[waitForGameWindow] 游戏窗口已出现，通知前端进入运行状态`)
+  }
+
+  // 非 Windows 无法检测窗口，进程创建后即视为启动完成
+  if (!pid || process.platform !== 'win32') {
+    sendRunning()
+    return
+  }
+
+  const timeoutMs = 15 * 60 * 1000
+  const intervalMs = 3000
+  const start = Date.now()
+  while (Date.now() - start < timeoutMs) {
+    // 用户终止或进程已退出：由对应处理逻辑通知前端，这里不再发送 running
+    if (abort.flag || proc.exitCode !== null || proc.killed) return
+    if (await hasVisibleGameWindow(pid)) {
+      sendRunning()
+      return
+    }
+    await new Promise<void>((resolve) => setTimeout(resolve, intervalMs))
+  }
+
+  // 超时兜底：进程仍存活则按已启动处理，避免加载显示永远不消失
+  if (!abort.flag && proc.exitCode === null) {
+    log.warn(`[waitForGameWindow] 等待游戏窗口超时（${timeoutMs / 1000}s），进程仍存活，按已启动处理`)
+    sendRunning()
+  }
+}
+
 export async function launchWithXMCL(
   mainWindow: BrowserWindow,
   options: XMCLLaunchOptions
@@ -938,10 +1013,20 @@ export async function launchWithXMCL(
     const instancePath = options.gameDir
     let gamePath = sharedGamePath
     const versionId = options.versionId
-    
+
     if (!fs.existsSync(gamePath)) {
       return { success: false, error: `游戏目录不存在: ${gamePath}` }
     }
+
+    // 识别真实 MC 版本号与 Mod 加载器（兼容整合包式命名，如 "Zombie Invade 100 Days"）
+    // 版本号在版本文件夹内部的版本 JSON 中，加载器由版本 JSON / mods 文件夹共同识别
+    const versionDetection = detectVersionInfo(sharedGamePath, versionId)
+    const baseVersion = versionDetection.mcVersion
+    const detectedLoader = versionDetection.loader
+    log.info(
+      `[launchWithXMCL] 版本识别: MC=${baseVersion}, 加载器=${formatLoaderInfo(detectedLoader)}` +
+      `, 版本 JSON=${versionDetection.jsonPath ?? '未找到'}`
+    )
 
     let javaPath: string
     try {
@@ -951,7 +1036,7 @@ export async function launchWithXMCL(
         message: '正在验证 Java 环境...',
         detail: '检测 Java 版本和路径'
       })
-      javaPath = await resolveJavaPath(versionId, options.javaPath)
+      javaPath = await resolveJavaPath(versionId, baseVersion, options.javaPath)
       log.info(`[launchWithXMCL] 使用 Java: ${javaPath}`)
     } catch (e: unknown) {
       return { success: false, error: (e as Error).message }
@@ -1015,9 +1100,20 @@ export async function launchWithXMCL(
       }
     }
 
-    // 如果指定了实例路径，准备实例目录并使用它作为游戏数据目录
-    // 这样 mods/saves/resourcepacks 等实例数据会存储到实例路径下
-    if (instancePath && instancePath !== sharedGamePath) {
+    // 版本隔离目录检测（PCL 布局整合包，如 "Zombie Invade 100 Days"）：
+    // 版本目录自身包含 mods/config/saves 等游戏数据，必须以版本目录作为游戏数据目录（mods 从这里加载），
+    // 资源（assets/libraries）通过 resourcePath 指向共享 .minecraft，无需创建目录链接
+    const versionDir = join(sharedGamePath, 'versions', versionId)
+    const isolationMarkers = ['mods', 'config', 'saves', 'PCL', 'options.txt']
+    const isSelfContained =
+      fs.existsSync(versionDir) && isolationMarkers.some((m) => fs.existsSync(join(versionDir, m)))
+
+    if (isSelfContained && (!instancePath || instancePath === versionDir)) {
+      gamePath = versionDir
+      log.info(`[launchWithXMCL] 检测到整合包版本隔离目录，使用版本目录作为游戏目录: ${gamePath}`)
+    } else if (instancePath && instancePath !== sharedGamePath) {
+      // 如果指定了实例路径，准备实例目录并使用它作为游戏数据目录
+      // 这样 mods/saves/resourcepacks 等实例数据会存储到实例路径下
       try {
         // 确保实例目录存在
         if (!fs.existsSync(instancePath)) {
@@ -1031,7 +1127,26 @@ export async function launchWithXMCL(
       }
     }
 
-    const maxMem = calculateMaxMemory(options.maxMemory)
+    // I18n 汉化模组智能跳过：mods 无新增则跳过模组复用已有语言包，有新增则启用让模组重新生成
+    try {
+      ensureI18nModEnabledByChanges(gamePath)
+    } catch (e: unknown) {
+      log.warn(`[launchWithXMCL] I18n 模组检测异常（不阻塞启动）: ${(e as Error).message}`)
+    }
+
+    // 从全局设置读取自定义内存（若实例未单独指定）
+    let maxMemoryOverride: number | undefined
+    if (!options.maxMemory) {
+      const db = getDatabase()
+      const modeRow = db.prepare("SELECT value FROM configs WHERE key = 'global_memory_mode'").get() as { value: string } | undefined
+      if (modeRow?.value === 'custom') {
+        const gbRow = db.prepare("SELECT value FROM configs WHERE key = 'global_memory_custom'").get() as { value: string } | undefined
+        const gb = parseFloat(gbRow?.value || '4')
+        maxMemoryOverride = Math.round(gb * 1024) // GB → MB
+      }
+    }
+
+    const maxMem = calculateMaxMemory(options.maxMemory || maxMemoryOverride)
     const minMem = options.minMemory || Math.min(512, maxMem)
     
     const yggdrasilAgent = process.env.YGGDRASIL_AGENT as string | undefined
@@ -1089,24 +1204,13 @@ export async function launchWithXMCL(
       extraJvmArgs.push(`-javaagent:${yggdrasilAgent}=`)
     }
 
-    // 根据版本 id 名（如 "1.20.1-Forge_47.0.35-OptiFine_I5"、"1.20.1-Fabric_0.16.5"）
-    // 注入对应加载器的系统属性。原版 (Vanilla) 不执行任何注入，保证"原版能启动"的稳定性不受影响。
-    const baseVersion = extractBaseVersion(versionId)
+    // 根据前面识别的加载器（版本 JSON / mods 文件夹 / 版本名兜底）注入对应加载器的系统属性。
+    // 原版 (Vanilla) 不执行任何注入，保证"原版能启动"的稳定性不受影响。
     const mcBaseForLoader = baseVersion
-    const detectedLoader: { kind: 'forge' | 'neoforge' | 'fabric' | 'quilt'; version: string } | null =
-      (() => {
-        const fm = versionId.match(/Forge_([\w.]+)/)
-        if (fm) return { kind: 'forge', version: fm[1] }
-        const nf = versionId.match(/NeoForge_([\w.]+)/)
-        if (nf) return { kind: 'neoforge', version: nf[1] }
-        const fb = versionId.match(/Fabric_([\w.]+)/)
-        if (fb) return { kind: 'fabric', version: fb[1] }
-        const qt = versionId.match(/Quilt_([\w.]+)/)
-        if (qt) return { kind: 'quilt', version: qt[1] }
-        return null
-      })()
 
-    if (detectedLoader) {
+    if (detectedLoader && !detectedLoader.version) {
+      log.warn(`[launchWithXMCL] 已识别加载器 ${detectedLoader.kind}，但无法确定加载器版本，跳过加载器专属 JVM 属性注入`)
+    } else if (detectedLoader) {
       if (detectedLoader.kind === 'forge') {
         const forgeVer = detectedLoader.version
         // Forge 官方 launcher 要求的 4 条系统属性，缺任意一条 modlauncher/bootstraplauncher 会在启动瞬间 abort 退出
@@ -1154,11 +1258,11 @@ export async function launchWithXMCL(
         extraJvmArgs.push(...unique)
       }
     } else {
-      log.info(`[launchWithXMCL] 版本判定为 Vanilla（未识别加载器前缀），跳过加载器专属 JVM 属性注入`)
+      log.info(`[launchWithXMCL] 版本判定为 Vanilla（未识别到加载器），跳过加载器专属 JVM 属性注入`)
     }
 
     const isWin = process.platform === 'win32'
-    // baseVersion 已在上游加载器检测阶段用 extractBaseVersion(versionId) 计算
+    // baseVersion 为上游识别出的真实 MC 版本号（非版本文件夹名）
     const majorVersion = parseInt(baseVersion.split('.')[1], 10)
     // LWJGL 3（1.18+）应使用 javaw.exe 获得独立控制台窗口；1.17 及以下保留 java.exe 避免 LWJGL2 兼容问题
     const shouldUseJavaw = majorVersion >= 18
@@ -1183,6 +1287,8 @@ export async function launchWithXMCL(
       extraExecOption?: Record<string, unknown>
     } = {
       gamePath,
+      // 资源目录（assets/libraries）始终使用共享 .minecraft，与游戏数据目录（mods/saves）分离
+      resourcePath: sharedGamePath,
       javaPath: javaExe || javaPath,
       version: resolvedVersion,
       versionName: versionId,
@@ -1235,13 +1341,15 @@ export async function launchWithXMCL(
     currentProcess = proc
     gameStatus = 'running'
 
-    // 通知前端：游戏已启动
+    // 通知前端：游戏进程已创建，但游戏窗口要等所有 mod 加载完成才会出现
+    // 在窗口出现前保持"正在加载"，窗口出现后由 waitForGameWindow 发送 running
     mainWindow.webContents.send('game:progress', {
-      phase: 'running',
-      message: '游戏已启动',
+      phase: 'waiting-window',
+      message: '正在加载游戏，等待画面出现...',
       detail: `版本: ${versionId}，PID: ${proc.pid}`
     })
     mainWindow.webContents.send('game:status', 'running')
+    void waitForGameWindow(mainWindow, proc, thisAbort, versionId)
 
     // 为了避免 stdout/stderr 环形缓冲撑爆内存，用 tail 数组保留最后 200 行，
     // 进程 exit code != 0 时一次性输出到日志。
@@ -1496,9 +1604,35 @@ export async function launchByVersionWithXMCL(
     }
   }
 
-  const extraJvmArgs = options.jvmArgs
-    ? options.jvmArgs.split(' ').filter((a) => a.trim())
-    : undefined
+  // 合并实例级 + 全局 JVM 参数：实例级优先（先注入全局，后注入实例，同 key 后写覆盖）
+  const splitArgs = (raw: string | undefined): string[] =>
+    raw ? raw.split(/\s+/).filter((a) => a.trim()) : []
+
+  const globalJvmArgsConfig = db
+    .prepare("SELECT value FROM configs WHERE key = 'global_jvm_args'")
+    .get() as { value: string } | undefined
+  const gcStrategy = db
+    .prepare("SELECT value FROM configs WHERE key = 'global_gc_strategy'")
+    .get() as { value: string } | undefined
+
+  const gcFlags: Record<string, string[]> = {
+    g1gc: ['-XX:+UseG1GC'],
+    zgc: ['-XX:+UseZGC'],
+    parallel: ['-XX:+UseParallelGC'],
+    serial: ['-XX:+UseSerialGC'],
+    none: []
+  }
+  const globalGcArgs = gcFlags[gcStrategy?.value || 'g1gc'] || []
+
+  // 去重：已存在完全相同的参数（实例或全局）则不重复添加
+  const mergedArgs = splitArgs(globalJvmArgsConfig?.value)
+  for (const arg of globalGcArgs) {
+    if (!mergedArgs.includes(arg)) mergedArgs.push(arg)
+  }
+  for (const arg of splitArgs(options.jvmArgs)) {
+    if (!mergedArgs.includes(arg)) mergedArgs.push(arg)
+  }
+  const extraJvmArgs = mergedArgs.length > 0 ? mergedArgs : undefined
 
   return launchWithXMCL(mainWindow, {
     versionId: options.versionId,

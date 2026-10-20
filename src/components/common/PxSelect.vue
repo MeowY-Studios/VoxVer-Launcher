@@ -18,6 +18,7 @@
           :key="opt.value"
           class="px-select__option"
           :class="{ 'px-select__option--selected': opt.value === modelValue }"
+          :disabled="opt.disabled"
           @click="select(opt.value)"
           type="button"
         >
@@ -34,6 +35,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 interface SelectOption {
   label: string
   value: string
+  disabled?: boolean
 }
 
 const props = defineProps<{
@@ -145,6 +147,14 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 .px-select__option--selected {
   color: var(--voxver-accent);
   background: color-mix(in oklab, var(--voxver-accent) 8%, transparent);
+}
+.px-select__option:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.px-select__option:disabled:hover {
+  background: none;
+  color: var(--voxver-text-secondary);
 }
 
 /* Transition */

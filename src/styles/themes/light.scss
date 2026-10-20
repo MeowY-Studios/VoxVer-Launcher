@@ -80,6 +80,13 @@
   --voxver-brand-color: oklch(20% 0.002 252);
   --voxver-hover-overlay: oklch(0% 0 0 / 0.04);
 
+  /** 卡片内高光 — 亮色用微暗光泽 */
+  --voxver-card-highlight: inset 0 1px 1px oklch(0% 0 0 / 0.04);
+  --voxver-card-highlight-subtle: inset 0 1px 1px oklch(0% 0 0 / 0.02);
+
+  /** Titlebar 品牌色辉光 */
+  --voxver-titlebar-glow: oklch(52% 0.21 252 / 0.04);
+
   /** 强调色 — 需更高饱和以适配白底 */
   --voxver-accent: oklch(52% 0.21 252);
   --voxver-accent-hover: oklch(56% 0.19 252);

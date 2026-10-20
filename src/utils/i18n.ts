@@ -12,7 +12,12 @@ export function setI18n(instance: Composer): void {
 
 export function $t(key: string, ...args: unknown[]): string {
   if (i18n) {
-    return (i18n.t as (...a: unknown[]) => string)(key, ...args)
+    // * 先用 te() 检查 key 是否存在，避免对缺失 key 输出 [intlify] Not found 警告
+    if (i18n.te(key)) {
+      return (i18n.t as (...a: unknown[]) => string)(key, ...args)
+    }
+    // * key 不存在，返回 key 名或传入的默认值作为静默 fallback
+    return (args[0] as string) ?? key
   }
   return key
 }

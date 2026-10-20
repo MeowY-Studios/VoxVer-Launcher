@@ -125,6 +125,8 @@ const api = {
   app: {
     getVersion: () => ipcRenderer.invoke('app:get-version'),
     getPaths: () => ipcRenderer.invoke('app:get-paths'),
+    getMemoryInfo: (): Promise<{ totalGB: number; freeGB: number; usedGB: number }> =>
+      ipcRenderer.invoke('app:get-system-memory'),
     getRuntimeInfo: () => ipcRenderer.invoke('app:get-runtime-info'),
     clearCache: () => ipcRenderer.invoke('app:clear-cache'),
     resetSettings: () => ipcRenderer.invoke('app:reset-settings'),

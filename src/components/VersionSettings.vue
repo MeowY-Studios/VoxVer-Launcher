@@ -290,9 +290,9 @@
               </template>
 
               <!-- ===== Mod 管理 ===== -->
-              <template v-if="activeTab === 'mods'">
+              <div v-show="activeTab === 'mods'" style="display: contents">
                 <ModManager :gameDir="gameDir" :mcVersion="versionBase" :loader="detectedLoader" @navigate="close" />
-              </template>
+              </div>
 
               <!-- ===== 导出 ===== -->
               <template v-if="activeTab === 'export'">
@@ -591,9 +591,11 @@ import { ref, computed, watch, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ModManager from './ModManager.vue'
 import { useConfirm } from '@/composables/useConfirm'
+import { useInstancesStore } from '../stores/instances.store'
 
 const { t } = useI18n()
 const { confirm: pxConfirm } = useConfirm()
+const instancesStore = useInstancesStore()
 
 const props = defineProps<{
   visible: boolean
@@ -613,25 +615,26 @@ function close() {
 
 const activeTab = ref('overview')
 
-const versionBase = computed(() => {
-  const match = props.versionName.match(/^(\d+\.\d+(\.\d+)?)/)
-  return match ? match[1] : props.versionName
+// * 每次打开弹窗时重置到概览页
+watch(() => props.visible, (v) => {
+  if (v) activeTab.value = 'overview'
 })
+
+// * 从实例 store 获取真实的结构化数据（避免用正则解析 versionName 字符串）
+const currentInstance = computed(() =>
+  instancesStore.instances.find((i) => i.id === props.instanceId)
+)
+
+/** MC 原版版本号（如 "1.20.1"），从实例数据直接获取 */
+const versionBase = computed(() => currentInstance.value?.mcVersion ?? '')
 
 const loaderInfo = computed(() => {
   const parts = props.versionName.split('-')
   return parts.length > 1 ? parts.slice(1).join('-') : ''
 })
 
-/** 从版本名解析加载器类型（用于 Mod 下载页自动填充） */
-const detectedLoader = computed(() => {
-  const name = props.versionName.toLowerCase()
-  if (name.includes('fabric')) return 'fabric'
-  if (name.includes('forge')) return 'forge'
-  if (name.includes('neoforge')) return 'neoforge'
-  if (name.includes('quilt')) return 'quilt'
-  return ''
-})
+/** 加载器类型（如 "forge"/"fabric"），从实例数据直接获取，用于 Mod 下载页自动填充 */
+const detectedLoader = computed(() => currentInstance.value?.loaderType ?? '')
 
 // * 示例数据
 const playerName = ref('Steve')
@@ -749,10 +752,27 @@ const showTip = ref(true)
 const showAdvanced = ref(false)
 const memMode = ref<'global' | 'auto' | 'custom'>('global')
 const memCustom = ref('4096')
-const usedMem = ref('12.6')
-const totalMem = ref('15.4')
-const gameMem = ref('2.8')
 const useHighPerformanceGPU = ref(false)
+
+// 系统内存（真实数据，从主进程获取）
+const systemMemory = ref<{ totalGB: number; freeGB: number; usedGB: number }>({ totalGB: 0, freeGB: 0, usedGB: 0 })
+
+const usedMem = computed(() => systemMemory.value.usedGB.toFixed(1))
+const totalMem = computed(() => systemMemory.value.totalGB.toFixed(1))
+const gameMem = computed(() => {
+  const totalGB = systemMemory.value.totalGB
+
+  if (memMode.value === 'custom') {
+    return (parseInt(memCustom.value) / 1024).toFixed(1)
+  }
+  // 跟随全局/自动：与 calculateMaxMemory 一致 —— max(4096MB, 系统内存 50%)，上限 60%
+  if (!totalGB) return '...'
+  const maxMB = Math.min(
+    Math.max(4096, Math.floor(totalGB * 0.5 * 1024)),
+    Math.floor(totalGB * 0.6 * 1024)
+  )
+  return (maxMB / 1024).toFixed(1)
+})
 
 // * ====== 设置页表单数据 ======
 const settingsForm = reactive({
@@ -800,10 +820,14 @@ function initSettingsForm() {
   useHighPerformanceGPU.value = false
 }
 
-// * watch: modal 打开时重置表单
-watch(() => props.visible, (val) => {
+// * watch: modal 打开时重置表单并获取真实系统内存
+watch(() => props.visible, async (val) => {
   if (val) {
     initSettingsForm()
+    try {
+      const mem = await window.electronAPI?.app?.getMemoryInfo?.()
+      if (mem) systemMemory.value = mem
+    } catch { /* 获取失败则保持上次值 */ }
   }
 })
 

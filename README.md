@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.7.3-14b8a6?style=flat-square&labelColor=1e1e2e)
+![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.7.4-14b8a6?style=flat-square&labelColor=1e1e2e)
 ![Electron](https://img.shields.io/badge/Electron-42-478cbf?style=flat-square&logo=electron&logoColor=white)
 ![Vue](https://img.shields.io/badge/Vue-3.5-4db08b?style=flat-square&logo=vuedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6?style=flat-square&logo=typescript&logoColor=white)
@@ -19,7 +19,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 ## 📋 目录
 
 - [📥 下载](#-下载)
-- [🆕 v0.7.3 最近更新](#-v073-最近更新)
+- [🆕 v0.7.4 最近更新](#-v074-最近更新)
 - [✨ 功能概览](#-功能概览)
 - [🖥️ 支持平台](#️-支持平台)
 - [📦 相关文档](#-相关文档)
@@ -30,31 +30,51 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 ## 📥 下载
 
-**[👉 前往 GitHub Releases 下载 v0.7.3](https://github.com/MeowY-Studios/VoxVer-Launcher/releases)**
+**[👉 前往 GitHub Releases 下载 v0.7.4](https://github.com/MeowY-Studios/VoxVer-Launcher/releases)**
 
 ---
 
-## 🆕 v0.7.3 最近更新
+## 🆕 v0.7.4 最近更新
 
-### 🖥️ 独立版本更新页（新增）
+### 👥 多在线账户卡堆管理（新增）
+- 账户页重构为**卡堆式多账户管理**：多个微软正版账户并存、快速切换、皮肤 3D 预览
+- 全新独立 `MicrosoftLoginModal` 登录弹窗
+
+### 🧩 四加载器适配器架构（新增）
+- Forge / NeoForge / Fabric / Quilt 统一适配器层，modloader 服务模块化重构
+
+### 🌗 暗色主题存在感增强（优化）
+- 阴影改为品牌蓝辉光，暗色下卡片与弹窗恢复深度层次
+- 玻璃态提亮、悬停反馈增强，卡片高光与标题栏辉光亮暗双主题自适应
+
+---
+
+### v0.7.3 主要内容
+
+<details>
+<summary>展开查看</summary>
+
+#### 🖥️ 独立版本更新页（新增）
 - 设置页「检查更新」改为跳转**独立全屏更新页**（`/update`）：顶栏返回与窗口控制、横幅 Logo + 版本号、状态胶囊实时反馈（检查中 / 已是最新版本 / 有新版本可用）
 - 页面内直接查看 GitHub 最新 Release 的**发布说明**（Markdown 渲染，内容白名单过滤）
 - 底部操作栏：检查更新 / 下载更新 / 取消下载 / 安装更新，进度条 + 已传输/总量 + 实时速度（MB/s）
 - 检测到更新后状态可恢复：退出重进更新页仍可继续下载或安装
 - 提供直达 GitHub Releases 的外链
 
-### 🌊 水波纹横幅
+#### 🌊 水波纹横幅
 - 更新页横幅采用零依赖 WebGL 丝绸水波纹动画（`SilkBackground` 组件），跟随主题色渲染
 
-### 🛠 修复
+#### 🛠 修复
 - 修复设置页「检查更新」按钮点击无反应的问题
 - 修复已是最新版本时无任何提示的问题（状态胶囊明确展示）
 - 修复下载过程无状态反馈的问题
 
-### ⚙️ 优化
+#### ⚙️ 优化
 - 检查更新双链路仲裁：GitHub API 版本对比结论优先，`latest.yml` 滞后时自动兜底
 - 下载支持随时取消（CancellationToken），取消后状态即时复位
 - `builder-util-runtime` 固定 9.5.1，与 electron-updater 内嵌副本对齐，修复跨副本取消令牌失效
+
+</details>
 
 ---
 

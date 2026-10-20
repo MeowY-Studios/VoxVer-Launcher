@@ -106,7 +106,6 @@ export default {
     yearsAgo: '{n}年前'
   },
   home: {
-    welcomeTip: '在左侧选择版本后点击「启动游戏」按钮',
     recent: '最近使用',
     recentDesc: '继续你上次的冒险，或从实例管理开始新的旅程',
     playGame: '开始游戏',
@@ -372,6 +371,7 @@ export default {
     confirmDownload: '下载并启动',
     noVersionConfirm: '当前没有可用的游戏版本，是否前往下载页面？',
     downloadAndLaunchFailed: '下载并启动失败: {error}',
+    downloadAndLaunchFailedTitle: '下载并启动失败',
     launchFailedWithError: '启动失败: {error}',
     launchException: '启动异常: {error}'
   },
@@ -1188,7 +1188,8 @@ export default {
     checkUpdates: '检查更新',
     checkingUpdates: '正在检查...',
     modUpdatesFound: '发现 {count} 个可更新的 Mod',
-    modNoUpdates: '所有 Mod 已是最新版本'
+    modNoUpdates: '所有 Mod 已是最新版本',
+    comingSoon: '该区域功能暂未开放，敬请期待'
   },
 
   p2p: {
@@ -1250,6 +1251,8 @@ export default {
     searchVersion: '搜索版本号...',
     refresh: '刷新',
     release: '正式版',
+    latestRelease: '最新正式版',
+    latestVersion: '最新版本',
     snapshot: '快照版',
     oldAlpha: '旧版 Alpha',
     oldBeta: '旧版 Beta',
@@ -1335,6 +1338,7 @@ export default {
     oldVersion: '远古版',
     aprilVersion: '愚人节版',
     loading: '加载中...',
+    loadingMore: '正在加载更多...',
     loadMoreVersions: '加载更多版本',
     saveAs: '另存为',
     changelog: '更新日志',
@@ -2458,6 +2462,8 @@ export default {
     launchProgressValidatingJava: '正在验证Java 环境...',
     launchProgressLaunchProcess: '启动游戏进程',
     launchProgressLaunchingProcess: '正在启动游戏进程...',
+    launchProgressWaitWindow: '等待游戏画面',
+    launchProgressWaitingWindow: '正在加载游戏，画面出现后自动进入运行...',
     launchProgressGameRunning: '游戏运行',
     launchProgressGameLaunched: '游戏已启动',
     launchProgressLaunchFailed: '启动失败',

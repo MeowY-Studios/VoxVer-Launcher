@@ -13,6 +13,79 @@ import type {
 } from '../types/download'
 import { $t } from '../utils/i18n'
 
+/** 统一下载任务（供 UI 展示，合并版本下载和 Mod 下载） */
+export interface UnifiedTask {
+  id: string
+  name: string
+  phase: string
+  progress: number
+  phaseLabel: string
+  speed: number
+  downloadedSize: number
+  totalSize: number
+  targetFolder: string
+  error?: string
+  _lastTime?: number
+  _type: 'version' | 'mod'
+}
+
+/** VersionDownloadTask → UnifiedTask */
+function versionToUnified(vt: VersionDownloadTask): UnifiedTask {
+  return {
+    id: vt.id,
+    name: vt.name,
+    phase: vt.phase,
+    progress: vt.progress,
+    phaseLabel: vt.phaseLabel,
+    speed: vt.speed,
+    downloadedSize: vt.downloadedSize,
+    totalSize: vt.totalSize,
+    targetFolder: vt.targetFolder,
+    error: vt.error,
+    _lastTime: vt._lastTime,
+    _type: 'version'
+  }
+}
+
+/** DownloadTask → UnifiedTask */
+function modToUnified(dt: DownloadTask): UnifiedTask {
+  const phaseMap: Record<string, string> = {
+    downloading: 'downloading',
+    completed: 'completed',
+    failed: 'failed',
+    error: 'failed',
+    cancelled: 'failed',
+    pending: 'idle',
+    queued: 'idle',
+    paused: 'idle'
+  }
+  const phase = phaseMap[dt.status] || dt.phase || 'idle'
+  const labelMap: Record<string, string> = {
+    downloading: $t('download.downloading'),
+    completed: $t('download.completed'),
+    failed: $t('download.failed'),
+    error: $t('download.failed'),
+    cancelled: $t('download.cancelled'),
+    pending: $t('download.waiting'),
+    queued: $t('download.waiting'),
+    paused: $t('download.paused')
+  }
+  return {
+    id: dt.id,
+    name: dt.fileName || dt.url.split('/').pop() || dt.id,
+    phase,
+    progress: dt.progress,
+    phaseLabel: dt.phase || labelMap[dt.status] || dt.status,
+    speed: dt.speed,
+    downloadedSize: dt.downloadedSize,
+    totalSize: dt.totalSize,
+    targetFolder: dt.destination,
+    error: dt.error,
+    _lastTime: dt.updatedAt ? new Date(dt.updatedAt).getTime() : undefined,
+    _type: 'mod'
+  }
+}
+
 export const useDownloadStore = defineStore('download', () => {
   // * ====== 搜索状态 ======
   const searchQuery = ref('')
@@ -86,6 +159,16 @@ export const useDownloadStore = defineStore('download', () => {
       (t) => t.phase !== 'completed' && t.phase !== 'failed' && t.phase !== 'idle'
     )
   )
+
+  /** 统一任务列表：合并版本下载 + Mod 下载，供 UI 展示 */
+  const unifiedTasks = computed<UnifiedTask[]>(() => {
+    const versionOnes = Array.from(versionTasks.value.values()).map(versionToUnified)
+    const modOnes = activeDownloads.value.map(modToUnified)
+    return [...versionOnes, ...modOnes]
+  })
+
+  /** 是否有任何统一任务 */
+  const hasAnyTask = computed(() => unifiedTasks.value.length > 0)
 
   // * ====== 操作 ======
 
@@ -167,7 +250,10 @@ export const useDownloadStore = defineStore('download', () => {
   /** 移除版本下载任务 */
   function removeVersionTask(versionId: string) {
     versionTasks.value.delete(versionId)
-    if (versionTasks.value.size === 0) showFloatPanel.value = false
+    // * 只有版本任务和 Mod 任务都为空时才隐藏面板
+    if (versionTasks.value.size === 0 && activeDownloads.value.length === 0) {
+      showFloatPanel.value = false
+    }
   }
 
   /** 下载服务端 Jar */
@@ -399,12 +485,20 @@ export const useDownloadStore = defineStore('download', () => {
         task.phase = (d.status as DownloadStatus) || task.phase
         task.downloadedSize = (d.downloadedSize as number) || task.downloadedSize
       }
+      // * 有活跃 mod 下载时显示浮动面板
+      if (!showFloatPanel.value && activeDownloads.value.length > 0) {
+        showFloatPanel.value = true
+      }
     })
 
-    removeCompleted = api.onCompleted((data) => {
+    removeCompleted = api.onCompleted(async (data) => {
       const d = data as Record<string, unknown>
       console.log('[download store] 下载完成:', d.fileName || d.id)
-      refreshQueue()
+      await refreshQueue()
+      // * 没有任务了就隐藏面板
+      if (versionTasks.value.size === 0 && activeDownloads.value.length === 0) {
+        showFloatPanel.value = false
+      }
       // 发送通知
       window.electronAPI?.notification?.send({
         title: $t('download.downloadCompleted'),
@@ -413,10 +507,14 @@ export const useDownloadStore = defineStore('download', () => {
       })
     })
 
-    removeError = api.onError((data) => {
+    removeError = api.onError(async (data) => {
       const d = data as Record<string, unknown>
       console.error('[download store] 下载失败:', d.fileName || d.id, d.error)
-      refreshQueue()
+      await refreshQueue()
+      // * 没有任务了就隐藏面板
+      if (versionTasks.value.size === 0 && activeDownloads.value.length === 0) {
+        showFloatPanel.value = false
+      }
       window.electronAPI?.notification?.send({
         title: $t('download.downloadFailed'),
         body: (d.fileName as string) || (d.error as string) || $t('download.taskFailed'),
@@ -458,6 +556,8 @@ export const useDownloadStore = defineStore('download', () => {
     totalSpeed,
     overallProgress,
     hasActiveVersionDownload,
+    unifiedTasks,
+    hasAnyTask,
 
     // * 操作
     startVersionDownload,

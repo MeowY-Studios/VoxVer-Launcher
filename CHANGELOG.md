@@ -1,5 +1,21 @@
 # 更新日志
 
+## v0.7.4 — 2026-10-21
+
+### 新增
+- **多在线账户卡堆管理**：账户页重构为卡堆式多账户管理，支持多个微软正版账户并存、快速切换与皮肤 3D 预览（SkinViewer3D），新增独立 MicrosoftLoginModal 登录弹窗
+- **四加载器适配器架构**：Forge / NeoForge / Fabric / Quilt 统一适配器层（BaseLoaderAdapter + 各自实现），modloader.service 模块化重构
+- **实例管理模块暂时停用**：页面改为「暂未开放」占位页，相关测试同步重写
+
+### 优化
+- **暗色主题存在感增强**：阴影改为品牌蓝辉光（sm/md/lg/xl）；玻璃态提亮（侧边栏 L=14→18、内容区 15→19、浮层 21→24）；hover 遮罩 5%→8%、active 8%→12%；卡片内高光与标题栏辉光改为主题令牌，亮暗双主题自适应
+- **首页 Hero 卡片**：移除欢迎标题与底色，避免浅/深色模式下突兀色块
+- **i18n 文案对齐**：中英文语言包键值补齐与更新
+
+### 工程
+- 新增 `electron/utils/version-meta.ts`、`electron/services/i18n.mod.service.ts`、`scripts/diagnose.mjs` 诊断脚本
+- gh CLI 接入发布流程
+
 ## v0.7.3 质量修复批次 — 2026-10-11
 
 ### 修复

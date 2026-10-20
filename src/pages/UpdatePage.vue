@@ -1,31 +1,13 @@
 <template>
   <div class="update-page">
-    <!-- 顶部返回栏（自带窗口拖拽与控制，覆盖整个启动器界面） -->
-    <div class="page-topbar">
-      <button class="back-btn" @click="goBack">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 12H5" />
-          <path d="M12 19l-7-7 7-7" />
-        </svg>
-        {{ t('update.updatePage.back') }}
-      </button>
-      <h2 class="page-title">{{ t('update.updatePage.title') }}</h2>
-      <div class="wc">
-        <button class="wc-btn" @click="minimizeWindow">
-          <svg width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="1" fill="currentColor" /></svg>
-        </button>
-        <button class="wc-btn" @click="maximizeWindow">
-          <svg width="10" height="10" viewBox="0 0 10 10">
-            <path d="M1 3V9H7V3H1M3 1H9V7H3V1" stroke="currentColor" stroke-width="1.2" fill="none" />
-          </svg>
-        </button>
-        <button class="wc-btn wc-close" @click="closeWindow">
-          <svg width="10" height="10" viewBox="0 0 10 10">
-            <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.2" />
-          </svg>
-        </button>
-      </div>
-    </div>
+    <!-- 页面左上角返回按钮 → 设置 -->
+    <button class="back-btn" @click="goBack">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5" />
+        <path d="M12 19l-7-7 7-7" />
+      </svg>
+      {{ t('update.updatePage.back') }}
+    </button>
 
     <div class="page-scroll">
       <!-- 版本横幅（水波纹背景） -->
@@ -40,58 +22,81 @@
         </div>
       </div>
 
-    <!-- 更新内容 -->
-    <div class="notes-section">
-      <div class="notes-title">
-        <span>{{ t('update.updatePage.releaseNotes') }}</span>
-        <span class="notes-version" v-if="notesVersion">{{ t('update.updatePage.versionLabel', { version: notesVersion }) }}</span>
-        <a class="github-link" @click="openGithub">
-          {{ t('update.updatePage.viewOnGitHub') }}
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-            <polyline points="15 3 21 3 21 9" />
-            <line x1="10" y1="14" x2="21" y2="3" />
-          </svg>
-        </a>
-      </div>
-      <div class="vox-card notes-card">
+      <!-- 更新内容 -->
+      <div class="notes-section">
+        <div class="notes-title">
+          <span>{{ t('update.updatePage.releaseNotes') }}</span>
+          <span class="notes-version" v-if="notesVersion">{{ t('update.updatePage.versionLabel', { version: notesVersion }) }}</span>
+          <a class="github-link" @click="openGithub">
+            {{ t('update.updatePage.viewOnGitHub') }}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
+          </a>
+        </div>
+
+        <!-- 加载中 -->
         <div v-if="notesLoading" class="notes-loading">
           <span class="spinner" />
           <span>{{ t('update.updatePage.loadingNotes') }}</span>
         </div>
-        <!-- eslint-disable-next-line vue/no-v-html — 内容已经过 HTML 转义与白名单过滤 -->
-        <div v-else-if="notesHtml" class="notes-body" v-html="notesHtml" />
-        <div v-else class="notes-empty">{{ t('update.updatePage.noNotes') }}</div>
-      </div>
-    </div>
 
-    <!-- 底部操作栏 -->
-    <div class="action-bar vox-card">
-      <div class="action-row">
-        <span class="action-status" :class="{ error: hasError }">{{ statusText }}</span>
-        <span class="action-speed" v-if="state === 'downloading' && status?.bytesPerSecond">{{ formatBytes(status.bytesPerSecond) }}/s</span>
+        <!-- 有结构化分区 → 按卡片展示 -->
+        <template v-if="parsedSections.length > 0 && parsedSections.some((s) => s.title)">
+          <div v-for="(sec, idx) in parsedSections" :key="idx" class="vox-card notes-card">
+            <div class="notes-card-header" v-if="sec.title">
+              <span class="notes-card-dot" />
+              <span class="notes-card-title">{{ sec.title }}</span>
+            </div>
+            <!-- eslint-disable-next-line vue/no-v-html -->
+            <div class="notes-body" v-html="sec.html" />
+          </div>
+        </template>
+
+        <!-- 无分区 → 单卡片展示 -->
+        <div v-else class="vox-card notes-card">
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <div v-if="notesHtml" class="notes-body" v-html="notesHtml" />
+          <div v-else class="notes-empty">{{ t('update.updatePage.noNotes') }}</div>
+        </div>
+
+        <!-- 归属行（MeowY-Studios / GitHub）单独展示 -->
+        <div
+          v-if="notesFooterHtml"
+          class="notes-footer"
+          v-html="notesFooterHtml"
+        />
       </div>
-      <div class="progress-track" v-if="state === 'downloading'">
-        <div class="progress-fill" :style="{ width: Math.min(100, Math.max(0, pct)) + '%' }" />
+
+      <!-- 底部操作栏 -->
+      <div class="action-bar vox-card">
+        <div class="action-row">
+          <span class="action-status" :class="{ error: hasError }">{{ statusText }}</span>
+          <span class="action-speed" v-if="state === 'downloading' && status?.bytesPerSecond">{{ formatBytes(status.bytesPerSecond) }}/s</span>
+        </div>
+        <div class="progress-track" v-if="state === 'downloading'">
+          <div class="progress-fill" :style="{ width: Math.min(100, Math.max(0, pct)) + '%' }" />
+        </div>
+        <div class="action-buttons">
+          <button
+            class="vox-btn action-main"
+            :disabled="state === 'checking'"
+            @click="primaryAction"
+          >
+            <span class="spinner" v-if="state === 'checking'" />
+            {{ mainButtonLabel }}
+          </button>
+          <button
+            class="vox-btn action-cancel"
+            v-if="state === 'downloading'"
+            @click="handleCancel"
+          >
+            {{ t('update.updatePage.cancelDownload') }}
+          </button>
+        </div>
       </div>
-      <div class="action-buttons">
-        <button
-          class="vox-btn action-main"
-          :disabled="state === 'checking'"
-          @click="primaryAction"
-        >
-          <span class="spinner" v-if="state === 'checking'" />
-          {{ mainButtonLabel }}
-        </button>
-        <button
-          class="vox-btn action-cancel"
-          v-if="state === 'downloading'"
-          @click="handleCancel"
-        >
-          {{ t('update.updatePage.cancelDownload') }}
-        </button>
-      </div>
-    </div>
     </div>
   </div>
 </template>
@@ -177,7 +182,101 @@ const notesLoading = computed(() => state.value === 'checking' && !notesSource.v
 
 const notesHtml = computed(() => {
   const raw = notesSource.value
-  return raw ? renderMarkdown(raw) : ''
+  if (!raw) return ''
+  // 归属行已在 footer 单独展示，正文剔除
+  return renderMarkdown(extractFooter(raw).body)
+})
+
+interface ParsedSection {
+  title: string
+  html: string
+}
+
+/** 去掉标题中的 emoji 与装饰符号，只保留文字部分用于匹配 */
+function stripEmoji(s: string): string {
+  return s.replace(/^[^\w\u4e00-\u9fff\u3000-\u303f]+/, '').trim()
+}
+
+/** 归属行正则：**MeowY-Studios (EccenTri)** — [GitHub](...) */
+const FOOTER_RE = /^\*\*[^*]*MeowY-Studios[^*]*\*\*\s*[—\-–]?\s*\[[^\]]*\]\([^)]+\)\s*$/m
+
+/** 从原文中抽出归属行并返回清理后的正文 */
+function extractFooter(raw: string): { body: string; footer: string } {
+  const match = FOOTER_RE.exec(raw)
+  if (!match) return { body: raw, footer: '' }
+  const body = raw.replace(FOOTER_RE, '').replace(/\n{3,}/g, '\n\n').trim()
+  return { body, footer: match[0] }
+}
+
+/** 拆分更新内容为独立区块：优先按 Markdown 标题（##/###）拆分 */
+const parsedSections = computed<ParsedSection[]>(() => {
+  const raw = notesSource.value
+  if (!raw) return []
+
+  const { body } = extractFooter(raw)
+  const lines = body.replace(/\r\n/g, '\n').split('\n')
+
+  // 有 Markdown 标题 → 只按标题拆分（表格/引用都归入当前段，避免被分割线误切）
+  const hasHeading = lines.some((l) => /^#{2,4}\s+/.test(l))
+
+  const sections: ParsedSection[] = []
+  let currentTitle = ''
+  let currentBody: string[] = []
+
+  const pushCurrent = () => {
+    if (currentBody.length > 0 || currentTitle) {
+      sections.push({ title: currentTitle, html: renderMarkdown(currentBody.join('\n')) })
+    }
+    currentTitle = ''
+    currentBody = []
+  }
+
+  for (const line of lines) {
+    if (hasHeading) {
+      const h = /^#{2,4}\s+(.*)$/.exec(line)
+      if (h) {
+        pushCurrent()
+        currentTitle = h[1].trim()
+        continue
+      }
+      currentBody.push(line)
+      continue
+    }
+
+    // 无标题 → 按表格行格式拆分：| 标题 | + | 内容 | + |---|---|
+    const sep = /^\|[\s:|-]+\|\s*$/.exec(line)
+    if (sep) {
+      pushCurrent()
+      continue
+    }
+    const cell = /^\|\s*([^|]*?)\s*\|\s*$/.exec(line)
+    if (cell && cell[1].trim()) {
+      if (!currentTitle) {
+        currentTitle = cell[1].trim()
+      } else if (currentBody.length === 0) {
+        currentBody.push(cell[1].trim())
+        pushCurrent()
+      } else {
+        currentBody.push(cell[1].trim())
+      }
+      continue
+    }
+    currentBody.push(line)
+  }
+
+  pushCurrent()
+
+  // 过滤「下载」区块（标题可能带 emoji，如 📦 下载）
+  const HIDDEN = new Set(['下载', 'download', 'downloads', '下载链接', 'download links'])
+  return sections.filter((s) => !HIDDEN.has(stripEmoji(s.title).toLowerCase()))
+})
+
+/** 归属行（MeowY-Studios … GitHub）单独展示 */
+const notesFooterHtml = computed(() => {
+  const raw = notesSource.value
+  if (!raw) return ''
+  const { footer } = extractFooter(raw)
+  return footer ? renderMarkdown(footer) : ''
 })
 
 const heroStatusText = computed(() => {
@@ -285,20 +384,7 @@ function handleCancel(): void {
 }
 
 function goBack(): void {
-  router.back()
-}
-
-// 覆盖层遮住了应用自带标题栏，这里补一组窗口控制
-function minimizeWindow(): void {
-  window.electronAPI?.window?.minimize?.()
-}
-
-function maximizeWindow(): void {
-  window.electronAPI?.window?.maximize?.()
-}
-
-function closeWindow(): void {
-  window.electronAPI?.window?.close?.()
+  router.replace('/settings')
 }
 
 function openGithub(): void {
@@ -395,61 +481,39 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="scss">
-/* 全屏覆盖层：遮住侧边栏与标题栏，返回后随路由卸载恢复原界面 */
+/* 全屏覆盖层：遮住侧边栏与主内容区，标题栏（44px）由全局 App.vue 提供，本层 top 留出对应高度 */
 .update-page {
   position: fixed;
-  inset: 0;
+  top: 44px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 60;
   display: flex;
   flex-direction: column;
   background: var(--voxver-bg-primary);
 }
 
-.page-topbar {
+/* 返回按钮：独立于滚动区，始终可见 */
+.back-btn {
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  -webkit-app-region: drag;
-
-  .page-title {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--voxver-text);
-  }
-
-  .wc {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    -webkit-app-region: no-drag;
-  }
-}
-
-.wc-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 28px;
+  gap: 6px;
+  padding: 6px 12px;
+  margin: 8px 0 0 16px;
   border: none;
-  border-radius: 6px;
-  background: transparent;
+  border-radius: 8px;
+  background: var(--voxver-bg-tertiary);
   color: var(--voxver-text-muted);
+  font-size: 13px;
+  width: fit-content;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 
   &:hover {
     background: var(--voxver-bg-hover);
     color: var(--voxver-text);
-  }
-
-  &.wc-close:hover {
-    background: #e81123;
-    color: #ffffff;
   }
 }
 
@@ -463,25 +527,10 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 18px;
-}
 
-.back-btn {
-  -webkit-app-region: no-drag;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: none;
-  border-radius: 8px;
-  background: var(--voxver-bg-tertiary);
-  color: var(--voxver-text-muted);
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-
-  &:hover {
-    background: var(--voxver-bg-hover);
-    color: var(--voxver-text);
+  /* 子项不收缩：空间不足时滚动，而不是把横幅/卡片压扁 */
+  > * {
+    flex-shrink: 0;
   }
 }
 
@@ -589,6 +638,54 @@ onUnmounted(() => {
   min-height: 80px;
 }
 
+.notes-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--voxver-border-color);
+}
+
+.notes-card-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--voxver-accent);
+  flex-shrink: 0;
+}
+
+.notes-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--voxver-text-primary);
+}
+
+.notes-footer {
+  padding: 12px 18px;
+  margin-top: 4px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--voxver-text-muted);
+  border-top: 1px solid var(--voxver-border-color);
+
+  :deep(strong) {
+    color: var(--voxver-text-secondary);
+    font-weight: 600;
+  }
+
+  :deep(a) {
+    color: var(--voxver-accent);
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in oklab, var(--voxver-accent) 30%, transparent);
+    transition: border-color 0.15s;
+
+    &:hover {
+      border-bottom-color: var(--voxver-accent);
+    }
+  }
+}
+
 .notes-loading,
 .notes-empty {
   display: flex;
@@ -611,58 +708,91 @@ onUnmounted(() => {
 
 .notes-body {
   font-size: 13.5px;
-  line-height: 1.65;
+  line-height: 1.7;
   color: var(--voxver-text);
 
-  :deep(h3),
-  :deep(h4),
-  :deep(h5) {
-    margin: 14px 0 8px;
-    font-weight: 600;
-    color: var(--voxver-text);
-  }
-
+  // ── 标题层级 ──
   :deep(h3) {
-    font-size: 15px;
+    margin: 20px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--voxver-border-color);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--voxver-text-primary);
   }
 
   :deep(h4) {
-    font-size: 14px;
+    margin: 16px 0 8px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--voxver-text-primary);
   }
 
+  :deep(h5) {
+    margin: 12px 0 6px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--voxver-text-secondary);
+  }
+
+  // ── 段落 ──
   :deep(p) {
-    margin: 6px 0;
+    margin: 8px 0;
   }
 
+  // ── 列表 ──
   :deep(ul) {
-    margin: 6px 0;
-    padding-left: 20px;
+    margin: 8px 0;
+    padding-left: 22px;
   }
 
   :deep(li) {
-    margin: 3px 0;
+    margin: 4px 0;
+    padding-left: 2px;
+
+    &::marker {
+      color: var(--voxver-text-muted);
+    }
   }
 
+  // ── 分割线 ──
   :deep(hr) {
     border: none;
-    border-top: 1px solid var(--voxver-border);
-    margin: 12px 0;
+    border-top: 1px solid var(--voxver-border-color);
+    margin: 16px 0;
   }
 
+  // ── 行内代码 ──
   :deep(code) {
-    padding: 1px 5px;
+    padding: 2px 6px;
     border-radius: 4px;
-    font-size: 12px;
-    background: var(--voxver-bg-tertiary);
+    font-size: 12.5px;
+    font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+    background: color-mix(in oklab, var(--voxver-accent) 10%, var(--voxver-bg-tertiary));
+    color: var(--voxver-accent);
   }
 
+  // ── 加粗 ──
+  :deep(strong) {
+    font-weight: 600;
+    color: var(--voxver-text-primary);
+  }
+
+  // ── 链接 ──
   :deep(a) {
-    color: var(--voxver-accent, #14b8a6);
-    text-decoration: underline;
+    color: var(--voxver-accent);
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in oklab, var(--voxver-accent) 30%, transparent);
+    transition: border-color 0.15s;
+
+    &:hover {
+      border-bottom-color: var(--voxver-accent);
+    }
   }
 
+  // ── 段落间距辅助 ──
   :deep(.md-gap) {
-    height: 6px;
+    height: 8px;
   }
 }
 

@@ -4,6 +4,7 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { execSync } from 'child_process'
 import * as fsp from 'fs/promises'
+import * as os from 'os'
 import * as path from 'path'
 
 export function registerWindowHandlers(mainWindow: BrowserWindow): void {
@@ -20,6 +21,17 @@ export function registerWindowHandlers(mainWindow: BrowserWindow): void {
 
   ipcMain.handle('window:close', () => mainWindow.close())
   ipcMain.handle('window:is-maximized', () => mainWindow.isMaximized())
+
+  // 获取系统内存信息（总内存/可用内存，单位 GB）
+  ipcMain.handle('app:get-system-memory', () => {
+    const total = os.totalmem()
+    const free = os.freemem()
+    return {
+      totalGB: Math.round((total / (1024 * 1024 * 1024)) * 10) / 10,
+      freeGB: Math.round((free / (1024 * 1024 * 1024)) * 10) / 10,
+      usedGB: Math.round(((total - free) / (1024 * 1024 * 1024)) * 10) / 10
+    }
+  })
 
   // 获取应用版本号（从 package.json）
   ipcMain.handle('app:get-version', () => app.getVersion())

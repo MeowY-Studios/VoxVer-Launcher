@@ -26,10 +26,19 @@ export function safeJoin(baseDir: string, ...segments: string[]): string {
 
 /**
  * 校验版本号 ID 仅包含安全字符
- * 允许：字母、数字、点、下划线、连字符
+ * 允许：字母、数字、点、下划线、连字符、空格、中文等常规字符、括号
+ * 禁止：路径遍历（..）、路径分隔符、Windows 保留字符、控制字符
  */
 export function validateVersionId(versionId: string): void {
-  if (!versionId || !/^[a-zA-Z0-9._-]+$/.test(versionId) || versionId.includes('..')) {
+  if (!versionId || versionId.includes('..')) {
+    throw new Error(`非法版本号: ${versionId}`)
+  }
+  // 禁止路径分隔符与 Windows 保留字符
+  if (/[\\/:*?"<>|]/.test(versionId)) {
+    throw new Error(`非法版本号: ${versionId}`)
+  }
+  // 禁止控制字符
+  if (/[\x00-\x1f\x7f]/.test(versionId)) {
     throw new Error(`非法版本号: ${versionId}`)
   }
 }

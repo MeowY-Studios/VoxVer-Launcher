@@ -585,6 +585,7 @@ async function confirmDownload() {
         platform: modSource.value
       })
     )
+    dlStore.showFloatPanel = true
     const res = await window.electronAPI?.download.downloadFile(payload, dest)
     if ((res as { success?: boolean; error?: string })?.success) {
       await dlStore.refreshQueue()
@@ -1120,6 +1121,9 @@ onMounted(() => {
   width: 380px;
   max-width: 90vw;
   overflow: hidden;
+  border-radius: var(--voxver-radius-lg);
+  background: var(--voxver-bg-elevated);
+  border: 1px solid var(--voxver-border-color);
   box-shadow: 0 16px 48px rgb(0 0 0 / 0.5);
 }
 

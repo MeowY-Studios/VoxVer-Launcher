@@ -21,6 +21,7 @@ import {
 import { join } from 'path'
 import * as os from 'os'
 import { validateVersionId } from '../utils/path-validation'
+import { detectVersionInfo, formatLoaderInfo } from '../utils/version-meta'
 import { logger } from '../utils/logger'
 const log = logger.child('Game-IPC')
 
@@ -113,59 +114,38 @@ async function scanInstalledVersions(gameDir: string): Promise<ScannedVersion[]>
     const versionName = entry.name
     const versionDir = join(versionsDir, versionName)
 
-    // 找 JSON 文件（MC 版本元数据）
-    let jsonFile = ''
+    // 找版本 jar（优先 <版本名>.jar）
     let jarFile = ''
     try {
       const files = readdirSync(versionDir)
-      jsonFile = files.find((f) => f.endsWith('.json')) || ''
-      jarFile = files.find((f) => f.endsWith('.jar')) || ''
+      jarFile = files.find((f) => f === `${versionName}.jar`) || files.find((f) => f.endsWith('.jar')) || ''
     } catch {
       continue
     }
 
-    if (!jsonFile) continue
+    // 从版本 JSON 与 mods 文件夹识别真实 MC 版本号与加载器（兼容整合包式命名，如 "Zombie Invade 100 Days"）
+    const detection = detectVersionInfo(gameDir, versionName)
+    if (!detection.jsonPath) continue
 
-    try {
-      const jsonPath = join(versionDir, jsonFile)
-      const jsonContent = readFileSync(jsonPath, 'utf-8')
-      const meta = JSON.parse(jsonContent)
-
-      // 判断类型
-      let type = 'release'
-      let loaderInfo = ''
-      let baseVersion = meta.id
-
-      if (meta.inheritsFrom) {
-        // 继承自另一个版本（通常是 ModLoader 版本）
-        loaderInfo = versionName.replace(meta.inheritsFrom + '-', '').replace(meta.inheritsFrom, '')
-        type = 'modded'
-        baseVersion = meta.inheritsFrom
-      } else if (meta.type === 'snapshot') {
-        type = 'snapshot'
-      } else if (meta.type === 'old_alpha' || meta.type === 'old_beta') {
-        type = 'old'
-      }
-
-      // 尝试判断 ModLoader 类型
-      const lowerName = versionName.toLowerCase()
-      if (lowerName.includes('fabric')) loaderInfo = loaderInfo || 'Fabric'
-      else if (lowerName.includes('forge')) loaderInfo = loaderInfo || 'Forge'
-      else if (lowerName.includes('neoforge')) loaderInfo = loaderInfo || 'NeoForge'
-      else if (lowerName.includes('quilt')) loaderInfo = loaderInfo || 'Quilt'
-
-      results.push({
-        id: versionName,
-        name: versionName,
-        type,
-        baseVersion,
-        loaderInfo: loaderInfo.trim(),
-        jarPath: jarFile ? join(versionDir, jarFile) : '',
-        jsonPath: jsonPath
-      })
-    } catch {
-      // JSON 解析失败，忽略
+    // 判断类型
+    let type = 'release'
+    if (detection.loader) {
+      type = 'modded'
+    } else if (detection.meta?.type === 'snapshot') {
+      type = 'snapshot'
+    } else if (detection.meta?.type === 'old_alpha' || detection.meta?.type === 'old_beta') {
+      type = 'old'
     }
+
+    results.push({
+      id: versionName,
+      name: versionName,
+      type,
+      baseVersion: detection.mcVersion,
+      loaderInfo: detection.loader ? formatLoaderInfo(detection.loader) : '',
+      jarPath: jarFile ? join(versionDir, jarFile) : '',
+      jsonPath: detection.jsonPath
+    })
   }
 
   return results

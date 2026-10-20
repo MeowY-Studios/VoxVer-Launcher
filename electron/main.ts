@@ -2,6 +2,9 @@
  * VoxVer Launcher 主进程入口
  */
 
+// 压制 Electron 安全警告（开发模式下 unsafe-eval 是 Vue/Vite 必需的）
+process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
+
 // ========== Squirrel.Windows 安装器事件处理（R-1 修复）==========
 // 在 Electron 应用启动前处理 Windows Squirrel 安装/更新/卸载事件
 // 确保快捷方式创建、注册表清理、卸载流程正常工作
@@ -145,19 +148,26 @@ function createWindow(): BrowserWindow {
       : process.resourcesPath
   writeLog('createWindow resourcesPath:', resPath)
 
-  // 加载图标 - 根据环境使用不同路径
+  // 加载图标 - 根据环境使用不同路径；ICO 解析失败时回退 PNG
   let appIcon: NativeImage | undefined
-  const iconPathDev = join(__dirname, '..', '..', 'resources', 'icons', 'icon.ico')
-  const iconPathProd = join(resPath, 'icons', 'icon.ico')
-  if (existsSync(iconPathDev)) {
-    appIcon = nativeImage.createFromPath(iconPathDev)
-    writeLog('Using dev icon path:', iconPathDev)
-  } else if (existsSync(iconPathProd)) {
-    appIcon = nativeImage.createFromPath(iconPathProd)
-    writeLog('Using prod icon path:', iconPathProd)
-  } else {
-    writeLog('Icon file not found')
+  const tryIcons = [
+    join(__dirname, '..', '..', 'resources', 'icons', 'icon.ico'),
+    join(__dirname, '..', '..', 'resources', 'icons', 'icon.png'),
+    join(resPath, 'icons', 'icon.ico'),
+    join(resPath, 'icons', 'icon.png')
+  ]
+  for (const p of tryIcons) {
+    if (existsSync(p)) {
+      const img = nativeImage.createFromPath(p)
+      if (!img.isEmpty()) {
+        appIcon = img
+        writeLog('Icon loaded:', p, `size=${img.getSize().width}x${img.getSize().height}`)
+        break
+      }
+      writeLog('Icon empty, skipping:', p)
+    }
   }
+  if (!appIcon) writeLog('Icon file not found in any path')
 
   const mainWindow = new BrowserWindow({
     width: 1200,
@@ -178,6 +188,20 @@ function createWindow(): BrowserWindow {
     }
   })
 
+  if (appIcon) {
+    const icon = appIcon
+    const applyIcon = (): void => {
+      if (!mainWindow.isDestroyed()) mainWindow.setIcon(icon)
+    }
+    applyIcon()
+    // * Windows 任务栏图标偶发回退到 electron.exe 默认图标（图标缓存/还原竞态），
+    // * 在显示与还原节点重新应用图标，强制任务栏刷新
+    mainWindow.on('show', applyIcon)
+    mainWindow.on('restore', applyIcon)
+    mainWindow.on('unmaximize', applyIcon)
+    writeLog('Window icon set explicitly')
+  }
+
   // DevTools 默认不自动打开，用户可通过 F12 快捷键手动打开
 
   mainWindow.on('ready-to-show', () => {
@@ -188,13 +212,6 @@ function createWindow(): BrowserWindow {
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
-  })
-
-  // 压制开发模式下 Electron 的 CSP 安全警告（打包后不会出现）
-  mainWindow.webContents.on('console-message', (_event, _level, message) => {
-    if (message.includes('Electron Security Warning')) {
-      _event.preventDefault()
-    }
   })
 
   // 渲染进程崩溃时记录错误
@@ -235,8 +252,13 @@ app.whenReady().then(() => {
 
   // 注册自定义协议
   if (process.platform === 'win32') {
-    // * 统一使用 appId，使 dev 模式下任务栏也显示应用图标而非 electron.exe 默认图标
-    app.setAppUserModelId('com.voxver.launcher')
+    // * dev 与正式版使用不同 AppUserModelId：避免 dev 窗口匹配到已安装正式版的
+    // * 图标关联（Windows 按 AppUserModelId 找已安装应用图标，覆盖窗口 setIcon）
+    // * dev 的 AUMID 附加随机后缀：Windows 任务栏按 AUMID 缓存图标，dev 没有匹配的
+    // * 快捷方式，脏缓存命中时会回退到 electron.exe 默认图标；随机后缀使每次启动绕过旧缓存
+    app.setAppUserModelId(
+      app.isPackaged ? 'com.voxver.launcher' : `com.voxver.launcher.dev.${Date.now().toString(36)}`
+    )
     app.setAsDefaultProtocolClient(PROTOCOL_NAME)
   } else {
     app.setAsDefaultProtocolClient(PROTOCOL_NAME)

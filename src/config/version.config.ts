@@ -38,7 +38,8 @@ export function isFeaturedVersion(id: string, type: string): boolean {
 }
 
 export function getVersionDesc(id: string): string {
-  return $t(`version.descriptions.${id}`) || ''
+  // * 传 '' 作为默认值，key 不存在时静默返回空字符串而不显示丑陋的 key 名
+  return $t(`version.descriptions.${id}`, '')
 }
 
 export function getVersionTypeColor(type: string): string {

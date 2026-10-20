@@ -20,6 +20,7 @@ export interface LocalMod {
   dependencies: string[] // * 依赖的 Mod ID 列表
   dependsOn: string[] // * 被哪些 Mod 依赖
   installedAt: string // * 安装时间 (ISO)
+  logoUrl?: string // * Mod 图标 URL（从 JAR 提取的 base64 data URL）
 }
 
 /** Mod 依赖信息 */

@@ -86,6 +86,11 @@ interface ElectronAPI {
   }
   app: {
     getVersion: () => Promise<string>
+    getMemoryInfo: () => Promise<{
+      totalGB: number
+      freeGB: number
+      usedGB: number
+    }>
     getPaths: () => Promise<{
       userData: string
       logs: string

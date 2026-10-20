@@ -99,7 +99,7 @@
             :class="{
               completed: task.phase === 'completed',
               failed: task.phase === 'failed',
-              downloading: task.phase === 'downloading_json' || task.phase === 'downloading_jar'
+              downloading: isActivePhase(task.phase)
             }"
           >
             <!-- 选择框 -->
@@ -177,7 +177,7 @@
             <!-- 右侧：操作 -->
             <div class="task-actions">
               <div
-                v-if="task.phase === 'downloading_json' || task.phase === 'downloading_jar'"
+                v-if="isActivePhase(task.phase)"
                 class="speed-info"
               >
                 <span class="speed-label">{{ formatSpeed(task.speed) }}</span>
@@ -304,8 +304,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useDownloadStore } from '../stores/download.store'
-import type { VersionDownloadTask } from '../types/download'
+import { useDownloadStore, type UnifiedTask } from '../stores/download.store'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -322,7 +321,12 @@ const tabs = computed(() => [
   { label: t('download.failed'), value: 'failed' }
 ])
 
-const tasks = computed(() => Array.from(downloadStore.versionTasks.values()))
+const tasks = computed(() => downloadStore.unifiedTasks)
+
+/** 是否是活跃下载状态 */
+function isActivePhase(phase: string): boolean {
+  return phase !== 'completed' && phase !== 'failed' && phase !== 'idle'
+}
 
 const filteredTasks = computed(() => {
   let result = tasks.value
@@ -330,9 +334,7 @@ const filteredTasks = computed(() => {
   // * 按标签筛选
   if (activeTab.value !== 'all') {
     if (activeTab.value === 'downloading') {
-      result = result.filter(
-        (task) => task.phase === 'downloading_json' || task.phase === 'downloading_jar'
-      )
+      result = result.filter((task) => isActivePhase(task.phase))
     } else {
       result = result.filter((task) => task.phase === activeTab.value)
     }
@@ -349,9 +351,7 @@ const filteredTasks = computed(() => {
 
 const totalCount = computed(() => tasks.value.length)
 const downloadingCount = computed(
-  () =>
-    tasks.value.filter((t) => t.phase === 'downloading_json' || t.phase === 'downloading_jar')
-      .length
+  () => tasks.value.filter((t) => isActivePhase(t.phase)).length
 )
 const completedCount = computed(() => tasks.value.filter((t) => t.phase === 'completed').length)
 const failedCount = computed(() => tasks.value.filter((t) => t.phase === 'failed').length)
@@ -412,12 +412,15 @@ function formatTime(timestamp?: number): string {
   return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
 }
 
-async function retryTask(task: VersionDownloadTask) {
-  downloadStore.removeVersionTask(task.id)
-  await downloadStore.startVersionDownload(task.id, task.targetFolder)
+async function retryTask(task: UnifiedTask) {
+  if (task._type === 'version') {
+    downloadStore.removeVersionTask(task.id)
+    await downloadStore.startVersionDownload(task.id, task.targetFolder)
+  }
 }
 
-async function viewInstance(task: VersionDownloadTask) {
+async function viewInstance(task: UnifiedTask) {
+  if (task._type !== 'version') return
   const api = window.electronAPI
   if (api?.instance) {
     await api.instance.create({
@@ -430,13 +433,15 @@ async function viewInstance(task: VersionDownloadTask) {
   router.push('/versions')
 }
 
-function removeTask(task: VersionDownloadTask) {
-  downloadStore.removeVersionTask(task.id)
+function removeTask(task: UnifiedTask) {
+  if (task._type === 'version') {
+    downloadStore.removeVersionTask(task.id)
+  }
 }
 
 function clearCompleted() {
   tasks.value.forEach((task) => {
-    if (task.phase === 'completed') {
+    if (task.phase === 'completed' && task._type === 'version') {
       downloadStore.removeVersionTask(task.id)
     }
   })
@@ -448,9 +453,12 @@ function cancelSelection() {
 
 function deleteSelected() {
   selectedTasks.value.forEach((id) => {
+    // * 尝试作为版本任务移除
     downloadStore.removeVersionTask(id)
   })
   selectedTasks.value = []
+  // * 清理完后刷新 mod 下载队列
+  downloadStore.refreshQueue()
 }
 
 onMounted(() => {

@@ -443,7 +443,22 @@ export class ModService {
 
       // 复用传入的 zip，避免重复打开同一个 jar
       const zipToUse = zip || new AdmZip(jarPath)
-      const entry = zipToUse.getEntry(iconPathInJar)
+
+      // 精确路径匹配：先从元数据宣称的路径读取
+      let entry = zipToUse.getEntry(iconPathInJar)
+
+      // 若路径只是纯文件名（无目录分隔符），常见于 Forge mods.toml 的 logoFile 字段：
+      // 实际文件通常在 assets/xxx/ 下，而非 jar 根目录。回退到遍历 jar 条目模糊匹配。
+      if (!entry && !iconPathInJar.includes('/') && !iconPathInJar.includes('\\')) {
+        const entries = zipToUse.getEntries()
+        for (const e of entries as { entryName: string }[]) {
+          if (e.entryName.endsWith('/' + iconPathInJar) || e.entryName === iconPathInJar) {
+            entry = e
+            break
+          }
+        }
+      }
+
       if (!entry) {
         log.warn(`[ModService] 图标在 jar 中未找到: ${iconPathInJar}`)
         return undefined

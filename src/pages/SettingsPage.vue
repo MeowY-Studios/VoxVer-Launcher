@@ -1,5 +1,5 @@
 <template>
-  <div class="settings-page">
+  <div class="settings-page" ref="pageRef">
     <!-- ========== 主页 ========== -->
     <template v-if="activeCategory === 'home'">
       <!-- 查找设置 -->
@@ -735,18 +735,7 @@
           <div class="java-alloc-card">
             <p class="sec-desc" style="margin-bottom:8px">{{ $t('settings.gameJavaDesc') }}</p>
             <div class="java-select-row">
-              <select class="sel java-preset-sel" v-model="selectedJavaPreset">
-                <option value="auto">{{ $t('settings.autoSelect') }}</option>
-                <option value="java8">Java 8</option>
-                <option value="java17">Java 17</option>
-                <option value="java21">Java 21</option>
-                <option v-if="detectedJava.length > 0" disabled>──────────────</option>
-                <option v-for="java in detectedJava" :key="java.id" :value="`detected:${java.id}`">
-                  {{ java.vendor }} {{ java.version }} ({{ java.arch }}{{ $t('settings.javaMemory.bit') }})
-                </option>
-                <option v-if="detectedJava.length > 0" disabled>──────────────</option>
-                <option value="custom">{{ $t('settings.customPath') }}</option>
-              </select>
+              <PxSelect v-model="selectedJavaPreset" :options="javaPresetOptions" />
               <button class="btn-sm java-detect-btn" @click="detectJava" :disabled="isDetectingJava">
                 <svg v-if="isDetectingJava" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10" stroke-opacity="0.3" />
@@ -957,11 +946,7 @@
               <p class="row-desc">{{ $t('settings.versionIsolationDesc') }}</p>
             </div>
             <div class="row-control">
-              <select class="sel" v-model="s.versionIsolation">
-                <option value="none">{{ $t('settings.noIsolation') }}</option>
-                <option value="version">{{ $t('settings.byVersion') }}</option>
-                <option value="versionAndGroup">{{ $t('settings.byVersionAndGroup') }}</option>
-              </select>
+              <PxSelect v-model="s.versionIsolation" :options="versionIsolationOptions" />
             </div>
           </div>
         </div>
@@ -1414,10 +1399,7 @@
               <div class="row-desc">{{ $t('settings.bgImageDesc') }}</div>
             </div>
             <div class="bg-card-control">
-              <select class="sel" :value="appStore.bgImageMode" @change="appStore.setBgImageMode(($event.target as HTMLSelectElement).value as 'none' | 'custom')">
-                <option value="none">{{ $t('settings.noBgImage') }}</option>
-                <option value="custom">{{ $t('settings.customImage') }}</option>
-              </select>
+              <PxSelect v-model="bgImageModeModel" :options="bgImageOptions" />
               <button v-if="appStore.bgImageMode === 'custom'" class="btn-sm" @click="browseBgImage">
                 {{ $t('settings.selectImageBtn') }}
               </button>
@@ -1493,10 +1475,7 @@
               <div class="row-desc">{{ $t('settings.bgMusicDesc') }}</div>
             </div>
             <div class="bg-card-control">
-              <select class="sel" v-model="s.bgMusicMode">
-                <option value="none">{{ $t('settings.musicOff') }}</option>
-                <option value="custom">{{ $t('settings.customMusic') }}</option>
-              </select>
+              <PxSelect v-model="s.bgMusicMode" :options="bgMusicOptions" />
               <button v-if="s.bgMusicMode === 'custom'" class="btn-sm">{{ $t('settings.selectFolder') }}</button>
             </div>
           </div>
@@ -1842,9 +1821,7 @@
             <p class="row-desc">{{ $t('settings.downloadSourceDesc') }}</p>
           </div>
           <div class="row-control">
-            <select class="sel" v-model.number="downloadConfig.mirrorIndex" @change="onMirrorChange(downloadConfig.mirrorIndex)">
-              <option v-for="(m, i) in downloadConfig.mirrors" :key="m.url" :value="i">{{ m.name }} {{ m.ping > 0 ? '(' + m.ping + 'ms)' : '' }}</option>
-            </select>
+            <PxSelect v-model="mirrorIndexModel" :options="mirrorOptions" />
           </div>
         </div>
 
@@ -1996,10 +1973,7 @@
             <label class="row-label">{{ $t('settings.screenshots.selectInstance') }}</label>
           </div>
           <div class="row-control">
-            <select class="sel" v-model="screenshotInstanceId" @change="loadScreenshots">
-              <option value="">{{ $t('common.pleaseSelect') }}</option>
-              <option v-for="inst in allInstances" :key="inst.id" :value="inst.id">{{ inst.name }}</option>
-            </select>
+            <PxSelect v-model="screenshotInstanceId" :options="screenshotInstanceOptions" />
           </div>
         </div>
 
@@ -2364,11 +2338,7 @@
             <label class="row-label">{{ $t('settings.modSource') }}</label>
           </div>
           <div class="row-control">
-            <select class="sel" v-model="s.modSource">
-              <option value="curseforge">{{ $t('settings.curseforge') }}</option>
-              <option value="modrinth">{{ $t('settings.modrinth') }}</option>
-              <option value="both">{{ $t('settings.both') }}</option>
-            </select>
+            <PxSelect v-model="s.modSource" :options="modSourceOptions" />
           </div>
         </div>
 
@@ -2378,11 +2348,7 @@
             <p class="row-desc">{{ $t('settings.fileNameFormatDesc') }}</p>
           </div>
           <div class="row-control">
-            <select class="sel" v-model="s.fileNameFormat">
-              <option value="name-version">{{ $t('settings.nameVersion') }}</option>
-              <option value="id-name">{{ $t('settings.idName') }}</option>
-              <option value="original">{{ $t('settings.original') }}</option>
-            </select>
+            <PxSelect v-model="s.fileNameFormat" :options="fileNameFormatOptions" />
           </div>
         </div>
 
@@ -2391,10 +2357,7 @@
             <label class="row-label">{{ $t('settings.modManageStyle') }}</label>
           </div>
           <div class="row-control">
-            <select class="sel" v-model="s.modManageStyle">
-              <option value="list">{{ $t('settings.listMode') }}</option>
-              <option value="card">{{ $t('settings.cardMode') }}</option>
-            </select>
+            <PxSelect v-model="s.modManageStyle" :options="modManageStyleOptions" />
           </div>
         </div>
       </section>
@@ -2839,12 +2802,7 @@
             <p class="row-desc">{{ $t('settings.devOptions.logLevelDesc') }}</p>
           </div>
           <div class="row-control">
-            <select class="sel" v-model="s.logLevel">
-              <option value="DEBUG">DEBUG</option>
-              <option value="INFO" selected>INFO</option>
-              <option value="WARN">WARN</option>
-              <option value="ERROR">ERROR</option>
-            </select>
+            <PxSelect v-model="s.logLevel" :options="logLevelOptions" />
           </div>
         </div>
 
@@ -3061,6 +3019,8 @@ import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
 import PxSelect from '@/components/common/PxSelect.vue'
 
+const pageRef = ref<HTMLElement | null>(null)
+
 const router = useRouter()
 const appStore = useAppStore()
 const instancesStore = useInstancesStore()
@@ -3263,8 +3223,13 @@ async function importModpackFromSettings() {
 
 // 加载保存的 Java 设置
 onMounted(async () => {
+  pageRef.value?.scrollTo(0, 0)
   await loadFolderList()
   await loadJavaSettings()
+  try {
+    const mem = await window.electronAPI?.app?.getMemoryInfo?.()
+    if (mem?.totalGB) systemTotalGB.value = mem.totalGB
+  } catch { /* 获取失败保持 0，不影响其他功能 */ }
 })
 
 // section 折叠状态（true = 展开）
@@ -3323,6 +3288,28 @@ const selectedJavaPreset = computed({
       s.javaPreset = val
     }
   }
+})
+
+// Java preset options for PxSelect
+const javaPresetOptions = computed<Array<{ label: string; value: string; disabled?: boolean }>>(() => {
+  const options: Array<{ label: string; value: string; disabled?: boolean }> = [
+    { label: tm('settings.autoSelect'), value: 'auto' },
+    { label: 'Java 8', value: 'java8' },
+    { label: 'Java 17', value: 'java17' },
+    { label: 'Java 21', value: 'java21' },
+  ]
+  if (detectedJava.value.length > 0) {
+    options.push({ label: '──────────────', value: '', disabled: true })
+    for (const java of detectedJava.value) {
+      options.push({
+        label: `${java.vendor} ${java.version} (${java.arch}${tm('settings.javaMemory.bit') as string})`,
+        value: `detected:${java.id}`,
+      })
+    }
+    options.push({ label: '──────────────', value: '', disabled: true })
+  }
+  options.push({ label: tm('settings.customPath'), value: 'custom' })
+  return options
 })
 
 // 日志级别：与 electron/utils/logger.ts 中 LogLevel 保持同步
@@ -3540,17 +3527,34 @@ watch(() => s.windowPreset, (v) => v && localStorage.setItem('voxver_windowPrese
 watch(() => s.fullscreen, (v) => localStorage.setItem('voxver_fullscreen', String(v)))
 watch(() => s.javaPreset, (v) => v && localStorage.setItem('voxver_javaPreset', v))
 watch(() => s.javaPath, (v) => localStorage.setItem('voxver_javaPath', v))
-watch(() => s.memoryMode, (v) => v && localStorage.setItem('voxver_memoryMode', v))
-watch(() => s.memoryCustomGB, (v) => localStorage.setItem('voxver_memoryCustomGB', String(v)))
+watch(() => s.memoryMode, (v) => {
+  if (!v) return
+  localStorage.setItem('voxver_memoryMode', v)
+  window.electronAPI?.config?.set?.('global_memory_mode', v).catch(() => {})
+})
+watch(() => s.memoryCustomGB, (v) => {
+  localStorage.setItem('voxver_memoryCustomGB', String(v))
+  window.electronAPI?.config?.set?.('global_memory_custom', String(v)).catch(() => {})
+})
 watch(() => s.memoryMin, (v) => localStorage.setItem('voxver_memoryMin', String(v)))
 watch(() => s.memoryMax, (v) => localStorage.setItem('voxver_memoryMax', String(v)))
 watch(() => s.offlineSkin, (v) => v && localStorage.setItem('voxver_offlineSkin', v))
 watch(() => s.customSkinPath, (v) => localStorage.setItem('voxver_customSkinPath', v))
 watch(() => s.officialSkinName, (v) => localStorage.setItem('voxver_officialSkinName', v))
-watch(() => s.jvmArgs, (v) => localStorage.setItem('voxver_jvmArgs', v))
+watch(() => s.jvmArgs, (v) => {
+  localStorage.setItem('voxver_jvmArgs', v)
+  // 同步到主进程配置，游戏启动时注入 JVM 全局参数
+  window.electronAPI?.config?.set?.('global_jvm_args', v).catch(() => {})
+})
+
 watch(() => s.gameArgs, (v) => localStorage.setItem('voxver_gameArgs', v))
 watch(() => s.preLaunchCmd, (v) => localStorage.setItem('voxver_preLaunchCmd', v))
-watch(() => s.memoryManage, (v) => v && localStorage.setItem('voxver_memoryManage', v))
+watch(() => s.memoryManage, (v) => {
+  if (!v) return
+  localStorage.setItem('voxver_memoryManage', v)
+  // 同步到主进程配置，游戏启动时注入 GC 参数
+  window.electronAPI?.config?.set?.('global_gc_strategy', v).catch(() => {})
+})
 watch(() => s.disableJavaLaunchWrapper, (v) => localStorage.setItem('voxver_disableJavaLaunchWrapper', String(v)))
 watch(() => s.disableLwjglUnsafeAgent, (v) => localStorage.setItem('voxver_disableLwjglUnsafeAgent', String(v)))
 watch(() => s.useHighPerformanceGPU, (v) => localStorage.setItem('voxver_useHighPerformanceGPU', String(v)))
@@ -3625,7 +3629,7 @@ const isWorkingBackup = ref(false)
 
 // v0.5.3: 诊断日志导出状态
 const isExportingDiagnostics = ref(false)
-const systemTotalGB = ref(16)
+const systemTotalGB = ref<number>(0)
 const backupFiles = ref<BackupFileInfo[]>([])
 
 // 更新检查状态
@@ -3955,6 +3959,75 @@ const skinOptions = computed(() => [
   { value: 'alex', label: 'Alex' },
   { value: 'official', label: t('settings.skinOfficial') },
   { value: 'custom', label: t('settings.skinCustom') }
+])
+
+// ── PxSelect options for converted selects ──
+
+const versionIsolationOptions = computed<Array<{ label: string; value: string }>>(() => [
+  { label: tm('settings.noIsolation'), value: 'none' },
+  { label: tm('settings.byVersion'), value: 'version' },
+  { label: tm('settings.byVersionAndGroup'), value: 'versionAndGroup' },
+])
+
+const bgMusicOptions = computed<Array<{ label: string; value: string }>>(() => [
+  { label: tm('settings.musicOff'), value: 'none' },
+  { label: tm('settings.customMusic'), value: 'custom' },
+])
+
+const bgImageOptions = computed<Array<{ label: string; value: string }>>(() => [
+  { label: tm('settings.noBgImage'), value: 'none' },
+  { label: tm('settings.customImage'), value: 'custom' },
+])
+
+const bgImageModeModel = computed({
+  get: () => appStore.bgImageMode,
+  set: (val: string) => appStore.setBgImageMode(val as 'none' | 'custom'),
+})
+
+const mirrorOptions = computed<Array<{ label: string; value: string }>>(() =>
+  downloadConfig.mirrors.map((m, i) => ({
+    label: `${m.name} ${m.ping > 0 ? '(' + m.ping + 'ms)' : ''}`,
+    value: String(i),
+  }))
+)
+
+const mirrorIndexModel = computed({
+  get: () => String(downloadConfig.mirrorIndex),
+  set: (val: string) => { downloadConfig.mirrorIndex = Number(val) },
+})
+
+watch(mirrorIndexModel, (val) => onMirrorChange(Number(val)))
+
+const screenshotInstanceOptions = computed<Array<{ label: string; value: string }>>(() => [
+  { label: tm('common.pleaseSelect'), value: '' },
+  ...allInstances.value.map((inst: { id: string; name: string }) => ({
+    label: inst.name,
+    value: inst.id,
+  })),
+])
+
+const modSourceOptions = computed<Array<{ label: string; value: string }>>(() => [
+  { label: tm('settings.curseforge'), value: 'curseforge' },
+  { label: tm('settings.modrinth'), value: 'modrinth' },
+  { label: tm('settings.both'), value: 'both' },
+])
+
+const fileNameFormatOptions = computed<Array<{ label: string; value: string }>>(() => [
+  { label: tm('settings.nameVersion'), value: 'name-version' },
+  { label: tm('settings.idName'), value: 'id-name' },
+  { label: tm('settings.original'), value: 'original' },
+])
+
+const modManageStyleOptions = computed<Array<{ label: string; value: string }>>(() => [
+  { label: tm('settings.listMode'), value: 'list' },
+  { label: tm('settings.cardMode'), value: 'card' },
+])
+
+const logLevelOptions = computed<Array<{ label: string; value: string }>>(() => [
+  { label: 'DEBUG', value: 'DEBUG' },
+  { label: 'INFO', value: 'INFO' },
+  { label: 'WARN', value: 'WARN' },
+  { label: 'ERROR', value: 'ERROR' },
 ])
 
 function onSkinSelect(val: string) {
@@ -4706,6 +4779,12 @@ async function downloadUpdate() {
 }
  
 
+// 注册更新状态监听（顶层 setup，不依赖异步数据）
+const unsubUpdate = setupUpdateListener()
+onUnmounted(() => {
+  unsubUpdate()
+})
+
 // P2 初始化
 onMounted(async () => {
   // 先恢复主题色（避免等待异步操作）
@@ -4720,7 +4799,6 @@ onMounted(async () => {
   await loadDownloadConfig()
   await loadThemePresets()
   await instancesStore.fetchInstances()
-  const unsubUpdate = setupUpdateListener()
   checkAppPermissions()
 
   // 恢复启动时自动检查的结果（状态广播可能发生在本页挂载之前）
@@ -4739,10 +4817,6 @@ onMounted(async () => {
       showUpdateAvailableModal.value = true
     }
   } catch { /* ignore */ }
-
-  onUnmounted(() => {
-    unsubUpdate()
-  })
 })
 
 // ====== 应用版本 ======
@@ -5071,6 +5145,8 @@ const screenshotInstanceId = ref('')
 const screenshots = ref<Array<{ fileName: string; filePath: string; size: number; createdAt: number; thumbnail: string | null }>>([])
 const screenshotsLoading = ref(false)
 
+watch(screenshotInstanceId, () => loadScreenshots())
+
 async function loadScreenshots() {
   if (!screenshotInstanceId.value) {
     screenshots.value = []
@@ -5306,8 +5382,9 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   border-radius: var(--voxver-radius-sm);
   font-size: 13px;
   color: var(--voxver-text-primary);
+  color-scheme: dark light;
   background: transparent
-    url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6f9a' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")
+    url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238b8fa3' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")
     no-repeat right 10px center;
   outline: none;
   cursor: pointer;
@@ -5317,7 +5394,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   &:focus {
     border-color: var(--voxver-primary);
     background: color-mix(in oklab, var(--voxver-primary) 3%, transparent)
-      url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6f9a' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")
+      url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236366F1' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")
       no-repeat right 10px center;
   }
 }

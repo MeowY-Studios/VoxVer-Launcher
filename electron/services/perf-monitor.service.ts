@@ -19,49 +19,69 @@ export interface PerfSnapshot {
 let monitorInterval: ReturnType<typeof setInterval> | null = null
 let monitoredPid: number | null = null
 let startTime: number = 0
+// 上次采样的累计 CPU 秒数与时间戳，用于计算采样区间内的 CPU 利用率
+let lastCpuSeconds: number | null = null
+let lastSampleAt = 0
+
+/** 原始采样数据：cpuSeconds 为进程启动至今的累计 CPU 时间（秒） */
+interface RawPerf {
+  cpuSeconds: number
+  memoryBytes: number
+}
 
 /**
  * 解析 Windows `Get-Process` 输出
  */
-function parseWindowsPerf(pid: number): Promise<{ cpu: number; memoryBytes: number }> {
+function parseWindowsPerf(pid: number): Promise<RawPerf> {
   return new Promise((resolve) => {
-    const cmd = `powershell -NoProfile -Command "Get-Process -Id ${pid} -ErrorAction SilentlyContinue | Select-Object CPU,WorkingSet | ConvertTo-Json"`
+    // WorkingSet 是 Int32，超过 2GB 会溢出为负数，必须用 WorkingSet64
+    const cmd = `powershell -NoProfile -Command "Get-Process -Id ${pid} -ErrorAction SilentlyContinue | Select-Object CPU,WorkingSet64 | ConvertTo-Json"`
     exec(cmd, { timeout: 3000 }, (err, stdout) => {
       if (err || !stdout.trim()) {
-        resolve({ cpu: 0, memoryBytes: 0 })
+        resolve({ cpuSeconds: 0, memoryBytes: 0 })
         return
       }
       try {
         const data = JSON.parse(stdout.trim())
-        // CPU is in seconds, convert to percentage using elapsed time
         resolve({
-          cpu: data.CPU || 0,
-          memoryBytes: data.WorkingSet || 0
+          cpuSeconds: data.CPU || 0,
+          memoryBytes: data.WorkingSet64 || 0
         })
       } catch {
-        resolve({ cpu: 0, memoryBytes: 0 })
+        resolve({ cpuSeconds: 0, memoryBytes: 0 })
       }
     })
   })
 }
 
 /**
+ * 解析 CPU 累计时间 [[dd-]hh:]mm:ss 为秒数
+ */
+function parseCpuTimeToSeconds(raw: string): number {
+  const segs = raw.trim().replace('-', ':').split(':').map((s) => parseFloat(s) || 0)
+  // 长度 2: mm:ss / 3: hh:mm:ss / 4: dd:hh:mm:ss
+  if (segs.length >= 4) return segs[0] * 86400 + segs[1] * 3600 + segs[2] * 60 + segs[3]
+  if (segs.length === 3) return segs[0] * 3600 + segs[1] * 60 + segs[2]
+  return segs[0] * 60 + (segs[1] || 0)
+}
+
+/**
  * 解析 Unix `ps` 输出
  */
-function parseUnixPerf(pid: number): Promise<{ cpu: number; memoryBytes: number }> {
+function parseUnixPerf(pid: number): Promise<RawPerf> {
   return new Promise((resolve) => {
-    exec(`ps -p ${pid} -o %cpu=,rss= 2>/dev/null`, { timeout: 3000 }, (err, stdout) => {
+    exec(`ps -p ${pid} -o time=,rss= 2>/dev/null`, { timeout: 3000 }, (err, stdout) => {
       if (err || !stdout.trim()) {
-        resolve({ cpu: 0, memoryBytes: 0 })
+        resolve({ cpuSeconds: 0, memoryBytes: 0 })
         return
       }
       try {
         const parts = stdout.trim().split(/\s+/)
-        const cpu = parseFloat(parts[0]) || 0
+        const cpuSeconds = parseCpuTimeToSeconds(parts[0] || '0')
         const rssKB = parseFloat(parts[1]) || 0
-        resolve({ cpu, memoryBytes: rssKB * 1024 })
+        resolve({ cpuSeconds, memoryBytes: rssKB * 1024 })
       } catch {
-        resolve({ cpu: 0, memoryBytes: 0 })
+        resolve({ cpuSeconds: 0, memoryBytes: 0 })
       }
     })
   })
@@ -91,13 +111,25 @@ async function getPerfSnapshot(pid: number): Promise<PerfSnapshot> {
       ? await parseWindowsPerf(pid)
       : await parseUnixPerf(pid)
 
+    // CPU 利用率 = 采样区间内累计 CPU 时间增量 / 墙钟时间 × 100%
+    // （多核进程可超过 100%；首次采样无基准，记 0）
+    const now = Date.now()
+    let cpuPercent = 0
+    if (lastCpuSeconds !== null && now > lastSampleAt) {
+      const elapsedSec = (now - lastSampleAt) / 1000
+      const deltaSec = Math.max(0, perf.cpuSeconds - lastCpuSeconds)
+      cpuPercent = (deltaSec / elapsedSec) * 100
+    }
+    lastCpuSeconds = perf.cpuSeconds
+    lastSampleAt = now
+
     return {
       pid,
       alive: true,
-      cpu: Math.round(perf.cpu * 10) / 10,
+      cpu: Math.round(cpuPercent * 10) / 10,
       memoryMB: Math.round((perf.memoryBytes / (1024 * 1024)) * 10) / 10,
-      uptimeMs: Date.now() - startTime,
-      timestamp: Date.now()
+      uptimeMs: now - startTime,
+      timestamp: now
     }
   } catch {
     return {
@@ -150,6 +182,8 @@ export function stopMonitor(): void {
   }
   monitoredPid = null
   startTime = 0
+  lastCpuSeconds = null
+  lastSampleAt = 0
 }
 
 /**

@@ -389,11 +389,11 @@ const router = useRouter()
 const modsStore = useModsStore()
 
 function goToDownloads() {
-  emit('navigate')
   const query: Record<string, string> = { category: 'mod' }
   if (props.mcVersion) query.mcVersion = props.mcVersion
   if (props.loader) query.loader = props.loader
   router.push({ path: '/downloads', query })
+  emit('navigate')
 }
 
 interface ModItem {
@@ -763,7 +763,7 @@ async function loadMods() {
     name: m.displayName || m.fileName || m.id,
     version: m.version || t('mod.unknownVersion'),
     description: m.description || m.fileName || '',
-    logoUrl: '',
+    logoUrl: m.logoUrl || '',
     hovered: false,
     enabled: m.status === 'active',
     filePath: m.filePath,

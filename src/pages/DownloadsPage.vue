@@ -5,18 +5,7 @@
       <!-- 顶部提示 -->
       <div class="dl-header">
         <div class="dl-header-icon">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <rect x="2" y="3" width="20" height="14" rx="2" />
-            <line x1="8" y1="21" x2="16" y2="21" />
-            <line x1="12" y1="17" x2="12" y2="21" />
-          </svg>
+          <img src="/minecraft-grass-block.png" alt="Minecraft" class="dl-header-icon-img" />
         </div>
         <div class="dl-header-text">
           <h3 class="dl-title">{{ $t('download.vanilla') }}</h3>
@@ -51,6 +40,39 @@
             <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
           </svg>
         </button>
+      </div>
+
+      <!-- 最新版本（正式版 + 预览版合并容器） -->
+      <div v-if="latestRelease || latestSnapshot" class="latest-section vox-card">
+        <div class="latest-section-header">
+          <span class="ls-title">{{ $t('download.latestVersion') }}</span>
+        </div>
+        <!-- 最新正式版 -->
+        <div v-if="latestRelease" class="latest-row" @click="goToDetail(latestRelease)">
+          <div class="lr-icon">
+            <img src="/minecraft-grass-block.png" alt="" class="lr-icon-img" />
+          </div>
+          <div class="lr-body">
+            <div class="lr-header">
+              <span class="lr-name">{{ latestRelease.name }}</span>
+              <span class="lr-tag">{{ $t('download.release') }}</span>
+            </div>
+            <p class="lr-desc">{{ latestRelease.desc }}</p>
+          </div>
+        </div>
+        <!-- 最新预览版 -->
+        <div v-if="latestSnapshot" class="latest-row" @click="goToDetail(latestSnapshot)">
+          <div class="lr-icon">
+            <img src="/minecraft-grass-block.png" alt="" class="lr-icon-img" />
+          </div>
+          <div class="lr-body">
+            <div class="lr-header">
+              <span class="lr-name">{{ latestSnapshot.name }}</span>
+              <span class="lr-tag latest-snapshot-tag">{{ $t('download.snapshot') }}</span>
+            </div>
+            <p class="lr-desc">{{ latestSnapshot.desc }}</p>
+          </div>
+        </div>
       </div>
 
       <!-- 版本分类折叠面板（Accordion） -->
@@ -88,21 +110,8 @@
               @mouseleave="ver.hovered = false"
               @click="goToDetail(ver)"
             >
-              <div class="ver-icon" :style="{ background: ver.color }">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#fff"
-                  stroke-width="2"
-                >
-                  <path
-                    d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"
-                  />
-                  <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                  <line x1="12" y1="22.08" x2="12" y2="12" />
-                </svg>
+              <div class="ver-icon">
+                <img src="/minecraft-grass-block.png" alt="" class="ver-icon-img" />
               </div>
               <div class="ver-info">
                 <div class="ver-header">
@@ -196,21 +205,8 @@
               @mouseleave="ver.hovered = false"
               @click="goToDetail(ver)"
             >
-              <div class="ver-icon" :style="{ background: ver.color }">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#fff"
-                  stroke-width="2"
-                >
-                  <path
-                    d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"
-                  />
-                  <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                  <line x1="12" y1="22.08" x2="12" y2="12" />
-                </svg>
+              <div class="ver-icon">
+                <img src="/minecraft-grass-block.png" alt="" class="ver-icon-img" />
               </div>
               <div class="ver-info">
                 <div class="ver-header">
@@ -303,21 +299,8 @@
               @mouseleave="ver.hovered = false"
               @click="goToDetail(ver)"
             >
-              <div class="ver-icon" :style="{ background: ver.color }">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#fff"
-                  stroke-width="2"
-                >
-                  <path
-                    d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"
-                  />
-                  <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                  <line x1="12" y1="22.08" x2="12" y2="12" />
-                </svg>
+              <div class="ver-icon">
+                <img src="/minecraft-grass-block.png" alt="" class="ver-icon-img" />
               </div>
               <div class="ver-info">
                 <div class="ver-header">
@@ -411,21 +394,8 @@
               @mouseleave="ver.hovered = false"
               @click="goToDetail(ver)"
             >
-              <div class="ver-icon" :style="{ background: ver.color }">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#fff"
-                  stroke-width="2"
-                >
-                  <path
-                    d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"
-                  />
-                  <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                  <line x1="12" y1="22.08" x2="12" y2="12" />
-                </svg>
+              <div class="ver-icon">
+                <img src="/minecraft-grass-block.png" alt="" class="ver-icon-img" />
               </div>
               <div class="ver-info">
                 <div class="ver-header">
@@ -508,27 +478,47 @@
               class="f-input vox-input"
               v-model="searchName"
               :placeholder="$t('download.enterKeyword')"
+              @keydown.enter="doSearch"
             />
           </div>
           <div class="f-row">
             <label>{{ $t('download.source') }}</label>
-            <select class="f-select vox-input" v-model="searchSource">
-              <option value="all">{{ $t('download.all') }}</option>
-              <option value="modrinth">Modrinth</option>
-              <option value="curseforge" disabled>CurseForge（{{ $t('download.comingSoon') }}）</option>
-            </select>
+            <PxSelect class="f-select" v-model="sourceModel" :options="sourceOptions" />
           </div>
           <div class="f-row">
             <label>{{ $t('download.version') }}</label>
-            <input
-              class="f-input vox-input"
-              v-model="searchVersion"
-              :list="'mcVersionList'"
-              :placeholder="$t('download.versionPlaceholder')"
-            />
-            <datalist id="mcVersionList">
-              <option v-for="v in mcVersionOptions" :key="v" :value="v" />
-            </datalist>
+            <!-- * 自定义可输入下拉框：原生 datalist 弹层由系统渲染，无法适配主题 -->
+            <div class="f-select vox-select-wrapper" ref="versionDropdownRef">
+              <input
+                class="vox-select"
+                v-model="searchVersion"
+                autocomplete="off"
+                :placeholder="$t('download.versionPlaceholder')"
+                @focus="versionDropdownOpen = true"
+                @input="versionDropdownOpen = true"
+                @blur="versionDropdownOpen = false"
+                @keydown.esc="versionDropdownOpen = false"
+              />
+              <span class="vox-select-arrow" :class="{ open: versionDropdownOpen }">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </span>
+              <div class="vox-select-popup" :class="{ open: versionDropdownOpen }">
+                <div
+                  v-for="v in filteredVersionOptions"
+                  :key="v"
+                  class="vox-select-option"
+                  :class="{ selected: v === searchVersion }"
+                  @mousedown.prevent="selectVersion(v)"
+                >
+                  {{ v }}
+                </div>
+                <div v-if="filteredVersionOptions.length === 0" class="vox-select-option disabled">
+                  {{ $t('download.noResults') }}
+                </div>
+              </div>
+            </div>
           </div>
           <!-- Mod 分类 / 光影分类 -->
           <div
@@ -541,23 +531,12 @@
             "
           >
             <label>{{ $t('download.type') }}</label>
-            <select class="f-select vox-input" v-model="searchType">
-              <option value="">{{ $t('download.all') }}</option>
-              <option v-for="t in availableTypes" :key="t" :value="t">{{ t }}</option>
-            </select>
+            <PxSelect class="f-select" v-model="searchType" :options="typeOptions" />
           </div>
           <!-- 选了版本后出现加载器选项（仅 Mod） -->
           <div class="f-row" v-if="activeCategory === 'mod' && searchVersion">
             <label>{{ $t('download.loader') }}</label>
-            <select class="f-select vox-input" v-model="searchLoader">
-              <option value="">{{ $t('download.anyLoader') }}</option>
-              <option value="fabric">Fabric</option>
-              <option value="forge">Forge</option>
-              <option value="neoforge">NeoForge</option>
-              <option value="quilt">Quilt</option>
-              <option value="liteLoader">LiteLoader</option>
-              <option value="optifine">OptiFine</option>
-            </select>
+            <PxSelect class="f-select" v-model="searchLoader" :options="loaderOptions" />
           </div>
         </div>
 
@@ -589,6 +568,12 @@
       <div v-if="isLoading && paginatedResources.length" class="loading-banner">
         <span class="spin-loader" />
         <span>{{ $t('download.loading') }}...</span>
+      </div>
+
+      <!-- 自动加载更多提示 -->
+      <div v-if="dlStore.searching && paginatedResources.length" class="auto-load-banner">
+        <span class="spin-loader" />
+        <span>{{ $t('download.loadingMore') }}</span>
       </div>
 
       <!-- 结果列表 -->
@@ -687,7 +672,7 @@
         <span class="pg-current">{{ currentPage }}</span>
         <button
           class="pg-btn"
-          :disabled="currentPage >= totalPages"
+          :disabled="currentPage >= totalPages && !dlStore.hasMore"
           @click="goPage(currentPage + 1)"
         >
           <svg
@@ -707,14 +692,6 @@
       <div v-if="dlStore.searchError && !isLoading" class="search-error-bar vox-card">
         <span class="search-error-text">{{ $t('download.searchError') }}: {{ dlStore.searchError }}</span>
         <button class="btn-retry" @click="doSearch">{{ $t('common.retry') }}</button>
-      </div>
-
-      <!-- 加载更多 -->
-      <div v-if="dlStore.searchResults.length > 0 && dlStore.hasMore" class="load-more-bar">
-        <button class="btn-load-more" :disabled="dlStore.searching" @click="handleLoadMore">
-          <span v-if="dlStore.searching" class="spin-sm"></span>
-          {{ dlStore.searching ? $t('download.loading') : $t('download.loadMore') }}
-        </button>
       </div>
     </template>
 
@@ -745,6 +722,7 @@ import type { ContentPlatform } from '../types/download'
 import type { GameInstance } from '../types/instance'
 import { isFeaturedVersion, getVersionDesc, getVersionTypeColor } from '../config/version.config'
 import type { VersionInfo } from '../types/versions'
+import PxSelect from '../components/common/PxSelect.vue'
 
 const { t } = useI18n()
 
@@ -752,6 +730,12 @@ const dlActiveCat = inject<Ref<string>>('dlActiveCat')!
 const activeCategory = computed(() => dlActiveCat.value)
 
 const route = useRoute()
+console.log('[DownloadsPage] setup, activeCategory=', activeCategory.value, 'route=', route.path, 'query=', route.query)
+
+// * 搜索筛选 ref（必须在 immediate watcher 之前声明，否则 TDZ 报错）
+const searchVersion = ref('')
+const searchLoader = ref('') // * Mod 加载器（选了版本后才出现）
+const currentPage = ref(1)
 
 // * 回到顶部
 const pageRef = ref<HTMLElement | null>(null)
@@ -793,6 +777,8 @@ watch(
     const cat = q.category as string
     if (cat && ['vanilla', 'mod', 'modpack', 'shader', 'resourcepack', 'datapack'].includes(cat)) {
       dlActiveCat.value = cat
+      // * 从外部跳转时重置页码，避免使用残留的 old page 导致空页
+      currentPage.value = 1
     }
   },
   { immediate: true }
@@ -831,7 +817,7 @@ const isLoadingVersions = ref(false)
 
 // * 折叠面板状态
 const accOpen = reactive({
-  release: true, // * 正式版默认展开
+  release: false,
   snapshot: false,
   old: false,
   april: false
@@ -860,6 +846,16 @@ const PAGE_SIZE = 20
 const displayedCount = ref(PAGE_SIZE)
 
 // * 分类版本（计算属性，从 allVersions 过滤）
+/** 最新正式版（版本列表按时间倒序，首个即最新） */
+const latestRelease = computed(() =>
+  allVersions.value.filter((v) => v.type === 'release')[0] || null
+)
+
+/** 最新预览版 */
+const latestSnapshot = computed(() =>
+  allVersions.value.filter((v) => v.type === 'snapshot')[0] || null
+)
+
 const releaseVersions = computed(() =>
   allVersions.value.filter((v) => v.type === 'release').slice(0, displayedCount.value)
 )
@@ -1066,14 +1062,47 @@ refreshVersions()
 // * ---- 搜索筛选 ----
 const searchName = ref('')
 const searchSource = ref<ContentPlatform | 'all'>('all')
-const searchVersion = ref('')
 const searchType = ref('')
-const searchLoader = ref('') // * Mod 加载器（选了版本后才出现）
+
+// * 恢复上次离开时的筛选状态（必须在 setup 阶段执行，早于 category-change watch）
+// * 否则 category watch 清空的 searchName 会被 onMounted 中的 restore 覆盖掉
+searchName.value = localStorage.getItem('voxver_dl_filter_searchName') || ''
+searchSource.value = (localStorage.getItem('voxver_dl_filter_searchSource') as ContentPlatform | 'all') || 'all'
+searchType.value = localStorage.getItem('voxver_dl_filter_searchType') || ''
+
+// * 来源下拉选项（CurseForge 暂未授权，禁用）
+const sourceOptions = computed(() => [
+  { value: 'all', label: t('download.all') },
+  { value: 'modrinth', label: 'Modrinth' },
+  { value: 'curseforge', label: `CurseForge（${t('download.comingSoon')}）`, disabled: true }
+])
+
+// * PxSelect 的 modelValue 是 string，包一层可写 computed 保持 searchSource 的窄类型
+const sourceModel = computed({
+  get: () => searchSource.value as string,
+  set: (v: string) => {
+    searchSource.value = v as ContentPlatform | 'all'
+  }
+})
+
+// * 类型下拉选项（随分类动态变化）
+const typeOptions = computed(() => [
+  { value: '', label: t('download.all') },
+  ...availableTypes.value.map((v) => ({ value: v, label: v }))
+])
+
+// * 加载器下拉选项
+const loaderOptions = computed(() => [
+  { value: '', label: t('download.anyLoader') },
+  { value: 'fabric', label: 'Fabric' },
+  { value: 'forge', label: 'Forge' },
+  { value: 'neoforge', label: 'NeoForge' },
+  { value: 'quilt', label: 'Quilt' },
+  { value: 'liteLoader', label: 'LiteLoader' },
+  { value: 'optifine', label: 'OptiFine' }
+])
 const isLoading = ref(false)
 const loadProgress = ref(55)
-
-// * 分页
-const currentPage = ref(1)
 const ITEMS_PER_PAGE = 20
 
 const totalPages = computed(() => {
@@ -1090,10 +1119,21 @@ const paginatedResources = computed(() => {
   return list.slice(start, start + ITEMS_PER_PAGE)
 })
 
-function goPage(page: number) {
-  if (page < 1 || page > totalPages.value) return
+/** 翻页时若目标页缺少数据则自动加载更多 */
+async function goPage(page: number) {
+  if (page < 1) return
+  const totalNeeded = page * ITEMS_PER_PAGE
+  const currentTotal = filteredResources.value.length
+
+  // * 目标页需要的数据超过已加载量，且还有更多可加载 → 自动获取
+  if (totalNeeded > currentTotal && dlStore.hasMore && !dlStore.searching) {
+    await handleLoadMore()
+  }
+
+  // * 加载后数据仍不够该页，说明已无更多
+  if (totalNeeded > filteredResources.value.length) return
+
   currentPage.value = page
-  // * 滚动到页面最顶部
   pageRef.value?.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
@@ -1112,6 +1152,30 @@ const mcVersionOptions = computed(() => {
     .map((v) => v.id)
   return releases
 })
+
+// * ---- 版本筛选自定义下拉框 ----
+const versionDropdownOpen = ref(false)
+const versionDropdownRef = ref<HTMLElement | null>(null)
+
+// * 输入时按子串过滤；值已精确选中某版本时展示全部（视为选中态而非输入态）
+const filteredVersionOptions = computed(() => {
+  const q = searchVersion.value.trim().toLowerCase()
+  if (!q || mcVersionOptions.value.includes(searchVersion.value.trim())) {
+    return mcVersionOptions.value
+  }
+  return mcVersionOptions.value.filter((v) => v.toLowerCase().includes(q))
+})
+
+function selectVersion(v: string) {
+  searchVersion.value = v
+  versionDropdownOpen.value = false
+}
+
+function onVersionDropdownClickOutside(e: MouseEvent) {
+  if (versionDropdownRef.value && !versionDropdownRef.value.contains(e.target as Node)) {
+    versionDropdownOpen.value = false
+  }
+}
 
 const availableTypes = computed(() => {
   if (activeCategory.value === 'mod')
@@ -1352,15 +1416,43 @@ function handleCardClick(r: ResourceItem) {
   })
 }
 
+// * ===== 筛选状态持久化（离开 Mod 详情页后回来自动恢复） =====
+const LS_PREFIX = 'voxver_dl_filter_'
+
+function saveFilters() {
+  localStorage.setItem(LS_PREFIX + 'searchName', searchName.value)
+  localStorage.setItem(LS_PREFIX + 'searchSource', searchSource.value)
+  localStorage.setItem(LS_PREFIX + 'searchVersion', searchVersion.value)
+  localStorage.setItem(LS_PREFIX + 'searchType', searchType.value)
+  localStorage.setItem(LS_PREFIX + 'searchLoader', searchLoader.value)
+}
+
+function restoreFilters() {
+  // * 名称、来源、类型不受 URL query 影响，直接恢复
+  searchName.value = localStorage.getItem(LS_PREFIX + 'searchName') || ''
+  searchSource.value = (localStorage.getItem(LS_PREFIX + 'searchSource') as ContentPlatform | 'all') || 'all'
+  searchType.value = localStorage.getItem(LS_PREFIX + 'searchType') || ''
+  // * 版本和加载器只在无 URL query 覆盖时才恢复
+  if (!route.query.mcVersion) {
+    searchVersion.value = localStorage.getItem(LS_PREFIX + 'searchVersion') || ''
+  }
+  if (!route.query.loader) {
+    searchLoader.value = localStorage.getItem(LS_PREFIX + 'searchLoader') || ''
+  }
+}
+
+// * 筛选值变化时自动保存
+watch([searchName, searchSource, searchVersion, searchType, searchLoader], saveFilters, { deep: false })
+
 // * 需要从 API 拉取数据的社区分类
 const COMMUNITY_CATEGORIES = ['mod', 'modpack', 'shader', 'resourcepack', 'datapack']
 
-// * 进入社区分类页时，如果没有搜索结果，自动拉取双源热门内容
+// * 进入社区分类页时，如果没有搜索结果且未在搜索中，自动拉取
 onMounted(() => {
   if (
     COMMUNITY_CATEGORIES.includes(activeCategory.value) &&
     dlStore.searchResults.length === 0 &&
-    !searchName.value
+    !dlStore.searching
   ) {
     // * 延迟一点让路由参数先填充
     setTimeout(() => {
@@ -1373,6 +1465,7 @@ onMounted(() => {
     el.addEventListener('scroll', handleScroll)
     handleScroll()
   }
+  document.addEventListener('click', onVersionDropdownClickOutside)
 })
 
 onUnmounted(() => {
@@ -1380,6 +1473,7 @@ onUnmounted(() => {
   if (el) {
     el.removeEventListener('scroll', handleScroll)
   }
+  document.removeEventListener('click', onVersionDropdownClickOutside)
 })
 
 // * 切换社区分类时，保留旧结果并自动拉取新分类数据
@@ -1425,12 +1519,18 @@ watch(
     width: 44px;
     height: 44px;
     border-radius: var(--voxver-radius-sm);
-    background: var(--voxver-primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--voxver-text-inverse);
     flex-shrink: 0;
+    overflow: hidden;
+
+    .dl-header-icon-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: var(--voxver-radius-sm);
+    }
   }
 
   .dl-title {
@@ -1530,6 +1630,97 @@ watch(
   }
 }
 
+/* * ---- 最新版本区块（正式版 + 预览版合并） ---- */
+.latest-section {
+  margin-bottom: 14px;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--voxver-primary) 25%, var(--voxver-border-color-light));
+}
+
+.latest-section-header {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--voxver-border-color-light);
+  background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
+}
+
+.ls-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--voxver-primary);
+}
+
+.latest-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.12s;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--voxver-border-color-light);
+  }
+
+  &:hover {
+    background: color-mix(in oklab, var(--voxver-primary) 4%, transparent);
+  }
+
+  .lr-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--voxver-radius-sm);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .lr-icon-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--voxver-radius-sm);
+  }
+
+  .lr-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .lr-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .lr-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--voxver-text-primary);
+  }
+
+  .lr-tag {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: var(--voxver-radius-xs);
+    background: color-mix(in oklab, var(--voxver-success) 12%, transparent);
+    color: var(--voxver-success);
+
+    &.latest-snapshot-tag {
+      background: color-mix(in oklab, var(--voxver-warning) 12%, transparent);
+      color: var(--voxver-warning);
+    }
+  }
+
+  .lr-desc {
+    margin: 1px 0 0;
+    font-size: 11px;
+    color: var(--voxver-text-tertiary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
 /* * ---- 版本列表（Accordion） ---- */
 .ver-accordion {
   display: flex;
@@ -1622,6 +1813,14 @@ watch(
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.ver-icon-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--voxver-radius-md);
 }
 
 .ver-info {
@@ -2122,6 +2321,17 @@ watch(
   &:hover {
     background: color-mix(in oklab, var(--voxver-error) 10%, transparent);
   }
+}
+
+/* * 自动加载更多提示 */
+.auto-load-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 0;
+  font-size: 12px;
+  color: var(--voxver-text-muted);
 }
 
 /* * 加载更多 */

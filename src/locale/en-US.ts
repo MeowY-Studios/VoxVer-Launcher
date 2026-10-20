@@ -97,7 +97,6 @@ export default {
     tip: 'Tip'
   },
   home: {
-    welcomeTip: 'Select a version on the left then click "Play" button',
     recent: 'Recent',
     recentDesc: 'Continue your last adventure, or start a new journey from Instances',
     playGame: 'Play Game',
@@ -367,6 +366,7 @@ export default {
     confirmDownload: 'Download & Launch',
     noVersionConfirm: 'No game version available. Go to the download page?',
     downloadAndLaunchFailed: 'Download & launch failed: {error}',
+    downloadAndLaunchFailedTitle: 'Download & Launch Failed',
     launchFailedWithError: 'Launch failed: {error}',
     launchException: 'Launch exception: {error}'
   },
@@ -1193,7 +1193,8 @@ export default {
     checkUpdates: 'Check updates',
     checkingUpdates: 'Checking...',
     modUpdatesFound: '{count} mod(s) have updates available',
-    modNoUpdates: 'All mods are up to date'
+    modNoUpdates: 'All mods are up to date',
+    comingSoon: 'This feature is not yet available. Stay tuned!'
   },
 
   p2p: {
@@ -1255,6 +1256,8 @@ export default {
     searchVersion: 'Search version...',
     refresh: 'Refresh',
     release: 'Release',
+    latestRelease: 'Latest Release',
+    latestVersion: 'Latest Version',
     snapshot: 'Snapshot',
     oldAlpha: 'Old Alpha',
     oldBeta: 'Old Beta',
@@ -1340,6 +1343,7 @@ export default {
     oldVersion: 'Old Versions',
     aprilVersion: 'April Fools',
     loading: 'Loading...',
+    loadingMore: 'Loading more...',
     loadMoreVersions: 'Load More Versions',
     saveAs: 'Save As',
     changelog: 'Changelog',
@@ -2482,6 +2486,8 @@ export default {
     launchProgressValidatingJava: 'Validating Java environment...',
     launchProgressLaunchProcess: 'Launch Process',
     launchProgressLaunchingProcess: 'Starting game process...',
+    launchProgressWaitWindow: 'Wait for Game Window',
+    launchProgressWaitingWindow: 'Loading game, will enter running state once the window appears...',
     launchProgressGameRunning: 'Game Running',
     launchProgressGameLaunched: 'Game Launched',
     launchProgressLaunchFailed: 'Launch Failed',
