@@ -247,6 +247,8 @@ const api = {
     ) => ipcRenderer.invoke('download:file', file, dest),
     getActive: () => ipcRenderer.invoke('download:get-active'),
     getQueue: () => ipcRenderer.invoke('download:get-queue'),
+    getHistory: () => ipcRenderer.invoke('download:get-history'),
+    clearHistory: () => ipcRenderer.invoke('download:clear-history'),
     onProgress: (callback: (progress: unknown) => void) => {
       const listener = (_event: IpcRendererEvent, progress: unknown) => callback(progress)
       ipcRenderer.on('download:progress', listener)
@@ -314,9 +316,9 @@ const api = {
     /** 阻塞式下载 MC 版本 */
     download: (versionId: string, gameDir: string) =>
       ipcRenderer.invoke('versions:download', { versionId, gameDir }),
-    /** 启动带进度的后台下载（立即返回 taskId） */
-    downloadStart: (versionId: string, gameDir: string) =>
-      ipcRenderer.invoke('versions:download-start', { versionId, gameDir }),
+    /** 启动带进度的后台下载（立即返回 taskId），可选传入加载器/扩展参数用于下载完成后自动安装 */
+    downloadStart: (versionId: string, gameDir: string, opts?: { loader?: string; loaderVersion?: string; optifine?: string; optifineVersion?: string }) =>
+      ipcRenderer.invoke('versions:download-start', { versionId, gameDir, ...opts }),
     /** 删除目录下的 MC 版本 */
     delete: (versionId: string, gameDir: string) =>
       ipcRenderer.invoke('versions:delete', { versionId, gameDir }),
@@ -448,7 +450,15 @@ const api = {
       ipcRenderer.invoke('game:check-missing-files', { versionId }),
     /** 确认下载缺失文件并继续启动 */
     confirmDownloadAndLaunch: (versionId: string, accountId?: string) =>
-      ipcRenderer.invoke('game:confirm-download-and-launch', { versionId, accountId })
+      ipcRenderer.invoke('game:confirm-download-and-launch', { versionId, accountId }),
+    onJavaMissing: (callback: (data: { majorVersion: number; responseChannel: string }) => void) => {
+      const listener = (_event: IpcRendererEvent, data: { majorVersion: number; responseChannel: string }) => callback(data)
+      ipcRenderer.on('game:java-missing', listener)
+      return () => ipcRenderer.removeListener('game:java-missing', listener)
+    },
+    respondJavaMissing: (channel: string, accepted: boolean) => {
+      ipcRenderer.send(channel, accepted)
+    }
   },
 
   // 文件对话框

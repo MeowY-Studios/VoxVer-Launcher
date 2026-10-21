@@ -244,7 +244,7 @@ interface ElectronAPI {
     getInfo: (versionId: string) => Promise<unknown>
     download: (versionId: string, gameDir: string) => Promise<IpcResult>
     downloadServer: (versionId: string, filePath: string) => Promise<IpcResult>
-    downloadStart: (versionId: string, gameDir: string) => Promise<IpcResult<{ taskId: string }>>
+    downloadStart: (versionId: string, gameDir: string, opts?: { loader?: string; loaderVersion?: string; optifine?: string; optifineVersion?: string }) => Promise<IpcResult<{ taskId: string }>>
     delete: (versionId: string, gameDir: string) => Promise<void>
     validate: (versionId: string, gameDir: string) => Promise<unknown>
     downloadMissing: (versionId: string, gameDir: string) => Promise<IpcResult<{ downloaded: number; total?: number; message?: string }>>
@@ -268,6 +268,8 @@ interface ElectronAPI {
     onExit: (callback: (code: { code: number; signal: string | null; instanceId?: string }) => void) => () => void
     checkMissingFiles: (versionId: string) => Promise<unknown[]>
     confirmDownloadAndLaunch: (versionId: string, accountId?: string) => Promise<IpcResult & { success?: boolean; pid?: number }>
+    onJavaMissing: (callback: (data: { majorVersion: number; responseChannel: string }) => void) => () => void
+    respondJavaMissing: (channel: string, accepted: boolean) => void
   }
   dialog: {
     selectFolder: (options?: { title?: string }) => Promise<string | null>

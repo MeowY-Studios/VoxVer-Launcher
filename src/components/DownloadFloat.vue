@@ -246,12 +246,19 @@ async function cancelDownload(task: UnifiedTask) {
   }
 }
 
-// 进入下载管理页面时自动隐藏浮动面板
+// 进入下载管理页面时抑制并隐藏浮动面板，离开时恢复并取消抑制
 watch(
   () => route.path,
   (path) => {
     if (path === '/download/manage') {
       store.showFloatPanel = false
+      store.suppressFloat = true
+    } else {
+      store.suppressFloat = false
+      // * 若离开时仍有任务在途，恢复显示浮窗（进度事件此前因抑制被忽略）
+      if (hasAny.value) {
+        store.showFloatPanel = true
+      }
     }
   }
 )

@@ -183,6 +183,20 @@ export function registerDownloadHandlers(): void {
     return { success: true, data: result }
   })
 
+  ipcMain.handle('download:get-history', async () => {
+    const service = getContentService()
+    const downloadService = service.getDownloadService()
+    const result = downloadService.getHistory()
+    return { success: true, data: result }
+  })
+
+  ipcMain.handle('download:clear-history', async () => {
+    const service = getContentService()
+    const downloadService = service.getDownloadService()
+    downloadService.clearCompleted()
+    return { success: true }
+  })
+
   // 镜像源管理
   ipcMain.handle(
     'download:mirrors:list',

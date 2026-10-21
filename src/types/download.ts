@@ -122,6 +122,11 @@ export interface VersionDownloadTask {
   totalSize: number
   error?: string
   targetFolder: string // * 下载目标文件夹
+  /** 加载器/扩展信息（保存以便重试恢复完整参数） */
+  loader?: string
+  loaderVersion?: string
+  optifine?: string
+  optifineVersion?: string
   /** 当前时间戳（用于计算速度） */
   _lastBytes?: number
   _lastTime?: number

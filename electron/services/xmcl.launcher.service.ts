@@ -17,8 +17,8 @@ import {
 } from '@xmcl/installer'
 import type { Options as InstallerOptions, LibraryOptions as InstallerLibraryOptions } from '@xmcl/installer'
 import { Agent, interceptors } from 'undici'
-import { ChildProcess, execFile } from 'child_process'
-import { BrowserWindow } from 'electron'
+import { ChildProcess, execFile, execSync } from 'child_process'
+import { BrowserWindow, dialog, app, ipcMain } from 'electron'
 import * as fs from 'fs'
 import { join, dirname } from 'path'
 import * as os from 'os'
@@ -34,6 +34,210 @@ import { validatePathSafe } from '../utils/path-validation'
 import { detectVersionInfo, formatLoaderInfo } from '../utils/version-meta'
 import { ensureI18nModEnabledByChanges } from './i18n.mod.service'
 const log = logger.child('XMCL')
+
+/** 缺失所需 Java 版本时由 resolveJavaPath 抛出，上层捕获后弹窗询问用户是否自动下载 */
+class JavaNotFoundError extends Error {
+  recommendedMajor: number
+  constructor(major: number, message: string) {
+    super(message)
+    this.name = 'JavaNotFoundError'
+    this.recommendedMajor = major
+  }
+}
+
+/** 查找解压后的 JDK 目录中 bin/java.exe */
+function findJavaBin(rootDir: string): string | null {
+  const direct = join(rootDir, 'bin', 'java.exe')
+  if (fs.existsSync(direct)) return direct
+  const entries = fs.readdirSync(rootDir, { withFileTypes: true })
+  for (const e of entries) {
+    if (e.isDirectory()) {
+      const bin = join(rootDir, e.name, 'bin', 'java.exe')
+      if (fs.existsSync(bin)) return bin
+    }
+  }
+  return null
+}
+
+/** Java 下载专用 undici Agent：不走系统代理，直连下载 */
+const javaDownloadDispatcher = new Agent({
+  connect: { timeout: 30_000 },
+  bodyTimeout: 600_000,  // 10 分钟，JDK 包较大
+  headersTimeout: 30_000,
+}).compose(interceptors.redirect({ maxRedirections: 5 }))
+
+/** 下载并安装指定大版本的 Adoptium JDK，返回 java.exe 路径 */
+async function downloadAndInstallJava(majorVersion: number, mainWindow: BrowserWindow): Promise<string> {
+  const targetDir = join(app.getPath('userData'), 'java-runtime', `jdk-${majorVersion}`)
+  const zipPath = join(app.getPath('temp'), `jdk-${majorVersion}-adoptium.zip`)
+
+  log.info(`[downloadAndInstallJava] 开始下载 Java ${majorVersion}`)
+  log.info(`[downloadAndInstallJava] 目标目录: ${targetDir}`)
+
+  // ---------- Step 1: 获取最新版本信息（release_name + binary URL） ----------
+  mainWindow.webContents.send('game:progress', {
+    phase: 'downloading-java',
+    message: `正在获取 Java ${majorVersion} 下载信息...`,
+    detail: '正在查询最新版本'
+  })
+
+  const infoUrl = `https://api.adoptium.net/v3/assets/latest/${majorVersion}/hotspot`
+  let releaseName = ''
+  let officialBinaryUrl = ''
+  let infoOk = false
+
+  try {
+    log.info(`[downloadAndInstallJava] 查询版本信息: ${infoUrl}`)
+    const infoResp = await fetch(infoUrl, { dispatcher: javaDownloadDispatcher })
+    if (infoResp.ok) {
+      const infoData = (await infoResp.json()) as Array<{
+        release_name?: string
+        binaries?: Array<{
+          architecture?: string; os?: string; image_type?: string
+          jvm_impl?: string; package?: { name?: string; link?: string }
+        }>
+      }>
+      for (const ver of infoData) {
+        releaseName = ver.release_name || ''
+        for (const bin of ver.binaries || []) {
+          if (
+            bin.architecture === 'x64' &&
+            bin.os === 'windows' &&
+            bin.image_type === 'jdk' &&
+            bin.jvm_impl === 'hotspot'
+          ) {
+            officialBinaryUrl = bin.package?.link || ''
+            break
+          }
+        }
+        if (officialBinaryUrl) break
+      }
+      infoOk = true
+      log.info(`[downloadAndInstallJava] 版本信息: release=${releaseName}, url=${officialBinaryUrl}`)
+    } else {
+      log.warn(`[downloadAndInstallJava] 版本信息 API 返回 ${infoResp.status}`)
+    }
+  } catch (e) {
+    log.warn(`[downloadAndInstallJava] 查询版本信息失败（将跳过镜像）: ${(e as Error).message}`)
+  }
+
+  // ---------- Step 2: 构建多源下载列表 ----------
+  const downloadUrls: { url: string; label: string }[] = []
+
+  // 2a. 官方 GitHub 直链（如果拿到了）
+  if (officialBinaryUrl) {
+    downloadUrls.push({ url: officialBinaryUrl, label: 'GitHub' })
+  }
+
+  // 2b. 国内镜像（按优先级排列）
+  if (infoOk && releaseName) {
+    // releaseName 示例: jdk-8u432-b09，URL 中 + 需要编码
+    const mirrorName = releaseName.replace(/\+/g, '%2B')
+    const basePath = `${majorVersion}/jdk/x64/windows/${mirrorName}.zip`
+    const mirrors: { url: string; label: string }[] = [
+      { url: `https://mirrors.tuna.tsinghua.edu.cn/Adoptium/${basePath}`, label: '清华镜像' },
+      { url: `https://mirrors.ustc.edu.cn/Adoptium/${basePath}`, label: '中科大镜像' },
+      { url: `https://mirrors.nju.edu.cn/Adoptium/${basePath}`, label: '南大镜像' },
+      { url: `https://mirrors.cloud.tencent.com/Adoptium/${basePath}`, label: '腾讯云镜像' },
+    ]
+    for (const m of mirrors) {
+      downloadUrls.push(m)
+      log.info(`[downloadAndInstallJava] ${m.label}: ${m.url}`)
+    }
+  }
+
+  // 2c. 官方 API 重定向（兜底，可能跳转到 GitHub 而不可达）
+  downloadUrls.push({
+    url: `https://api.adoptium.net/v3/binary/latest/${majorVersion}/ga/windows/x64/jdk/hotspot/normal/eclipse`,
+    label: 'Adoptium 官方'
+  })
+
+  // ---------- Step 3: 依次尝试下载 ----------
+  let lastError: Error | undefined
+  for (let i = 0; i < downloadUrls.length; i++) {
+    const { url, label: sourceLabel } = downloadUrls[i]
+    const attempt = `${i + 1}/${downloadUrls.length}`
+
+    // 同源最多尝试 3 次（1 次初始 + 2 次重试），单次超时 10 秒
+    const MAX_RETRIES = 3
+    const REQUEST_TIMEOUT_MS = 10_000
+    let sourceError: Error | undefined
+
+    for (let retry = 0; retry < MAX_RETRIES; retry++) {
+      const retryLabel = retry > 0 ? `重试 ${retry}/${MAX_RETRIES - 1}` : attempt
+      log.info(`[downloadAndInstallJava] 尝试 [${retryLabel}] ${sourceLabel}: ${url}`)
+      mainWindow.webContents.send('game:progress', {
+        phase: 'downloading-java',
+        message: `正在下载 Java ${majorVersion}...`,
+        detail: `${sourceLabel} (${retryLabel})`
+      })
+
+      try {
+        const controller = new AbortController()
+        const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+
+        const response = await fetch(url, {
+          dispatcher: javaDownloadDispatcher,
+          redirect: 'follow',
+          signal: controller.signal
+        })
+        clearTimeout(timer)
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`)
+
+        const arrayBuffer = await response.arrayBuffer()
+        const buffer = Buffer.from(arrayBuffer)
+        log.info(`[downloadAndInstallJava] 下载完成，大小: ${(buffer.length / 1024 / 1024).toFixed(1)} MB`)
+
+        if (!fs.existsSync(dirname(zipPath))) fs.mkdirSync(dirname(zipPath), { recursive: true })
+        fs.writeFileSync(zipPath, buffer)
+
+        // ---------- Step 4: 解压安装 ----------
+        mainWindow.webContents.send('game:progress', {
+          phase: 'extracting-java',
+          message: '正在安装 Java...',
+          detail: '解压中，请稍候'
+        })
+        log.info(`[downloadAndInstallJava] 开始解压到 ${targetDir}`)
+
+        if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true })
+        execSync(
+          `powershell -Command "Expand-Archive -Path '${zipPath}' -DestinationPath '${targetDir}' -Force"`,
+          { windowsHide: true, encoding: 'utf-8' }
+        )
+        try { fs.unlinkSync(zipPath) } catch { /* ignore */ }
+
+        const javaBin = findJavaBin(targetDir)
+        if (!javaBin) throw new Error('Java 安装完成但未找到 java.exe')
+
+        log.info(`[downloadAndInstallJava] 安装完成: ${javaBin}`)
+        mainWindow.webContents.send('game:progress', {
+          phase: 'java-ready',
+          message: `Java ${majorVersion} 安装完成`,
+          detail: javaBin
+        })
+
+        return javaBin
+      } catch (e) {
+        sourceError = e as Error
+        const isTimeout = (e as Error).name === 'AbortError' || sourceError.message.includes('aborted')
+        const reason = isTimeout ? `${REQUEST_TIMEOUT_MS / 1000}s 超时` : sourceError.message
+        log.warn(
+          `[downloadAndInstallJava] [${retryLabel}] ${sourceLabel} 失败: ${reason}` +
+          (retry < MAX_RETRIES - 1 ? '，将重试...' : '')
+        )
+      }
+    }
+
+    lastError = sourceError
+    log.warn(`[downloadAndInstallJava] ${sourceLabel} 全部 ${MAX_RETRIES} 次尝试均失败，切换下一个源`)
+  }
+
+  // 所有源均失败
+  const errMsg = `Java ${majorVersion} 下载失败：所有下载源均无法连接（${downloadUrls.length} 个）。\n请手动访问 https://adoptium.net/download/ 下载并安装 JDK ${majorVersion}。\n最后错误: ${lastError?.message || '未知'}`
+  log.error(`[downloadAndInstallJava] ${errMsg}`)
+  throw new Error(errMsg)
+}
 
 // BMCLAPI 镜像配置（多线路）
 const BMCLAPI_BASE = 'https://bmclapi2.bangbang93.com'
@@ -807,24 +1011,12 @@ async function resolveJavaPath(versionId: string, baseVersion: string, javaPath?
     return picked.path
   }
 
-  // 3. 回退：允许范围内没有，放宽限制选择 >= 推荐版本中最低的
-  log.warn(`[resolveJavaPath] 未找到 Java [${recommendedMajor}, ${maxMajor}] 范围内的版本，放宽限制`)
-  const fallback = allJavas.filter((j) => j.majorVersion >= recommendedMajor)
-  if (fallback.length > 0) {
-    fallback.sort((a, b) => a.majorVersion - b.majorVersion)
-    const picked = fallback[0]
-    log.info(`[resolveJavaPath] 回退选择 Java ${picked.version}: ${picked.path}`)
-    return picked.path
-  }
-
-  // 4. 最后回退到默认 Java
-  const defaultJava = await getDefaultJava()
-  if (defaultJava && fs.existsSync(defaultJava.path)) {
-    log.warn(`[resolveJavaPath] 使用默认 Java: ${defaultJava.path}`)
-    return defaultJava.path
-  }
-
-  throw new Error(`未找到兼容的 Java 运行环境（需要 Java ${recommendedMajor}-${maxMajor}）`)
+  // 3. 未找到兼容 Java：抛出特定错误，由上层弹窗询问用户是否自动下载安装
+  log.warn(`[resolveJavaPath] 未找到 Java [${recommendedMajor}, ${maxMajor}] 范围内的版本`)
+  throw new JavaNotFoundError(
+    recommendedMajor,
+    `此版本需要 Java ${recommendedMajor}，但未找到兼容的 Java。`
+  )
 }
 
 function calculateMaxMemory(requested?: number): number {
@@ -909,6 +1101,29 @@ function prepareInstanceDir(sharedGamePath: string, instancePath: string): void 
         }
         throw e
       }
+    }
+  }
+}
+
+/** 版本目录自包含时需从共享目录迁移过来的游戏数据子目录 */
+const ISOLATED_GAME_SUBDIRS = ['saves', 'mods', 'resourcepacks', 'shaderpacks', 'screenshots']
+
+/**
+ * 版本快捷启动（无实例）首次按版本自包含时，将共享 .minecraft 下的游戏数据目录迁移到版本目录
+ * 仅在版本目录尚无对应文件夹时才复制，避免覆盖已有数据
+ */
+function migrateSharedGameData(sharedGamePath: string, versionDir: string): void {
+  if (versionDir === sharedGamePath) return
+  for (const sub of ISOLATED_GAME_SUBDIRS) {
+    const src = join(sharedGamePath, sub)
+    if (!fs.existsSync(src)) continue
+    const dst = join(versionDir, sub)
+    if (fs.existsSync(dst)) continue
+    try {
+      fs.cpSync(src, dst, { recursive: true })
+      log.info(`[migrateSharedGameData] 已迁移 ${sub} 到版本隔离目录: ${dst}`)
+    } catch (e: unknown) {
+      log.warn(`[migrateSharedGameData] 迁移 ${sub} 失败: ${(e as Error).message}`)
     }
   }
 }
@@ -1039,7 +1254,43 @@ export async function launchWithXMCL(
       javaPath = await resolveJavaPath(versionId, baseVersion, options.javaPath)
       log.info(`[launchWithXMCL] 使用 Java: ${javaPath}`)
     } catch (e: unknown) {
-      return { success: false, error: (e as Error).message }
+      // 检测到缺少所需 Java 版本：通知渲染进程弹窗询问用户是否自动下载安装
+      if (e instanceof JavaNotFoundError) {
+        const responseChannel = `game:java-missing-response-${Date.now()}`
+        const javaAccepted = await new Promise<boolean>((resolve) => {
+          const handler = (_event: any, accepted: boolean) => {
+            ipcMain.removeListener(responseChannel, handler)
+            resolve(accepted)
+          }
+          ipcMain.on(responseChannel, handler)
+          mainWindow.webContents.send('game:java-missing', {
+            majorVersion: e.recommendedMajor,
+            responseChannel
+          })
+          setTimeout(() => {
+            ipcMain.removeListener(responseChannel, handler)
+            resolve(false)
+          }, 120000)
+        })
+        if (javaAccepted) {
+          try {
+            javaPath = await downloadAndInstallJava(e.recommendedMajor, mainWindow)
+            log.info(`[launchWithXMCL] Java 自动安装完成: ${javaPath}`)
+          } catch (downloadErr: unknown) {
+            return {
+              success: false,
+              error: `Java 自动安装失败: ${(downloadErr as Error).message}。请手动访问 https://adoptium.net/download/ 下载 Java ${e.recommendedMajor}`
+            }
+          }
+        } else {
+          return {
+            success: false,
+            error: `需要 Java ${e.recommendedMajor}，下载地址: https://adoptium.net/download/`
+          }
+        }
+      } else {
+        return { success: false, error: (e as Error).message }
+      }
     }
     checkLaunchAbort('Java 路径解析完成')
 
@@ -1100,17 +1351,26 @@ export async function launchWithXMCL(
       }
     }
 
-    // 版本隔离目录检测（PCL 布局整合包，如 "Zombie Invade 100 Days"）：
-    // 版本目录自身包含 mods/config/saves 等游戏数据，必须以版本目录作为游戏数据目录（mods 从这里加载），
-    // 资源（assets/libraries）通过 resourcePath 指向共享 .minecraft，无需创建目录链接
+    // 版本隔离目录检测：
+    // 版本快捷启动（未绑定实例）一律以版本目录作为游戏数据目录，实现版本级隔离，
+    // 使存档 / 模组 / 光影 / 材质包等均落在 versions/<versionId> 下；
+    // 资源（assets/libraries）通过 resourcePath 指向共享 .minecraft，无需创建目录链接。
+    // （实例启动仍以实例目录为游戏数据目录）
     const versionDir = join(sharedGamePath, 'versions', versionId)
-    const isolationMarkers = ['mods', 'config', 'saves', 'PCL', 'options.txt']
-    const isSelfContained =
-      fs.existsSync(versionDir) && isolationMarkers.some((m) => fs.existsSync(join(versionDir, m)))
 
-    if (isSelfContained && (!instancePath || instancePath === versionDir)) {
-      gamePath = versionDir
-      log.info(`[launchWithXMCL] 检测到整合包版本隔离目录，使用版本目录作为游戏目录: ${gamePath}`)
+    if (!instancePath || instancePath === versionDir) {
+      // 无实例（版本快捷启动）或实例即版本目录：使用版本目录作为游戏数据目录
+      try {
+        if (!fs.existsSync(versionDir)) {
+          fs.mkdirSync(versionDir, { recursive: true })
+        }
+        // 首次启动把共享目录下的存档/模组/光影/材质包等迁移到版本目录，保证已装内容不丢失
+        migrateSharedGameData(sharedGamePath, versionDir)
+        gamePath = versionDir
+        log.info(`[launchWithXMCL] 使用版本目录作为游戏目录: ${gamePath}`)
+      } catch (e: unknown) {
+        log.warn(`[launchWithXMCL] 准备版本目录失败，回退到共享目录: ${(e as Error).message}`)
+      }
     } else if (instancePath && instancePath !== sharedGamePath) {
       // 如果指定了实例路径，准备实例目录并使用它作为游戏数据目录
       // 这样 mods/saves/resourcepacks 等实例数据会存储到实例路径下

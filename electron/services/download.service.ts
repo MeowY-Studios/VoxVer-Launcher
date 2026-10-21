@@ -580,6 +580,47 @@ export class DownloadService extends EventEmitter {
         this.tasks.delete(id)
       }
     }
+    // 同时清空落库的历史记录
+    if (this.db) {
+      try {
+        this.db.prepare('DELETE FROM download_tasks').run()
+      } catch (err: unknown) {
+        log.warn('[Download] Failed to clear download history in DB:', (err as Error).message)
+      }
+    }
+  }
+
+  /** 查询下载历史（落库任务，供下载管理页展示历史记录） */
+  getHistory(): DownloadTask[] {
+    if (!this.db) return []
+    try {
+      const rows = this.db
+        .prepare(
+          `SELECT id, url, destination, fileName, totalSize, downloadedSize,
+                  status, progress, createdAt, updatedAt, error
+           FROM download_tasks
+           ORDER BY updatedAt DESC`
+        )
+        .all() as Array<Record<string, unknown>>
+      return rows.map((r) => ({
+        id: r.id as string,
+        url: (r.url as string) || '',
+        destination: (r.destination as string) || '',
+        fileName: (r.fileName as string) || '',
+        totalSize: (r.totalSize as number) || 0,
+        downloadedSize: (r.downloadedSize as number) || 0,
+        status: r.status as DownloadStatus,
+        progress: (r.progress as number) || 0,
+        error: (r.error as string) || undefined,
+        speed: 0,
+        createdAt: new Date((r.createdAt as string) || Date.now()),
+        updatedAt: new Date((r.updatedAt as string) || Date.now()),
+        chunks: []
+      }))
+    } catch (err: unknown) {
+      log.warn('[Download] Failed to load download history from DB:', (err as Error).message)
+      return []
+    }
   }
 
   private saveTaskToDb(task: DownloadTask): void {

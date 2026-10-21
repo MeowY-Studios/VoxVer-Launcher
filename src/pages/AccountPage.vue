@@ -139,8 +139,8 @@
 
       <!-- 离线路板 -->
       <div v-else key="offline" class="account-panel">
-        <!-- 离线账户 -->
-        <section class="account-section offline vox-card">
+        <!-- 离线账户卡堆（当前使用在最上，点击后面卡片切换） -->
+        <section v-if="offAccList.length > 0" class="account-section offline vox-card">
           <div class="section-header">
             <svg
               width="18"
@@ -158,45 +158,55 @@
               />
             </svg>
             <span class="section-title">{{ $t('auth.offlineAccount') }}</span>
+            <span class="status-badge" :class="offAccList.length > 0 ? 'success' : 'default'">
+              {{ $t('auth.accountCount', { count: offAccList.length }) }}
+            </span>
           </div>
 
-          <div class="section-body">
-            <div class="form-group">
-              <label>{{ $t('auth.playerName') }}</label>
-              <input
-                type="text"
-                class="vox-input"
-                v-model="offlineName"
-                :placeholder="$t('auth.playerNamePlaceholder')"
-                maxlength="16"
-              />
-            </div>
-
-            <div class="form-group">
-              <label>{{ $t('auth.uuid') }}（{{ $t('common.optional') }}）</label>
-              <div class="input-row">
-                <input
-                  type="text"
-                  class="vox-input"
-                  v-model="offlineUuid"
-                  :placeholder="$t('auth.uuidPlaceholder')"
-                />
-                <button class="vox-btn" @click="offlineUuid = generateUUID()">
-                  {{ $t('common.generate') }}
+          <div class="card-stack" :style="{ height: offStackHeight }">
+            <div
+              v-for="(acc, i) in stackedOffAccounts"
+              :key="acc.id"
+              class="profile-item id-card"
+              :class="{ active: i === 0, clickable: i !== 0 }"
+              :style="offCardStyle(i)"
+              @click="switchOffline(acc)"
+              @mouseenter="hoverIndex = i"
+              @mouseleave="hoverIndex = -1"
+            >
+              <div class="bc-top">
+                <div class="profile-avatar placeholder">
+                  {{ acc.name[0]?.toUpperCase() }}
+                </div>
+                <span v-if="acc.isActive === 1" class="active-badge">{{
+                  $t('auth.active')
+                }}</span>
+              </div>
+              <p class="bc-uuid">{{ acc.uuid }}</p>
+              <div class="bc-bottom">
+                <p class="profile-name">{{ acc.name }}</p>
+                <button
+                  class="vox-btn vox-btn--destructive bc-logout"
+                  @click.stop="deleteOffline(acc.id)"
+                >
+                  {{ $t('auth.deleteAccount') }}
                 </button>
               </div>
             </div>
+          </div>
+        </section>
 
-            <div class="form-actions">
-              <span v-if="offlineError" class="form-error">{{ offlineError }}</span>
-              <button
-                class="vox-btn vox-btn--primary"
-                @click="saveOffline"
-                :disabled="savingOffline"
-              >
-                {{ savingOffline ? $t('common.saving') : $t('auth.saveOfflineAccount') }}
-              </button>
-            </div>
+        <!-- 添加离线账户 -->
+        <section class="account-section offline vox-card">
+          <div class="section-footer">
+            <button class="vox-btn vox-btn--primary" @click="showAddOffline = true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              {{ $t('auth.addOfflineAccount') }}
+            </button>
           </div>
         </section>
 
@@ -265,17 +275,68 @@
 
     <!-- ===== Microsoft 登录弹窗（Device Flow） ===== -->
     <MicrosoftLoginModal v-model="showLoginModal" @logged-in="onLoggedIn" />
+
+    <!-- ===== 添加离线账户弹窗 ===== -->
+    <PxModal v-model="showAddOffline" :title="$t('auth.addOfflineAccount')" size="sm">
+      <div class="offline-add-body">
+        <div class="form-group">
+          <label>{{ $t('auth.playerName') }}</label>
+          <input
+            type="text"
+            class="vox-input"
+            v-model="offlineName"
+            :placeholder="$t('auth.playerNamePlaceholder')"
+            maxlength="16"
+            @keyup.enter="saveOffline"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>{{ $t('auth.uuid') }}（{{ $t('common.optional') }}）</label>
+          <div class="input-row">
+            <input
+              type="text"
+              class="vox-input"
+              v-model="offlineUuid"
+              :placeholder="$t('auth.uuidPlaceholder')"
+              @keyup.enter="saveOffline"
+            />
+            <button class="vox-btn" @click="offlineUuid = generateUUID()">
+              {{ $t('common.generate') }}
+            </button>
+          </div>
+        </div>
+
+        <span v-if="offlineError" class="form-error">{{ offlineError }}</span>
+      </div>
+
+      <template #footer>
+        <button class="vox-btn" @click="showAddOffline = false">
+          {{ $t('common.cancel') }}
+        </button>
+        <button
+          class="vox-btn vox-btn--primary"
+          @click="saveOffline"
+          :disabled="savingOffline"
+        >
+          {{ savingOffline ? $t('common.saving') : $t('auth.saveOfflineAccount') }}
+        </button>
+      </template>
+    </PxModal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAccountsStore } from '../stores/accounts.store'
 import MicrosoftLoginModal from '../components/auth/MicrosoftLoginModal.vue'
 import SkinViewer3D from '../components/auth/SkinViewer3D.vue'
+import PxModal from '../components/common/PxModal.vue'
 
 const { t } = useI18n()
+const route = useRoute()
 const accountsStore = useAccountsStore()
 
 // * ====== 微软登录弹窗显隐 ======
@@ -287,7 +348,9 @@ async function onLoggedIn() {
 }
 
 // * ====== 在线/离线路板切换状态 ======
-const activeTab = ref<'online' | 'offline'>('online')
+const activeTab = ref<'online' | 'offline'>(
+  (route.query.tab === 'offline') ? 'offline' : 'online'
+)
 
 // * ====== 微软账户状态（支持多账户） ======
 const msAccounts = computed(() => accountsStore.accounts.filter((a) => a.type === 'microsoft'))
@@ -354,6 +417,33 @@ const offlineName = ref('Steve')
 const offlineUuid = ref('')
 const savingOffline = ref(false)
 const offlineError = ref('')
+/** 是否展开「添加离线账户」表单 */
+const showAddOffline = ref(false)
+
+const offAccList = computed(() => accountsStore.accounts.filter((a) => a.type === 'offline'))
+
+async function switchOffline(acc: { id: string; isActive: number }) {
+  if (acc.isActive === 1) return
+  lastManualAt = Date.now()
+  const i = offDisplayOrder.value.indexOf(acc.id)
+  if (i > 0) {
+    offDisplayOrder.value = [
+      ...offDisplayOrder.value.slice(i),
+      ...offDisplayOrder.value.slice(0, i)
+    ]
+  }
+  await accountsStore.setActive(acc.id)
+}
+
+async function deleteOffline(id: string) {
+  const wasActive = offAccList.value.find((a) => a.id === id)?.isActive === 1
+  await accountsStore.deleteAccount(id)
+  if (wasActive) {
+    const next = offAccList.value.find((a) => a.type === 'offline')
+    if (next) await accountsStore.setActive(next.id)
+  }
+  offDisplayOrder.value = offDisplayOrder.value.filter((x) => x !== id)
+}
 
 onMounted(async () => {
   await accountsStore.fetchAccounts()
@@ -415,14 +505,58 @@ const stackedAccounts = computed(() =>
     .filter((a): a is NonNullable<typeof a> => Boolean(a))
 )
 
+// * ====== 离线账户卡堆（复用同一套卡堆坐标/高度逻辑） ======
+/** 离线账户显示顺序（账户 id，头部 = 卡堆最前），切换时循环左移 */
+const offDisplayOrder = ref<string[]>([])
+
+/** 离线账户列表变化时同步顺序：移除已删、追加新增；外部激活时置顶 */
+watch(
+  offAccList,
+  (list) => {
+    const ids = list.map((a) => a.id)
+    const kept = offDisplayOrder.value.filter((id) => ids.includes(id))
+    const added = ids.filter((id) => !kept.includes(id))
+    offDisplayOrder.value = [...kept, ...added]
+    const activeId = list.find((a) => a.isActive === 1)?.id
+    if (activeId && offDisplayOrder.value[0] !== activeId && Date.now() - lastManualAt > 800) {
+      offDisplayOrder.value = [activeId, ...offDisplayOrder.value.filter((id) => id !== activeId)]
+    }
+  },
+  { immediate: true }
+)
+
+/** 按显示顺序排列的离线账户卡片 */
+const stackedOffAccounts = computed(() =>
+  offDisplayOrder.value
+    .map((id) => offAccList.value.find((a) => a.id === id))
+    .filter((a): a is NonNullable<typeof a> => Boolean(a))
+)
+
 /** 卡堆总高：一张完整卡 + 后面每张卡露出的边缘 */
 const stackHeight = computed(
   () => `${CARD_HEIGHT + Math.max(0, stackedAccounts.value.length - 1) * CARD_OFFSET}px`
 )
 
+/** 离线卡堆总高：与在线卡堆共用同一高度算法，但基于离线账户数量 */
+const offStackHeight = computed(
+  () => `${CARD_HEIGHT + Math.max(0, stackedOffAccounts.value.length - 1) * CARD_OFFSET}px`
+)
+
 /** 每张卡的堆叠位置：最前卡位置最低且层级最高，后面的卡向上偏移露出顶边；悬停上抬方便点击 */
 function cardStyle(i: number) {
   const n = stackedAccounts.value.length
+  const baseY = (n - 1 - i) * CARD_OFFSET
+  const lift = hoverIndex.value === i && i !== 0 ? HOVER_LIFT : 0
+  return {
+    transform: `translateY(${baseY - lift}px) scale(${1 - i * 0.03})`,
+    zIndex: n - i,
+    filter: i === 0 ? 'none' : 'brightness(0.93)'
+  }
+}
+
+/** 离线卡堆的堆叠位置：与 cardStyle 同算法，但基于离线账户数量 */
+function offCardStyle(i: number) {
+  const n = stackedOffAccounts.value.length
   const baseY = (n - 1 - i) * CARD_OFFSET
   const lift = hoverIndex.value === i && i !== 0 ? HOVER_LIFT : 0
   return {
@@ -445,6 +579,9 @@ async function saveOffline() {
     const result = await window.electronAPI?.account.loginOffline(name)
     if (result?.ok) {
       await accountsStore.fetchAccounts()
+      showAddOffline.value = false
+      offlineName.value = 'Steve'
+      offlineUuid.value = ''
     } else {
       offlineError.value = result?.error || (t('auth.saveFailed') as string)
     }
@@ -877,6 +1014,42 @@ img.profile-avatar {
     svg {
       opacity: 1;
     }
+  }
+}
+
+</style>
+
+<!-- 添加离线账户弹窗内容（PxModal Teleport 到 body，需全局样式） -->
+<style lang="scss">
+.offline-add-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .form-group {
+    margin-bottom: 0;
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--voxver-text-secondary);
+      margin-bottom: 5px;
+    }
+  }
+
+  .input-row {
+    display: flex;
+    gap: 6px;
+
+    .vox-input {
+      flex: 1;
+    }
+  }
+
+  .form-error {
+    font-size: 12px;
+    color: var(--voxver-error);
   }
 }
 </style>

@@ -27,6 +27,11 @@ export interface UnifiedTask {
   error?: string
   _lastTime?: number
   _type: 'version' | 'mod'
+  /** 加载器/扩展信息（保存以便重试恢复完整参数） */
+  loader?: string
+  loaderVersion?: string
+  optifine?: string
+  optifineVersion?: string
 }
 
 /** VersionDownloadTask → UnifiedTask */
@@ -43,7 +48,11 @@ function versionToUnified(vt: VersionDownloadTask): UnifiedTask {
     targetFolder: vt.targetFolder,
     error: vt.error,
     _lastTime: vt._lastTime,
-    _type: 'version'
+    _type: 'version',
+    loader: vt.loader,
+    loaderVersion: vt.loaderVersion,
+    optifine: vt.optifine,
+    optifineVersion: vt.optifineVersion
   }
 }
 
@@ -120,6 +129,8 @@ export const useDownloadStore = defineStore('download', () => {
   const activeDownloads = ref<DownloadTask[]>([])
   const queuedDownloads = ref<DownloadTask[]>([])
   const completedDownloads = ref<DownloadTask[]>([])
+  /** 历史下载记录（已完成/失败/取消，跨会话持久化，供下载管理页查看） */
+  const historyTasks = ref<DownloadTask[]>([])
 
   // * ====== 分类筛选 ======
   const activeCategory = ref<string>('vanilla')
@@ -128,6 +139,8 @@ export const useDownloadStore = defineStore('download', () => {
   const versionTasks = ref<Map<string, VersionDownloadTask>>(new Map())
   /** 是否显示后台悬浮窗 */
   const showFloatPanel = ref(false)
+  /** 是否抑制浮窗自动弹出（进入下载管理页时启用，避免进度事件再次拉起浮窗） */
+  const suppressFloat = ref(false)
   /** 下载管理器页面是否打开 */
   const showDownloadManager = ref(false)
 
@@ -160,11 +173,19 @@ export const useDownloadStore = defineStore('download', () => {
     )
   )
 
-  /** 统一任务列表：合并版本下载 + Mod 下载，供 UI 展示 */
+  /** 统一任务列表：合并版本下载 + Mod 下载 + 历史记录，供 UI 展示 */
   const unifiedTasks = computed<UnifiedTask[]>(() => {
     const versionOnes = Array.from(versionTasks.value.values()).map(versionToUnified)
     const modOnes = activeDownloads.value.map(modToUnified)
-    return [...versionOnes, ...modOnes]
+    // 历史记录：仅取已终结状态（避免与进行中任务重复），并按 id 去重
+    const aliveIds = new Set<string>([...versionTasks.value.keys(), ...activeDownloads.value.map((t) => t.id)])
+    const historyOnes = historyTasks.value
+      .filter(
+        (t) => t.status === 'completed' || t.status === 'failed' || t.status === 'cancelled' || t.status === 'error'
+      )
+      .filter((t) => !aliveIds.has(t.id))
+      .map(modToUnified)
+    return [...versionOnes, ...modOnes, ...historyOnes]
   })
 
   /** 是否有任何统一任务 */
@@ -178,7 +199,9 @@ export const useDownloadStore = defineStore('download', () => {
     targetFolder: string,
     loader?: string,
     loaderVersion?: string,
-    displayName?: string
+    displayName?: string,
+    optifine?: string,
+    optifineVersion?: string
   ) {
     const api = window.electronAPI
     if (!api?.versions) return
@@ -192,12 +215,18 @@ export const useDownloadStore = defineStore('download', () => {
       speed: 0,
       downloadedSize: 0,
       totalSize: 0,
-      targetFolder
+      targetFolder,
+      loader,
+      loaderVersion,
+      optifine,
+      optifineVersion
     }
     versionTasks.value.set(versionId, task)
-    showFloatPanel.value = true
+    if (!suppressFloat.value) {
+      showFloatPanel.value = true
+    }
 
-    const res = await api.versions.downloadStart(versionId, targetFolder)
+    const res = await api.versions.downloadStart(versionId, targetFolder, { loader, loaderVersion, optifine, optifineVersion, displayName })
     if (!res?.ok) {
       task.phase = 'failed'
       task.error = res?.error || $t('download.downloadUnknownError')
@@ -273,7 +302,9 @@ export const useDownloadStore = defineStore('download', () => {
       targetFolder: savePath
     }
     versionTasks.value.set(task.id, task)
-    showFloatPanel.value = true
+    if (!suppressFloat.value) {
+      showFloatPanel.value = true
+    }
 
     try {
       await api.versions.downloadServer(versionId, savePath)
@@ -444,6 +475,11 @@ export const useDownloadStore = defineStore('download', () => {
       queuedDownloads.value = (
         (queueRes as { data?: unknown[]; success?: boolean; error?: string })?.data || []
       ).map((raw) => mapRawToTask(raw as unknown as Record<string, unknown>))
+      // 加载跨会话的历史下载记录
+      const historyRes = await window.electronAPI?.download.getHistory()
+      historyTasks.value = (
+        (historyRes as { data?: unknown[]; success?: boolean; error?: string })?.data || []
+      ).map((raw) => mapRawToTask(raw as unknown as Record<string, unknown>))
     } catch (e) {
       console.error('刷新下载队列失败:', e)
     }
@@ -453,6 +489,12 @@ export const useDownloadStore = defineStore('download', () => {
   async function cancelDownload(taskId: string) {
     await window.electronAPI?.download.cancelDownload(taskId)
     await refreshQueue()
+  }
+
+  /** 清空历史下载记录（含持久化落库） */
+  async function clearHistory() {
+    await window.electronAPI?.download.clearHistory()
+    historyTasks.value = []
   }
 
   /** 设置搜索源 */
@@ -485,8 +527,8 @@ export const useDownloadStore = defineStore('download', () => {
         task.phase = (d.status as DownloadStatus) || task.phase
         task.downloadedSize = (d.downloadedSize as number) || task.downloadedSize
       }
-      // * 有活跃 mod 下载时显示浮动面板
-      if (!showFloatPanel.value && activeDownloads.value.length > 0) {
+      // * 有活跃 mod 下载时显示浮动面板（下载管理页打开期间抑制自动弹出）
+      if (!suppressFloat.value && !showFloatPanel.value && activeDownloads.value.length > 0) {
         showFloatPanel.value = true
       }
     })
@@ -547,8 +589,10 @@ export const useDownloadStore = defineStore('download', () => {
     activeDownloads,
     queuedDownloads,
     completedDownloads,
+    historyTasks,
     versionTasks,
     showFloatPanel,
+    suppressFloat,
     showDownloadManager,
 
     // * 计算属性
@@ -570,6 +614,7 @@ export const useDownloadStore = defineStore('download', () => {
     loadMore,
     refreshQueue,
     cancelDownload,
+    clearHistory,
     setSource,
     setSearchQuery,
     attachDownloadListeners,

@@ -14,15 +14,19 @@ import {
   readdirSync,
   readFileSync,
   mkdirSync,
+  renameSync,
   rmSync,
+  statSync,
   createWriteStream,
-  unlinkSync
+  unlinkSync,
+  writeFileSync
 } from 'fs'
 import { join } from 'path'
 import * as os from 'os'
 import { validateVersionId } from '../utils/path-validation'
 import { detectVersionInfo, formatLoaderInfo } from '../utils/version-meta'
 import { logger } from '../utils/logger'
+import type { ModLoaderService } from '../services/modloader.service'
 const log = logger.child('Game-IPC')
 
 /** 版本清单结构（Mojang/BMCLAPI version_manifest） */
@@ -84,9 +88,9 @@ let versionsService: {
   isVersionInstalled: (versionId: string, gameDir: string) => Promise<boolean>
   getBaseUrl?: () => string
 } | null = null
-let modLoaderService: Record<string, unknown> | null = null
+let modLoaderService: ModLoaderService | null = null
 
-export function setGameDependencies(versions: typeof versionsService, modloader: Record<string, unknown>) {
+export function setGameDependencies(versions: typeof versionsService, modloader: ModLoaderService) {
   versionsService = versions
   modLoaderService = modloader
 }
@@ -370,10 +374,20 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
       _event,
       {
         versionId,
-        gameDir
+        gameDir,
+        loader,
+        loaderVersion,
+        optifine,
+        optifineVersion,
+        displayName
       }: {
         versionId: string
         gameDir: string
+        loader?: string
+        loaderVersion?: string
+        optifine?: string
+        optifineVersion?: string
+        displayName?: string
       }
     ) => {
       validateVersionId(versionId)
@@ -464,7 +478,68 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
             )
           })
 
+          // 阶段6：合并版本目录到统一命名（所有文件在一个集中目录下）
+          if ((loader || optifine) && displayName && displayName !== versionId) {
+            try {
+              const versionsDir = join(gameDir, 'versions')
+              if (existsSync(versionsDir)) {
+                const entries = readdirSync(versionsDir, { withFileTypes: true })
+                  .filter((e) => e.isDirectory() && e.name !== versionId)
+                  .map((e) => ({ name: e.name, mtime: statSync(join(versionsDir, e.name)).mtimeMs }))
+                  .sort((a, b) => b.mtime - a.mtime)
+                if (entries.length > 0 && entries[0].name !== displayName) {
+                  const srcDir = entries[0].name
+                  const src = join(versionsDir, srcDir)
+                  const dst = join(versionsDir, displayName)
+                  if (!existsSync(dst)) {
+                    const jsonFile = join(src, `${srcDir}.json`)
+                    if (existsSync(jsonFile)) {
+                      const vjson2 = JSON.parse(readFileSync(jsonFile, 'utf-8'))
+                      vjson2.id = displayName
+                      writeFileSync(jsonFile, JSON.stringify(vjson2, null, 2), 'utf-8')
+                      log.info(`[versions:download-start] 已修改版本 JSON id 为 ${displayName}`)
+                    }
+                    renameSync(src, dst)
+                    const oldJson = join(dst, `${srcDir}.json`)
+                    const newJson = join(dst, `${displayName}.json`)
+                    if (existsSync(oldJson) && !existsSync(newJson)) {
+                      renameSync(oldJson, newJson)
+                    }
+                    log.info(`[versions:download-start] 已合并版本目录 ${srcDir} → ${displayName}`)
+                  }
+                }
+              }
+            } catch (e: unknown) {
+              log.warn('[versions:download-start] 合并版本目录失败:', (e as Error).message)
+            }
+          }
+
           sendProgress('completed', '下载完成', 100, 0, 1, 0)
+
+          // 阶段5：若下载时勾选了加载器/扩展，下载完成后自动安装
+          if (loader || optifine) {
+            try {
+              // 设置安装进度回调，将 ModLoaderService 进度映射到版本下载进度通道
+              const reportInstallProgress = (p: { stage: string; progress: number; message?: string }) => {
+                const mapped = 95 + p.progress * 0.05 // 0–100 → 95–100
+                sendProgress(`installing_${p.stage || 'installing'}`, p.message || '安装加载器...', mapped, 0, 1, 0)
+              }
+              if (loader && modLoaderService) {
+                modLoaderService.setProgressCallback(reportInstallProgress)
+                await modLoaderService.installForVersion(versionId, gameDir, loader, loaderVersion)
+              }
+              if (optifine && modLoaderService) {
+                modLoaderService.setProgressCallback(reportInstallProgress)
+                await modLoaderService.installForVersion(versionId, gameDir, 'optifine', undefined, optifine)
+              }
+              modLoaderService?.setProgressCallback(undefined)
+            } catch (e: unknown) {
+              log.error('[versions:download-start] 安装加载器/扩展失败:', (e as Error).message)
+              modLoaderService?.setProgressCallback(undefined)
+              // 安装失败不阻塞完成，仅记录错误
+            }
+          }
+
           mainWindow.webContents.send('version:download-complete', { taskId, versionId, gameDir })
         } catch (err: unknown) {
           log.error('[versions:download-start] 失败:', (err as Error).message)

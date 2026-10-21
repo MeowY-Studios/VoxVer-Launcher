@@ -127,7 +127,7 @@ export class ModLoaderService {
   /**
    * 委托适配器执行安装并转发进度
    */
-  private async runAdapterInstall(
+  public async runAdapterInstall(
     loaderType: ModLoaderType,
     gameDir: string,
     mcVersion: string,
@@ -211,6 +211,33 @@ export class ModLoaderService {
       default:
         throw new Error(`不支持的 Mod 加载器: ${loaderType}`)
     }
+  }
+
+  /** 版本下载后安装加载器/扩展（不依赖实例ID，直接传入版本和目录） */
+  public async installForVersion(
+    mcVersion: string,
+    gameDir: string,
+    loaderType: string,
+    loaderVersion?: string,
+    optifineVersion?: string
+  ): Promise<void> {
+    if (loaderType === 'optifine') {
+      await this.installOptiFine(gameDir, mcVersion, optifineVersion)
+      return
+    }
+    const adapter = this.adapters.get(loaderType as ModLoaderType)
+    if (!adapter) {
+      throw new Error(`不支持的 Mod 加载器类型: ${loaderType}`)
+    }
+    if (!adapter.supportsVersion(mcVersion)) {
+      throw new Error(`版本 ${mcVersion} 不支持 ${adapter.name} 加载器`)
+    }
+    await adapter.install({
+      gameDir,
+      mcVersion,
+      loaderVersion,
+      onProgress: (progress) => this.reportProgress(progress)
+    })
   }
 
   // ==================== OptiFine 相关功能（保留原有实现） ====================

@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <Transition name="px-modal">
-      <div v-if="visible" class="px-launch-progress-overlay" @click.self="handleOverlayClick">
+      <div v-if="visible" class="px-launch-progress-overlay">
         <div class="px-launch-progress-panel">
           <!-- 标题栏 — 同 PxModal 风格 -->
           <div class="panel-header">
@@ -12,9 +12,7 @@
               <h3 class="panel-title">{{ $t('component.launchProgressLaunching') }}</h3>
               <span class="panel-version">{{ versionId }}</span>
             </div>
-            <button class="panel-close" @click="handleClose" :aria-label="$t('component.closeBtn')">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
+            <!-- 关闭按钮已移除：启动进度条不可手动关闭，只能等游戏出现后自动消失 -->
           </div>
 
           <!-- 进度阶段列表（逐个显示） -->
@@ -62,6 +60,21 @@
           <div class="panel-footer" v-if="phase === 'running'">
             <button class="px-btn px-btn-sm" @click="$emit('openLog')">{{ $t('component.launchProgressViewFullLog') }}</button>
           </div>
+          <!-- Java 缺失弹窗 -->
+          <div v-if="javaMissing" class="java-missing-section">
+            <p class="java-missing-msg">
+              {{ $t('component.javaMissingPrompt', { major: javaMissing.majorVersion }) }}
+            </p>
+            <div class="java-missing-btns">
+              <button class="px-btn" @click="respondJava(false)">
+                {{ $t('common.cancel') }}
+              </button>
+              <button class="px-btn px-btn-primary" @click="respondJava(true)">
+                {{ $t('component.javaMissingAutoInstall') }}
+              </button>
+            </div>
+          </div>
+
           <div class="panel-footer" v-if="phase === 'error'">
             <button
               class="px-btn px-btn-sm px-btn-danger"
@@ -99,12 +112,18 @@ const logBuffer = ref('')
 const showLog = ref(false)
 const errorMessage = ref('')
 
+// * Java 缺失弹窗状态
+const javaMissing = ref<{ majorVersion: number; responseChannel: string } | null>(null)
+
 type LaunchPhase =
   | 'idle'
   | 'building-config'
   | 'validating-java'
   | 'checking-files'
   | 'downloading-files'
+  | 'downloading-java'
+  | 'extracting-java'
+  | 'java-ready'
   | 'launching-process'
   | 'waiting-window'
   | 'running'
@@ -119,9 +138,12 @@ interface PhaseDef {
 
 const phases = ref<PhaseDef[]>([
   { id: 'building-config', label: t('component.launchProgressBuildConfig'), detail: t('component.launchProgressBuildingConfig'), done: false },
+  { id: 'validating-java', label: t('component.launchProgressValidateJava'), detail: t('component.launchProgressValidatingJava'), done: false },
+  { id: 'downloading-java', label: t('component.launchProgressDownloadJava'), detail: t('component.launchProgressDownloadingJava'), done: false },
+  { id: 'extracting-java', label: t('component.launchProgressExtractJava'), detail: t('component.launchProgressExtractingJava'), done: false },
+  { id: 'java-ready', label: t('component.launchProgressJavaReady'), detail: t('component.launchProgressJavaInstalled'), done: false },
   { id: 'checking-files', label: t('component.launchProgressCheckFiles'), detail: t('component.launchProgressCheckingFiles'), done: false },
   { id: 'downloading-files', label: t('component.launchProgressDownloadFiles'), detail: t('component.launchProgressDownloadingFiles'), done: false },
-  { id: 'validating-java', label: t('component.launchProgressValidateJava'), detail: t('component.launchProgressValidatingJava'), done: false },
   { id: 'launching-process', label: t('component.launchProgressLaunchProcess'), detail: t('component.launchProgressLaunchingProcess'), done: false },
   { id: 'waiting-window', label: t('component.launchProgressWaitWindow'), detail: t('component.launchProgressWaitingWindow'), done: false },
   { id: 'running', label: t('component.launchProgressGameRunning'), detail: t('component.launchProgressGameLaunched'), done: false }
@@ -140,6 +162,7 @@ const visiblePhases = computed(() => {
 let cleanupProgress: (() => void) | null = null
 let cleanupLog: (() => void) | null = null
 let cleanupExit: (() => void) | null = null
+let cleanupJavaMissing: (() => void) | null = null
 
 function resetPhases() {
   phases.value.forEach((p) => {
@@ -176,9 +199,12 @@ onMounted(() => {
         // 标记已完成阶段        
         const phaseOrder: LaunchPhase[] = [
           'building-config',
+          'validating-java',
+          'downloading-java',
+          'extracting-java',
+          'java-ready',
           'checking-files',
           'downloading-files',
-          'validating-java',
           'launching-process',
           'waiting-window',
           'running'
@@ -237,14 +263,35 @@ onMounted(() => {
       }
     )
   }
+
+  // * 监听 Java 缺失事件（弹窗询问用户是否自动下载安装）
+  if (api.game.onJavaMissing) {
+    cleanupJavaMissing = api.game.onJavaMissing((data) => {
+      javaMissing.value = data
+      visible.value = true
+    })
+  }
 })
 
 onUnmounted(() => {
   cleanupProgress?.()
   cleanupLog?.()
   cleanupExit?.()
+  cleanupJavaMissing?.()
   document.removeEventListener('keydown', handleKeydown)
 })
+
+function respondJava(accepted: boolean) {
+  const api = window.electronAPI
+  if (javaMissing.value) {
+    api?.game?.respondJavaMissing?.(javaMissing.value.responseChannel, accepted)
+    javaMissing.value = null
+    if (!accepted) {
+      visible.value = false
+      resetPhases()
+    }
+  }
+}
 
 function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape' && (phase.value === 'error' || phase.value === 'idle')) {
@@ -255,14 +302,6 @@ function handleKeydown(e: KeyboardEvent) {
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
 })
-
-function handleOverlayClick() {
-  visible.value = false
-}
-
-function handleClose() {
-  visible.value = false
-}
 
 defineExpose({
   open: () => {
@@ -526,6 +565,34 @@ defineExpose({
   opacity: 1;
   transform: translateY(0);
 }
+/* * Java 缺失弹窗 */
+.java-missing-section {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--voxver-border-color);
+}
 
+.java-missing-msg {
+  font-size: var(--voxver-text-sm);
+  color: var(--voxver-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.java-missing-btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.px-btn-primary {
+  background: var(--voxver-primary);
+  color: #fff;
+}
+.px-btn-primary:hover {
+  background: color-mix(in oklab, var(--voxver-primary) 85%, black);
+}
 
 </style>

@@ -678,7 +678,9 @@ async function handleDownload() {
       targetFolder.value,
       selectedLoader.value,
       selectedLoaderVersion.value,
-      versionDisplayName.value
+      versionDisplayName.value,
+      selectedOptiFine.value || undefined,
+      selectedOptiFineVersion.value || undefined
     )
     // 不自动跳转，通过右上角 DownloadFloat 提示查看进度
   } finally {

@@ -183,6 +183,23 @@ function createTables(): void {
     )
   `)
 
+  // 下载历史任务表（由 DownloadService 落库，供下载管理页查看历史记录）
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS download_tasks (
+      id TEXT PRIMARY KEY,
+      url TEXT,
+      destination TEXT,
+      fileName TEXT,
+      totalSize INTEGER DEFAULT 0,
+      downloadedSize INTEGER DEFAULT 0,
+      status TEXT DEFAULT 'pending',
+      progress REAL DEFAULT 0,
+      createdAt TEXT,
+      updatedAt TEXT,
+      error TEXT
+    )
+  `)
+
   // 分享/接收历史表
   db.exec(`
     CREATE TABLE IF NOT EXISTS share_history (

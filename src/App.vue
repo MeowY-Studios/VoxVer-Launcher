@@ -94,7 +94,7 @@
               <button
                 class="auth-btn"
                 :class="{ active: accountMode === 'online' }"
-                @click="accountMode = 'online'"
+                @click="switchAuthMode('online')"
               >
                 <svg
                   width="14"
@@ -110,7 +110,7 @@
               <button
                 class="auth-btn"
                 :class="{ active: accountMode === 'offline' }"
-                @click="accountMode = 'offline'"
+                @click="switchAuthMode('offline')"
               >
                 <svg
                   width="14"
@@ -345,6 +345,13 @@
             >
               <span v-html="cat.icon"></span>
               {{ $t(cat.labelKey) }}
+            </button>
+            <div class="nav-divider">{{ $t('download.downloadManager') }}</div>
+            <button class="nav-item sub" @click="goDownloadManager">
+              <span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>
+              </span>
+              {{ $t('download.downloadManager') }}
             </button>
           </nav>
         </template>
@@ -682,6 +689,21 @@ function syncAccountMode() {
   accountMode.value = accountsStore.activeAccount?.type === 'microsoft' ? 'online' : 'offline'
 }
 
+/** 手动切换正版/离线模式：切到对应模式时若未激活该类型账号，自动选中一个，避免让用户再手动选 */
+function switchAuthMode(mode: 'online' | 'offline') {
+  accountMode.value = mode
+  const active = accountsStore.activeAccount
+  if (mode === 'online' && active?.type !== 'microsoft') {
+    const ms = accountsStore.accounts.find((a) => a.type === 'microsoft' && a.isActive === 1)
+    const target = ms || accountsStore.accounts.find((a) => a.type === 'microsoft')
+    if (target) void accountsStore.setActive(target.id)
+  } else if (mode === 'offline' && active?.type !== 'offline') {
+    const off = accountsStore.accounts.find((a) => a.type === 'offline' && a.isActive === 1)
+    const target = off || accountsStore.accounts.find((a) => a.type === 'offline')
+    if (target) void accountsStore.setActive(target.id)
+  }
+}
+
 // * 监听活跃账号变化，自动切换模式 + 加载皮肤
 watch(
   () => accountsStore.activeAccount,
@@ -735,6 +757,11 @@ const offlineAccountDropdown = ref<HTMLElement | null>(null)
 
 // * 在线账号选中标签
 const onlineAccountLabel = computed(() => {
+  // * 优先显示全局当前活跃账号，保证返回时始终显示已选择的账号
+  const activeGlobal = accountsStore.activeAccount
+  if (activeGlobal?.type === 'microsoft') {
+    return `${activeGlobal.name} (${t('home.auth.microsoft')})`
+  }
   const active = filteredAccounts.value.find((a) => a.isActive === 1)
   if (active) {
     return `${active.name} (${active.type === 'microsoft' ? t('home.auth.microsoft') : t('home.auth.offline')})`
@@ -744,6 +771,11 @@ const onlineAccountLabel = computed(() => {
 
 // * 离线账号选中标签
 const offlineAccountLabel = computed(() => {
+  // * 优先显示全局当前活跃账号，保证返回时始终显示已选择的账号
+  const activeGlobal = accountsStore.activeAccount
+  if (activeGlobal?.type === 'offline') {
+    return activeGlobal.name
+  }
   const active = offlineAccounts.value.find((a) => a.isActive === 1)
   if (active) {
     return active.name
@@ -764,8 +796,11 @@ function toggleOfflineAccountDropdown() {
 // * 统一账号选择逻辑
 function handleAccountSelectValue(value: string) {
   if (value === 'add') {
-    // * 原地弹出微软登录窗，不跳转页面
-    showMsLoginModal.value = true
+    if (accountMode.value === 'offline') {
+      addOfflineAccount()
+    } else {
+      showMsLoginModal.value = true
+    }
     return
   }
   const targetAccount = accountsStore.accounts.find((a) => a.id === value)
@@ -787,6 +822,13 @@ function selectOfflineAccount(id: string) {
 function closeAllAccountDropdowns() {
   showOnlineAccountDropdown.value = false
   showOfflineAccountDropdown.value = false
+}
+
+function addOfflineAccount() {
+  showOfflineAccountDropdown.value = false
+  router.push({ path: '/settings', query: { tab: 'offline' } }).then(() => {
+    settingsActive.value = 'profile'
+  })
 }
 
 // * 启动数据
@@ -1443,6 +1485,11 @@ function closeWindow() {
 
 function handleDlCategory(catId: string) {
   dlActiveCat.value = catId
+}
+
+/** 跳转到下载管理页面 */
+function goDownloadManager() {
+  router.push('/download/manage')
 }
 
 function goToAccountSettings() {

@@ -2,18 +2,6 @@
   <div class="dm-page">
     <!-- 顶部导航 -->
     <div class="dm-header">
-      <button class="back-btn" @click="goBack">
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-      </button>
       <h1 class="dm-title">{{ $t('download.downloadManager') }}</h1>
       <div class="header-actions">
         <button v-if="completedCount > 0" class="btn-clear vox-btn vox-btn--destructive" @click="clearCompleted">
@@ -34,7 +22,7 @@
       </div>
     </div>
 
-    <!-- 搜索和筛选 -->
+    <!-- 搜索、统计、筛选 -->
     <div class="dm-toolbar">
       <div class="search-box">
         <svg
@@ -51,6 +39,26 @@
         <input v-model="searchQuery" type="text" :placeholder="$t('download.searchTask')" class="search-input" />
       </div>
 
+      <!-- 下载统计（缩小居中） -->
+      <div class="dm-stats">
+        <div class="stat-item">
+          <span class="stat-value">{{ totalCount }}</span>
+          <span class="stat-label">{{ $t('download.totalTasks') }}</span>
+        </div>
+        <div class="stat-item downloading">
+          <span class="stat-value">{{ downloadingCount }}</span>
+          <span class="stat-label">{{ $t('download.downloading') }}</span>
+        </div>
+        <div class="stat-item completed">
+          <span class="stat-value">{{ completedCount }}</span>
+          <span class="stat-label">{{ $t('download.completed') }}</span>
+        </div>
+        <div class="stat-item failed">
+          <span class="stat-value">{{ failedCount }}</span>
+          <span class="stat-label">{{ $t('download.failed') }}</span>
+        </div>
+      </div>
+
       <!-- 分类标签 -->
       <div class="filter-tabs">
         <button
@@ -65,26 +73,6 @@
             getTabCount(tab.value)
           }}</span>
         </button>
-      </div>
-    </div>
-
-    <!-- 下载统计 -->
-    <div class="dm-stats">
-      <div class="stat-item">
-        <span class="stat-value">{{ totalCount }}</span>
-        <span class="stat-label">{{ $t('download.totalTasks') }}</span>
-      </div>
-      <div class="stat-item downloading">
-        <span class="stat-value">{{ downloadingCount }}</span>
-        <span class="stat-label">{{ $t('download.downloading') }}</span>
-      </div>
-      <div class="stat-item completed">
-        <span class="stat-value">{{ completedCount }}</span>
-        <span class="stat-label">{{ $t('download.completed') }}</span>
-      </div>
-      <div class="stat-item failed">
-        <span class="stat-value">{{ failedCount }}</span>
-        <span class="stat-label">{{ $t('download.failed') }}</span>
       </div>
     </div>
 
@@ -292,11 +280,6 @@
       </div>
     </div>
 
-    <!-- 底部提示 -->
-    <div v-else class="dm-footer">
-      <p>{{ $t('download.downloadInBackground') }}</p>
-      <button class="btn-back-bg" @click="goBackToHome">{{ $t('download.backToHome') }}</button>
-    </div>
   </div>
 </template>
 
@@ -371,14 +354,6 @@ function getTabCount(tab: string): number {
   }
 }
 
-function goBack() {
-  router.back()
-}
-
-function goBackToHome() {
-  router.push('/')
-}
-
 function goToDownloads() {
   router.push('/downloads')
 }
@@ -415,7 +390,16 @@ function formatTime(timestamp?: number): string {
 async function retryTask(task: UnifiedTask) {
   if (task._type === 'version') {
     downloadStore.removeVersionTask(task.id)
-    await downloadStore.startVersionDownload(task.id, task.targetFolder)
+    // 传递完整的加载器/扩展参数，避免重试丢失用户选择
+    await downloadStore.startVersionDownload(
+      task.id,
+      task.targetFolder,
+      task.loader,
+      task.loaderVersion,
+      task.name,
+      task.optifine,
+      task.optifineVersion
+    )
   }
 }
 
@@ -445,6 +429,8 @@ function clearCompleted() {
       downloadStore.removeVersionTask(task.id)
     }
   })
+  // 同步清空持久化的历史记录
+  void downloadStore.clearHistory()
 }
 
 function cancelSelection() {
@@ -488,25 +474,6 @@ onUnmounted(() => {
   background: color-mix(in oklab, var(--voxver-text) 5%, transparent);
   border-bottom: 1px solid var(--voxver-border-color);
   flex-shrink: 0;
-}
-
-.back-btn {
-  background: var(--voxver-bg-hover);
-  border: 1px solid var(--voxver-border-color-light);
-  border-radius: var(--voxver-radius-md);
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--voxver-text-muted);
-  transition: all 0.25s ease;
-}
-.back-btn:hover {
-  background: var(--voxver-primary-light);
-  color: #fff;
-  transform: translateX(-2px);
 }
 
 .dm-title {
@@ -595,26 +562,24 @@ onUnmounted(() => {
   background: color-mix(in oklab, var(--voxver-primary) 30%, transparent);
 }
 
-/* * 统计卡片 */
+/* * 统计卡片（缩小并居中显示在工具栏内） */
 .dm-stats {
   display: flex;
-  gap: 12px;
-  padding: 12px 20px;
+  align-items: center;
+  gap: 20px;
+  margin: 0 auto;
   flex-shrink: 0;
 }
 
 .stat-item {
-  flex: 1;
-  padding: 12px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.2s;
+  align-items: baseline;
+  gap: 6px;
+  white-space: nowrap;
 }
 
 .stat-value {
-  font-size: 22px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--voxver-text-primary);
 }
@@ -951,24 +916,4 @@ onUnmounted(() => {
   gap: 10px;
 }
 
-/* * 底部 */
-.dm-footer {
-  flex-shrink: 0;
-  padding: 18px 20px;
-  border-top: 1px solid var(--voxver-border-color);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.dm-footer p {
-  font-size: 13px;
-  color: var(--voxver-text-muted);
-  margin: 0;
-}
-
-.btn-back-bg {
-  padding: 12px 32px;
-}
 </style>
