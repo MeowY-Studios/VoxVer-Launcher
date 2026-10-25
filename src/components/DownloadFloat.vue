@@ -255,8 +255,8 @@ watch(
       store.suppressFloat = true
     } else {
       store.suppressFloat = false
-      // * 若离开时仍有任务在途，恢复显示浮窗（进度事件此前因抑制被忽略）
-      if (hasAny.value) {
+      // * 仅当仍有下载中的任务时才恢复显示浮窗；已完成/失败的历史任务不应再次自动弹出
+      if (activeCount.value > 0) {
         store.showFloatPanel = true
       }
     }
