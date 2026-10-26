@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.7.4-14b8a6?style=flat-square&labelColor=1e1e2e)
+![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.7.5-14b8a6?style=flat-square&labelColor=1e1e2e)
 ![Electron](https://img.shields.io/badge/Electron-42-478cbf?style=flat-square&logo=electron&logoColor=white)
 ![Vue](https://img.shields.io/badge/Vue-3.5-4db08b?style=flat-square&logo=vuedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6?style=flat-square&logo=typescript&logoColor=white)
@@ -19,7 +19,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 ## 📋 目录
 
 - [📥 下载](#-下载)
-- [🆕 v0.7.4 最近更新](#-v074-最近更新)
+- [🆕 v0.7.5 最近更新](#-v075-最近更新)
 - [✨ 功能概览](#-功能概览)
 - [🖥️ 支持平台](#️-支持平台)
 - [📦 相关文档](#-相关文档)
@@ -30,22 +30,47 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 ## 📥 下载
 
-**[👉 前往 GitHub Releases 下载 v0.7.4](https://github.com/MeowY-Studios/VoxVer-Launcher/releases)**
+**[👉 前往 GitHub Releases 下载 v0.7.5](https://github.com/MeowY-Studios/VoxVer-Launcher/releases)**
 
 ---
 
-## 🆕 v0.7.4 最近更新
+## 🆕 v0.7.5 最近更新
 
-### 👥 多在线账户卡堆管理（新增）
+### 🔌 服务联通性测试（新增）
+- 设置 → 下载与网络 → 服务联通性测试，进入后先列出 **下载源 / 版本源 / Mod 平台 / 登录与更新** 共 10 项服务
+- 点击右上角「开始检测」才发起探测，逐项展示在线状态与毫秒延迟，失败项给出原因
+
+### 🌐 下载源选择策略（新增）
+- 原「镜像测速」入口替换为下拉策略：**自动选择 / 官方源优先 / 镜像源优先**
+- 策略写入下载服务并真实作用于下载链路，不再只是界面开关
+
+### ⚙️ 下载与网络设置重构（优化）
+- 按「服务 / 源 / 下载」分组卡片排版；同时下载数改为下拉框
+- 最大下载线程、下载速度限制、最大重试次数改为开关：开启即自动，关闭后可手动调节
+
+### ⌨️ 全局快捷键修复（修复）
+- 快速启动游戏、打开主页、打开设置、显示/隐藏窗口四个动作全部可用，触发时自动唤起并聚焦窗口
+- 注册失败时明确提示「可能已被其他程序占用」，不再静默提示成功
+
+---
+
+### v0.7.4 主要内容
+
+<details>
+<summary>展开查看</summary>
+
+#### 👥 多在线账户卡堆管理（新增）
 - 账户页重构为**卡堆式多账户管理**：多个微软正版账户并存、快速切换、皮肤 3D 预览
 - 全新独立 `MicrosoftLoginModal` 登录弹窗
 
-### 🧩 四加载器适配器架构（新增）
+#### 🧩 四加载器适配器架构（新增）
 - Forge / NeoForge / Fabric / Quilt 统一适配器层，modloader 服务模块化重构
 
-### 🌗 暗色主题存在感增强（优化）
+#### 🌗 暗色主题存在感增强（优化）
 - 阴影改为品牌蓝辉光，暗色下卡片与弹窗恢复深度层次
 - 玻璃态提亮、悬停反馈增强，卡片高光与标题栏辉光亮暗双主题自适应
+
+</details>
 
 ---
 
