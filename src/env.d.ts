@@ -218,11 +218,23 @@ interface ElectronAPI {
     testMirrorSpeed: () => Promise<{ success: boolean; data: Array<{ name: string; url: string; ping: number }> }>
     autoSelectMirror: () => Promise<{ success: boolean; data: number }>
     // 下载设置
-    getDownloadConfig: () => Promise<{ success: boolean; data: { maxConcurrent: number; maxThreadsPerFile: number; speedLimit: number; maxRetries: number; currentMirror: { name: string; url: string; ping: number }; mirrors: Array<{ name: string; url: string; ping: number }> } }>
+    getDownloadConfig: () => Promise<{ success: boolean; data: { maxConcurrent: number; maxThreadsPerFile: number; speedLimit: number; maxRetries: number; currentMirror: { name: string; url: string; ping: number }; mirrorStrategy?: string; mirrors: Array<{ name: string; url: string; ping: number }> } }>
     setMaxConcurrent: (max: number) => Promise<{ success: boolean }>
     setMaxThreads: (max: number) => Promise<{ success: boolean }>
     setSpeedLimit: (limit: number) => Promise<{ success: boolean }>
     setMaxRetries: (max: number) => Promise<{ success: boolean }>
+    setMirrorStrategy: (strategy: string) => Promise<{ success: boolean }>
+    // 服务联通性测试
+    listServices: () => Promise<{
+      success: boolean
+      data: Array<{ key: string; name: string; url: string; group: string }>
+      error?: string
+    }>
+    testServices: () => Promise<{
+      success: boolean
+      data: Array<{ key: string; name: string; url: string; group: string; online: boolean; latency: number; error?: string }>
+      error?: string
+    }>
   }
   java: {
     detect: () => Promise<unknown[]>

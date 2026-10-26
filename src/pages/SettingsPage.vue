@@ -976,46 +976,28 @@
         </h3>
         <div class="sec-body">
           <div class="memory-alloc-card" style="margin-bottom:12px">
-            <label class="row-label" style="margin-bottom:8px">{{ $t('settings.whenLaunching') }}</label>
-            <div class="mem-options" style="flex-direction:column;gap:6px">
-              <label class="radio-item-k" :class="{ active: s.launchVisibility === 'hide' }">
-                <input type="radio" name="launchVisibility" value="hide" v-model="s.launchVisibility" />
-                {{ $t('settings.hideLauncher') }}
-              </label>
-              <label class="radio-item-k" :class="{ active: s.launchVisibility === 'minimize' }">
-                <input type="radio" name="launchVisibility" value="minimize" v-model="s.launchVisibility" />
-                {{ $t('settings.minimizeLauncher') }}
-              </label>
-              <label class="radio-item-k" :class="{ active: s.launchVisibility === 'keep' }">
-                <input type="radio" name="launchVisibility" value="keep" v-model="s.launchVisibility" />
-                {{ $t('settings.keepLauncher') }}
-              </label>
+            <div class="row" style="margin-bottom:0;padding:0;background:transparent;border:none;">
+              <div class="row-main">
+                <label class="row-label">{{ $t('settings.whenLaunching') }}</label>
+              </div>
+              <div class="row-control row-control--right-center">
+                <div class="select-fit select-fit--wide">
+                  <PxSelect v-model="launchVisibilityModel" :options="launchVisibilityOptions" />
+                </div>
+              </div>
             </div>
           </div>
           <div class="memory-alloc-card">
-            <label class="row-label" style="margin-bottom:8px">{{ $t('settings.processPriority') }}</label>
-            <p class="row-desc" style="margin-bottom:8px">{{ $t('settings.processPriorityDesc') }}</p>
-            <div class="mem-options" style="flex-direction:column;gap:6px">
-              <label class="radio-item-k" :class="{ active: s.processPriority === 'low' }">
-                <input type="radio" name="processPriority" value="low" v-model="s.processPriority" />
-                {{ $t('settings.priorityLow') }}
-              </label>
-              <label class="radio-item-k" :class="{ active: s.processPriority === 'belowNormal' }">
-                <input type="radio" name="processPriority" value="belowNormal" v-model="s.processPriority" />
-                {{ $t('settings.priorityBelowNormal') }}
-              </label>
-              <label class="radio-item-k" :class="{ active: s.processPriority === 'normal' }">
-                <input type="radio" name="processPriority" value="normal" v-model="s.processPriority" />
-                {{ $t('settings.priorityNormal') }}
-              </label>
-              <label class="radio-item-k" :class="{ active: s.processPriority === 'aboveNormal' }">
-                <input type="radio" name="processPriority" value="aboveNormal" v-model="s.processPriority" />
-                {{ $t('settings.priorityAboveNormal') }}
-              </label>
-              <label class="radio-item-k" :class="{ active: s.processPriority === 'high' }">
-                <input type="radio" name="processPriority" value="high" v-model="s.processPriority" />
-                {{ $t('settings.priorityHigh') }}
-              </label>
+            <div class="row" style="margin-bottom:0;padding:0;background:transparent;border:none;">
+              <div class="row-main">
+                <label class="row-label">{{ $t('settings.processPriority') }}</label>
+                <p class="row-desc" style="margin-bottom:0">{{ $t('settings.processPriorityDesc') }}</p>
+              </div>
+              <div class="row-control row-control--right-center">
+                <div class="select-fit select-fit--wide">
+                  <PxSelect v-model="processPriorityModel" :options="processPriorityOptions" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1036,20 +1018,15 @@
             <input type="text" class="inp" v-model="s.windowTitle" placeholder="Minecraft {version}" style="width:100%" />
           </div>
           <div class="memory-alloc-card">
-            <label class="row-label" style="margin-bottom:8px">{{ $t('settings.windowSize') }}</label>
-            <div class="mem-options" style="flex-direction:column;gap:8px">
-              <label class="radio-item-k" :class="{ active: s.windowPreset === 'default' }">
-                <input type="radio" name="windowPreset" value="default" v-model="s.windowPreset" />
-                {{ $t('settings.advancedSection.defaultWindowSize') }}
-              </label>
-              <label class="radio-item-k" :class="{ active: s.windowPreset === 'fullscreen' }">
-                <input type="radio" name="windowPreset" value="fullscreen" v-model="s.windowPreset" />
-                {{ $t('settings.advancedSection.fullscreenLaunch') }}
-              </label>
-              <label class="radio-item-k" :class="{ active: s.windowPreset === 'custom' }">
-                <input type="radio" name="windowPreset" value="custom" v-model="s.windowPreset" />
-                {{ $t('settings.advancedSection.customSize') }}
-              </label>
+            <div class="row" style="margin-bottom:0;padding:0;background:transparent;border:none;">
+              <div class="row-main">
+                <label class="row-label">{{ $t('settings.windowSize') }}</label>
+              </div>
+              <div class="row-control row-control--right-center">
+                <div class="select-fit select-fit--wide">
+                  <PxSelect v-model="windowPresetModel" :options="windowPresetOptions" />
+                </div>
+              </div>
             </div>
             <div v-if="s.windowPreset === 'custom'" class="mem-custom-row" style="margin-top:8px">
               <div style="display:flex;align-items:center;gap:6px">
@@ -1058,7 +1035,6 @@
                 <span class="sep">&times;</span>
                 <span class="sep">{{ $t('settings.advancedSection.height') }}</span>
                 <input type="number" class="inp short" v-model="s.winH" placeholder="480" min="1" style="width:80px" />
-                
               </div>
             </div>
           </div>
@@ -1124,7 +1100,7 @@
               <span class="toggle-slider"></span>
             </label>
           </div>
-          <div class="debug-card">
+          <div v-if="s.debugMode" class="debug-card">
             <div class="skin-radio-group">
               <label class="skin-radio-item" :class="{ active: s.disableJavaLaunchWrapper }" @click="s.disableJavaLaunchWrapper = !s.disableJavaLaunchWrapper">
                 <span class="skin-radio-dot" :class="{ checked: s.disableJavaLaunchWrapper }"></span>
@@ -1814,82 +1790,133 @@
           {{ $t('settings.sidebar.downloadNet') }}
         </h3>
 
-        <!-- 镜像源 -->
-        <div class="row">
-          <div class="row-main">
-            <label class="row-label">{{ $t('settings.downloadSource') }}</label>
-            <p class="row-desc">{{ $t('settings.downloadSourceDesc') }}</p>
-          </div>
-          <div class="row-control">
-            <PxSelect v-model="mirrorIndexModel" :options="mirrorOptions" />
-          </div>
-        </div>
-
-        <!-- 镜像测速 -->
-        <div class="row">
-          <div class="row-main">
-            <label class="row-label">{{ $t('settings.downloadSources') }}</label>
-            <p class="row-desc">{{ downloadConfig.testingMirror ? $t('settings.testingSpeed') : $t('settings.downloadSourceDesc') }}</p>
-          </div>
-          <div class="row-control">
-            <button class="btn vox-btn vox-btn--secondary" @click="onTestMirrors" :disabled="downloadConfig.testingMirror" style="margin-right:8px">
-              {{ $t('settings.downloadSources') }}
-            </button>
-            <button class="btn vox-btn vox-btn--secondary" @click="onAutoSelectMirror" :disabled="downloadConfig.testingMirror">
-              {{ $t('settings.autoSelect') }}
-            </button>
-          </div>
-        </div>
-
-        <!-- 同时下载数 -->
-        <div class="row">
-          <div class="row-main">
-            <label class="row-label">{{ $t('settings.downloadConcurrent') }}</label>
-          </div>
-          <div class="row-control">
-            <div class="input-group compact">
-              <input type="range" class="range" v-model.number="downloadConfig.maxConcurrent" min="1" max="16" step="1" @change="onConcurrentChange" />
-              <span class="range-val">{{ downloadConfig.maxConcurrent }}</span>
+        <!-- 服务 -->
+        <div class="settings-group-title">{{ $t('settings.dlGroupService') }}</div>
+        <div class="settings-card">
+          <div class="row">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.serviceConnectivity') }}</label>
+            </div>
+            <div class="row-control row-control--right-center">
+              <button class="service-goto-btn" :title="$t('settings.serviceConnectivityEnter')" @click="openServiceTest">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- 最大线程数 -->
-        <div class="row">
-          <div class="row-main">
-            <label class="row-label">{{ $t('settings.maxThreads') }}</label>
-          </div>
-          <div class="row-control">
-            <div class="input-group compact">
-              <input type="range" class="range" v-model.number="downloadConfig.maxThreadsPerFile" min="1" max="64" step="1" @change="onThreadsChange" />
-              <span class="range-val">{{ downloadConfig.maxThreadsPerFile }} {{ $t('settings.threads') }}</span>
+        <!-- 源 -->
+        <div class="settings-group-title">{{ $t('settings.dlGroupSource') }}</div>
+        <div class="settings-card">
+          <div class="row">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.mirrorStrategy') }}</label>
+            </div>
+            <div class="row-control row-control--right-center">
+              <div class="select-fit select-fit--wide">
+                <PxSelect v-model="mirrorStrategyModel" :options="mirrorStrategyOptions" />
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- 速度限制 -->
-        <div class="row">
-          <div class="row-main">
-            <label class="row-label">{{ $t('settings.speedLimit') }}</label>
-          </div>
-          <div class="row-control">
-            <div class="input-group compact">
-              <input type="number" class="inp short" v-model.number="downloadConfig.speedLimit" min="0" step="128" @change="onSpeedLimitChange" />
-              <span class="sep">KB/s</span>
-              <span class="row-hint">{{ $t('settings.speedLimitHint') }}</span>
+        <!-- 下载 -->
+        <div class="settings-group-title">{{ $t('settings.dlGroupDownload') }}</div>
+        <div class="settings-card">
+          <!-- 同时下载数 -->
+          <div class="row">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.downloadConcurrent') }}</label>
+            </div>
+            <div class="row-control row-control--right-center">
+              <div class="select-fit">
+                <PxSelect v-model="concurrentModel" :options="concurrentOptions" />
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- 最大重试数 -->
-        <div class="row">
-          <div class="row-main">
-            <label class="row-label">{{ $t('settings.downloadMaxRetries') }}</label>
+          <!-- 最大下载线程 -->
+          <div class="row">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.maxThreads') }}</label>
+              <p class="row-desc">{{ threadsAuto ? $t('settings.threadsAutoOn') : $t('settings.threadsAutoOff') }}</p>
+            </div>
+            <div class="row-control row-control--right-center">
+              <label class="toggle-switch" :title="threadsAuto ? $t('settings.threadsAutoOn') : $t('settings.threadsAutoOff')">
+                <input type="checkbox" v-model="threadsAuto" @change="setThreadsAuto(threadsAuto)" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
           </div>
-          <div class="row-control">
-            <div class="input-group compact">
-              <input type="range" class="range" v-model.number="downloadConfig.maxRetries" min="0" max="20" step="1" @change="onRetriesChange" />
-              <span class="range-val">{{ downloadConfig.maxRetries }}</span>
+
+          <!-- 线程数（手动调节） -->
+          <div v-if="!threadsAuto" class="row">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.threadsCount') }}</label>
+            </div>
+            <div class="row-control row-control--right-center">
+              <div class="input-group compact">
+                <input type="range" class="range" v-model.number="downloadConfig.maxThreadsPerFile" min="1" max="64" step="1" @change="onThreadsChange" />
+                <span class="range-val">{{ downloadConfig.maxThreadsPerFile }} {{ $t('settings.threads') }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 下载速度限制 -->
+          <div class="row">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.speedLimit') }}</label>
+              <p class="row-desc">{{ speedLimitAuto ? $t('settings.speedLimitAutoOn') : $t('settings.speedLimitAutoOff') }}</p>
+            </div>
+            <div class="row-control row-control--right-center">
+              <label class="toggle-switch" :title="speedLimitAuto ? $t('settings.speedLimitAutoOn') : $t('settings.speedLimitAutoOff')">
+                <input type="checkbox" v-model="speedLimitAuto" @change="setSpeedLimitAuto(speedLimitAuto)" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 限速值（手动调节） -->
+          <div v-if="!speedLimitAuto" class="row">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.speedLimitValue') }}</label>
+              <p class="row-desc">{{ $t('settings.speedLimitHint') }}</p>
+            </div>
+            <div class="row-control row-control--right-center">
+              <div class="input-group compact">
+                <input type="number" class="inp short" v-model.number="downloadConfig.speedLimit" min="0" step="128" @change="onSpeedLimitChange" />
+                <span class="sep">KB/s</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 最大重试次数 -->
+          <div class="row">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.downloadMaxRetries') }}</label>
+              <p class="row-desc">{{ retriesAuto ? $t('settings.retriesAutoOn') : $t('settings.retriesAutoOff') }}</p>
+            </div>
+            <div class="row-control row-control--right-center">
+              <label class="toggle-switch" :title="retriesAuto ? $t('settings.retriesAutoOn') : $t('settings.retriesAutoOff')">
+                <input type="checkbox" v-model="retriesAuto" @change="setRetriesAuto(retriesAuto)" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 重试次数（手动调节） -->
+          <div v-if="!retriesAuto" class="row">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.retriesCount') }}</label>
+            </div>
+            <div class="row-control row-control--right-center">
+              <div class="input-group compact">
+                <input type="range" class="range" v-model.number="downloadConfig.maxRetries" min="0" max="20" step="1" @change="onRetriesChange" />
+                <span class="range-val">{{ downloadConfig.maxRetries }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -3004,12 +3031,65 @@
         </div>
       </div>
     </div>
+
+    <!-- 服务联通性测试（独立子页面） -->
+    <div v-if="showServiceTest" class="service-test-page">
+      <div class="service-test-head">
+        <button class="service-test-icon-btn" @click="closeServiceTest">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12 19 5 12 12 5" />
+          </svg>
+        </button>
+        <h2 class="service-test-title">{{ $t('settings.serviceConnectivity') }}</h2>
+        <button class="service-test-btn" :disabled="serviceTesting" @click="runServiceTest">
+          {{ $t('settings.serviceTestStart') }}
+        </button>
+      </div>
+
+      <div class="service-test-body">
+        <p v-if="serviceTesting" class="service-test-hint">{{ $t('settings.serviceTesting') }}</p>
+        <p v-else-if="serviceTestError" class="service-test-hint is-error">{{ serviceTestError }}</p>
+        <div v-else-if="!serviceTested && serviceResults.length > 0" class="service-test-banner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+          <span>{{ $t('settings.serviceTestIdle') }}</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </div>
+        <p v-else-if="serviceResults.length === 0" class="service-test-hint">{{ $t('settings.serviceTestEmpty') }}</p>
+        <div v-for="group in serviceGroups" :key="group.key" class="service-group">
+          <div v-for="item in group.items" :key="item.key" class="service-item">
+            <div class="service-item-main">
+              <span class="service-item-name">{{ item.name }}</span>
+              <span class="service-item-url">{{ item.url }}</span>
+            </div>
+            <span v-if="!serviceTested" class="service-item-badge is-pending">{{ $t('settings.serviceUntested') }}</span>
+            <span v-else class="service-item-badge" :class="item.online ? 'is-online' : 'is-offline'">
+              <svg v-if="item.online" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              <svg v-else width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+              {{ item.online ? `${item.latency} ms` : $t('settings.serviceOffline') }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { reactive, inject, computed, onMounted, onUnmounted, watch, ref, type Ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { setLocale } from '../locale/i18n'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '../stores/app.store'
@@ -3022,6 +3102,7 @@ import PxSelect from '@/components/common/PxSelect.vue'
 const pageRef = ref<HTMLElement | null>(null)
 
 const router = useRouter()
+const route = useRoute()
 const appStore = useAppStore()
 const instancesStore = useInstancesStore()
 const allInstances = computed(() => instancesStore.instances)
@@ -3658,14 +3739,10 @@ const permWarning = computed(() => permInfo.value?.inProtectedDir && !permInfo.v
 
 // 下载配置
 const downloadConfig = reactive({
-  mirrorIndex: 0,
-  mirrors: [] as Array<{ name: string; url: string; ping: number }>,
-  currentMirror: { name: '', url: '', ping: 0 },
   maxConcurrent: 4,
   maxThreadsPerFile: 8,
   speedLimit: 0,
-  maxRetries: 5,
-  testingMirror: false
+  maxRetries: 5
 })
 
 const memoryPercent = computed(() => {
@@ -3984,19 +4061,98 @@ const bgImageModeModel = computed({
   set: (val: string) => appStore.setBgImageMode(val as 'none' | 'custom'),
 })
 
-const mirrorOptions = computed<Array<{ label: string; value: string }>>(() =>
-  downloadConfig.mirrors.map((m, i) => ({
-    label: `${m.name} ${m.ping > 0 ? '(' + m.ping + 'ms)' : ''}`,
-    value: String(i),
-  }))
-)
-
-const mirrorIndexModel = computed({
-  get: () => String(downloadConfig.mirrorIndex),
-  set: (val: string) => { downloadConfig.mirrorIndex = Number(val) },
+// 下载源选择策略
+const mirrorStrategy = ref<string>('auto')
+const mirrorStrategyOptions = computed<Array<{ label: string; value: string }>>(() => [
+  { label: t('settings.mirrorStrategyAuto'), value: 'auto' },
+  { label: t('settings.mirrorStrategyOfficial'), value: 'official' },
+  { label: t('settings.mirrorStrategyPrefer'), value: 'mirror' },
+])
+const mirrorStrategyModel = computed({
+  get: () => mirrorStrategy.value,
+  set: (val: string) => {
+    mirrorStrategy.value = val
+    void window.electronAPI?.download?.setMirrorStrategy(val)
+  },
 })
 
-watch(mirrorIndexModel, (val) => onMirrorChange(Number(val)))
+// 同时下载数
+const concurrentOptions = computed<Array<{ label: string; value: string }>>(() =>
+  [2, 4, 6, 8, 12, 16].map((n) => ({ label: String(n), value: String(n) }))
+)
+const concurrentModel = computed({
+  get: () => String(downloadConfig.maxConcurrent),
+  set: (val: string) => {
+    downloadConfig.maxConcurrent = Number(val)
+    void onConcurrentChange()
+  },
+})
+
+// 最大下载线程：自动选择 / 手动调节
+const threadsAuto = ref(true)
+
+// 启动游戏时（启动器可见性）下拉框
+const launchVisibilityOptions = computed<Array<{ label: string; value: string }>>(() => [
+  { label: t('settings.hideLauncher'), value: 'hide' },
+  { label: t('settings.minimizeLauncher'), value: 'minimize' },
+  { label: t('settings.keepLauncher'), value: 'keep' }
+])
+const launchVisibilityModel = computed({
+  get: () => s.launchVisibility,
+  set: (val: string) => { s.launchVisibility = val }
+})
+
+// 游戏进程优先级下拉框
+const processPriorityOptions = computed<Array<{ label: string; value: string }>>(() => [
+  { label: t('settings.priorityLow'), value: 'low' },
+  { label: t('settings.priorityBelowNormal'), value: 'belowNormal' },
+  { label: t('settings.priorityNormal'), value: 'normal' },
+  { label: t('settings.priorityAboveNormal'), value: 'aboveNormal' },
+  { label: t('settings.priorityHigh'), value: 'high' }
+])
+const processPriorityModel = computed({
+  get: () => s.processPriority,
+  set: (val: string) => { s.processPriority = val }
+})
+
+// 游戏窗口大小下拉框
+const windowPresetOptions = computed<Array<{ label: string; value: string }>>(() => [
+  { label: t('settings.advancedSection.defaultWindowSize'), value: 'default' },
+  { label: t('settings.advancedSection.fullscreenLaunch'), value: 'fullscreen' },
+  { label: t('settings.advancedSection.customSize'), value: 'custom' }
+])
+const windowPresetModel = computed({
+  get: () => s.windowPreset,
+  set: (val: string) => { s.windowPreset = val }
+})
+
+async function setThreadsAuto(auto: boolean) {
+  threadsAuto.value = auto
+  if (auto) {
+    downloadConfig.maxThreadsPerFile = 8
+  }
+  await window.electronAPI?.download?.setMaxThreads(downloadConfig.maxThreadsPerFile)
+}
+
+// 下载速度限制：开启=自动（不限速）/ 关闭=手动限速
+const speedLimitAuto = ref(true)
+async function setSpeedLimitAuto(auto: boolean) {
+  speedLimitAuto.value = auto
+  if (auto) {
+    downloadConfig.speedLimit = 0
+  }
+  await window.electronAPI?.download?.setSpeedLimit(downloadConfig.speedLimit)
+}
+
+// 最大重试次数：开启=自动（默认 5 次）/ 关闭=手动调节
+const retriesAuto = ref(true)
+async function setRetriesAuto(auto: boolean) {
+  retriesAuto.value = auto
+  if (auto) {
+    downloadConfig.maxRetries = 5
+  }
+  await window.electronAPI?.download?.setMaxRetries(downloadConfig.maxRetries)
+}
 
 const screenshotInstanceOptions = computed<Array<{ label: string; value: string }>>(() => [
   { label: tm('common.pleaseSelect'), value: '' },
@@ -4548,41 +4704,114 @@ async function loadDownloadConfig() {
       downloadConfig.maxThreadsPerFile = d.maxThreadsPerFile
       downloadConfig.speedLimit = d.speedLimit
       downloadConfig.maxRetries = d.maxRetries
-      downloadConfig.mirrors = d.mirrors || []
-      downloadConfig.currentMirror = d.currentMirror || { name: '', url: '', ping: 0 }
-      downloadConfig.mirrorIndex = d.mirrors?.findIndex((m: { url: string }) => m.url === d.currentMirror?.url) ?? 0
+      if (d.mirrorStrategy) mirrorStrategy.value = d.mirrorStrategy
     }
   } catch { /* ignore */ }
 }
 
-async function onMirrorChange(index: number) {
-  downloadConfig.mirrorIndex = index
-  await window.electronAPI?.download?.setMirror(index)
-  const res = await window.electronAPI?.download?.getCurrentMirror()
-  if (res?.data) downloadConfig.currentMirror = res.data
+// ====== 服务联通性测试 ======
+interface ServiceCheckItem {
+  key: string
+  name: string
+  url: string
+  group: string
+  online: boolean
+  latency: number
+  error?: string
 }
 
-async function onTestMirrors() {
-  downloadConfig.testingMirror = true
-  try {
-    const res = await window.electronAPI?.download?.testMirrorSpeed()
-    if (res?.data) downloadConfig.mirrors = res.data
-  } catch { /* ignore */ }
-  downloadConfig.testingMirror = false
-}
+const showServiceTest = computed(() => route.query.tab === 'connectivity')
+const serviceTesting = ref(false)
+const serviceTestError = ref('')
+const serviceTested = ref(false)
+const serviceResults = ref<ServiceCheckItem[]>([])
 
-async function onAutoSelectMirror() {
-  downloadConfig.testingMirror = true
+/** 按服务分组展示 */
+const serviceGroups = computed<Array<{ key: string; items: ServiceCheckItem[] }>>(() => {
+  const groups: Array<{ key: string; items: ServiceCheckItem[] }> = []
+  for (const item of serviceResults.value) {
+    const group = groups.find((g) => g.key === item.group)
+    if (group) group.items.push(item)
+    else groups.push({ key: item.group, items: [item] })
+  }
+  return groups
+})
+
+/** 载入服务列表（仅展示，不检测） */
+async function loadServiceList() {
+  serviceTestError.value = ''
+  const api = window.electronAPI?.download
+  if (!api?.listServices || !api?.testServices) {
+    serviceResults.value = []
+    serviceTestError.value = t('settings.serviceTestUnavailable')
+    return
+  }
   try {
-    const res = await window.electronAPI?.download?.autoSelectMirror()
-    if (res?.success !== false && res?.data !== undefined) {
-      downloadConfig.mirrorIndex = res.data
-      const cur = await window.electronAPI?.download?.getCurrentMirror()
-      if (cur?.data) downloadConfig.currentMirror = cur.data
+    const res = await api.listServices()
+    if (res?.success && Array.isArray(res.data)) {
+      serviceTested.value = false
+      serviceResults.value = res.data.map((item) => ({ ...item, online: false, latency: -1 }))
+    } else {
+      serviceResults.value = []
+      serviceTestError.value = res?.error || t('settings.serviceTestFailed')
     }
-  } catch { /* ignore */ }
-  downloadConfig.testingMirror = false
+  } catch (e: unknown) {
+    serviceResults.value = []
+    serviceTestError.value = (e as Error)?.message || t('settings.serviceTestFailed')
+  }
 }
+
+async function runServiceTest() {
+  if (serviceTesting.value) return
+  serviceTestError.value = ''
+  const api = window.electronAPI?.download
+  if (!api?.testServices) {
+    serviceResults.value = []
+    serviceTestError.value = t('settings.serviceTestUnavailable')
+    return
+  }
+  serviceTesting.value = true
+  try {
+    const res = await api.testServices()
+    if (res?.success && Array.isArray(res.data)) {
+      serviceResults.value = res.data
+      serviceTested.value = true
+    } else {
+      serviceResults.value = []
+      serviceTestError.value = res?.error || t('settings.serviceTestFailed')
+    }
+  } catch (e: unknown) {
+    serviceResults.value = []
+    serviceTestError.value = (e as Error)?.message || t('settings.serviceTestFailed')
+  } finally {
+    serviceTesting.value = false
+  }
+}
+
+/** 进入服务联通性测试子页面并开始检测 */
+function openServiceTest() {
+  void router.push({ path: '/settings', query: { tab: 'connectivity' } })
+}
+
+/** 返回下载与网络设置 */
+function closeServiceTest() {
+  void router.replace({ path: '/settings' })
+}
+
+// 进入子页面时载入服务列表（不自动检测）；切换设置分类时退出子页面
+watch(
+  showServiceTest,
+  (visible) => {
+    if (visible) void loadServiceList()
+  },
+  { immediate: true }
+)
+
+// 切换分类时回到顶部
+watch(activeCategory, () => {
+  pageRef.value?.scrollTo({ top: 0 })
+  if (route.query.tab) void router.replace({ path: '/settings' })
+})
 
 async function onConcurrentChange() {
   await window.electronAPI?.download?.setMaxConcurrent(downloadConfig.maxConcurrent)
@@ -5329,9 +5558,9 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 
   .row-desc {
     margin: 3px 0 0;
-    font-size: 11.5px;
+    font-size: 10.5px;
     color: var(--voxver-text-muted);
-    line-height: 1.4;
+    line-height: 1.45;
   }
 
   .row-control {
@@ -5347,6 +5576,51 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
     margin: 4px 0 0;
     font-size: 11px;
     color: var(--voxver-text-muted);
+  }
+}
+
+/* ---- 分组卡片（下载设置等） ---- */
+.select-fit {
+  width: 96px;
+  flex-shrink: 0;
+
+  &.select-fit--wide {
+    width: 128px;
+  }
+}
+
+.settings-group-title {
+  margin: 18px 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--voxver-text-secondary);
+}
+
+.settings-card {
+  background: var(--voxver-card-bg);
+  border: 1px solid var(--voxver-card-border);
+  border-radius: var(--voxver-radius-md);
+
+  .row {
+    margin-bottom: 0;
+    padding: 13px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+
+    & + & {
+      border-top: 1px solid var(--voxver-border-color-light);
+    }
+
+    &:first-child {
+      border-top-left-radius: var(--voxver-radius-md);
+      border-top-right-radius: var(--voxver-radius-md);
+    }
+
+    &:last-child {
+      border-bottom-left-radius: var(--voxver-radius-md);
+      border-bottom-right-radius: var(--voxver-radius-md);
+    }
   }
 }
 
@@ -8279,5 +8553,210 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 
   &.add { color: var(--voxver-text-muted); }
   &.import { color: var(--voxver-text-muted); }
+}
+
+/* ===== 服务联通性测试 ===== */
+.service-test-page {
+  position: absolute;
+  inset: 0;
+  z-index: var(--voxver-z-overlay);
+  display: flex;
+  flex-direction: column;
+  padding: 18px 28px 24px;
+  background: var(--voxver-bg-primary);
+  overflow-y: auto;
+}
+
+.service-test-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.service-test-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--voxver-radius-sm);
+  border: 1px solid var(--voxver-border-color-light);
+  background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  color: var(--voxver-text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    color: var(--voxver-text-primary);
+    background: var(--voxver-bg-hover);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+}
+
+.row-control--right-center {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  align-self: center;
+}
+
+.service-goto-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--voxver-border-color-light);
+  border-radius: var(--voxver-radius-sm);
+  background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  color: var(--voxver-text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+
+  &:hover {
+    color: var(--voxver-text-primary);
+    background: var(--voxver-bg-hover);
+  }
+}
+
+.service-test-btn {
+  padding: 8px 18px;
+  border: 1px solid var(--voxver-border-color-light);
+  border-radius: var(--voxver-radius-md);
+  background: var(--voxver-primary, #4a7cf3);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+}
+
+.service-test-title {
+  flex: 1;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--voxver-text-primary);
+}
+
+.service-test-body {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 900px;
+}
+
+.service-test-hint {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  color: var(--voxver-text-muted);
+
+  &.is-error {
+    color: var(--voxver-text-error);
+    word-break: break-all;
+  }
+}
+
+.service-test-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 10px 0 16px;
+  padding: 14px 18px;
+  border: 1px solid color-mix(in oklab, var(--voxver-primary, #4a7cf3) 45%, transparent);
+  border-radius: var(--voxver-radius-md);
+  background: color-mix(in oklab, var(--voxver-primary, #4a7cf3) 12%, transparent);
+  color: var(--voxver-primary, #4a7cf3);
+  font-size: 13.5px;
+  font-weight: 600;
+
+  svg {
+    flex-shrink: 0;
+    opacity: 0.85;
+  }
+}
+
+.service-group {
+  margin-bottom: 12px;
+  background: color-mix(in oklab, var(--voxver-text) 4%, transparent);
+  border: 1px solid var(--voxver-border-color-light);
+  border-radius: var(--voxver-radius-md);
+  overflow: hidden;
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+
+  & + & {
+    border-top: 1px solid var(--voxver-border-color-light);
+  }
+}
+
+.service-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.service-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--voxver-text-primary);
+}
+
+.service-item-url {
+  font-size: 11.5px;
+  color: var(--voxver-text-muted);
+  word-break: break-all;
+}
+
+.service-item-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+  white-space: nowrap;
+
+  &.is-online {
+    color: var(--voxver-text-warning);
+    background: var(--voxver-warning-bg);
+  }
+
+  &.is-offline {
+    color: var(--voxver-text-error);
+    background: var(--voxver-error-bg);
+  }
+
+  &.is-pending {
+    color: var(--voxver-text-muted);
+    background: color-mix(in oklab, var(--voxver-text) 8%, transparent);
+  }
 }
 </style>

@@ -25,6 +25,9 @@ const BMCLAPI_MIRRORS = [
   { name: 'Mojang 新端点', url: 'https://piston-meta.mojang.com', ping: 0 }
 ]
 
+/** 下载源选择策略：auto=可镜像地址自动走镜像；official=一律官方源；mirror=可镜像地址一律镜像 */
+export type MirrorStrategy = 'auto' | 'official' | 'mirror'
+
 export class DownloadService extends EventEmitter {
   private tasks: Map<string, DownloadTask> = new Map()
   private activeDownloads: Map<string, AbortController[]> = new Map()
@@ -32,6 +35,7 @@ export class DownloadService extends EventEmitter {
   private maxThreadsPerFile = 8
   private db: Database.Database | null = null
   private currentMirror = BMCLAPI_MIRRORS[0]
+  private mirrorStrategy: MirrorStrategy = 'auto'
   private speedLimit = 0
   private maxRetries = 5
   private chunkSize = 1024 * 1024 * 4
@@ -64,12 +68,22 @@ export class DownloadService extends EventEmitter {
       speedLimit: this.speedLimit,
       maxRetries: this.maxRetries,
       currentMirror: this.currentMirror,
+      mirrorStrategy: this.mirrorStrategy,
       mirrors: this.getMirrors()
     }
   }
 
   getMirrors() {
     return BMCLAPI_MIRRORS
+  }
+
+  getMirrorStrategy(): MirrorStrategy {
+    return this.mirrorStrategy
+  }
+
+  setMirrorStrategy(strategy: MirrorStrategy): void {
+    this.mirrorStrategy = strategy
+    log.info(`[Download] Mirror strategy set to: ${strategy}`)
   }
 
   getCurrentMirror() {
@@ -118,8 +132,17 @@ export class DownloadService extends EventEmitter {
     return url.replace(/https?:\/\/[^/]+/, this.currentMirror.url)
   }
 
-  /** 根据 URL 判断是否需要镜像替换（MoJang/BMCLAPI 等资源 URL） */
+  /** 根据下载源选择策略和 URL 判断是否需要镜像替换（MoJang/BMCLAPI 等资源 URL） */
   private shouldMirror(url: string): boolean {
+    if (this.mirrorStrategy === 'official') return false
+    if (this.mirrorStrategy === 'mirror') {
+      return (
+        url.includes('launchermeta.mojang.com') ||
+        url.includes('piston-meta.mojang.com') ||
+        url.includes('libraries.minecraft.net') ||
+        url.includes('resources.download.minecraft.net')
+      )
+    }
     return (
       url.includes('launchermeta.mojang.com') ||
       url.includes('piston-meta.mojang.com') ||

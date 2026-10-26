@@ -286,7 +286,11 @@ const api = {
     setMaxConcurrent: (max: number) => ipcRenderer.invoke('download:settings:set-concurrent', max),
     setMaxThreads: (max: number) => ipcRenderer.invoke('download:settings:set-threads', max),
     setSpeedLimit: (limit: number) => ipcRenderer.invoke('download:settings:set-speed-limit', limit),
-    setMaxRetries: (max: number) => ipcRenderer.invoke('download:settings:set-retries', max)
+    setMaxRetries: (max: number) => ipcRenderer.invoke('download:settings:set-retries', max),
+    setMirrorStrategy: (strategy: string) => ipcRenderer.invoke('download:settings:set-mirror-strategy', strategy),
+    // 服务联通性测试
+    listServices: () => ipcRenderer.invoke('download:services:list'),
+    testServices: () => ipcRenderer.invoke('download:services:test')
   },
 
   // Java 管理

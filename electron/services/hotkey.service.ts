@@ -171,8 +171,16 @@ export function updateHotkey(hotkey: HotkeyConfig): UpdateHotkeyResult {
 
   // 重新注册
   unregisterAllHotkeys()
+  let targetRegistered = true
   for (const h of next) {
-    if (h.enabled && h.accelerator) registerSingleHotkey(h)
+    if (h.enabled && h.accelerator) {
+      const ok = registerSingleHotkey(h)
+      if (h.id === hotkey.id) targetRegistered = ok
+    }
+  }
+  // 目标快捷键被系统或其他程序占用时明确告知用户，避免「保存成功但按了没反应」
+  if (hotkey.enabled && !targetRegistered) {
+    return { ok: false, error: '快捷键注册失败，可能已被其他程序占用' }
   }
 
   return { ok: true }

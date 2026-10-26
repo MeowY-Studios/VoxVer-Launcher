@@ -315,17 +315,20 @@ app.whenReady().then(() => {
     (async () => {
       try {
         setHotkeyActionCallback((action) => {
-          if (action === 'launch-game') {
-            log.info('[Hotkey] 触发全局快捷键：启动游戏')
-            if (win && !win.isDestroyed()) {
-              win.webContents.send('hotkey:trigger', { action: 'launch-game' })
-            }
-          } else if (action === 'toggle-window') {
+          log.info('[Hotkey] 触发全局快捷键:', action)
+          if (action === 'toggle-window') {
             log.info('[Hotkey] 触发全局快捷键：切换窗口显示')
             if (win && !win.isDestroyed()) {
               if (win.isVisible()) win.hide()
               else win.show()
             }
+            return
+          }
+          // 其余动作需要渲染进程配合：先确保窗口可见，再转发给渲染进程
+          if (win && !win.isDestroyed()) {
+            if (!win.isVisible()) win.show()
+            win.focus()
+            win.webContents.send('hotkey:trigger', { action })
           }
         })
         registerAllEnabledHotkeys()

@@ -556,9 +556,12 @@ function sanitizeErrorMessage(message: string): string {
 }
 
 let offNotificationListener: (() => void) | null = null
+let offHotkeyListener: (() => void) | null = null
 onUnmounted(() => {
   offNotificationListener?.()
   offNotificationListener = null
+  offHotkeyListener?.()
+  offHotkeyListener = null
 })
 const currentRoute = computed(() => route.path)
 const isElectron = ref(false)
@@ -975,6 +978,20 @@ onMounted(async () => {
         message: body ? `${title}：${body}` : title,
         type: item.type
       })
+    })
+  }
+
+  // * 全局快捷键触发（主进程转发）— 主页/设置跳转、快速启动
+  if (window.electronAPI?.hotkey?.onTrigger) {
+    offHotkeyListener = window.electronAPI.hotkey.onTrigger((data) => {
+      const action = (data as { action?: string })?.action
+      if (action === 'open-home') {
+        router.push('/')
+      } else if (action === 'open-settings') {
+        router.push('/settings')
+      } else if (action === 'launch-game') {
+        void handleLaunch()
+      }
     })
   }
 

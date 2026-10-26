@@ -11,26 +11,34 @@
         <polyline points="6 9 12 15 18 9" />
       </svg>
     </button>
-    <Transition name="px-select">
-      <div v-if="isOpen" class="px-select__dropdown">
-        <button
-          v-for="opt in options"
-          :key="opt.value"
-          class="px-select__option"
-          :class="{ 'px-select__option--selected': opt.value === modelValue }"
-          :disabled="opt.disabled"
-          @click="select(opt.value)"
-          type="button"
+    <!-- 下拉面板传送到 body，避免被 overflow/滚动容器裁剪 -->
+    <Teleport to="body">
+      <Transition name="px-select">
+        <div
+          v-if="isOpen"
+          ref="dropdownRef"
+          class="px-select__dropdown"
+          :style="dropdownStyle"
         >
-          {{ opt.label }}
-        </button>
-      </div>
-    </Transition>
+          <button
+            v-for="opt in options"
+            :key="opt.value"
+            class="px-select__option"
+            :class="{ 'px-select__option--selected': opt.value === modelValue }"
+            :disabled="opt.disabled"
+            @click="select(opt.value)"
+            type="button"
+          >
+            {{ opt.label }}
+          </button>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 
 interface SelectOption {
   label: string
@@ -49,29 +57,71 @@ const emit = defineEmits<{
 
 const isOpen = ref(false)
 const selectRef = ref<HTMLElement | null>(null)
+const dropdownRef = ref<HTMLElement | null>(null)
+const dropdownPos = ref({ top: 0, left: 0, width: 0 })
 
 const selectedLabel = computed(() => {
   const found = props.options.find((o) => o.value === props.modelValue)
   return found?.label || props.modelValue
 })
 
-function toggle() {
-  isOpen.value = !isOpen.value
+/** 下拉面板定位到触发按钮下方（固定定位，避免被容器裁剪） */
+const dropdownStyle = computed(() => ({
+  top: `${dropdownPos.value.top}px`,
+  left: `${dropdownPos.value.left}px`,
+  width: `${dropdownPos.value.width}px`
+}))
+
+function updateDropdownPos(): void {
+  const trigger = selectRef.value
+  if (!trigger) return
+  const rect = trigger.getBoundingClientRect()
+  dropdownPos.value = {
+    top: rect.bottom + 4,
+    left: rect.left,
+    width: rect.width
+  }
 }
 
-function select(value: string) {
+async function toggle(): Promise<void> {
+  isOpen.value = !isOpen.value
+  if (isOpen.value) {
+    await nextTick()
+    updateDropdownPos()
+  }
+}
+
+function select(value: string): void {
   emit('update:modelValue', value)
   isOpen.value = false
 }
 
-function onClickOutside(e: MouseEvent) {
-  if (selectRef.value && !selectRef.value.contains(e.target as Node)) {
-    isOpen.value = false
-  }
+function onClickOutside(e: MouseEvent): void {
+  const target = e.target as Node
+  if (selectRef.value && selectRef.value.contains(target)) return
+  if (dropdownRef.value && dropdownRef.value.contains(target)) return
+  isOpen.value = false
 }
 
-onMounted(() => document.addEventListener('click', onClickOutside))
-onUnmounted(() => document.removeEventListener('click', onClickOutside))
+function onViewportChange(): void {
+  if (isOpen.value) updateDropdownPos()
+}
+
+onMounted(() => {
+  document.addEventListener('click', onClickOutside)
+  window.addEventListener('resize', onViewportChange)
+  window.addEventListener('scroll', onViewportChange, true)
+})
+onUnmounted(() => {
+  document.removeEventListener('click', onClickOutside)
+  window.removeEventListener('resize', onViewportChange)
+  window.removeEventListener('scroll', onViewportChange, true)
+})
+
+// 选项或选中值变化时保持面板位置准确
+watch(() => props.options, () => {
+  if (isOpen.value) void nextTick(updateDropdownPos)
+}, { deep: true })
 </script>
 
 <style scoped>
@@ -111,12 +161,12 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 .px-select__trigger--open .px-select__arrow {
   transform: rotate(180deg);
 }
+</style>
 
+<!-- 下拉面板被 Teleport 到 body，需用非 scoped 样式 -->
+<style>
 .px-select__dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
+  position: fixed;
   background: var(--voxver-bg-elevated);
   border: 1px solid var(--voxver-border-color);
   border-radius: var(--voxver-radius-sm);
