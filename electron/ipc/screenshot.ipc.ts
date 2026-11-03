@@ -13,10 +13,19 @@ import {
   openScreenshot
 } from '../services/screenshot.service'
 import { logger } from '../utils/logger'
+import { assertSafeIpcPath, IMAGE_EXTENSIONS } from '../utils/ipc-path-guard'
 
 const log = logger.child('ScreenshotIPC')
 
 export function registerScreenshotHandlers(): void {
+  /** 截图类 IPC 入参统一校验：必须是受信任目录下 screenshots/ 里的图片 */
+  const safeShot = (filePath: unknown): string =>
+    assertSafeIpcPath(filePath, {
+      label: '截图路径',
+      extensions: IMAGE_EXTENSIONS,
+      segment: 'screenshots'
+    })
+
   ipcMain.handle(
     'screenshot:list',
     async (_event, gameDir: string): Promise<{ ok: boolean; data: unknown[] }> => {
@@ -53,7 +62,7 @@ export function registerScreenshotHandlers(): void {
     'screenshot:preview',
     async (_event, filePath: string): Promise<{ ok: boolean; dataUrl: string | null }> => {
       try {
-        const dataUrl = await getFullImage(filePath)
+        const dataUrl = await getFullImage(safeShot(filePath))
         return { ok: !!dataUrl, dataUrl }
       } catch {
         return { ok: false, dataUrl: null }
@@ -65,7 +74,7 @@ export function registerScreenshotHandlers(): void {
     'screenshot:thumbnail',
     async (_event, filePath: string): Promise<{ ok: boolean; dataUrl: string | null }> => {
       try {
-        const dataUrl = await generateThumbnail(filePath)
+        const dataUrl = await generateThumbnail(safeShot(filePath))
         return { ok: !!dataUrl, dataUrl }
       } catch {
         return { ok: false, dataUrl: null }
@@ -73,23 +82,29 @@ export function registerScreenshotHandlers(): void {
     }
   )
 
-  ipcMain.handle(
-    'screenshot:delete',
-    async (_event, filePath: string): Promise<{ ok: boolean }> => {
-      try {
-        const result = deleteScreenshot(filePath)
-        return { ok: result }
-      } catch {
-        return { ok: false }
-      }
+  ipcMain.handle('screenshot:delete', async (_event, filePath: string): Promise<{ ok: boolean }> => {
+    try {
+      const result = deleteScreenshot(safeShot(filePath))
+      return { ok: result }
+    } catch {
+      return { ok: false }
     }
-  )
+  })
 
   ipcMain.handle(
     'screenshot:rename',
-    async (_event, opts: { filePath: string; newName: string }): Promise<{ ok: boolean; newPath: string | null }> => {
+    async (
+      _event,
+      opts: { filePath: string; newName: string }
+    ): Promise<{ ok: boolean; newPath: string | null }> => {
       try {
-        const newPath = renameScreenshot(opts.filePath, opts.newName)
+        const safePath = safeShot(opts.filePath)
+        // 新文件名只能是纯文件名：不允许分隔符 / 上级目录 / 控制字符
+        if (!/^[\p{L}\p{N} .()_-]+$/u.test(opts.newName || '')) {
+          log.warn('rename 拒绝非法文件名:', opts.newName)
+          return { ok: false, newPath: null }
+        }
+        const newPath = renameScreenshot(safePath, opts.newName)
         return { ok: !!newPath, newPath }
       } catch {
         return { ok: false, newPath: null }
@@ -101,7 +116,7 @@ export function registerScreenshotHandlers(): void {
     'screenshot:export',
     async (_event, filePath: string): Promise<{ ok: boolean }> => {
       try {
-        const result = await exportScreenshot(filePath)
+        const result = await exportScreenshot(safeShot(filePath))
         return { ok: result }
       } catch {
         return { ok: false }
@@ -109,28 +124,22 @@ export function registerScreenshotHandlers(): void {
     }
   )
 
-  ipcMain.handle(
-    'screenshot:copy',
-    async (_event, filePath: string): Promise<{ ok: boolean }> => {
-      try {
-        const result = copyScreenshotToClipboard(filePath)
-        return { ok: result }
-      } catch {
-        return { ok: false }
-      }
+  ipcMain.handle('screenshot:copy', async (_event, filePath: string): Promise<{ ok: boolean }> => {
+    try {
+      const result = copyScreenshotToClipboard(safeShot(filePath))
+      return { ok: result }
+    } catch {
+      return { ok: false }
     }
-  )
+  })
 
-  ipcMain.handle(
-    'screenshot:open',
-    async (_event, filePath: string): Promise<void> => {
-      try {
-        await openScreenshot(filePath)
-      } catch (e: unknown) {
-        log.error('open error:', (e as Error).message)
-      }
+  ipcMain.handle('screenshot:open', async (_event, filePath: string): Promise<void> => {
+    try {
+      await openScreenshot(safeShot(filePath))
+    } catch (e: unknown) {
+      log.error('open error:', (e as Error).message)
     }
-  )
+  })
 
   log.info('screenshot handlers registered')
 }

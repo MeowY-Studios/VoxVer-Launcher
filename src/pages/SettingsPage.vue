@@ -311,7 +311,7 @@
               <span class="update-version-num">v{{ updateStatus.version }}</span>
             </div>
             <div v-if="updateStatus.releaseNotes" class="update-release-notes">
-              <div class="update-notes-md" v-html="renderMd(updateStatus.releaseNotes)"></div>
+              <div class="update-notes-md" v-html="renderMarkdownSafe(updateStatus.releaseNotes)"></div>
             </div>
             <!-- 下载进度 -->
             <div v-if="updateStatus.downloading" class="update-progress-section">
@@ -3098,6 +3098,7 @@ import AccountPage from './AccountPage.vue'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
 import PxSelect from '@/components/common/PxSelect.vue'
+import { renderMarkdownSafe } from '../utils/markdown'
 
 const pageRef = ref<HTMLElement | null>(null)
 
@@ -4948,60 +4949,8 @@ async function startDownloadFromModal() {
   await downloadUpdate()
 }
 
-/** 清理 HTML 中的危险标签和属性 */
-function sanitizeHtml(html: string): string {
-  return html
-    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/<iframe\b[^>]*>[\s\S]*?<\/iframe>/gi, '')
-    .replace(/<object\b[^>]*>[\s\S]*?<\/object>/gi, '')
-    .replace(/<embed\b[^>]*\/?>/gi, '')
-    .replace(/\son\w+\s*=\s*"[^"]*"/gi, '')
-    .replace(/\son\w+\s*=\s*'[^']*'/gi, '')
-    .replace(/\son\w+\s*=\s*[^\s>]+/gi, '')
-    .replace(/href\s*=\s*"javascript:[^"]*"/gi, 'href="#"')
-    .replace(/href\s*=\s*'javascript:[^']*'/gi, "href='#'")
-}
-
-/** 简单 Markdown → HTML 转换 */
-function renderMd(md: string): string {
-  if (!md) return ''
-  // 如果已经是 HTML，清理危险内容后返回
-  if (/<[a-zA-Z][\s\S]*?>/.test(md)) {
-    return sanitizeHtml(md.trim())
-  }
-  let html = md
-    // 转义 HTML
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    // 代码块 (``` ... ```)
-    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
-    // 行内代码
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    // 粗体 + 斜体
-    .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    // 图片
-    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img alt="$1" src="$2" />')
-    // 链接
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
-    // 标题 (# ## ###)
-    .replace(/^### (.+)$/gm, '<h5>$1</h5>')
-    .replace(/^## (.+)$/gm, '<h4>$1</h4>')
-    .replace(/^# (.+)$/gm, '<h3>$1</h3>')
-    // 无序列表
-    .replace(/^- (.+)$/gm, '<li>$1</li>')
-    // 换行
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/\n/g, '<br/>')
-  // 包裹列表项
-  html = html.replace(/(<li>.*?<\/li>(\s*<br\/?>)?)+/g, '<ul>$&</ul>')
-  // 修复 ul 中多余的 <br/>
-  html = html.replace(/<ul>([\s\S]*?)<\/ul>/g, (_, inner) => '<ul>' + inner.replace(/<br\/?>/g, '') + '</ul>')
-  // 包裹段落
-  if (!html.startsWith('<')) html = '<p>' + html
-  if (!html.endsWith('>')) html = html + '</p>'
-  return html
-}
+// 更新说明的渲染统一走 src/utils/markdown.ts 的 renderMarkdownSafe：
+// 它先整体 HTML 转义再产出受控标签、链接只允许 http(s)，杜绝远端文案注入 HTML/事件属性（S-01）。
 
 async function downloadUpdate() {
   await window.electronAPI?.updater?.download()

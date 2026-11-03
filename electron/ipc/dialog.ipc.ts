@@ -4,11 +4,12 @@
 import { app, ipcMain, BrowserWindow, dialog, shell } from 'electron'
 import { existsSync } from 'fs'
 import { promises as fsp } from 'fs'
-import { join, dirname, extname, sep } from 'path'
+import { join, dirname, extname, sep, isAbsolute, normalize } from 'path'
 import * as configService from '../services/config'
 import { getDatabase } from '../services/database'
 import { deleteInstance } from '../services/instances'
 import { logger } from '../utils/logger'
+import { assertSafeIpcPath, IMAGE_EXTENSIONS } from '../utils/ipc-path-guard'
 const log = logger.child('Dialog-IPC')
 
 const MIME_MAP: Record<string, string> = {
@@ -107,13 +108,15 @@ export function registerDialogHandlers(mainWindow: BrowserWindow): void {
     return dirname(app.getPath('exe'))
   })
 
-  // 创建目录
+  // 创建目录（只接受绝对路径；normalize 会消掉 .. 段）
   ipcMain.handle('path:create-dir', (_event, dirPath: string) => {
+    if (typeof dirPath !== 'string' || !isAbsolute(dirPath) || dirPath.includes('\0')) return false
+    const safePath = normalize(dirPath)
     const fs = require('fs')
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true })
+    if (!fs.existsSync(safePath)) {
+      fs.mkdirSync(safePath, { recursive: true })
     }
-    return fs.existsSync(dirPath)
+    return fs.existsSync(safePath)
   })
 
   // 版本选择器的文件夹列表持久化
@@ -189,14 +192,16 @@ export function registerDialogHandlers(mainWindow: BrowserWindow): void {
   })
 
   // Shell 打开文件夹（跨平台兼容）
+  // 只允许打开受信任目录：避免渲染层借这条通道在任意位置建目录 / 弹资源管理器
   ipcMain.handle('shell:open-path', async (_event, absPath: string) => {
     try {
-      if (!existsSync(absPath)) {
+      const safePath = assertSafeIpcPath(absPath, { label: '目录路径' })
+      if (!existsSync(safePath)) {
         // 目录不存在，先创建
         const fs = require('fs')
-        fs.mkdirSync(absPath, { recursive: true })
+        fs.mkdirSync(safePath, { recursive: true })
       }
-      await shell.openPath(absPath)
+      await shell.openPath(safePath)
       return { ok: true }
     } catch (e: unknown) {
       return { ok: false, error: (e as Error).message }
@@ -214,11 +219,16 @@ export function registerDialogHandlers(mainWindow: BrowserWindow): void {
   })
 
   // 读取本地图片文件为 data URL（绕过 dev 模式 file:// 的 CORS 限制）
+  // 只放行图片扩展名 + 受信任目录，避免变成「任意文件读取」通道
   ipcMain.handle('file:read-as-data-url', async (_event, filePath: string) => {
     try {
-      if (!filePath || !existsSync(filePath)) return null
-      const data = await fsp.readFile(filePath)
-      const ext = extname(filePath).toLowerCase().slice(1)
+      const safePath = assertSafeIpcPath(filePath, {
+        label: '图片路径',
+        extensions: IMAGE_EXTENSIONS
+      })
+      if (!existsSync(safePath)) return null
+      const data = await fsp.readFile(safePath)
+      const ext = extname(safePath).toLowerCase().slice(1)
       const mime = MIME_MAP[ext] || 'image/png'
       return `data:${mime};base64,${data.toString('base64')}`
     } catch (e: unknown) {

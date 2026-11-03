@@ -106,6 +106,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SilkBackground from '../components/SilkBackground.vue'
+import { renderMarkdownSafe } from '../utils/markdown'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -184,7 +185,7 @@ const notesHtml = computed(() => {
   const raw = notesSource.value
   if (!raw) return ''
   // 归属行已在 footer 单独展示，正文剔除
-  return renderMarkdown(extractFooter(raw).body)
+  return renderMarkdownSafe(extractFooter(raw).body)
 })
 
 interface ParsedSection {
@@ -225,7 +226,7 @@ const parsedSections = computed<ParsedSection[]>(() => {
 
   const pushCurrent = () => {
     if (currentBody.length > 0 || currentTitle) {
-      sections.push({ title: currentTitle, html: renderMarkdown(currentBody.join('\n')) })
+      sections.push({ title: currentTitle, html: renderMarkdownSafe(currentBody.join('\n')) })
     }
     currentTitle = ''
     currentBody = []
@@ -276,7 +277,7 @@ const notesFooterHtml = computed(() => {
   const raw = notesSource.value
   if (!raw) return ''
   const { footer } = extractFooter(raw)
-  return footer ? renderMarkdown(footer) : ''
+  return footer ? renderMarkdownSafe(footer) : ''
 })
 
 const heroStatusText = computed(() => {
@@ -398,64 +399,7 @@ function formatBytes(bytes: number): string {
   return `${mb.toFixed(1)} MB`
 }
 
-/**
- * 极简 Markdown 渲染：先整体 HTML 转义再按行解析，
- * 仅产出受控标签，防止发布说明中的任意 HTML 注入。
- */
-function renderMarkdown(md: string): string {
-  const lines = md.replace(/\r\n/g, '\n').split('\n')
-  const out: string[] = []
-  let inList = false
-  for (const line of lines) {
-    const esc = escapeHtml(line)
-    const li = /^\s*(?:[-*+]|\d+\.)\s+(.*)$/.exec(esc)
-    if (li) {
-      if (!inList) {
-        out.push('<ul>')
-        inList = true
-      }
-      out.push(`<li>${inline(li[1])}</li>`)
-      continue
-    }
-    if (inList) {
-      out.push('</ul>')
-      inList = false
-    }
-    const h = /^(#{1,4})\s+(.*)$/.exec(esc)
-    if (h) {
-      const level = Math.min(h[1].length + 2, 6)
-      out.push(`<h${level}>${inline(h[2])}</h${level}>`)
-    } else if (/^\s*(?:---|\*\*\*)\s*$/.test(esc)) {
-      out.push('<hr />')
-    } else if (esc.trim() === '') {
-      out.push('<div class="md-gap"></div>')
-    } else {
-      out.push(`<p>${inline(esc)}</p>`)
-    }
-  }
-  if (inList) out.push('</ul>')
-  return out.join('')
-}
-
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-}
-
-function inline(s: string): string {
-  return s
-    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_m, txt: string, url: string) => {
-      // 仅允许 http(s) 链接
-      if (!/^https?:\/\//.test(url)) return txt
-      return `<a href="${url}" data-url="${url}">${txt}</a>`
-    })
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-}
+// 发布说明渲染统一走 src/utils/markdown.ts 的 renderMarkdownSafe（转义优先 + 受控标签）
 
 onMounted(async () => {
   const api = window.electronAPI?.updater

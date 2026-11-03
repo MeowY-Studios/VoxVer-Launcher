@@ -2,6 +2,21 @@ import { ipcMain } from 'electron'
 import { promises as fs, existsSync } from 'fs'
 import * as path from 'path'
 import { ModService, ModInfo, ModUpdateInfo, ModDependencyCheckResult } from '../services/mod.service'
+import { assertSafeIpcPath, MOD_EXTENSIONS } from '../utils/ipc-path-guard'
+
+/** Mod 文件路径校验：受信任目录下 mods/ 里的 Mod 包 */
+function safeModPath(p: unknown): string {
+  return assertSafeIpcPath(p, { label: 'Mod 路径', extensions: MOD_EXTENSIONS, segment: 'mods' })
+}
+
+/** Mod 配置文件路径校验：受信任目录下 config/ 里的文本配置 */
+function safeConfigPath(p: unknown): string {
+  return assertSafeIpcPath(p, {
+    label: '配置文件路径',
+    extensions: ['.toml', '.json', '.cfg', '.conf', '.ini', '.properties', '.yaml', '.yml'],
+    segment: 'config'
+  })
+}
 
 /**
  * 注册 Mod 管理 IPC handlers
@@ -24,7 +39,12 @@ export function registerModIpcHandlers(modService: ModService) {
    */
   ipcMain.handle('mod:install', async (_event, { sourcePath, gameDir }) => {
     try {
-      const mod = await modService.installMod(sourcePath, gameDir)
+      // 只允许导入 Mod 包（.jar/.zip/.mrpack），不接受任意文件
+      const safeSource = assertSafeIpcPath(sourcePath, {
+        label: 'Mod 源文件',
+        extensions: MOD_EXTENSIONS
+      })
+      const mod = await modService.installMod(safeSource, gameDir)
       if (!mod) {
         return { ok: false, error: '安装失败' }
       }
@@ -39,13 +59,15 @@ export function registerModIpcHandlers(modService: ModService) {
    */
   ipcMain.handle('mod:uninstall', async (_event, { modPath }) => {
     try {
+      // 渲染层传入的路径不可信（S-03）
+      const filePath = safeModPath(modPath)
       // 从路径构造 ModInfo
       const modInfo: ModInfo = {
         id: '',
         name: '',
         version: '',
-        filePath: modPath,
-        fileName: modPath.split(/[/\\]/).pop() || '',
+        filePath,
+        fileName: filePath.split(/[/\\]/).pop() || '',
         size: 0,
         enabled: true,
         mcVersion: ''
@@ -62,12 +84,13 @@ export function registerModIpcHandlers(modService: ModService) {
    */
   ipcMain.handle('mod:enable', async (_event, { modPath }) => {
     try {
+      const filePath = safeModPath(modPath)
       const modInfo: ModInfo = {
         id: '',
         name: '',
         version: '',
-        filePath: modPath,
-        fileName: modPath.split(/[/\\]/).pop() || '',
+        filePath,
+        fileName: filePath.split(/[/\\]/).pop() || '',
         size: 0,
         enabled: false,
         mcVersion: ''
@@ -84,12 +107,13 @@ export function registerModIpcHandlers(modService: ModService) {
    */
   ipcMain.handle('mod:disable', async (_event, { modPath }) => {
     try {
+      const filePath = safeModPath(modPath)
       const modInfo: ModInfo = {
         id: '',
         name: '',
         version: '',
-        filePath: modPath,
-        fileName: modPath.split(/[/\\]/).pop() || '',
+        filePath,
+        fileName: filePath.split(/[/\\]/).pop() || '',
         size: 0,
         enabled: true,
         mcVersion: ''
@@ -106,7 +130,10 @@ export function registerModIpcHandlers(modService: ModService) {
    */
   ipcMain.handle('mod:install-batch', async (_event, { sourcePaths, gameDir }) => {
     try {
-      const result = await modService.installMods(sourcePaths, gameDir)
+      const safeSources = (Array.isArray(sourcePaths) ? sourcePaths : []).map((p: unknown) =>
+        assertSafeIpcPath(p, { label: 'Mod 源文件', extensions: MOD_EXTENSIONS })
+      )
+      const result = await modService.installMods(safeSources, gameDir)
       return { ok: true, data: result }
     } catch (error: unknown) {
       return { ok: false, error: (error as Error).message }
@@ -172,7 +199,8 @@ export function registerModIpcHandlers(modService: ModService) {
    */
   ipcMain.handle('mod:get-config-content', async (_event, { filePath }) => {
     try {
-      const content = await fs.readFile(filePath, 'utf-8')
+      const safePath = safeConfigPath(filePath)
+      const content = await fs.readFile(safePath, 'utf-8')
       return { ok: true, data: content }
     } catch (error: unknown) {
       return { ok: false, error: (error as Error).message }
@@ -184,7 +212,9 @@ export function registerModIpcHandlers(modService: ModService) {
    */
   ipcMain.handle('mod:save-config-content', async (_event, { filePath, content }) => {
     try {
-      await fs.writeFile(filePath, content, 'utf-8')
+      const safePath = safeConfigPath(filePath)
+      if (typeof content !== 'string') return { ok: false, error: '内容必须是字符串' }
+      await fs.writeFile(safePath, content, 'utf-8')
       return { ok: true }
     } catch (error: unknown) {
       return { ok: false, error: (error as Error).message }
@@ -228,9 +258,11 @@ export function registerModIpcHandlers(modService: ModService) {
     'mod:update',
     async (event, { mod, updateInfo }: { mod: ModInfo; updateInfo: ModUpdateInfo }) => {
       try {
-        const result = await modService.updateMod(mod, updateInfo, (progress) => {
+        // 只替换受信任目录下 mods/ 里的 Mod 文件
+        const safeMod: ModInfo = { ...mod, filePath: safeModPath(mod.filePath) }
+        const result = await modService.updateMod(safeMod, updateInfo, (progress) => {
           event.sender.send('mod:update-progress', {
-            filePath: mod.filePath,
+            filePath: safeMod.filePath,
             progress
           })
         })
@@ -293,7 +325,8 @@ export function registerModIpcHandlers(modService: ModService) {
    */
   ipcMain.handle('mod:export', async (_event, { filePaths }: { filePaths: string[] }) => {
     try {
-      const result = await modService.exportMods(filePaths)
+      const safePaths = (Array.isArray(filePaths) ? filePaths : []).map((p) => safeModPath(p))
+      const result = await modService.exportMods(safePaths)
       return { ok: true, data: result }
     } catch (error: unknown) {
       return { ok: false, error: (error as Error).message }

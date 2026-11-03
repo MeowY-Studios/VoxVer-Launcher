@@ -3,13 +3,31 @@
  * 负责自动检测系统中已安装的所有Java版本，提供全面的Java环境管理功能
  */
 
-import { execSync, spawn } from 'child_process'
+import { spawnSync } from 'child_process'
 import * as fs from 'fs'
 import * as path from 'path'
 import { getDatabase } from './database'
 import { VersionsService } from './versions'
 import { logger } from '../utils/logger'
 const log = logger.child('JavaService')
+
+/**
+ * 无 shell 执行外部命令，合并 stdout/stderr。
+ *
+ * 用 spawnSync 而不是 execSync：execSync 会经 shell，路径/参数里的引号、&、;、| 会被
+ * 当成命令分隔符解释（java 路径来自用户配置 / 注册表 / 环境变量，都不可信）。
+ * spawnSync 传参数数组、不经 shell，天然免疫拼接式命令注入。
+ * 另外 java -version 的输出走 stderr，所以这里把两路合并。
+ */
+function runCaptured(cmd: string, args: string[], timeoutMs = 5000): string {
+  const r = spawnSync(cmd, args, { timeout: timeoutMs, encoding: 'utf-8', windowsHide: true })
+  if (r.error) throw r.error
+  const out = `${r.stdout || ''}${r.stderr || ''}`
+  if (r.status !== 0 && !out.trim()) {
+    throw new Error(`命令执行失败(${r.status}): ${cmd}`)
+  }
+  return out
+}
 
 /**
  * Java信息接口 - 包含完整的Java环境信息
@@ -247,12 +265,9 @@ export async function validateJava(javaPath: string): Promise<ValidationResult> 
       success: true
     }
 
-    // 验证java命令
+    // 验证java命令（spawnSync 不经 shell，避免命令注入）
     try {
-      const javaOutput = execSync(`"${javaPath}" -version 2>&1`, {
-        timeout: 5000,
-        encoding: 'utf-8'
-      })
+      const javaOutput = runCaptured(javaPath, ['-version'], 5000)
       result.javaVersion = extractVersionString(javaOutput)
     } catch (error) {
       result.success = false
@@ -267,10 +282,7 @@ export async function validateJava(javaPath: string): Promise<ValidationResult> 
     )
     if (fs.existsSync(javacPath)) {
       try {
-        const javacOutput = execSync(`"${javacPath}" -version 2>&1`, {
-          timeout: 5000,
-          encoding: 'utf-8'
-        })
+        const javacOutput = runCaptured(javacPath, ['-version'], 5000)
         result.javacVersion = extractVersionString(javacOutput)
       } catch (error) {
         // javac验证失败不影响整体结果，只记录javac版本为undefined
@@ -332,8 +344,10 @@ async function findInPath(): Promise<string[]> {
 
     // 尝试使用系统命令查找
     try {
-      const cmd = process.platform === 'win32' ? 'where java' : 'which -a java'
-      const output = execSync(cmd, { timeout: 3000 }).toString().trim()
+      const output =
+        process.platform === 'win32'
+          ? runCaptured('where', ['java'], 3000).trim()
+          : runCaptured('which', ['-a', 'java'], 3000).trim()
 
       if (output) {
         const paths = output
@@ -541,10 +555,11 @@ async function getWindowsRegistryJavaPaths(): Promise<string[]> {
 
     for (const regPath of registryPaths) {
       try {
-        const output = execSync(`reg query "${regPath}" /s /f "JavaHome" /t REG_SZ 2>nul`, {
-          encoding: 'utf-8',
-          timeout: 5000
-        })
+        const output = runCaptured(
+          'reg',
+          ['query', regPath, '/s', '/f', 'JavaHome', '/t', 'REG_SZ'],
+          5000
+        )
 
         if (output) {
           // 解析JavaHome路径
@@ -620,18 +635,16 @@ async function getMacCandidates(): Promise<string[]> {
 
   // Homebrew检查
   try {
-    const brewOutput = execSync('brew list --formula 2>/dev/null | grep -i java', {
-      encoding: 'utf-8',
-      timeout: 3000
-    })
+    // brew list 不接 shell，java 相关条目在 JS 里过滤（原先是 | grep -i java）
+    const brewOutput = runCaptured('brew', ['list', '--formula'], 3000)
+      .split('\n')
+      .filter((f) => /java/i.test(f))
+      .join('\n')
     if (brewOutput) {
       const formulae = brewOutput.split('\n').filter((f) => f.trim())
       for (const formula of formulae) {
         try {
-          const prefixOutput = execSync(`brew --prefix ${formula} 2>/dev/null`, {
-            encoding: 'utf-8',
-            timeout: 3000
-          })
+          const prefixOutput = runCaptured('brew', ['--prefix', formula], 3000)
           const prefix = prefixOutput.trim()
           const javaPath = path.join(prefix, 'bin', 'java')
           if (fs.existsSync(javaPath) && !candidates.includes(javaPath)) {
@@ -685,10 +698,7 @@ async function getLinuxCandidates(): Promise<string[]> {
 
   // update-alternatives检查
   try {
-    const alternativesOutput = execSync('update-alternatives --list java 2>/dev/null', {
-      encoding: 'utf-8',
-      timeout: 3000
-    })
+    const alternativesOutput = runCaptured('update-alternatives', ['--list', 'java'], 3000)
     if (alternativesOutput) {
       const paths = alternativesOutput
         .split('\n')
@@ -720,11 +730,8 @@ export async function probeJava(javaExe: string): Promise<JavaInfo | null> {
   try {
     log.info(`[JavaService] 正在探测 Java: ${javaExe}`)
 
-    // 执行java -version命令
-    const output = execSync(`"${javaExe}" -version 2>&1`, {
-      timeout: 5000,
-      encoding: 'utf-8'
-    })
+    // 执行java -version命令（不经 shell）
+    const output = runCaptured(javaExe, ['-version'], 5000)
 
     const info = parseJavaInfo(javaExe, output)
     if (info) {
