@@ -9,8 +9,6 @@ on:
 
 env:
   NODE_VERSION: '24'
-  ELECTRON_CACHE: ${{ runner.os }}-electron-cache
-  ELECTRON_BUILDER_CACHE: ${{ runner.os }}-electron-builder-cache
 
 jobs:
   lint:
@@ -72,21 +70,26 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: 'npm'
 
-      - name: Cache Electron
+      # runner 上下文只在 job / step 级可用：写进工作流级 env 会让整份工作流解析失败
+      - name: Cache Electron downloads
         uses: actions/cache@v4
         with:
-          path: ${{ env.ELECTRON_CACHE }}
-          key: ${{ env.ELECTRON_CACHE }}-${{ hashFiles('package-lock.json') }}
+          path: |
+            ~/.cache/electron
+            ~/AppData/Local/electron/Cache
+          key: electron-dl-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            ${{ env.ELECTRON_CACHE }}-
+            electron-dl-${{ runner.os }}-
 
-      - name: Cache Electron Builder
+      - name: Cache electron-builder
         uses: actions/cache@v4
         with:
-          path: ${{ env.ELECTRON_BUILDER_CACHE }}
-          key: ${{ env.ELECTRON_BUILDER_CACHE }}-${{ hashFiles('package-lock.json') }}
+          path: |
+            ~/.cache/electron-builder
+            ~/AppData/Local/electron-builder/Cache
+          key: electron-builder-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            ${{ env.ELECTRON_BUILDER_CACHE }}-
+            electron-builder-${{ runner.os }}-
 
       - name: Install dependencies
         run: npm ci
