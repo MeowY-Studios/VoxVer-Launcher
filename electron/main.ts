@@ -27,7 +27,9 @@ if (process.platform === 'win32') {
   try {
     process.env.LANG = 'zh_CN.UTF-8'
     process.env.LC_ALL = 'zh_CN.UTF-8'
-    process.env.NODE_ENV === 'development' && execSync('chcp 65001 > nul', { stdio: 'ignore' })
+    if (process.env.NODE_ENV === 'development') {
+      execSync('chcp 65001 > nul', { stdio: 'ignore' })
+    }
   } catch {}
 }
 import { join } from 'path'

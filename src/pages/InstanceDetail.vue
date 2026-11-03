@@ -118,7 +118,7 @@
           </svg>
           {{ t('instance.tabMods') }}
           <span v-if="modUpdatesAvailable > 0" class="tab-badge update">{{ modUpdatesAvailable }}</span>
-          <span v-else class="tab-count" v-if="localMods.length > 0">{{ localMods.length }}</span>
+          <span v-else-if="localMods.length > 0" class="tab-count">{{ localMods.length }}</span>
         </button>
         <button class="tab-btn" :class="{ active: detailTab === 'resourcepacks' }" @click="detailTab = 'resourcepacks'; loadResourcePacks()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

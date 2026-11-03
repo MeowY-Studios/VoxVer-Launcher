@@ -207,6 +207,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { CrashReport } from '../types/crash'
 import { useVersionsStore, useAccountsStore, useInstancesStore } from '../stores'
+import { getCurrentMcPath } from '../utils/mcPath'
 
 const { t, locale } = useI18n()
 

@@ -27,6 +27,7 @@ import { validateVersionId } from '../utils/path-validation'
 import { detectVersionInfo, formatLoaderInfo } from '../utils/version-meta'
 import { logger } from '../utils/logger'
 import type { ModLoaderService } from '../services/modloader.service'
+import type { VersionsService } from '../services/versions'
 const log = logger.child('Game-IPC')
 
 /** 版本清单结构（Mojang/BMCLAPI version_manifest） */
@@ -79,15 +80,7 @@ async function downloadFileWithProgress(
   writer.end()
 }
 
-let versionsService: {
-  getAllVersions: () => Promise<
-    Array<{ id: string; type: string; releaseTime: string; url: string; time: string }>
-  >
-  getLatestVersion: () => Promise<{ release: string; snapshot: string }>
-  getVersionInfo: (versionId: string) => Promise<Record<string, unknown> | null>
-  isVersionInstalled: (versionId: string, gameDir: string) => Promise<boolean>
-  getBaseUrl?: () => string
-} | null = null
+let versionsService: VersionsService | null = null
 let modLoaderService: ModLoaderService | null = null
 
 export function setGameDependencies(versions: typeof versionsService, modloader: ModLoaderService) {
@@ -119,7 +112,7 @@ async function scanInstalledVersions(gameDir: string): Promise<ScannedVersion[]>
     const versionDir = join(versionsDir, versionName)
 
     // 找版本 jar（优先 <版本名>.jar）
-    let jarFile = ''
+    let jarFile: string
     try {
       const files = readdirSync(versionDir)
       jarFile = files.find((f) => f === `${versionName}.jar`) || files.find((f) => f.endsWith('.jar')) || ''
@@ -289,7 +282,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
     } catch (e: unknown) {
       log.error('[versions:list] ERROR:', (e as Error).message, (e as Error).stack)
       // ✅ 不再吞掉错误，让前端可以显示错误信息
-      throw new Error((e as Error).message || '加载版本列表失败')
+      throw new Error((e as Error).message || '加载版本列表失败', { cause: e })
     }
   })
 
@@ -750,7 +743,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
       } catch (e: unknown) {
         log.warn(`[补全] ${description} 失败 [${i + 1}/${MIRRORS.length}]:`, (e as Error).message)
         if (i === MIRRORS.length - 1) {
-          throw new Error(`${description} 失败，所有镜像都无法下载: ${(e as Error).message}`)
+          throw new Error(`${description} 失败，所有镜像都无法下载: ${(e as Error).message}`, { cause: e })
         }
       }
     }
@@ -861,7 +854,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
             })
           } catch (e: unknown) {
             log.warn(`[补全] 下载失败: ${lib.path}`, (e as Error).message)
-            throw new Error(`下载 ${lib.path} 失败: ${(e as Error).message}`)
+            throw new Error(`下载 ${lib.path} 失败: ${(e as Error).message}`, { cause: e })
           }
         }
 

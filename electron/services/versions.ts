@@ -93,7 +93,8 @@ export class VersionsService {
     this.source = source
   }
 
-  private getBaseUrl(): string {
+  /** 当前下载源对应的基础 URL（versions:download-missing 等 IPC 需要它来拼兜底下载地址） */
+  getBaseUrl(): string {
     switch (this.source) {
       case 'official':
         return MOJANG_BASE

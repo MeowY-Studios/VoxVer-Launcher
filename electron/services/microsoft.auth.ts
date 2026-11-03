@@ -149,34 +149,30 @@ export async function pollForToken(
       throw new Error('LOGIN_CANCELLED')
     }
 
-    try {
-      const data = await httpPost(TOKEN_URL, {
-        client_id: CLIENT_ID,
-        grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
-        device_code: deviceCode
-      }) as Record<string, string>
+    const data = await httpPost(TOKEN_URL, {
+      client_id: CLIENT_ID,
+      grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+      device_code: deviceCode
+    }) as Record<string, string>
 
-      if (data.error) {
-        // authorization_pending / slow_down = 用户还没操作，继续等
-        if (data.error === 'authorization_pending') continue
-        if (data.error === 'slow_down') {
-          await sleep(5000)
-          continue
-        }
-        // authorization_declined 等其他错误直接抛出
-        throw new Error(`${data.error}: ${data.error_description || ''}`)
+    if (data.error) {
+      // authorization_pending / slow_down = 用户还没操作，继续等
+      if (data.error === 'authorization_pending') continue
+      if (data.error === 'slow_down') {
+        await sleep(5000)
+        continue
       }
+      // authorization_declined 等其他错误直接抛出
+      throw new Error(`${data.error}: ${data.error_description || ''}`)
+    }
 
-      if (data.access_token) {
-        onProgress?.('token_received', '微软令牌获取成功')
-        return {
-          access_token: data.access_token,
-          refresh_token: data.refresh_token,
-          expires_in: Number(data.expires_in)
-        }
+    if (data.access_token) {
+      onProgress?.('token_received', '微软令牌获取成功')
+      return {
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        expires_in: Number(data.expires_in)
       }
-    } catch (e: unknown) {
-      throw e
     }
   }
 

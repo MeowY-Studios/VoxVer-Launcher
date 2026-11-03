@@ -130,6 +130,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { CrashReport } from '../types/crash'
+import { getCurrentMcPath } from '../utils/mcPath'
 
 const { t } = useI18n()
 
@@ -160,24 +161,6 @@ async function refreshList() {
   } finally {
     loading.value = false
   }
-}
-
-// 获取当前游戏目录
-async function getCurrentMcPath(): Promise<string> {
-  const api = window.electronAPI
-  try {
-    if (api?.folders?.getLast) {
-      const last = await api.folders.getLast()
-      if (last) return last
-    }
-    if (api?.path?.getCustom) {
-      const custom = await api.path.getCustom()
-      if (custom) return custom
-    }
-  } catch {
-    // 忽略错误
-  }
-  return ''
 }
 
 // 选择崩溃报告

@@ -1,4 +1,4 @@
-﻿name: CI/CD Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -31,6 +31,28 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint
+
+  # 类型检查独立成 job：electron-vite build 走 esbuild 只转译不检查类型，
+  # 没有它 TS 错误可以在 CI 全绿的情况下长期积累（v0.7.5 就积了 7 个）。
+  # 不挂在 lint 后面：lint 一旦变红会连带把类型检查也跳过，两个门禁互相独立更稳。
+  typecheck:
+    name: Type Check
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript type check
+        run: npm run typecheck
 
   build:
     name: Build
@@ -107,7 +129,7 @@ jobs:
     # windows-latest = Windows Server 2025
     name: Package (${{ matrix.platform }})
     runs-on: ${{ matrix.platform }}-latest
-    needs: [build, test]
+    needs: [build, test, typecheck]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
     strategy:
       matrix:

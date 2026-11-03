@@ -17,6 +17,7 @@ import {
 } from '@xmcl/installer'
 import type { Options as InstallerOptions, LibraryOptions as InstallerLibraryOptions } from '@xmcl/installer'
 import { Agent, interceptors } from 'undici'
+import type { Dispatcher } from 'undici'
 import { ChildProcess, execFile, execSync } from 'child_process'
 import { BrowserWindow, dialog, app, ipcMain } from 'electron'
 import * as fs from 'fs'
@@ -66,6 +67,12 @@ const javaDownloadDispatcher = new Agent({
   headersTimeout: 30_000,
 }).compose(interceptors.redirect({ maxRedirections: 5 }))
 
+/**
+ * Node（undici）的 fetch 支持 `dispatcher` 选项来指定连接池，
+ * 但 TypeScript 内置的 DOM `RequestInit` 里没有这个字段，故在此声明扩展类型。
+ */
+type FetchInitWithDispatcher = RequestInit & { dispatcher?: Dispatcher }
+
 /** 下载并安装指定大版本的 Adoptium JDK，返回 java.exe 路径 */
 async function downloadAndInstallJava(majorVersion: number, mainWindow: BrowserWindow): Promise<string> {
   const targetDir = join(app.getPath('userData'), 'java-runtime', `jdk-${majorVersion}`)
@@ -88,7 +95,9 @@ async function downloadAndInstallJava(majorVersion: number, mainWindow: BrowserW
 
   try {
     log.info(`[downloadAndInstallJava] 查询版本信息: ${infoUrl}`)
-    const infoResp = await fetch(infoUrl, { dispatcher: javaDownloadDispatcher })
+    const infoResp = await fetch(infoUrl, {
+      dispatcher: javaDownloadDispatcher
+    } as FetchInitWithDispatcher)
     if (infoResp.ok) {
       const infoData = (await infoResp.json()) as Array<{
         release_name?: string
@@ -180,7 +189,7 @@ async function downloadAndInstallJava(majorVersion: number, mainWindow: BrowserW
           dispatcher: javaDownloadDispatcher,
           redirect: 'follow',
           signal: controller.signal
-        })
+        } as FetchInitWithDispatcher)
         clearTimeout(timer)
 
         if (!response.ok) throw new Error(`HTTP ${response.status}`)

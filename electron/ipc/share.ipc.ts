@@ -101,7 +101,7 @@ export function registerShareHandlers(): void {
       }
     } catch (e: unknown) {
       log.error('Failed to start share', e)
-      throw new Error((e as Error).message || 'Failed to start sharing')
+      throw new Error((e as Error).message || 'Failed to start sharing', { cause: e })
     }
   })
 
@@ -142,7 +142,7 @@ export function registerShareHandlers(): void {
       return { sessionId, peerId }
     } catch (e: unknown) {
       log.error('Failed to start receive', e)
-      throw new Error((e as Error).message || 'Failed to start receiving')
+      throw new Error((e as Error).message || 'Failed to start receiving', { cause: e })
     }
   })
 

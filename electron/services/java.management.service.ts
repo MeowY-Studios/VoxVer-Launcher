@@ -756,19 +756,17 @@ function parseJavaInfo(javaExe: string, output: string): JavaInfo | null {
   }
 
   const rawVersion = versionMatch[1]
-  let version = rawVersion
-  let majorVersion = 8
 
   // 处理不同版本格式
+  let majorVersion: number
   if (rawVersion.startsWith('1.')) {
     // Java 8及以下格式: 1.8.0_392
     majorVersion = parseInt(rawVersion.split('.')[1]) || 8
-    version = rawVersion
   } else {
     // Java 9+格式: 17.0.9, 21.0.1+12
     majorVersion = parseInt(rawVersion.split('.')[0]) || 8
-    version = rawVersion
   }
+  const version = rawVersion
 
   // 供应商识别
   let vendor = 'Unknown'

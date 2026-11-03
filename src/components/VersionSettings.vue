@@ -714,7 +714,7 @@ async function toggleFavorite() {
 
 // * ====== 导出启动脚本 ======
 async function exportScript() {
-  const name = props.versionName.replace(/[^a-zA-Z0-9_\-]/g, '_')
+  const name = props.versionName.replace(/[^a-zA-Z0-9_-]/g, '_')
   const script = [
     '@echo off',
     `title ${props.versionName}`,

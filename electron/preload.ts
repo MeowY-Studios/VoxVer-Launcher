@@ -321,7 +321,7 @@ const api = {
     download: (versionId: string, gameDir: string) =>
       ipcRenderer.invoke('versions:download', { versionId, gameDir }),
     /** 启动带进度的后台下载（立即返回 taskId），可选传入加载器/扩展参数用于下载完成后自动安装 */
-    downloadStart: (versionId: string, gameDir: string, opts?: { loader?: string; loaderVersion?: string; optifine?: string; optifineVersion?: string }) =>
+    downloadStart: (versionId: string, gameDir: string, opts?: { loader?: string; loaderVersion?: string; optifine?: string; optifineVersion?: string; displayName?: string }) =>
       ipcRenderer.invoke('versions:download-start', { versionId, gameDir, ...opts }),
     /** 删除目录下的 MC 版本 */
     delete: (versionId: string, gameDir: string) =>
@@ -749,9 +749,13 @@ const api = {
 
   // 分享功能（P2P 实例分享）
   share: (() => {
-    const packListeners = new Map<Function, Function>()
-    const sessionListeners = new Map<Function, Function>()
-    const progressListeners = new Map<Function, Function>()
+    // * 回调 ↔ 实际 ipc 监听器的引用映射：两边签名各不相同，这里只按引用存取，
+    // * 用内置 Function 类型会丢掉签名信息，故用统一的函数签名兜住
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- 回调签名各异，只做引用映射
+    type AnyListenerFn = (...args: any[]) => void
+    const packListeners = new Map<AnyListenerFn, AnyListenerFn>()
+    const sessionListeners = new Map<AnyListenerFn, AnyListenerFn>()
+    const progressListeners = new Map<AnyListenerFn, AnyListenerFn>()
 
     return {
       startInstance: (instanceId: string) =>

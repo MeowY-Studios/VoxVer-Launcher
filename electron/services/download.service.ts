@@ -12,7 +12,7 @@ import {
 import { dirname, basename, join } from 'path'
 import { EventEmitter } from 'events'
 import Database from 'better-sqlite3'
-import type { DownloadTask, DownloadChunk } from '../types/download.types'
+import type { DownloadTask, DownloadChunk, DownloadStatus } from '../types/download.types'
 export type { DownloadTask } from '../types/download.types'
 import { logger } from '../utils/logger'
 const log = logger.child('Download')

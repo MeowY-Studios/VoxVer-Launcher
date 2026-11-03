@@ -1049,7 +1049,7 @@ onMounted(async () => {
     const savedDisplayName = localStorage.getItem('voxver_last_version_name')
     const lastId = localStorage.getItem('voxver_last_version')
     // 检查 .minecraft 路径是否有效（用户配置了文件夹）
-    let hasValidPath = false
+    let hasValidPath: boolean
     try {
       const foldersList = await window.electronAPI?.folders?.list?.()
       hasValidPath = !!(minecraftPath.value && foldersList && foldersList.length > 0)

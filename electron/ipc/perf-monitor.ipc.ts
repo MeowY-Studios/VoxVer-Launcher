@@ -7,10 +7,7 @@ import { logger } from '../utils/logger'
 
 const log = logger.child('PerfMonitorIPC')
 
-let currentWindow: BrowserWindow | null = null
-
 function getWindow(): BrowserWindow | null {
-  if (currentWindow && !currentWindow.isDestroyed()) return currentWindow
   const windows = BrowserWindow.getAllWindows()
   return windows[0] || null
 }

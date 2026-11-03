@@ -445,7 +445,6 @@ async function loadVersionsFromFolder(gameDir: string) {
           jsonPath: v.jsonPath
         }
       })
-    } else {
     }
   } catch (err) {
     window.electronAPI?.notification?.send({ title: t('common.error'), body: t('component.loadVersionsFailed'), type: 'error' })

@@ -205,6 +205,8 @@ interface ElectronAPI {
     downloadFile: (file: unknown, dest: string) => Promise<string>
     getActive: () => Promise<unknown[]>
     getQueue: () => Promise<unknown[]>
+    getHistory: () => Promise<{ success: boolean; data: unknown[]; error?: string }>
+    clearHistory: () => Promise<{ success: boolean; error?: string }>
     onProgress: (callback: (progress: unknown) => void) => () => void
     onStarted: (callback: (data: unknown) => void) => () => void
     onCompleted: (callback: (data: unknown) => void) => () => void
@@ -256,7 +258,7 @@ interface ElectronAPI {
     getInfo: (versionId: string) => Promise<unknown>
     download: (versionId: string, gameDir: string) => Promise<IpcResult>
     downloadServer: (versionId: string, filePath: string) => Promise<IpcResult>
-    downloadStart: (versionId: string, gameDir: string, opts?: { loader?: string; loaderVersion?: string; optifine?: string; optifineVersion?: string }) => Promise<IpcResult<{ taskId: string }>>
+    downloadStart: (versionId: string, gameDir: string, opts?: { loader?: string; loaderVersion?: string; optifine?: string; optifineVersion?: string; displayName?: string }) => Promise<IpcResult<{ taskId: string }>>
     delete: (versionId: string, gameDir: string) => Promise<void>
     validate: (versionId: string, gameDir: string) => Promise<unknown>
     downloadMissing: (versionId: string, gameDir: string) => Promise<IpcResult<{ downloaded: number; total?: number; message?: string }>>

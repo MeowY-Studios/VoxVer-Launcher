@@ -366,7 +366,9 @@ class P2PShareService {
       return { sessionId, shareCode, peerId }
     } catch (e: unknown) {
       log.error('Failed to start share session', e)
-      throw new Error(`Failed to start sharing: ${(e as Error).message || 'Check network connection'}`)
+      throw new Error(`Failed to start sharing: ${(e as Error).message || 'Check network connection'}`, {
+        cause: e
+      })
     }
   }
 
@@ -577,7 +579,9 @@ class P2PShareService {
       return { sessionId, peerId }
     } catch (e: unknown) {
       log.error('Failed to start receive session', e)
-      throw new Error(`Connection failed: ${(e as Error).message || 'Check network connection'}`)
+      throw new Error(`Connection failed: ${(e as Error).message || 'Check network connection'}`, {
+        cause: e
+      })
     }
   }
 

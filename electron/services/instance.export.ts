@@ -448,7 +448,7 @@ export async function getExportPreview(
 
   // 获取 mod 列表（复用传入的 modService 或创建新实例）
   const service = modService || new ModService()
-  let mods: ModInfo[] = []
+  let mods: ModInfo[]
   try {
     mods = await service.getInstalledMods(mcRoot)
   } catch {

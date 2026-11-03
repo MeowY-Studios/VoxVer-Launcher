@@ -97,7 +97,7 @@ export function importBackgroundImage(sourcePath: string): {
     }
 
     const baseName = path.basename(sourcePath, ext)
-    const safeName = baseName.replace(/[^a-z0-9_\-]/gi, '_').slice(0, 60)
+    const safeName = baseName.replace(/[^a-z0-9_-]/gi, '_').slice(0, 60)
     const timestamp = Date.now()
     const fileName = `${safeName}_${timestamp}${ext}`
 

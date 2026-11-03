@@ -74,13 +74,10 @@ export function registerAllIpcHandlers(
     }
   }
 
-  // 注入游戏依赖
-  if (deps) {
+  // 注入游戏依赖（两者都就绪才注入，避免把 undefined 写进 game.ipc 的模块级缓存）
+  if (deps?.versionsService && deps.modLoaderService) {
     try {
-      setGameDependencies(
-        deps.versionsService as unknown as Parameters<typeof setGameDependencies>[0],
-        deps.modLoaderService as unknown as Record<string, unknown>
-      )
+      setGameDependencies(deps.versionsService, deps.modLoaderService)
     } catch (e: unknown) {
       log.error('[IPC] setGameDependencies FAILED:', (e as Error).message)
     }

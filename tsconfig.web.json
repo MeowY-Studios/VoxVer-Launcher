@@ -3,6 +3,7 @@
     "composite": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "target": "ES2022",
     "jsx": "preserve",
     "jsxImportSource": "vue",
     "strict": true,

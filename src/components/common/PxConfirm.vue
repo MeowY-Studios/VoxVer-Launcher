@@ -1,29 +1,29 @@
 <template>
-  <Transition name="px-modal">
-    <div class="px-confirm-overlay" @click.self="onCancel">
-      <div class="px-confirm" role="alertdialog" :aria-modal="true" tabindex="-1">
-        <!-- Title（左上角） -->
-        <h3 class="px-confirm__title">{{ title }}</h3>
+  <!-- 该组件由 useConfirm() 挂载/卸载（本身就是条件渲染），外层不再套 Transition：
+       没有 v-if/v-show 子元素的 Transition 永远不会触发动画，属于死代码 -->
+  <div class="px-confirm-overlay" @click.self="onCancel">
+    <div class="px-confirm" role="alertdialog" :aria-modal="true" tabindex="-1">
+      <!-- Title（左上角） -->
+      <h3 class="px-confirm__title">{{ title }}</h3>
 
-        <!-- Message（主内容，居中放大） -->
-        <p class="px-confirm__message">{{ message }}</p>
+      <!-- Message（主内容，居中放大） -->
+      <p class="px-confirm__message">{{ message }}</p>
 
-        <!-- Actions -->
-        <div class="px-confirm__actions">
-          <button class="vox-btn vox-btn--secondary px-confirm__btn" @click="onCancel">
-            {{ cancelText }}
-          </button>
-          <button
-            :class="['vox-btn px-confirm__btn', type === 'danger' ? 'px-confirm__btn--danger' : 'vox-btn--primary']"
-            @click="onConfirm"
-            ref="confirmBtnRef"
-          >
-            {{ confirmText }}
-          </button>
-        </div>
+      <!-- Actions -->
+      <div class="px-confirm__actions">
+        <button class="vox-btn vox-btn--secondary px-confirm__btn" @click="onCancel">
+          {{ cancelText }}
+        </button>
+        <button
+          :class="['vox-btn px-confirm__btn', type === 'danger' ? 'px-confirm__btn--danger' : 'vox-btn--primary']"
+          @click="onConfirm"
+          ref="confirmBtnRef"
+        >
+          {{ confirmText }}
+        </button>
       </div>
     </div>
-  </Transition>
+  </div>
 </template>
 
 <script setup lang="ts">

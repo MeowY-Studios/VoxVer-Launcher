@@ -37,7 +37,8 @@ export function validateVersionId(versionId: string): void {
   if (/[\\/:*?"<>|]/.test(versionId)) {
     throw new Error(`非法版本号: ${versionId}`)
   }
-  // 禁止控制字符
+  // 禁止控制字符（刻意匹配 \x00-\x1f / \x7f，命中即判非法）
+  // eslint-disable-next-line no-control-regex -- 这里就是要匹配控制字符
   if (/[\x00-\x1f\x7f]/.test(versionId)) {
     throw new Error(`非法版本号: ${versionId}`)
   }
