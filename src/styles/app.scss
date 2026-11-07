@@ -1004,12 +1004,19 @@
 .top-nav {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 2px;
-  margin-left: 18px;
-  margin-right: auto;
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 100%;
+  transform: translateX(-50%);
   -webkit-app-region: no-drag;
-  position: relative;
   z-index: var(--voxver-z-raised);
+}
+
+.wc {
+  margin-left: auto;
 }
 
 .top-nav-item {
@@ -1060,4 +1067,14 @@
 
 .sidebar-main-nav {
   display: none;
+}
+/* 占位入口（联机）：与普通项同样式，但不跳转 */
+.top-nav-item--soon {
+  cursor: default;
+  color: var(--voxver-text-tertiary);
+
+  &:hover {
+    background: transparent;
+    color: var(--voxver-text-tertiary);
+  }
 }

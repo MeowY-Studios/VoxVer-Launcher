@@ -24,16 +24,25 @@
 
       <!-- 上导航栏（原左侧图标栏） -->
       <nav class="top-nav">
-        <button
-          v-for="tab in tabs"
-          :key="tab.path"
-          class="top-nav-item"
-          :class="{ active: currentRoute === tab.path }"
-          @click="$router.push(tab.path)"
-        >
-          <span class="top-nav-icon" v-html="tab.svg"></span>
-          <span class="top-nav-label">{{ $t(tab.labelKey) }}</span>
-        </button>
+        <template v-for="tab in tabs" :key="tab.path">
+          <!-- 联机：占位入口，功能后续实现 -->
+          <button
+            v-if="tab.path === '/settings'"
+            type="button"
+            class="top-nav-item top-nav-item--soon"
+            :title="$t('tabs.onlineSoon')"
+          >
+            <span class="top-nav-label">{{ $t('tabs.online') }}</span>
+          </button>
+          <button
+            class="top-nav-item"
+            :class="{ active: currentRoute === tab.path }"
+            @click="$router.push(tab.path)"
+          >
+            <span class="top-nav-icon" v-html="tab.svg"></span>
+            <span class="top-nav-label">{{ $t(tab.labelKey) }}</span>
+          </button>
+        </template>
       </nav>
 
       <!-- 窗口控制 — macOS: 关闭/最小化/最大化（从左到右），Windows: 最小化/最大化/关闭 -->

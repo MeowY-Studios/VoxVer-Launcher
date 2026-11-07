@@ -144,6 +144,8 @@ export default {
     home: '启动',
     instances: '实例',
     downloads: '下载',
+    online: '联机',
+    onlineSoon: '联机功能开发中，敬请期待',
     settings: '设置',
     more: '更多'
   },

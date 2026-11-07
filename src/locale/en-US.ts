@@ -135,6 +135,8 @@ export default {
     home: 'Launch',
     instances: 'Instances',
     downloads: 'Downloads',
+    online: 'Multiplayer',
+    onlineSoon: 'Multiplayer is coming soon',
     settings: 'Settings',
     more: 'More'
   },
