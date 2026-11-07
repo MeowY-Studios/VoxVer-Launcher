@@ -9,16 +9,7 @@
       nav-label="下载分类"
       class="downloads-kor-nav"
     >
-      <template #sidebar-footer>
-        <button type="button" class="dl-kor-manager" @click="router.push('/download/manage')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
-          </svg>
-          <span>{{ $t('download.downloadManager') }}</span>
-        </button>
-      </template>
+
     </KorPageShell>
 
     <!-- ====== 原版游戏视图 ====== -->
@@ -771,6 +762,17 @@ const korGroups = computed<KorShellGroup[]>(() => [
   {
     title: t('download.sidebar.community'),
     items: communityCategories.map((item) => ({ key: item.id, label: t(item.labelKey), icon: item.icon }))
+  },
+  {
+    items: [
+      {
+        key: 'manager',
+        label: t('download.downloadManager'),
+        icon:
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+        onSelect: () => router.push('/download/manage')
+      }
+    ]
   }
 ])
 
