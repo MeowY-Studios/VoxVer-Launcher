@@ -143,7 +143,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 | **ModLoader** | Fabric / Forge / NeoForge / Quilt 一键安装 |
 | **Mod 生态** | Modrinth 搜索/下载、本地管理、自动更新检测、依赖管理；CurseForge 源待推出（API Key 申请审核中） |
 | **实例系统** | 独立管理每个版本的 Mod/配置/存档、导入/导出（.mcla 格式） |
-| **主题系统** | 浅色/深色切换、背景自定义、主题色自定义、字号/动画/特效/音效设置 |
+| **主题系统** | 显示模式（浅色/深色/跟随系统）与排版预设（VoxVer 原版 / Koring 卡片排版）两轴独立、主题色预设与自定义主色、背景图与模糊/暗化/视差 |
 | **国际化** | 中文 / English 双语切换 |
 | **P2P 分享** | 6 位分享码 + WebRTC 直连分享游戏实例 |
 | **热更新** | GitHub Releases 自动检测、后台下载、一键更新 |
@@ -170,6 +170,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 |------|------|
 | [📘 用户手册](docs/USER_GUIDE.md) | 安装、登录、版本下载、Mod、实例、设置与故障排除 |
 | [📄 开发指南](docs/dev/README.md) | 技术栈、项目结构、快速开始、数据库、认证流程、编码规范 |
+| [🎨 主题与皮肤](docs/dev/THEME_AND_SKIN.md) | 显示模式与排版皮肤的架构、Kor 组件层、迁移状态与新增页面约定 |
 | [📜 更新日志](CHANGELOG.md) | 各版本详细变更记录 |
 | [🔖 版本说明](docs/releases) | 各版本发布说明与升级指南 |
 | [📢 声明与致谢](NOTICE.md) | 第三方依赖、商标声明 |
