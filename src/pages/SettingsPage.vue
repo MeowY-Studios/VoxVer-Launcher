@@ -250,7 +250,7 @@
 
     <!-- ========== 账户 ========== -->
     <template v-if="activeCategory === 'account'">
-      <div class="coming-soon">
+      <div v-if="appStore.skin !== 'koring'" class="coming-soon">
         <div class="coming-soon-icon">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
@@ -261,6 +261,11 @@
         <p class="coming-soon-desc">{{ $t('settings.home.comingSoonDesc') }}</p>
         <span class="coming-soon-badge">{{ $t('more.notAvailable') }}</span>
       </div>
+
+      <!-- Koring 排版 -->
+      <KorSurface v-else class="kor-section">
+        <KorEmpty :title="$t('settings.home.accountTitle')" :desc="$t('settings.home.comingSoonDesc')" />
+      </KorSurface>
     </template>
 
     <!-- ========== 关于 ========== -->
@@ -543,7 +548,7 @@
 
     <!-- ========== 启动器设置 ========== -->
     <template v-if="activeCategory === 'launcher'">
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="16 3 21 3 21 8" />
@@ -571,7 +576,7 @@
         </div>
       </section>
 
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
@@ -593,6 +598,26 @@
             {{ autoCheckUpdate ? $t('settings.autoCheckOn') : $t('settings.autoCheckOff') }}
           </span>
         </div>
+      </section>
+
+      <!-- Koring 排版 -->
+      <section v-else class="kor-section">
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.updateChannel.title')" :desc="$t('settings.updateChannel.desc')">
+            <KorSettingSelect
+              :model-value="updateChannel"
+              :options="korChannelOptions"
+              :width="180"
+              @update:model-value="onUpdateChannelChange"
+            />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.autoCheckUpdate')" :desc="$t('settings.autoCheckUpdateDesc')">
+            <KorSettingSwitch
+              :model-value="autoCheckUpdate"
+              @update:model-value="(v: boolean) => { autoCheckUpdate = v; onAutoCheckChange() }"
+            />
+          </KorSettingRow>
+        </KorSettingCard>
       </section>
     </template>
 
@@ -3301,8 +3326,10 @@ import SkinPresetCard from '@/components/settings/SkinPresetCard.vue'
 import {
   KorAccountCard,
   KorButton,
+  KorEmpty,
   KorPageHeader,
   KorPageShell,
+  KorSurface,
   KorVersionCard,
   KorSectionTitle,
   KorSettingCard,
@@ -3364,6 +3391,11 @@ const korColorBlindOptions = computed(() => [
 function openExternal(url: string) {
   window.electronAPI?.shell?.openExternal?.(url)
 }
+
+const korChannelOptions = computed(() => [
+  { value: 'stable', label: t('settings.updateChannel.stable') },
+  { value: 'beta', label: t('settings.updateChannel.beta') }
+])
 const instancesStore = useInstancesStore()
 const allInstances = computed(() => instancesStore.instances)
 const { tm, t } = useI18n()
