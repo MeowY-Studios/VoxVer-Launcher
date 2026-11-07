@@ -1,5 +1,8 @@
 <template>
   <div class="version-detail-page">
+    <div v-if="isKoring" class="vd-kor-head">
+      <KorPageHeader :title="$t('version.detail')" />
+    </div>
     <!-- 顶部导航栏 -->
     <div class="vd-header">
       <button class="back-btn" @click="goBack">
@@ -14,7 +17,7 @@
           <polyline points="15 18 9 12 15 6" />
         </svg>
       </button>
-      <h1 class="vd-title">{{ $t('version.detail') }}</h1>
+      <h1 v-if="!isKoring" class="vd-title">{{ $t('version.detail') }}</h1>
     </div>
 
     <!-- 加载中 -->
@@ -359,6 +362,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useAppStore } from '../stores'
+import { KorPageHeader } from '../components/kor'
 import { useDownloadStore } from '../stores/download.store'
 
 interface VersionDetailInfo {
@@ -376,6 +381,8 @@ interface LoaderVersionOption {
 }
 
 const { t: i18n } = useI18n()
+const appStore = useAppStore()
+const isKoring = computed(() => appStore.skin === 'koring')
 
 const router = useRouter()
 const route = useRoute()
