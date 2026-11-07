@@ -991,16 +991,6 @@
 /* ================================================================
    Top Nav — 标题栏内的主导航（原左侧图标栏上移）
    ================================================================ */
-.brand-mark {
-  width: 20px;
-  height: 20px;
-  border-radius: 5px;
-  margin-right: 7px;
-  -webkit-app-region: no-drag;
-  position: relative;
-  z-index: var(--voxver-z-raised);
-}
-
 .top-nav {
   display: flex;
   align-items: center;

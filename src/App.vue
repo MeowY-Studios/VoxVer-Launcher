@@ -19,7 +19,6 @@
     <!-- 深蓝标题栏 -->
     <header class="titlebar">
       <!-- 品牌 -->
-      <img class="brand-mark" src="/brand/mark-256.png" alt="" aria-hidden="true" />
       <span class="brand">VoxVer</span>
 
       <!-- 上导航栏（原左侧图标栏） -->
