@@ -340,6 +340,12 @@
   padding: 8px 0;
 }
 
+/* * 原版布局里卡片行靠左排列 */
+.kor-theme-row--start {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
 .kor-theme-card {
   display: flex;
   flex-direction: column;

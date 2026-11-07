@@ -1216,7 +1216,7 @@
         <section class="kor-section">
           <SettingSectionTitle>{{ $t('settings.darkMode') }}</SettingSectionTitle>
           <SettingCard flush>
-            <div class="kor-theme-row">
+          <div class="kor-theme-row">
               <ThemeModeCard
                 v-for="opt in themePreviewOptions"
                 :key="opt.value"
@@ -1231,7 +1231,7 @@
         <section class="kor-section">
           <SettingSectionTitle>{{ $t('settings.skinSection') }}</SettingSectionTitle>
           <SettingCard flush>
-            <div class="kor-theme-row">
+          <div class="kor-theme-row">
               <SkinPresetCard
                 v-for="opt in layoutOptions"
                 :key="opt.value"
@@ -1419,7 +1419,7 @@
         <div style="margin-top: 14px">
           <label class="row-label" style="margin-bottom:6px;display:block">{{ $t('settings.themeMode') }}</label>
           <p class="row-desc" style="margin-bottom:10px">{{ $t('settings.themeModeDesc') }}</p>
-          <div class="kor-theme-row">
+          <div class="kor-theme-row kor-theme-row--start">
             <ThemeModeCard
               v-for="opt in themePreviewOptions"
               :key="opt.value"
@@ -1438,7 +1438,7 @@
         </div>
 
         <p class="row-desc" style="margin-bottom:10px">{{ $t('settings.skinSectionDesc') }}</p>
-        <div class="kor-theme-row">
+        <div class="kor-theme-row kor-theme-row--start">
           <SkinPresetCard
             v-for="opt in layoutOptions"
             :key="opt.value"
