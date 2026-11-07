@@ -1,5 +1,13 @@
 <template>
   <div class="settings-page" ref="pageRef">
+    <!-- Koring 皮肤：其余分类的统一页头 -->
+    <div
+      v-if="appStore.skin === 'koring' && activeCategory !== 'home' && activeCategory !== 'personalize'"
+      class="kor-page-header"
+    >
+      <h2 class="kor-page-title">{{ korHeaderTitle }}</h2>
+    </div>
+
     <!-- ========== 主页 ========== -->
     <template v-if="activeCategory === 'home'">
       <!-- Koring 皮肤：页头 + 版本横幅 -->
@@ -3253,6 +3261,31 @@ const layoutOptions = computed(() => [
 
 const settingsActive = inject<Ref<string>>('settingsActive')
 const activeCategory = computed(() => settingsActive?.value || 'home')
+
+/** Koring 皮肤下各设置分类的页面标题（复用侧栏 i18n key） */
+const KOR_HEADER_KEYS: Record<string, string> = {
+  account: 'settings.sidebar.account',
+  about: 'settings.sidebar.about',
+  copyright: 'settings.sidebar.copyright',
+  launcher: 'settings.sidebar.launcher',
+  profile: 'settings.sidebar.gameProfile',
+  'java-memory': 'settings.sidebar.javaMemory',
+  'game-dir': 'settings.sidebar.gameDir',
+  advanced: 'settings.sidebar.advanced',
+  interface: 'settings.sidebar.interface',
+  language: 'settings.sidebar.lang',
+  accessibility: 'settings.sidebar.accessibility',
+  'download-net': 'settings.sidebar.downloadNet',
+  online: 'settings.sidebar.online',
+  multiplayer: 'settings.sidebar.multiplayer',
+  'auth-service': 'settings.sidebar.authService',
+  other: 'settings.sidebar.other',
+  service: 'settings.sidebar.service',
+  sponsor: 'settings.sidebar.sponsor',
+  developer: 'settings.sidebar.developer',
+}
+
+const korHeaderTitle = computed(() => t(KOR_HEADER_KEYS[activeCategory.value] || 'settings.sidebar.home'))
 
 const searchQuery = ref('')
 
