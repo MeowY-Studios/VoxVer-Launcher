@@ -97,6 +97,9 @@ export default {
     tip: 'Tip'
   },
   home: {
+    koringStart: 'Launch game',
+    koringBrowse: 'Download versions',
+    koringPickVersion: 'Select a version',
     recent: 'Recent',
     recentDesc: 'Continue your last adventure, or start a new journey from Instances',
     playGame: 'Play Game',

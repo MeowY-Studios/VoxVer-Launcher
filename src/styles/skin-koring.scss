@@ -1,0 +1,284 @@
+/**
+ * Koring 皮肤（data-skin="koring"）
+ * 仅在「主题与背景 → 主题模式 → Koring」时生效：
+ * 把应用外壳与各页容器切成 Koring 的卡片 / 毛玻璃 / 宽松留白风格。
+ * 纯样式覆盖，不改模板、不改功能，便于随时回退。
+ */
+
+[data-skin='koring'] {
+  --kor-radius: 14px;
+  --kor-hairline: rgba(255, 255, 255, 0.07);
+  --kor-surface: rgba(0, 0, 0, 0.45);
+  --kor-surface-strong: rgba(10, 10, 12, 0.72);
+  --kor-text-muted: rgba(255, 255, 255, 0.56);
+
+  /* 用 Koring 的色板重写全局 token：所有页面共享这一层，避免逐页改模板 */
+  --voxver-bg-primary: #0a0a0c;
+  --voxver-bg-secondary: #121215;
+  --voxver-bg-tertiary: #17171b;
+  --voxver-bg-elevated: #1d1d22;
+  --voxver-bg-input: #131317;
+  --voxver-bg-hover: rgba(255, 255, 255, 0.06);
+  --voxver-bg-active: rgba(255, 255, 255, 0.1);
+  --voxver-text: rgba(255, 255, 255, 0.92);
+  --voxver-text-primary: rgba(255, 255, 255, 0.92);
+  --voxver-text-secondary: rgba(255, 255, 255, 0.64);
+  --voxver-text-tertiary: rgba(255, 255, 255, 0.46);
+  --voxver-text-muted: rgba(255, 255, 255, 0.4);
+  --voxver-border-color: rgba(255, 255, 255, 0.07);
+  --voxver-border-color-light: rgba(255, 255, 255, 0.05);
+  --voxver-border-strong: rgba(255, 255, 255, 0.12);
+  --voxver-radius-md: 12px;
+  --voxver-radius-lg: 14px;
+  --voxver-radius-xl: 16px;
+}
+
+/* ========== 应用外壳 ========== */
+[data-skin='koring'] .sidebar {
+  width: 220px;
+  background: var(--kor-surface-strong);
+  backdrop-filter: blur(18px);
+  border-right: 1px solid var(--kor-hairline);
+  box-shadow: none;
+}
+
+[data-skin='koring'] .sidebar-main-nav {
+  gap: 2px;
+  padding: 10px 8px;
+}
+
+[data-skin='koring'] .nav-item {
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+[data-skin='koring'] .nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+[data-skin='koring'] .nav-item.active,
+[data-skin='koring'] .nav-item.router-link-active {
+  background: color-mix(in oklab, var(--voxver-primary) 18%, transparent);
+  color: #fff;
+  box-shadow: none;
+}
+
+[data-skin='koring'] .nav-group-header {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 14px 10px 6px;
+}
+
+[data-skin='koring'] .main-content {
+  padding: 32px 32px 48px;
+  background: transparent;
+}
+
+/* ========== 通用卡片容器 ========== */
+[data-skin='koring'] .memory-alloc-card,
+[data-skin='koring'] .bg-card-list,
+[data-skin='koring'] .debug-mode-card,
+[data-skin='koring'] .settings-card {
+  background: var(--kor-surface);
+  border: 1px solid var(--kor-hairline);
+  border-radius: var(--kor-radius);
+  box-shadow: none;
+  backdrop-filter: blur(12px);
+  padding: 18px 22px;
+}
+
+[data-skin='koring'] .row-label,
+[data-skin='koring'] .debug-mode-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+[data-skin='koring'] .row-desc {
+  font-size: 13px;
+  color: var(--kor-text-muted);
+  margin-top: 2px;
+}
+
+/* 卡片内相邻行之间画 hairline（Koring SettingRow 的观感） */
+[data-skin='koring'] .memory-alloc-card > .mem-custom-row + .mem-custom-row,
+[data-skin='koring'] .bg-card-list > .bg-card-row + .bg-card-row {
+  border-top: 1px solid var(--kor-hairline);
+  padding-top: 16px;
+  margin-top: 16px;
+}
+
+/* ========== 控件 ========== */
+[data-skin='koring'] .btn-sm {
+  height: 32px;
+  border-radius: 8px;
+  font-size: 13px;
+  padding: 0 14px;
+}
+
+[data-skin='koring'] .toggle-switch .toggle-slider {
+  border-radius: 999px;
+}
+
+[data-skin='koring'] .range {
+  height: 6px;
+  border-radius: 999px;
+}
+
+/* ========== 标题层级：对齐 Koring 的 PageHeader / SectionTitle ========== */
+[data-skin='koring'] .page-header h1,
+[data-skin='koring'] .page-header .title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+[data-skin='koring'] .section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* ========== 其它页面卡片：统一玻璃底 ========== */
+[data-skin='koring'] .dev-dir-card,
+[data-skin='koring'] .copyright-card,
+[data-skin='koring'] .addon-card,
+[data-skin='koring'] .lang-card,
+[data-skin='koring'] .card-body,
+[data-skin='koring'] .panel-footer {
+  background: var(--kor-surface);
+  border: 1px solid var(--kor-hairline);
+  border-radius: var(--kor-radius);
+  box-shadow: none;
+  backdrop-filter: blur(12px);
+}
+
+/* ========== 滚动条 ========== */
+[data-skin='koring'] .main-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+[data-skin='koring'] .main-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+/* ========== 首页（Koring 排版） ========== */
+[data-skin='koring'] .kor-home {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+[data-skin='koring'] .kor-home__account {
+  position: absolute;
+  left: 24px;
+  top: 24px;
+  z-index: 5;
+}
+
+[data-skin='koring'] .kor-account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 8px 8px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  max-width: 280px;
+}
+
+[data-skin='koring'] .kor-account__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: color-mix(in oklab, var(--voxver-primary) 78%, #000);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+[data-skin='koring'] .kor-account__name {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-skin='koring'] .kor-home__bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 0 24px 24px;
+  transition: transform 320ms var(--voxver-ease-out-quart, cubic-bezier(0.22, 1, 0.36, 1));
+  transform: translateY(56px);
+}
+
+[data-skin='koring'] .kor-home:hover .kor-home__bottom {
+  transform: translateY(0);
+}
+
+[data-skin='koring'] .kor-home__title {
+  font-size: 44px;
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
+  cursor: default;
+}
+
+[data-skin='koring'] .kor-home__actions {
+  display: flex;
+  gap: 10px;
+}
+
+[data-skin='koring'] .kor-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  color: var(--voxver-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 150ms ease, background 150ms ease;
+}
+
+[data-skin='koring'] .kor-pill:hover {
+  background: rgba(0, 0, 0, 0.72);
+  transform: scale(1.02);
+}
+
+[data-skin='koring'] .kor-pill:active {
+  transform: scale(0.97);
+}
+
+[data-skin='koring'] .kor-pill--ghost {
+  color: rgba(255, 255, 255, 0.82);
+}

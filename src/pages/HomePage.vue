@@ -1,5 +1,30 @@
 <template>
-  <div class="home-page">
+  <!-- Koring 皮肤：账户在左上，标题与启动胶囊贴底（hover 浮出） -->
+  <div v-if="appStore.skin === 'koring'" class="kor-home">
+    <div class="kor-home__account">
+      <div class="kor-account">
+        <span class="kor-account__avatar">V</span>
+        <span class="kor-account__name">{{ korTitle }}</span>
+      </div>
+    </div>
+
+    <div class="kor-home__bottom">
+      <div class="kor-home__title">{{ korTitle }}</div>
+      <div class="kor-home__actions">
+        <button type="button" class="kor-pill" @click="router.push('/launch')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          <span>{{ $t('home.koringStart') }}</span>
+        </button>
+        <button type="button" class="kor-pill kor-pill--ghost" @click="router.push('/downloads')">
+          {{ $t('home.koringBrowse') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div v-else class="home-page">
     <!-- Bento Grid 布局 -->
     <div class="bento-grid">
       <!-- 欢迎卡片 - 占 4 列 -->
@@ -65,16 +90,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useInstancesStore } from '../stores'
+import { useAppStore, useInstancesStore, useVersionsStore } from '../stores'
 import ReceiveModal from '../components/share/ReceiveModal.vue'
 
 const { t } = useI18n()
 
 const instancesStore = useInstancesStore()
+const appStore = useAppStore()
+const versionsStore = useVersionsStore()
 const router = useRouter()
+
+/** Koring 首页标题：当前选中版本名，未选则提示选择版本 */
+const korTitle = computed(() => versionsStore.currentVersionId || t('home.koringPickVersion'))
 
 const showReceiveModal = ref(false)
 const initialShareCode = ref('')

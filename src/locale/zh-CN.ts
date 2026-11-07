@@ -106,6 +106,9 @@ export default {
     yearsAgo: '{n}年前'
   },
   home: {
+    koringStart: '启动游戏',
+    koringBrowse: '下载版本',
+    koringPickVersion: '选择版本',
     recent: '最近使用',
     recentDesc: '继续你上次的冒险，或从实例管理开始新的旅程',
     playGame: '开始游戏',
