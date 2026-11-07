@@ -183,6 +183,7 @@ export default {
     uuid: 'UUID',
     uuidPlaceholder: 'Leave empty to auto-generate',
     saveOfflineAccount: 'Save Offline Account',
+    offlineEmptyHint: 'No offline accounts yet — add one below',
     offlineModeHint:
       'Offline mode cannot join servers requiring premium verification, but can play singleplayer and some servers.',
     buyOfficial: 'Buy Official',

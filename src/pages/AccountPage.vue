@@ -55,55 +55,7 @@
     <Transition name="tab-fade" mode="out-in">
       <!-- 在线面板 -->
       <div v-if="activeTab === 'online'" key="online" class="account-panel">
-        <div v-if="isKoring" class="kor-page">
-          <section class="kor-section">
-            <KorSectionTitle>{{ $t('auth.microsoftAccount') }}</KorSectionTitle>
-            <KorSettingCard>
-              <KorSettingRow
-                v-for="acc in msAccounts"
-                :key="acc.id"
-                :label="acc.name"
-                :desc="acc.uuid"
-              >
-                <div class="kor-inline">
-                  <KorBadge v-if="acc.isActive === 1" variant="solid">{{ $t('auth.active') }}</KorBadge>
-                  <KorButton v-else variant="outline" size="sm" @click="switchAccount(acc)">
-                    {{ $t('auth.switchAccount') }}
-                  </KorButton>
-                  <KorButton variant="danger" size="sm" @click="logoutMicrosoft(acc.id)">
-                    {{ $t('auth.logout') }}
-                  </KorButton>
-                </div>
-              </KorSettingRow>
-              <KorSettingRow
-                v-if="msAccounts.length === 0"
-                :label="$t('auth.microsoftAccount')"
-                :desc="$t('auth.loginTip')"
-              />
-            </KorSettingCard>
-            <div class="kor-inline kor-section-actions">
-              <KorButton variant="primary" size="sm" @click="showLoginModal = true">
-                {{
-                  msAccounts.length > 0
-                    ? $t('auth.addAnotherMicrosoftAccount')
-                    : $t('auth.signInWithMicrosoft')
-                }}
-              </KorButton>
-            </div>
-          </section>
-
-          <section class="kor-section">
-            <KorSectionTitle>{{ $t('auth.skin3dPreview') }}</KorSectionTitle>
-            <KorSettingCard flush>
-              <div class="kor-account-skin">
-                <Transition name="skin-swap">
-                  <SkinViewer3D :key="activeSkinUuid" :skin="activeSkinRaw" />
-                </Transition>
-              </div>
-            </KorSettingCard>
-          </section>
-        </div>
-        <div v-else class="online-layout">
+        <div class="online-layout">
           <!-- 微软账户卡片 -->
           <section class="account-section vox-card">
             <div class="section-header">
@@ -204,42 +156,8 @@
 
       <!-- 离线路板 -->
       <div v-else key="offline" class="account-panel">
-        <div v-if="isKoring" class="kor-page">
-          <section v-if="offAccList.length > 0" class="kor-section">
-            <KorSectionTitle>{{ $t('auth.offlineAccount') }}</KorSectionTitle>
-            <KorSettingCard>
-              <KorSettingRow
-                v-for="acc in offAccList"
-                :key="acc.id"
-                :label="acc.name"
-                :desc="acc.uuid"
-              >
-                <div class="kor-inline">
-                  <KorBadge v-if="acc.isActive === 1" variant="solid">{{ $t('auth.active') }}</KorBadge>
-                  <KorButton v-else variant="outline" size="sm" @click="switchOffline(acc)">
-                    {{ $t('auth.switchAccount') }}
-                  </KorButton>
-                  <KorButton variant="danger" size="sm" @click="deleteOffline(acc.id)">
-                    {{ $t('auth.deleteAccount') }}
-                  </KorButton>
-                </div>
-              </KorSettingRow>
-            </KorSettingCard>
-          </section>
-
-          <section class="kor-section">
-            <KorSettingCard>
-              <KorSettingRow :label="$t('auth.offlineAccount')" :desc="$t('auth.offlineModeHint')">
-                <KorButton variant="primary" size="sm" @click="showAddOffline = true">
-                  {{ $t('auth.addOfflineAccount') }}
-                </KorButton>
-              </KorSettingRow>
-            </KorSettingCard>
-          </section>
-        </div>
-
         <!-- 离线账户卡堆（当前使用在最上，点击后面卡片切换） -->
-        <section v-if="!isKoring && offAccList.length > 0" class="account-section offline vox-card">
+        <section v-if="offAccList.length > 0" class="account-section offline vox-card">
           <div class="section-header">
             <svg
               width="18"
@@ -296,7 +214,10 @@
         </section>
 
         <!-- 添加离线账户 -->
-        <section v-if="!isKoring" class="account-section offline vox-card">
+        <section class="account-section offline vox-card">
+          <p v-if="offAccList.length === 0" class="section-body empty-body">
+            {{ $t('auth.offlineEmptyHint') }}
+          </p>
           <div class="section-footer">
             <button class="vox-btn vox-btn--primary" @click="showAddOffline = true">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
@@ -310,7 +231,7 @@
         </section>
 
         <!-- 提示 -->
-        <aside v-if="!isKoring" class="hint-box">
+        <aside class="hint-box">
           <svg
             width="16"
             height="16"
@@ -327,7 +248,7 @@
         </aside>
 
         <!-- 外链入口（正版引导，置于离线路板内） -->
-        <div v-if="!isKoring" class="external-links">
+        <div class="external-links">
           <a
             class="vox-btn ext-link-btn"
             href="https://www.xbox.com/zh-cn/games/store/minecraft-java-bedrock-edition-for-pc/9nxp44l49shj"

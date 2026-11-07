@@ -192,6 +192,7 @@ export default {
     uuid: 'UUID',
     uuidPlaceholder: '留空则自动生成',
     saveOfflineAccount: '保存离线账户',
+    offlineEmptyHint: '还没有离线账户，点下面的按钮添加一个',
     offlineModeHint: '离线模式无法加入需要正版验证的服务器，但可以玩单人模式和部分服务器。',
     buyOfficial: '购买正版',
     goOfficialSite: '前往官网',
