@@ -292,8 +292,16 @@ app.whenReady().then(() => {
     }
   }
 
-  app.on('browser-window-created', (_, window) => {
+  // F12 打开 DevTools 开关（默认关闭，由渲染进程按开发者设置同步）
+let f12Enabled = false
+ipcMain.handle('app:set-f12-enabled', (_e, enabled: boolean) => {
+  f12Enabled = !!enabled
+  return { success: true }
+})
+
+app.on('browser-window-created', (_, window) => {
     window.webContents.on('before-input-event', (_e, input) => {
+      if (!f12Enabled) return
       if (input.type === 'keyDown' && input.key === 'F12') {
         // 启动画面没有渲染进程调试价值，按 F12 不该在它上面弹 DevTools
         if (window.getTitle() === SPLASH_TITLE) return

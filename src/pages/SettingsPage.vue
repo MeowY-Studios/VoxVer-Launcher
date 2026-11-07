@@ -307,7 +307,7 @@
           <div class="about-logo">
             <img src="/Alogo.png" alt="VoxVer" />
           </div>
-          <p class="about-ver">{{ $t('more.currentVersion') }}{{ appVersion }}</p>
+          <p class="about-ver is-tappable" @click="handleVersionTap">{{ $t('more.currentVersion') }}{{ appVersion }}</p>
           <!-- 权限警告 -->
           <div v-if="permWarning" class="perm-warning">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -567,7 +567,7 @@
       <div v-if="appStore.skin === 'koring'" class="kor-section">
         <KorSettingCard>
           <KorSettingRow :label="$t('more.currentVersion')" :desc="$t('settings.aboutSection.projectDesc')">
-            <span class="kor-value">v{{ appVersion }}</span>
+            <span class="kor-value is-tappable" @click="handleVersionTap">v{{ appVersion }}</span>
           </KorSettingRow>
           <KorSettingRow :label="$t('more.projectLicense')" :desc="'GNU General Public License v3.0'">
             <KorButton variant="outline" size="sm" @click="openExternal('https://www.gnu.org/licenses/gpl-3.0.html')">{{ $t('more.viewGplv3') }}</KorButton>
@@ -2539,7 +2539,7 @@
       </section>      <div v-else class="kor-c4">
         <KorSectionTitle>{{ $t('settings.dlGroupService') }}</KorSectionTitle>
         <KorSettingCard>
-          <KorSettingRow :label="$t('settings.serviceConnectivity')" :desc="$t('settings.serviceConnectivityEnter')">
+          <KorSettingRow :label="$t('settings.serviceConnectivity')">
             <KorButton variant="outline" size="sm" @click="openServiceTest">
               {{ $t('settings.serviceConnectivityEnter') }}
             </KorButton>
@@ -3644,6 +3644,23 @@
 
     <!-- ========== 开发者选项 ========== -->
     <template v-if="activeCategory === 'developer'">
+      <!-- 未解锁：开发者模式禁用提示 -->
+      <section v-if="!appStore.developerUnlocked" class="sec">
+        <h3 class="sec-title">{{ $t('settings.developerLockedTitle') }}</h3>
+        <p class="sec-desc">{{ $t('settings.developerLockedDesc') }}</p>
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">{{ $t('settings.developerKeyLabel') }}</label>
+            <p class="row-desc">{{ $t('settings.developerKeyDesc') }}</p>
+          </div>
+          <div class="row-control" style="gap:8px">
+            <input v-model="developerKeyInput" class="inp" style="width:220px" :placeholder="$t('settings.developerKeyPlaceholder')" @keyup.enter="handleUnlockDeveloper" />
+            <button class="action-btn" @click="handleUnlockDeveloper">{{ $t('settings.developerKeyUnlock') }}</button>
+          </div>
+        </div>
+      </section>
+
+      <template v-else>
       <section class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3704,6 +3721,18 @@
           </div>
         </div>
 
+        <div class="row">
+          <div class="row-main">
+            <label class="row-label">{{ $t('settings.enableF12Label') }}</label>
+            <p class="row-desc">{{ $t('settings.enableF12Desc') }}</p>
+          </div>
+          <div class="row-control">
+            <label class="toggle">
+              <input type="checkbox" :checked="appStore.enableF12" @change="onToggleF12(($event.target as HTMLInputElement).checked)" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
         <div class="row">
           <div class="row-main">
             <label class="row-label">{{ $t('settings.logLevel') }}</label>
@@ -3891,6 +3920,7 @@
           </button>
         </div>
       </section>
+      </template>
     </template>
 
     <!-- 邮箱联系弹窗（全局） -->
@@ -3914,7 +3944,7 @@
     </div>
 
     <!-- 服务联通性测试（独立子页面） -->
-    <div v-if="showServiceTest" class="service-test-page">
+    <div v-if="showServiceTest && appStore.skin !== 'koring'" class="service-test-page">
       <div class="service-test-head">
         <button class="service-test-icon-btn" @click="closeServiceTest">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3964,6 +3994,47 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div v-else-if="showServiceTest" class="service-test-kor">
+      <div class="service-test-kor__head">
+        <KorButton variant="ghost" size="sm" @click="closeServiceTest">
+          ← {{ $t('settings.serviceConnectivity') }}
+        </KorButton>
+        <KorButton variant="primary" size="sm" :loading="serviceTesting" @click="runServiceTest">
+          {{ $t('settings.serviceTestStart') }}
+        </KorButton>
+      </div>      <p v-if="!serviceTested && !serviceTesting" class="service-test-kor__hint">
+        {{ $t('settings.serviceTestIdle') }}
+      </p>
+
+      <template v-if="serviceTestError">
+        <KorSettingCard>
+          <p class="kor-copy is-error">{{ serviceTestError }}</p>
+        </KorSettingCard>
+      </template>
+      <template v-else-if="korServiceGroups.length === 0">
+        <KorSettingCard>
+          <p class="kor-copy">{{ $t('settings.serviceTestEmpty') }}</p>
+        </KorSettingCard>
+      </template>
+      <template v-else>
+        <div v-for="group in korServiceGroups" :key="group.key" class="service-test-kor__group">
+          <KorSectionTitle>{{ group.label }}</KorSectionTitle>
+          <KorSettingCard>
+            <KorSettingRow
+              v-for="item in group.items"
+              :key="item.key"
+              :label="item.name"
+              :desc="item.url"
+            >
+              <span class="kor-service-badge" :class="serviceBadgeClass(item)">
+                {{ serviceBadgeText(item) }}
+              </span>
+            </KorSettingRow>
+          </KorSettingCard>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -4110,6 +4181,8 @@ const korSettingGroups = computed<KorShellGroup[]>(() =>
     items: group.items
       // Koring 皮肤下账户入口在左上角账户卡，侧栏不再单列「账户」
       .filter((item) => item.category !== 'account')
+      // 开发者选项默认隐藏，关于页连点版本号 7 次后出现
+      .filter((item) => item.category !== 'developer' || appStore.developerMode)
       .map((item) => ({
         key: item.category || item.id,
         label: t(item.labelKey),
@@ -5083,6 +5156,11 @@ const windowPresetModel = computed({
   set: (val: string) => { s.windowPreset = val }
 })
 
+function onToggleF12(enabled: boolean): void {
+  appStore.setEnableF12(enabled)
+  void window.electronAPI?.app?.setF12Enabled?.(enabled)
+}
+
 async function setThreadsAuto(auto: boolean) {
   threadsAuto.value = auto
   if (auto) {
@@ -5713,6 +5791,7 @@ const serviceTested = ref(false)
 const serviceResults = ref<ServiceCheckItem[]>([])
 
 /** 按服务分组展示 */
+
 const serviceGroups = computed<Array<{ key: string; items: ServiceCheckItem[] }>>(() => {
   const groups: Array<{ key: string; items: ServiceCheckItem[] }> = []
   for (const item of serviceResults.value) {
@@ -5722,6 +5801,22 @@ const serviceGroups = computed<Array<{ key: string; items: ServiceCheckItem[] }>
   }
   return groups
 })
+
+const SERVICE_GROUP_LABEL: Record<string, string> = {
+  source: 'settings.serviceGroupSource',
+  mod: 'settings.serviceGroupMod',
+  loader: 'settings.serviceGroupLoader',
+  account: 'settings.serviceGroupAccount'
+}
+
+/** Koring 覆盖层用：分组服务列表（保持检测结果顺序，带分组标题） */
+const korServiceGroups = computed(() =>
+  serviceGroups.value.map((group) => ({
+    key: group.key,
+    label: t(SERVICE_GROUP_LABEL[group.key] || 'settings.serviceGroupSource'),
+    items: group.items
+  }))
+)
 
 /** 载入服务列表（仅展示，不检测） */
 async function loadServiceList() {
@@ -5747,6 +5842,20 @@ async function loadServiceList() {
   }
 }
 
+/** 延迟分档：< 300ms 绿、< 1000ms 黄、其余红 */
+function serviceBadgeClass(item: ServiceCheckItem): string {
+  if (!serviceTested.value) return 'is-pending'
+  if (!item.online) return 'is-offline'
+  if (item.latency >= 1000) return 'is-offline'
+  if (item.latency >= 300) return 'is-slow'
+  return 'is-online'
+}
+
+function serviceBadgeText(item: ServiceCheckItem): string {
+  if (!serviceTested.value) return t('settings.serviceUntested')
+  return item.online ? `${item.latency} ms` : t('settings.serviceOffline')
+}
+
 async function runServiceTest() {
   if (serviceTesting.value) return
   serviceTestError.value = ''
@@ -5757,11 +5866,14 @@ async function runServiceTest() {
     return
   }
   serviceTesting.value = true
+  toast({ message: t('settings.serviceTesting'), type: 'info' })
   try {
     const res = await api.testServices()
     if (res?.success && Array.isArray(res.data)) {
       serviceResults.value = res.data
       serviceTested.value = true
+      const online = res.data.filter((item: ServiceCheckItem) => item.online).length
+      toast({ message: t('settings.serviceTestDone', { online, total: res.data.length }), type: 'success' })
     } else {
       serviceResults.value = []
       serviceTestError.value = res?.error || t('settings.serviceTestFailed')
@@ -5984,10 +6096,34 @@ onMounted(async () => {
 
 // ====== 应用版本 ======
 const appVersion = ref('Alpha')
+
+/** 关于页版本号连点计数（解锁开发者选项，静默无提示） */
+const versionTapCount = ref(0)
+/** 开发者密钥输入 */
+const developerKeyInput = ref('')
+function handleUnlockDeveloper(): void {
+  const ok = appStore.unlockDeveloperWithKey(developerKeyInput.value)
+  if (ok) {
+    developerKeyInput.value = ''
+    toast({ message: t('settings.developerKeyUnlocked'), type: 'success' })
+  } else {
+    toast({ message: t('settings.developerKeyInvalid'), type: 'error' })
+  }
+}
+function handleVersionTap(): void {
+  if (appStore.developerMode) return
+  versionTapCount.value += 1
+  if (versionTapCount.value >= 7) {
+    versionTapCount.value = 0
+    appStore.unlockDeveloperMode()
+  }
+}
 /** 构建时的 git 提交短哈希（由 vite define 注入，开发/无 git 环境为 dev 时隐藏） */
 const appCommit = typeof __APP_COMMIT__ === 'string' && __APP_COMMIT__ !== 'dev' ? __APP_COMMIT__ : ''
 
 onMounted(async () => {
+  // 同步 F12 开关给主进程（默认关闭）
+  void window.electronAPI?.app?.setF12Enabled?.(appStore.enableF12)
   try {
     const v = await window.electronAPI?.app?.getVersion?.()
     if (v) appVersion.value = v
@@ -7529,7 +7665,12 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
       object-fit: contain;
     }
   }
-  .about-ver {
+  .is-tappable {
+  cursor: default;
+  user-select: none;
+}
+
+.about-ver {
     margin: 0 0 14px;
     font-size: 12px;
     color: var(--voxver-text-muted);

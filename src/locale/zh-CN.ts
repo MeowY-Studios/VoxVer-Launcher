@@ -1485,6 +1485,11 @@ export default {
     serviceConnectivity: '服务联通性测试',
     serviceConnectivityDesc: '检测启动器依赖的下载源、Mod 平台与登录服务是否可达',
     serviceConnectivityEnter: '进入',
+    serviceGroupSource: '游戏源',
+    serviceGroupMod: '模组源',
+    serviceGroupLoader: '加载器',
+    serviceGroupAccount: '账户与社区',
+    serviceTestDone: '检测完成：{online}/{total} 个服务可用',
     serviceTestStart: '开始检测',
     serviceTesting: '正在检测服务联通性...',
     serviceTestIdle: '点击右上角「开始检测」按钮',
@@ -1508,7 +1513,19 @@ export default {
       network: '网络',
       other: '其他'
     },
+    developerLockedTitle: '开发者模式已被禁用',
+    developerLockedDesc: '如有需要请联系开发者获取密钥。',
+    developerKeyLabel: '开发者密钥',
+    developerKeyDesc: '输入开发者提供的密钥以解锁开发者选项',
+    developerKeyPlaceholder: '请输入密钥',
+    developerKeyUnlock: '解锁',
+    developerKeyInvalid: '密钥无效',
+    developerKeyUnlocked: '开发者模式已解锁',
+    enableF12Label: 'F12 打开开发者工具',
+    enableF12Desc: '允许按 F12 打开 DevTools，默认关闭',
+
     sidebar: {
+
       home: '主页',
       account: '账户',
       about: '关于',
@@ -1529,7 +1546,7 @@ export default {
       authService: '安全识别服务',
       service: '服务与反馈',
       sponsor: '赞助我们',
-      developer: '开发者选项',
+    developer: '开发者选项',
       other: '其他'
     },
     accessibilityScreenReader: '屏幕阅读器模式',

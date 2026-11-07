@@ -1490,6 +1490,11 @@ export default {
     serviceConnectivity: 'Service Connectivity Test',
     serviceConnectivityDesc: 'Check whether download sources, mod platforms and account services are reachable',
     serviceConnectivityEnter: 'Open',
+    serviceGroupSource: 'Game sources',
+    serviceGroupMod: 'Mod sources',
+    serviceGroupLoader: 'Loaders',
+    serviceGroupAccount: 'Account & community',
+    serviceTestDone: 'Test finished: {online}/{total} services online',
     serviceTestStart: 'Start Test',
     serviceTesting: 'Testing service connectivity...',
     serviceTestIdle: 'Click "Start Test" in the top-right corner',
@@ -1509,10 +1514,22 @@ export default {
     group: {
       general: 'General',
       game: 'Game',
+
       personalize: 'Personalize',
       network: 'Network',
       other: 'Other'
     },
+    developerLockedTitle: 'Developer mode is disabled',
+    developerLockedDesc: 'Contact the developer for an unlock key if you need it.',
+    developerKeyLabel: 'Developer key',
+    developerKeyDesc: 'Enter the key provided by the developer to unlock developer options',
+    developerKeyPlaceholder: 'Enter key',
+    developerKeyUnlock: 'Unlock',
+    developerKeyInvalid: 'Invalid key',
+    developerKeyUnlocked: 'Developer mode unlocked',
+    enableF12Label: 'Open DevTools with F12',
+    enableF12Desc: 'Allow F12 to open DevTools, off by default',
+
     sidebar: {
       home: 'Home',
       account: 'Account',
@@ -1534,7 +1551,7 @@ export default {
       authService: 'Auth Service',
       service: 'Service & Feedback',
       sponsor: 'Sponsor Us',
-      developer: 'Developer Options',
+    developer: 'Developer Options',
       other: 'Other'
     },
     accessibilityScreenReader: 'Screen Reader',

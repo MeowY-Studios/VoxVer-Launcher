@@ -879,7 +879,8 @@ const api = {
 
   // 开发者工具
   devTools: {
-    open: () => ipcRenderer.invoke('devtools:open')
+    open: () => ipcRenderer.invoke('devtools:open'),
+    setF12Enabled: (enabled: boolean) => ipcRenderer.invoke('app:set-f12-enabled', enabled)
   }
 }
 

@@ -379,7 +379,7 @@
                 <span class="kor-side-account__desc">{{ $t('settings.home.accountTitleDesc') }}</span>
               </span>
             </button>
-            <template v-for="group in settingsGroups" :key="group.name">
+            <template v-for="group in visibleSettingsGroups" :key="group.name">
               <div class="nav-group-header">{{ $t(group.name) }}</div>
               <button
                 v-for="item in group.items"
@@ -561,6 +561,16 @@ import { useVersionsStore, useAccountsStore, useInstancesStore, useDownloadStore
 import { useConfirm } from './composables/useConfirm'
 import { downloadCategories as dlCategories, communityCategories } from './config/download-nav'
 import { settingsNavGroups as settingsGroups } from './config/settings-nav'
+
+/** 开发者选项默认隐藏，连点版本号 7 次后出现 */
+const visibleSettingsGroups = computed(() =>
+  settingsGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => item.id !== 'developer' || appStore.developerMode)
+    }))
+    .filter((group) => group.items.length > 0)
+)
 import { useToast } from './composables/useToast'
 
 const route = useRoute()
