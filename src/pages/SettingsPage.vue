@@ -270,7 +270,7 @@
 
     <!-- ========== 关于 ========== -->
     <template v-if="activeCategory === 'about'">
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10" />
@@ -283,7 +283,7 @@
       </section>
 
       <div style="height:4px"></div>
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <div class="about-card">
           <div class="about-logo">
             <img src="/Alogo.png" alt="VoxVer" />
@@ -404,7 +404,7 @@
       </div>
 
       <!-- 项目信息 -->
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">{{ $t('settings.aboutSection.projectInfo') }}</h3>
         <p class="sec-desc">{{ $t('settings.aboutSection.projectDesc') }}</p>
         <div class="credit-list">
@@ -435,7 +435,7 @@
       </section>
 
       <!-- 鸣谢 -->
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -496,7 +496,7 @@
       </section>
 
       <!-- 相关链接 -->
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">{{ $t('settings.aboutSection.relatedLinks') }}</h3>
         <p class="sec-desc">{{ $t('settings.aboutSection.relatedDesc') }}</p>
         <div class="link-grid">
@@ -544,6 +544,61 @@
           </a>
         </div>
       </section>
+      <!-- Koring：关于 -->
+      <div v-if="appStore.skin === 'koring'" class="kor-section">
+        <KorSettingCard>
+          <KorSettingRow :label="$t('more.currentVersion')" :desc="$t('settings.aboutSection.projectDesc')">
+            <span class="kor-value">v{{ appVersion }}</span>
+          </KorSettingRow>
+          <KorSettingRow :label="$t('more.projectLicense')" :desc="'GNU General Public License v3.0'">
+            <KorButton variant="outline" size="sm" @click="openExternal('https://www.gnu.org/licenses/gpl-3.0.html')">{{ $t('more.viewGplv3') }}</KorButton>
+          </KorSettingRow>
+          <KorSettingRow :label="$t('more.checkUpdate')">
+            <KorButton variant="outline" size="sm" @click="checkForUpdate">{{ $t('more.checkUpdate') }}</KorButton>
+          </KorSettingRow>
+          <KorSettingRow :label="$t('more.viewSource')">
+            <KorButton variant="ghost" size="sm" @click="openExternal('https://github.com/MeowY-Studios/VoxVer-Launcher')">GitHub</KorButton>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle class="kor-inline-title">{{ $t('settings.aboutSection.projectInfo') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow label="VoxVer Launcher Team" :desc="$t('settings.aboutSection.teamRole')" />
+          <KorSettingRow label="GNU General Public License 3.0" :desc="$t('settings.aboutSection.licenseRole')" />
+          <KorSettingRow label="Lumin UI/UX">
+            <KorButton variant="ghost" size="sm" @click="openExternal('https://github.com/MeowY-Studios/Lumin-UI-UX')">{{ $t('settings.aboutSection.luminUiux') }}</KorButton>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle class="kor-inline-title">{{ $t('settings.aboutSection.acknowledgements') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow label="Mojang Studios" :desc="$t('settings.aboutSection.minecraftCreator')" />
+          <KorSettingRow label="Microsoft" :desc="$t('settings.aboutSection.msSupport')" />
+          <KorSettingRow label="Open Source Community" :desc="$t('settings.aboutSection.ossCommunity')" />
+          <KorSettingRow :label="$t('settings.aboutSection.koringUi')">
+            <KorButton variant="ghost" size="sm" @click="openExternal('https://github.com/dream-pep')">dream-pep</KorButton>
+          </KorSettingRow>
+          <KorSettingRow label="StarLight.Core">
+            <KorButton variant="ghost" size="sm" @click="openExternal('https://github.com/Conlux-Studio/StarLight.Core')">{{ $t('settings.aboutSection.archReference') }}</KorButton>
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.aboutSection.xmcl')">
+            <KorButton variant="ghost" size="sm" @click="openExternal('https://www.xmcl.app/zh/')">{{ $t('settings.aboutSection.xmclRole') }}</KorButton>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle class="kor-inline-title">{{ $t('settings.aboutSection.relatedLinks') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow label="GitHub">
+            <KorButton variant="ghost" size="sm" @click="openExternal('https://github.com/MeowY-Studios/VoxVer-Launcher')">{{ $t('settings.aboutSection.relatedLinks') }}</KorButton>
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.aboutSection.docs')">
+            <KorButton variant="ghost" size="sm" @click="openExternal('https://voxver.meow-studio.tech')">voxver.meow-studio.tech</KorButton>
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.aboutSection.releases')">
+            <KorButton variant="ghost" size="sm" @click="openExternal('https://github.com/MeowY-Studios/VoxVer-Launcher/releases')">{{ $t('settings.aboutSection.releases') }}</KorButton>
+          </KorSettingRow>
+        </KorSettingCard>
+      </div>
     </template>
 
     <!-- ========== 启动器设置 ========== -->
@@ -624,7 +679,7 @@
     <!-- ========== 版权声明 ========== -->
     <template v-if="activeCategory === 'copyright'">
       <!-- 版权声明 -->
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10" />
@@ -645,7 +700,7 @@
       </section>
 
       <!-- 项目协议 -->
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
@@ -673,7 +728,7 @@
       </section>
 
       <!-- 开源依赖 -->
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="16 18 22 12 16 6" />
@@ -735,7 +790,7 @@
       </section>
 
       <!-- 字体授权 -->
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M4 7V4h16v3" />
@@ -758,7 +813,7 @@
       </section>
 
       <!-- VoxVer 归属 -->
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
@@ -773,6 +828,46 @@
           <p class="copyright-text">{{ $t('more.attributionText2') }}</p>
         </div>
       </section>
+
+      <!-- Koring：版权 -->
+      <div v-if="appStore.skin === 'koring'" class="kor-section">
+        <KorSettingCard>
+          <p class="kor-copy">{{ $t('more.copyrightText1') }}</p>
+          <p class="kor-copy">{{ $t('more.copyrightText2') }}</p>
+        </KorSettingCard>
+
+        <KorSectionTitle class="kor-inline-title">{{ $t('more.projectLicense') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow label="GNU General Public License v3.0" :desc="$t('more.licenseDesc')">
+            <KorButton variant="outline" size="sm" @click="openExternal('https://www.gnu.org/licenses/gpl-3.0.html')">{{ $t('more.viewGplv3') }}</KorButton>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle class="kor-inline-title">{{ $t('more.ossDependencies') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow label="Electron" desc="v33"><span class="kor-value">MIT</span></KorSettingRow>
+          <KorSettingRow label="Vue.js" desc="v3.5"><span class="kor-value">MIT</span></KorSettingRow>
+          <KorSettingRow label="Vue Router" desc="v4"><span class="kor-value">MIT</span></KorSettingRow>
+          <KorSettingRow label="electron-vite"><span class="kor-value">MIT</span></KorSettingRow>
+          <KorSettingRow label="TypeScript" desc="v5.5"><span class="kor-value">Apache-2.0</span></KorSettingRow>
+          <KorSettingRow label="Lucide Icons"><span class="kor-value">MIT</span></KorSettingRow>
+          <KorSettingRow label="Node.js" desc="v20+"><span class="kor-value">MIT</span></KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle class="kor-inline-title">{{ $t('more.fontLicense') }}</KorSectionTitle>
+        <KorSettingCard>
+          <p class="kor-copy">{{ $t('more.fontLicenseText') }}</p>
+          <KorSettingRow :label="$t('more.fontLicense')">
+            <KorButton variant="ghost" size="sm" @click="openExternal('https://scripts.sil.org/OFL')">{{ $t('more.viewSilLicense') }}</KorButton>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle class="kor-inline-title">{{ $t('more.voxverAttribution') }}</KorSectionTitle>
+        <KorSettingCard>
+          <p class="kor-copy">{{ $t('more.attributionText1') }}</p>
+          <p class="kor-copy">{{ $t('more.attributionText2') }}</p>
+        </KorSettingCard>
+      </div>
     </template>
 
     <!-- ========== 游戏档案 ========== -->

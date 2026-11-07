@@ -727,3 +727,24 @@ html[data-theme='light'] .kor-radio__item:hover {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* ---- 设置正文辅助类（Koring 分支用） ---- */
+.kor-section .kor-inline-title {
+  margin: 26px 0 10px;
+}
+
+.kor-copy {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--kor-text-muted);
+}
+
+.kor-copy + .kor-copy {
+  margin-top: 8px;
+}
+
+.kor-value {
+  font-size: 13px;
+  color: var(--voxver-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
