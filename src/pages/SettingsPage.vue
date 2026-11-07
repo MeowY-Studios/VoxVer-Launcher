@@ -892,7 +892,7 @@
     <!-- ========== 游戏档案 ========== -->
     <template v-if="activeCategory === 'profile'">
       <div class="account-settings-wrapper">
-        <AccountPage />
+        <AccountPage embedded />
       </div>
     </template>
 

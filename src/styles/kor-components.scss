@@ -839,3 +839,30 @@ html[data-theme='light'] .kor-radio__item:hover {
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.56);
 }
+/* Koring 账户页：分段切换、卡片动作行、3D 皮肤容器 */
+[data-skin='koring'] .kor-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+[data-skin='koring'] .kor-section-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+[data-skin='koring'] .kor-account-skin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 220px;
+  padding: 12px;
+  border-radius: var(--kor-radius, 14px);
+  overflow: hidden;
+}
+
+[data-skin='koring'] .kor-account-skin > * {
+  width: 100%;
+  height: 100%;
+}
