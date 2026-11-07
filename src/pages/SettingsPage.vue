@@ -262,10 +262,29 @@
         <span class="coming-soon-badge">{{ $t('more.notAvailable') }}</span>
       </div>
 
-      <!-- Koring 排版 -->
-      <KorSurface v-else class="kor-section">
-        <KorEmpty :title="$t('settings.home.accountTitle')" :desc="$t('settings.home.comingSoonDesc')" />
-      </KorSurface>
+      <!-- Koring 排版：账户卡（沿用 Koring 的「未登录 / 已登录」单卡布局） -->
+      <div v-else class="kor-account-panel kor-section">
+        <span class="kor-account-panel__avatar">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" />
+            <path d="M10 8l4 4-4 4" />
+            <path d="M14 12H3" />
+          </svg>
+        </span>
+        <h3 class="kor-account-panel__title">{{ $t('settings.koringAccountGuest') }}</h3>
+        <p class="kor-account-panel__desc">{{ $t('settings.koringAccountGuestDesc') }}</p>
+        <KorButton variant="primary" size="md" @click="onVoxverAccountAction">
+          {{ $t('settings.koringAccountSignIn') }}
+        </KorButton>
+      </div>
     </template>
 
     <!-- ========== 关于 ========== -->
@@ -3692,8 +3711,8 @@ import { useI18n } from 'vue-i18n'
 import { useAppStore, type ThemeMode, type ThemeSkin } from '../stores/app.store'
 import { useInstancesStore } from '../stores/instances.store'
 import AccountPage from './AccountPage.vue'
-import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
+import { useConfirm } from '@/composables/useConfirm'
 import PxSelect from '@/components/common/PxSelect.vue'
 
 
@@ -3707,10 +3726,8 @@ import SkinPresetCard from '@/components/settings/SkinPresetCard.vue'
 import {
   KorAccountCard,
   KorButton,
-  KorEmpty,
   KorPageHeader,
   KorPageShell,
-  KorSurface,
   KorVersionCard,
   KorSectionTitle,
   KorSettingCard,
@@ -3731,6 +3748,14 @@ const pageRef = ref<HTMLElement | null>(null)
 const router = useRouter()
 const route = useRoute()
 const appStore = useAppStore()
+/** Koring 排版下的「账户」= VoxVer 启动器账户（与「游戏账户与档案」的 Microsoft 游戏账号是两回事） */
+function onVoxverAccountAction(): void {
+  toast({
+    title: t('settings.koringAccountSoon'),
+    message: t('settings.koringAccountSoonDesc'),
+    type: 'info'
+  })
+}
 
 /* Koring 排版用的下拉选项（classic 排版用单选卡片，Koring 用 select） */
 const korTitleBarOptions = computed(() => [
@@ -3817,11 +3842,14 @@ const activeCategory = computed({
 const korSettingGroups = computed<KorShellGroup[]>(() =>
   settingsNavGroups.map((group) => ({
     title: t(group.name),
-    items: group.items.map((item) => ({
-      key: item.category || item.id,
-      label: t(item.labelKey),
-      icon: item.icon
-    }))
+    items: group.items
+      // Koring 皮肤下账户入口在左上角账户卡，侧栏不再单列「账户」
+      .filter((item) => item.category !== 'account')
+      .map((item) => ({
+        key: item.category || item.id,
+        label: t(item.labelKey),
+        icon: item.icon
+      }))
   }))
 )
 
