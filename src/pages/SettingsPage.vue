@@ -1641,7 +1641,7 @@
 
     <!-- ========== 主界面 ========== -->
     <template v-if="activeCategory === 'interface'">
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="2" y="3" width="20" height="14" rx="2" />
@@ -1705,11 +1705,23 @@
         </div>
 
       </section>
+
+      <!-- Koring 排版 -->
+      <section v-else class="kor-section">
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.titlebar')" :desc="$t('settings.titlebarMode')">
+            <KorSettingSelect v-model="s.titleBarMode" :options="korTitleBarOptions" :width="200" />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.homepage')" :desc="$t('settings.homepageContent')">
+            <KorSettingSelect v-model="s.homeContent" :options="korHomeOptions" :width="200" />
+          </KorSettingRow>
+        </KorSettingCard>
+      </section>
     </template>
 
     <!-- ========== 语言 ========== -->
     <template v-if="activeCategory === 'language'">
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10" />
@@ -1800,11 +1812,28 @@
           </a>
         </div>
       </section>
+
+      <!-- Koring 排版 -->
+      <section v-else class="kor-section">
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.interfaceLanguage')" :desc="$t('settings.languageSubtitle')">
+            <KorSettingSelect v-model="s.lang" :options="korLangOptions" :width="200" />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.dateFormat')" :desc="$t('settings.dateFormatDesc')">
+            <KorSettingSelect v-model="s.dateFormat" :options="korDateFormatOptions" :width="200" />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.contributeTranslation')" :desc="$t('settings.contributeTranslationDesc')">
+            <KorButton variant="outline" size="sm" @click="openExternal('https://github.com/MeowY-Studios/VoxVer-Launcher')">
+              {{ $t('settings.goToTranslate') }}
+            </KorButton>
+          </KorSettingRow>
+        </KorSettingCard>
+      </section>
     </template>
 
     <!-- ========== 辅助功能 ========== -->
     <template v-if="activeCategory === 'accessibility'">
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10" />
@@ -1913,6 +1942,30 @@
             </label>
           </div>
         </div>
+      </section>
+
+      <!-- Koring 排版 -->
+      <section v-else class="kor-section">
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.accessibilityScreenReader')" :desc="$t('settings.accessibilityScreenReaderDesc')">
+            <KorSettingSwitch v-model="s.accessibilityScreenReader" />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.accessibilityReduceMotion')" :desc="$t('settings.accessibilityReduceMotionDesc')">
+            <KorSettingSwitch v-model="s.accessibilityReduceMotion" />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.accessibilityHighContrast')" :desc="$t('settings.accessibilityHighContrastDesc')">
+            <KorSettingSwitch v-model="s.accessibilityHighContrast" />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.accessibilityKeyboardNav')" :desc="$t('settings.accessibilityKeyboardNavDesc')">
+            <KorSettingSwitch v-model="s.accessibilityKeyboardNav" />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.accessibilityFontScale')" :desc="$t('settings.accessibilityFontScaleDesc')">
+            <KorSettingSelect v-model="s.accessibilityFontScale" :options="korFontScaleOptions" :width="200" />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.accessibilityColorBlind')" :desc="$t('settings.accessibilityColorBlindDesc')">
+            <KorSettingSelect v-model="s.accessibilityColorBlind" :options="korColorBlindOptions" :width="200" />
+          </KorSettingRow>
+        </KorSettingCard>
       </section>
     </template>
 
@@ -3246,7 +3299,10 @@ import PxSelect from '@/components/common/PxSelect.vue'
 import ThemeModeCard from '@/components/settings/ThemeModeCard.vue'
 import SkinPresetCard from '@/components/settings/SkinPresetCard.vue'
 import {
+  KorAccountCard,
+  KorButton,
   KorPageHeader,
+  KorPageShell,
   KorVersionCard,
   KorSectionTitle,
   KorSettingCard,
@@ -3256,7 +3312,6 @@ import {
   KorSettingSelect
 } from '@/components/kor'
 import { renderMarkdownSafe } from '../utils/markdown'
-import { KorAccountCard, KorPageShell } from '../components/kor'
 import { settingsNavGroups } from '../config/settings-nav'
 import type { KorShellGroup } from '../components/kor/shell/types'
 
@@ -3265,6 +3320,50 @@ const pageRef = ref<HTMLElement | null>(null)
 const router = useRouter()
 const route = useRoute()
 const appStore = useAppStore()
+
+/* Koring 排版用的下拉选项（classic 排版用单选卡片，Koring 用 select） */
+const korTitleBarOptions = computed(() => [
+  { value: 'default', label: t('settings.defaultTitlebar') },
+  { value: 'none', label: t('settings.hideTitlebar') },
+  { value: 'text', label: t('settings.textOnly') },
+  { value: 'image', label: t('settings.customImageTitlebar') }
+])
+
+const korHomeOptions = computed(() => [
+  { value: 'blank', label: t('settings.blankPage') },
+  { value: 'preset', label: t('settings.presetHomepage') },
+  { value: 'local', label: t('settings.localFile') },
+  { value: 'online', label: t('settings.onlineUpdate') }
+])
+
+const korLangOptions = computed(() => [
+  { value: 'zh-CN', label: t('settings.langZhCN') },
+  { value: 'en-US', label: t('settings.langEnUS') }
+])
+
+const korDateFormatOptions = computed(() => [
+  { value: 'follow', label: t('settings.dateFollowLang') },
+  { value: '24h', label: t('settings.date24h') },
+  { value: '12h', label: t('settings.date12h') }
+])
+
+const korFontScaleOptions = computed(() => [
+  { value: 'default', label: t('settings.accessibilityFontDefault') },
+  { value: 'large', label: t('settings.accessibilityFontLarge') },
+  { value: 'xlarge', label: t('settings.accessibilityFontXLarge') }
+])
+
+const korColorBlindOptions = computed(() => [
+  { value: 'none', label: t('settings.accessibilityColorNone') },
+  { value: 'protanopia', label: t('settings.accessibilityColorProtanopia') },
+  { value: 'deuteranopia', label: t('settings.accessibilityColorDeuteranopia') },
+  { value: 'tritanopia', label: t('settings.accessibilityColorTritanopia') },
+  { value: 'monochromat', label: t('settings.accessibilityColorMonochromat') }
+])
+
+function openExternal(url: string) {
+  window.electronAPI?.shell?.openExternal?.(url)
+}
 const instancesStore = useInstancesStore()
 const allInstances = computed(() => instancesStore.instances)
 const { tm, t } = useI18n()
