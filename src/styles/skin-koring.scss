@@ -282,3 +282,127 @@
 [data-skin='koring'] .kor-pill--ghost {
   color: rgba(255, 255, 255, 0.82);
 }
+/* ========== 下载页（Koring 皮肤） ========== */
+[data-skin='koring'] .downloads-page {
+  padding: 32px 32px 48px;
+}
+
+[data-skin='koring'] .dl-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+[data-skin='koring'] .dl-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--voxver-primary) 18%, transparent);
+  color: var(--voxver-primary);
+}
+
+[data-skin='koring'] .dl-header-text {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--voxver-text-primary);
+}
+
+[data-skin='koring'] .dl-search {
+  margin-bottom: 18px;
+}
+
+[data-skin='koring'] .dl-search input {
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 13px;
+  backdrop-filter: blur(12px);
+}
+
+[data-skin='koring'] .ver-accordion,
+[data-skin='koring'] .filter-grid {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+
+[data-skin='koring'] .acc-group + .acc-group {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-skin='koring'] .acc-group {
+  border: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  margin: 0;
+}
+
+[data-skin='koring'] .ver-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 8px;
+  transition: background 140ms ease;
+}
+
+[data-skin='koring'] .ver-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-skin='koring'] .ver-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+[data-skin='koring'] .ver-info .name,
+[data-skin='koring'] .ver-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--voxver-text-primary);
+}
+
+[data-skin='koring'] .ver-actions button,
+[data-skin='koring'] .ver-more {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+  color: var(--voxver-text-secondary);
+}
+
+[data-skin='koring'] .ver-actions button:hover,
+[data-skin='koring'] .ver-more:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--voxver-text-primary);
+}
+
+[data-skin='koring'] .latest-section-header {
+  margin-bottom: 10px;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
