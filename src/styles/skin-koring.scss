@@ -554,3 +554,189 @@
   background: rgba(0, 0, 0, 0.35);
   margin-bottom: 8px;
 }
+/* ========== 设置页其余分类（Koring 皮肤） ========== */
+[data-skin='koring'] .main-content .settings-page,
+[data-skin='koring'] .settings-page {
+  padding: 32px 32px 48px;
+}
+
+[data-skin='koring'] .sec {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  box-shadow: none;
+  padding: 18px 22px;
+  margin-bottom: 12px;
+}
+
+[data-skin='koring'] .sec + .sec {
+  margin-top: 0;
+}
+
+[data-skin='koring'] .sec-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--voxver-text-primary);
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  margin-bottom: 4px;
+}
+
+[data-skin='koring'] .sec-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.56);
+}
+
+[data-skin='koring'] .sec-body {
+  padding-top: 4px;
+}
+
+[data-skin='koring'] .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+}
+
+[data-skin='koring'] .row + .row {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-skin='koring'] .row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+[data-skin='koring'] .row-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--voxver-text-primary);
+}
+
+[data-skin='koring'] .row-desc {
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.56);
+}
+
+[data-skin='koring'] .row-control {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+[data-skin='koring'] .inp {
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 13px;
+  color: var(--voxver-text-primary);
+}
+
+[data-skin='koring'] .inp:focus {
+  border-color: color-mix(in oklab, var(--voxver-primary) 55%, transparent);
+  outline: none;
+}
+
+[data-skin='koring'] .btn,
+[data-skin='koring'] .action-btn {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 13px;
+  color: var(--voxver-text-primary);
+}
+
+[data-skin='koring'] .btn:hover,
+[data-skin='koring'] .action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-skin='koring'] .btn-sm {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+[data-skin='koring'] .input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+[data-skin='koring'] .memory-alloc-card {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 14px 16px;
+}
+
+[data-skin='koring'] .skin-radio-item {
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+[data-skin='koring'] .skin-radio-item.active {
+  border-color: color-mix(in oklab, var(--voxver-primary) 48%, transparent);
+  background: color-mix(in oklab, var(--voxver-primary) 16%, transparent);
+  color: var(--voxver-primary);
+}
+
+[data-skin='koring'] .debug-mode-row {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 14px 16px;
+}
+
+[data-skin='koring'] .debug-mode-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+[data-skin='koring'] .debug-mode-desc {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.56);
+}
+
+[data-skin='koring'] .quick-grid-item {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.35);
+  transition: background 140ms ease, transform 140ms ease;
+}
+
+[data-skin='koring'] .quick-grid-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+}
+
+[data-skin='koring'] .quick-grid-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+[data-skin='koring'] .quick-grid-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+[data-skin='koring'] .credit-item {
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px 12px;
+}
