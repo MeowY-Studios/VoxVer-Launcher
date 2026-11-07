@@ -448,6 +448,10 @@ declare global {
   interface Window {
     electronAPI: ElectronAPI
   }
+
+  /** 构建时由 electron.vite.config.ts 注入 */
+  const __APP_VERSION__: string
+  const __APP_COMMIT__: string
 }
 
 // Extend vue-i18n types without overriding

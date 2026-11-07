@@ -783,66 +783,130 @@
 
 [data-skin='koring'] .kor-version-banner {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 200px;
+  display: block;
+  width: 100%;
+  min-height: 220px;
   margin-bottom: 24px;
   padding: 24px;
+  font: inherit;
+  color: inherit;
   border-radius: 14px;
   border: 1px solid color-mix(in oklab, var(--voxver-primary) 40%, transparent);
   background:
-    linear-gradient(135deg, color-mix(in oklab, var(--voxver-primary) 78%, #1b2b6b), color-mix(in oklab, var(--voxver-primary) 38%, #16308f));
+    linear-gradient(135deg, color-mix(in oklab, var(--voxver-primary) 82%, #1b2b6b), color-mix(in oklab, var(--voxver-primary) 36%, #16308f));
   box-shadow: 0 18px 48px -22px color-mix(in oklab, var(--voxver-primary) 70%, transparent);
   overflow: hidden;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-[data-skin='koring'] .kor-version-banner::after {
-  content: '';
+[data-skin='koring'] .kor-version-banner:hover {
+  transform: scale(1.005);
+}
+
+[data-skin='koring'] .kor-version-banner:active {
+  transform: scale(0.995);
+}
+
+/* 丝绸/水波层：多层斜向条纹 + 旋转径向渐变，模糊后叠加 soft-light，近似 Koring 的 Silk shader */
+[data-skin='koring'] .kor-version-silk {
   position: absolute;
-  inset: 0;
-  background: radial-gradient(120% 90% at 12% 8%, rgba(255, 255, 255, 0.28), transparent 60%);
+  inset: -30%;
+  background-image:
+    repeating-linear-gradient(112deg, rgba(255, 255, 255, 0.16) 0 5px, rgba(255, 255, 255, 0) 5px 24px),
+    repeating-linear-gradient(76deg, rgba(255, 255, 255, 0.1) 0 9px, rgba(255, 255, 255, 0) 9px 46px),
+    radial-gradient(60% 90% at 30% 20%, rgba(255, 255, 255, 0.22), transparent 70%);
+  filter: blur(7px);
+  opacity: 0.55;
+  mix-blend-mode: soft-light;
+  animation: kor-silk-drift 14s linear infinite;
   pointer-events: none;
 }
 
-[data-skin='koring'] .kor-version-badge,
-[data-skin='koring'] .kor-version-name,
-[data-skin='koring'] .kor-version-number,
-[data-skin='koring'] .kor-version-link {
+@keyframes kor-silk-drift {
+  0% { transform: translate3d(-2%, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(2%, -1.5%, 0) rotate(1.2deg); }
+  100% { transform: translate3d(-2%, 0, 0) rotate(0deg); }
+}
+
+/* 左上角高光 */
+[data-skin='koring'] .kor-version-shine {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 12% 6%, rgba(255, 255, 255, 0.3), transparent 62%);
+  pointer-events: none;
+}
+
+[data-skin='koring'] .kor-version-content {
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
   color: #fff;
 }
 
 [data-skin='koring'] .kor-version-badge {
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  opacity: 0.85;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  opacity: 0.9;
+}
+
+[data-skin='koring'] .kor-version-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+[data-skin='koring'] .kor-version-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 6px solid #fff;
+  color: transparent;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 [data-skin='koring'] .kor-version-name {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
+  line-height: 1.12;
   letter-spacing: -0.02em;
+  text-align: left;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.28);
 }
 
 [data-skin='koring'] .kor-version-number {
-  font-size: 13px;
-  opacity: 0.85;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+[data-skin='koring'] .kor-version-commit {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 11px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 [data-skin='koring'] .kor-version-link {
-  margin-top: 6px;
-  padding: 0;
-  border: none;
-  background: none;
-  font-size: 13px;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.62);
+  transition: color 160ms ease;
+}
+
+[data-skin='koring'] .kor-version-banner:hover .kor-version-link {
+  color: #fff;
 }
 
 [data-skin='koring'] .quick-grid {

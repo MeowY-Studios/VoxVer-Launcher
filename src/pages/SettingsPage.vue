@@ -17,14 +17,25 @@
           <p class="kor-page-desc">{{ $t('settings.home.korDesc') }}</p>
         </div>
 
-        <div class="kor-version-banner">
-          <span class="kor-version-badge">{{ $t('settings.home.korOfficial') }}</span>
-          <div class="kor-version-name">VoxVer Launcher</div>
-          <div class="kor-version-number">v{{ appVersion }}</div>
-          <button type="button" class="kor-version-link" @click="router.push('/update')">
-            {{ $t('settings.home.korCheckUpdate') }}
-          </button>
-        </div>
+        <button type="button" class="kor-version-banner" @click="router.push('/update')">
+          <span class="kor-version-silk" aria-hidden="true"></span>
+          <span class="kor-version-shine" aria-hidden="true"></span>
+          <span class="kor-version-content">
+            <span class="kor-version-badge">{{ $t('settings.home.korOfficial') }}</span>
+            <span class="kor-version-brand">
+              <span class="kor-version-logo">V</span>
+              <span class="kor-version-name">VoxVer<br />Launcher</span>
+            </span>
+            <span class="kor-version-number">v{{ appVersion }}</span>
+            <span v-if="appCommit" class="kor-version-commit">commit {{ appCommit }}</span>
+            <span class="kor-version-link">
+              {{ $t('settings.home.korCheckUpdate') }}
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </span>
+          </span>
+        </button>
       </template>
 
       <!-- 查找设置 -->
@@ -5128,6 +5139,8 @@ onMounted(async () => {
 
 // ====== 应用版本 ======
 const appVersion = ref('Alpha')
+/** 构建时的 git 提交短哈希（由 vite define 注入，开发/无 git 环境为 dev 时隐藏） */
+const appCommit = typeof __APP_COMMIT__ === 'string' && __APP_COMMIT__ !== 'dev' ? __APP_COMMIT__ : ''
 
 onMounted(async () => {
   try {

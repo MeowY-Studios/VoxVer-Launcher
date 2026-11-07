@@ -3,8 +3,20 @@ import { defineConfig } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
 import dotenv from 'dotenv'
 import pkg from './package.json'
+import { execSync } from 'child_process'
 
 dotenv.config()
+
+/** 构建时写入的 git 提交短哈希（取 HEAD；无 git 环境时回退 dev） */
+function resolveCommit(): string {
+  try {
+    return execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim()
+  } catch {
+    return 'dev'
+  }
+}
+
+const APP_COMMIT = resolveCommit()
 
 const depKeys = Object.keys(pkg.dependencies || {})
 const externalDeps = [...depKeys, 'electron', '@aws-sdk/client-s3']
@@ -61,6 +73,7 @@ export default defineConfig({
     },
     define: {
       __APP_VERSION__: JSON.stringify(pkg.version),
+      __APP_COMMIT__: JSON.stringify(APP_COMMIT),
     },
     plugins: [
       vue(),
