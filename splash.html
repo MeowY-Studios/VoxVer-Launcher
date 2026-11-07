@@ -125,37 +125,45 @@
       }
 
       .cloud-b {
-        left: 268px;
-        top: 84px;
-        transform: scale(0.72);
+        left: 330px;
+        top: 46px;
+        transform: scale(0.62);
         animation-delay: 0.24s, 1.6s;
-        opacity: 0.75;
+        opacity: 0.7;
       }
 
-      /* ---------- 舞台：品牌标记落在草地上 ---------- */
-      .stage {
+      /* ---------- 品牌组合：图标 + 文字同一行，垂直居中 ---------- */
+      .lockup {
         position: absolute;
-        left: 40px;
-        bottom: 40px;
-        width: 64px;
-        height: 64px;
+        left: 0;
+        right: 0;
+        top: 74px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        pointer-events: none;
+      }
+
+      /* 图标槽位：落地动画的舞台 */
+      .mark {
+        position: relative;
+        width: 56px;
+        height: 56px;
+        flex: 0 0 auto;
       }
 
       .block-wrap {
         position: absolute;
-        left: 50%;
-        top: 0;
-        width: 64px;
-        height: 64px;
-        margin-left: -32px;
+        inset: 0;
         animation: block-drop 0.68s cubic-bezier(0.45, 0, 0.9, 0.5) both;
       }
 
       .block {
-        width: 64px;
-        height: 64px;
+        width: 56px;
+        height: 56px;
         display: block;
-        filter: drop-shadow(0 8px 12px rgba(48, 96, 156, 0.34));
+        filter: drop-shadow(0 7px 10px rgba(48, 96, 156, 0.3));
         animation: block-squash 0.42s cubic-bezier(0.3, 1.6, 0.5, 1) 0.68s both;
       }
 
@@ -163,24 +171,24 @@
       .block-shadow {
         position: absolute;
         left: 50%;
-        top: 62px;
-        width: 66px;
-        height: 10px;
-        margin-left: -33px;
+        bottom: -5px;
+        width: 54px;
+        height: 9px;
+        margin-left: -27px;
         border-radius: 50%;
-        background: radial-gradient(ellipse, rgba(74, 92, 48, 0.34) 0%, rgba(74, 92, 48, 0) 72%);
+        background: radial-gradient(ellipse, rgba(74, 92, 48, 0.28) 0%, rgba(74, 92, 48, 0) 72%);
         opacity: 0;
         animation: shadow-in 0.68s cubic-bezier(0.45, 0, 0.9, 0.5) both;
       }
 
-      /* 落地时草地上的一圈浅色扬尘 */
+      /* 落地时的一圈浅色扬尘 */
       .ring {
         position: absolute;
         left: 50%;
-        top: 56px;
-        width: 22px;
-        height: 22px;
-        margin-left: -11px;
+        bottom: -8px;
+        width: 20px;
+        height: 20px;
+        margin-left: -10px;
         border: 2px solid rgba(122, 180, 236, 0.6);
         border-radius: 50%;
         opacity: 0;
@@ -191,7 +199,7 @@
       .dust {
         position: absolute;
         left: 50%;
-        top: 64px;
+        bottom: 0;
         width: 4px;
         height: 4px;
         background: rgba(160, 208, 248, 0.95);
@@ -199,22 +207,19 @@
         animation: dust-fly 0.52s ease-out 0.66s forwards;
       }
 
-      /* ---------- 品牌 ---------- */
-      .brand {
-        position: absolute;
-        left: 118px;
-        right: 24px;
-        top: 92px;
+      /* ---------- 品牌文字（与图标同排，垂直居中） ---------- */
+      .wordmark {
         display: flex;
-        align-items: center;
-        justify-content: flex-start;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 7px;
       }
 
       .brand-name {
         font-family: 'Press Start 2P', 'Segoe UI', monospace;
-        font-size: 15px;
+        font-size: 16px;
         line-height: 1;
-        letter-spacing: 0.16em;
+        letter-spacing: 0.14em;
         color: var(--ink);
         text-shadow: 0 2px 0 rgba(255, 255, 255, 0.85);
         opacity: 0;
@@ -222,15 +227,12 @@
       }
 
       .brand-sub {
-        position: absolute;
-        left: 118px;
-        right: 24px;
-        top: 126px;
-        text-align: left;
         font-family: 'Press Start 2P', monospace;
         font-size: 7px;
+        line-height: 1;
         letter-spacing: 0.42em;
         color: var(--muted);
+        text-align: left;
         opacity: 0;
         animation: fade-up 0.42s ease-out 0.94s both;
       }
@@ -238,9 +240,10 @@
       /* ---------- 进度条 ---------- */
       .bar-wrap {
         position: absolute;
-        left: 118px;
-        top: 156px;
+        left: 50%;
+        top: 152px;
         width: 244px;
+        margin-left: -122px;
         opacity: 0;
         animation: fade-up 0.4s ease-out 0.98s both;
       }
@@ -292,10 +295,10 @@
       /* ---------- 状态文字 / 版本 ---------- */
       .status {
         position: absolute;
-        left: 118px;
-        right: 24px;
-        top: 182px;
-        text-align: left;
+        left: 0;
+        right: 0;
+        top: 178px;
+        text-align: center;
         font-size: 11px;
         letter-spacing: 0.06em;
         color: var(--muted);
@@ -483,18 +486,19 @@
       <div class="cloud cloud-b"></div>
       <div class="ground"></div>
 
-      <div class="stage">
-        <div class="block-shadow"></div>
-        <div class="block-wrap">
-          <img class="block" src="./brand/mark-256.png" alt="" draggable="false" />
+      <div class="lockup">
+        <div class="mark">
+          <div class="block-shadow"></div>
+          <div class="block-wrap">
+            <img class="block" src="./brand/mark-256.png" alt="" draggable="false" />
+          </div>
+          <div class="ring"></div>
         </div>
-        <div class="ring"></div>
+        <div class="wordmark">
+          <div class="brand-name">VOXVER</div>
+          <div class="brand-sub">LAUNCHER</div>
+        </div>
       </div>
-
-      <div class="brand">
-        <div class="brand-name">VOXVER</div>
-      </div>
-      <div class="brand-sub">LAUNCHER</div>
 
       <div class="bar-wrap">
         <div class="bar">
@@ -517,8 +521,8 @@
         var version = new URLSearchParams(location.search).get('v')
         if (version) versionEl.textContent = 'v' + version.replace(/^v/i, '')
 
-        // 落地尘埃：8 颗像素泥土以不同角度散开
-        var stage = document.querySelector('.stage')
+        // 落地尘埃：8 颗像素碎光以不同角度散开
+        var stage = document.querySelector('.mark')
         for (var i = 0; i < 8; i++) {
           var dust = document.createElement('div')
           dust.className = 'dust'
