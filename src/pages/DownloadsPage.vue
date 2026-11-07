@@ -479,20 +479,16 @@
     <!-- ====== 原版游戏视图（Koring） ====== -->
     <template v-else-if="activeCategory === 'vanilla'">
       <div class="kor-c12">
-        <KorSettingCard>
-          <KorSettingRow :label="$t('download.vanilla')" :desc="$t('download.vanillaSubtitle')">
-            <KorButton size="sm" variant="ghost" @click="refreshVersions">{{
-              $t('download.refresh')
-            }}</KorButton>
-          </KorSettingRow>
-          <KorSettingRow :label="$t('download.searchVersion')">
-            <KorInput
-              v-model="verSearch"
-              :placeholder="$t('download.searchVersion')"
-              class="kor-input--wide"
-            />
-          </KorSettingRow>
-        </KorSettingCard>
+        <div class="kor-c12__toolbar">
+          <KorInput
+            v-model="verSearch"
+            :placeholder="$t('download.searchVersion')"
+            class="kor-input--wide"
+          />
+          <KorButton size="sm" variant="ghost" @click="refreshVersions">{{
+            $t('download.refresh')
+          }}</KorButton>
+        </div>
 
         <template v-if="latestRelease || latestSnapshot">
           <KorSectionTitle>{{ $t('download.latestVersion') }}</KorSectionTitle>

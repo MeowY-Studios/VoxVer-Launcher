@@ -2847,3 +2847,13 @@ html[data-theme='light'] .kor-radio__item:hover {
   color: var(--kor-text-muted, rgba(255, 255, 255, 0.56));
   font-variant-numeric: tabular-nums;
 }
+[data-skin='koring'] .kor-c12__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+[data-skin='koring'] .kor-c12__toolbar .kor-input--wide {
+  flex: 1;
+}
