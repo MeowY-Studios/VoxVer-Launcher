@@ -9,9 +9,12 @@
     <title>VoxVer Splash</title>
     <style>
       /* ------------------------------------------------------------------
-         启动画面：草方块落地 → 品牌浮现 → 像素进度条推进
+         启动画面：晴空背景下草方块落地 → 品牌浮现 → 像素进度条推进
          由 electron/splash.ts 在独立无边框窗口里加载；主窗口 ready 后
          调用 window.__voxSplashExit() 播放退场，再销毁窗口。
+
+         配色取向：白天的 Minecraft 草原 —— 浅蓝天空、奶油色地面、
+         草绿与泥土棕；不用深色科技底、不用紫蓝色调。
          ------------------------------------------------------------------ */
       @font-face {
         font-family: 'Press Start 2P';
@@ -22,13 +25,17 @@
       }
 
       :root {
-        --bg-hi: #1a2136;
-        --bg-mid: #0e1220;
-        --bg-lo: #0a0d16;
-        --line: rgba(255, 255, 255, 0.09);
-        --primary: #5b8cff;
-        --text: #e8ecf8;
-        --muted: #8a93ab;
+        --sky-hi: #cfe9fb;
+        --sky-mid: #eaf7ff;
+        --sky-lo: #fdf9ee;
+        --ground-hi: #e9f7cc;
+        --ground-lo: #d5edb0;
+        --ink: #2f4a37;
+        --muted: #70856c;
+        --grass: #63bd43;
+        --grass-hi: #9ada6d;
+        --dirt: #a9793f;
+        --card-line: rgba(112, 140, 104, 0.26);
       }
 
       * {
@@ -53,50 +60,85 @@
         width: 440px;
         height: 272px;
         overflow: hidden;
-        border: 1px solid var(--line);
+        border: 1px solid var(--card-line);
         border-radius: 14px;
-        background: radial-gradient(120% 95% at 50% 0%, var(--bg-hi) 0%, var(--bg-mid) 56%, var(--bg-lo) 100%);
+        /* 天空 → 地面的竖直渐变，右上角留一团暖阳光 */
+        background:
+          radial-gradient(46% 34% at 78% 8%, rgba(255, 232, 168, 0.75) 0%, rgba(255, 240, 200, 0) 72%),
+          linear-gradient(180deg, var(--sky-hi) 0%, var(--sky-mid) 48%, var(--sky-lo) 100%);
         box-shadow:
-          0 26px 64px rgba(0, 0, 0, 0.55),
-          inset 0 1px 0 rgba(255, 255, 255, 0.06);
+          0 18px 44px rgba(56, 76, 46, 0.22),
+          inset 0 1px 0 rgba(255, 255, 255, 0.9);
         animation: card-in 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) both;
       }
 
-      /* 背景像素网格 */
-      .grid {
+      /* ---------- 背景：地面带（地平线） ---------- */
+      .ground {
         position: absolute;
-        inset: 0;
-        background-image:
-          linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
-        background-size: 16px 16px;
-        -webkit-mask-image: radial-gradient(78% 62% at 50% 34%, #000 26%, transparent 100%);
-        mask-image: radial-gradient(78% 62% at 50% 34%, #000 26%, transparent 100%);
-        pointer-events: none;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 38px;
+        background: linear-gradient(180deg, var(--ground-hi) 0%, var(--ground-lo) 100%);
+        border-top: 1px solid rgba(126, 168, 92, 0.45);
       }
 
-      /* 中心辉光 */
-      .glow {
+      /* 交界处的像素草叶 */
+      .ground::before {
+        content: '';
         position: absolute;
-        left: 50%;
-        top: 74px;
-        width: 260px;
-        height: 150px;
-        margin-left: -130px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(91, 140, 255, 0.16) 0%, transparent 68%);
-        animation: glow-breathe 3.2s ease-in-out infinite;
-        pointer-events: none;
+        left: 0;
+        right: 0;
+        top: -5px;
+        height: 5px;
+        background-image: repeating-linear-gradient(
+          90deg,
+          rgba(112, 178, 72, 0.85) 0,
+          rgba(112, 178, 72, 0.85) 4px,
+          transparent 4px,
+          transparent 9px
+        );
+        -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+        mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
       }
 
-      /* ---------- 舞台：草方块落地 ---------- */
+      /* ---------- 背景：像素云 ---------- */
+      .cloud {
+        position: absolute;
+        width: 44px;
+        height: 11px;
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow:
+          11px -10px 0 rgba(255, 255, 255, 0.92),
+          27px -10px 0 rgba(255, 255, 255, 0.92),
+          38px 0 0 rgba(255, 255, 255, 0.92);
+        opacity: 0;
+        animation:
+          cloud-in 0.6s ease-out both,
+          cloud-drift 9s linear infinite;
+      }
+
+      .cloud-a {
+        left: 26px;
+        top: 42px;
+        animation-delay: 0.1s, 0s;
+      }
+
+      .cloud-b {
+        left: 268px;
+        top: 84px;
+        transform: scale(0.72);
+        animation-delay: 0.24s, 1.6s;
+        opacity: 0.75;
+      }
+
+      /* ---------- 舞台：草方块落在草地上 ---------- */
       .stage {
         position: absolute;
-        left: 50%;
-        top: 22px;
-        width: 120px;
-        height: 64px;
-        margin-left: -60px;
+        left: 46px;
+        bottom: 40px;
+        width: 52px;
+        height: 52px;
       }
 
       .block-wrap {
@@ -114,7 +156,7 @@
         height: 52px;
         display: block;
         image-rendering: pixelated;
-        filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.5));
+        filter: drop-shadow(0 8px 10px rgba(74, 66, 34, 0.28));
         animation: block-squash 0.42s cubic-bezier(0.3, 1.6, 0.5, 1) 0.68s both;
       }
 
@@ -122,38 +164,38 @@
       .block-shadow {
         position: absolute;
         left: 50%;
-        top: 47px;
+        top: 50px;
         width: 54px;
         height: 9px;
         margin-left: -27px;
         border-radius: 50%;
-        background: radial-gradient(ellipse, rgba(91, 140, 255, 0.4) 0%, transparent 70%);
+        background: radial-gradient(ellipse, rgba(74, 92, 48, 0.34) 0%, rgba(74, 92, 48, 0) 72%);
         opacity: 0;
         animation: shadow-in 0.68s cubic-bezier(0.45, 0, 0.9, 0.5) both;
       }
 
-      /* 落点光圈 */
+      /* 落地时草地上的一圈浅色扬尘 */
       .ring {
         position: absolute;
         left: 50%;
-        top: 41px;
+        top: 44px;
         width: 18px;
         height: 18px;
         margin-left: -9px;
-        border: 2px solid rgba(91, 140, 255, 0.55);
+        border: 2px solid rgba(139, 168, 96, 0.55);
         border-radius: 50%;
         opacity: 0;
         animation: ring-out 0.62s cubic-bezier(0.2, 0.6, 0.3, 1) 0.66s forwards;
       }
 
-      /* 像素尘埃 */
+      /* 像素尘埃（泥土颗粒） */
       .dust {
         position: absolute;
         left: 50%;
-        top: 50px;
+        top: 52px;
         width: 4px;
         height: 4px;
-        background: #6d9bff;
+        background: var(--dirt);
         opacity: 0;
         animation: dust-fly 0.52s ease-out 0.66s forwards;
       }
@@ -161,12 +203,12 @@
       /* ---------- 品牌 ---------- */
       .brand {
         position: absolute;
-        left: 0;
-        right: 0;
-        top: 116px;
+        left: 118px;
+        right: 24px;
+        top: 92px;
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
       }
 
       .brand-name {
@@ -174,18 +216,18 @@
         font-size: 15px;
         line-height: 1;
         letter-spacing: 0.16em;
-        color: var(--text);
-        text-shadow: 0 0 14px rgba(91, 140, 255, 0.5);
+        color: var(--ink);
+        text-shadow: 0 2px 0 rgba(255, 255, 255, 0.85);
         opacity: 0;
         animation: fade-up 0.42s ease-out 0.84s both;
       }
 
       .brand-sub {
         position: absolute;
-        left: 0;
-        right: 0;
-        top: 148px;
-        text-align: center;
+        left: 118px;
+        right: 24px;
+        top: 126px;
+        text-align: left;
         font-family: 'Press Start 2P', monospace;
         font-size: 7px;
         letter-spacing: 0.42em;
@@ -197,10 +239,9 @@
       /* ---------- 进度条 ---------- */
       .bar-wrap {
         position: absolute;
-        left: 50%;
-        top: 178px;
+        left: 118px;
+        top: 156px;
         width: 244px;
-        margin-left: -122px;
         opacity: 0;
         animation: fade-up 0.4s ease-out 0.98s both;
       }
@@ -209,9 +250,10 @@
         position: relative;
         height: 10px;
         padding: 2px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(112, 140, 104, 0.35);
         border-radius: 3px;
-        background: rgba(255, 255, 255, 0.04);
+        background: rgba(255, 255, 255, 0.72);
+        box-shadow: inset 0 1px 2px rgba(90, 110, 80, 0.16);
         overflow: hidden;
       }
 
@@ -220,8 +262,7 @@
         width: 0;
         height: 100%;
         border-radius: 1px;
-        background: linear-gradient(90deg, #3f6fe0 0%, var(--primary) 60%, #8fb4ff 100%);
-        box-shadow: 0 0 12px rgba(91, 140, 255, 0.55);
+        background: linear-gradient(90deg, #4f9e33 0%, var(--grass) 55%, var(--grass-hi) 100%);
         animation: bar-fill 1.55s cubic-bezier(0.25, 0.7, 0.25, 1) 1.02s both;
       }
 
@@ -230,7 +271,7 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.55) 50%, transparent 80%);
+        background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.6) 50%, transparent 80%);
         transform: translateX(-100%);
         animation: bar-shine 1.15s ease-in-out 1.15s infinite;
       }
@@ -243,8 +284,8 @@
           90deg,
           transparent 0,
           transparent 23px,
-          rgba(10, 13, 22, 0.85) 23px,
-          rgba(10, 13, 22, 0.85) 25px
+          rgba(78, 104, 62, 0.42) 23px,
+          rgba(78, 104, 62, 0.42) 25px
         );
         pointer-events: none;
       }
@@ -252,10 +293,10 @@
       /* ---------- 状态文字 / 版本 ---------- */
       .status {
         position: absolute;
-        left: 0;
-        right: 0;
-        top: 200px;
-        text-align: center;
+        left: 118px;
+        right: 24px;
+        top: 182px;
+        text-align: left;
         font-size: 11px;
         letter-spacing: 0.06em;
         color: var(--muted);
@@ -270,13 +311,12 @@
 
       .version {
         position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 12px;
-        text-align: center;
+        right: 16px;
+        bottom: 10px;
+        text-align: right;
         font-size: 10px;
         letter-spacing: 0.14em;
-        color: rgba(138, 147, 171, 0.65);
+        color: #5c7a4f;
         opacity: 0;
         animation: fade-up 0.4s ease-out 1.14s both;
       }
@@ -293,19 +333,27 @@
         }
       }
 
-      @keyframes glow-breathe {
-        0%,
-        100% {
-          opacity: 0.75;
+      @keyframes cloud-in {
+        from {
+          opacity: 0;
         }
-        50% {
-          opacity: 1;
+        to {
+          opacity: 0.9;
+        }
+      }
+
+      @keyframes cloud-drift {
+        from {
+          margin-left: 0;
+        }
+        to {
+          margin-left: 16px;
         }
       }
 
       @keyframes block-drop {
         0% {
-          transform: translateY(-118px);
+          transform: translateY(-58px);
           opacity: 0;
         }
         14% {
@@ -407,6 +455,7 @@
       /* 系统要求减少动态效果时：静态展示 */
       @media (prefers-reduced-motion: reduce) {
         .splash,
+        .cloud,
         .block-wrap,
         .block,
         .block-shadow,
@@ -431,8 +480,9 @@
   </head>
   <body>
     <div class="splash" id="splash">
-      <div class="grid"></div>
-      <div class="glow"></div>
+      <div class="cloud cloud-a"></div>
+      <div class="cloud cloud-b"></div>
+      <div class="ground"></div>
 
       <div class="stage">
         <div class="block-shadow"></div>
@@ -468,7 +518,7 @@
         var version = new URLSearchParams(location.search).get('v')
         if (version) versionEl.textContent = 'v' + version.replace(/^v/i, '')
 
-        // 落地尘埃：8 颗像素以不同角度散开
+        // 落地尘埃：8 颗像素泥土以不同角度散开
         var stage = document.querySelector('.stage')
         for (var i = 0; i < 8; i++) {
           var dust = document.createElement('div')

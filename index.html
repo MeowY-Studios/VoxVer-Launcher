@@ -14,80 +14,12 @@
       html { color-scheme: dark; }
       option { background: #1A1A2E; color: #E0E0F0; }
       body { background: #0D0D1A; overflow: hidden; }
-      #splash-screen {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        background: linear-gradient(135deg, #0D0D1A 0%, #1A1A2E 50%, #0D0D1A 100%);
-        z-index: 9999; transition: opacity 0.8s ease;
-      }
-      #splash-screen.hidden { opacity: 0; pointer-events: none; }
-      .splash-title {
-        margin-bottom: 8px;
-      }
-      .splash-logo-img {
-        height: 48px;
-        width: auto;
-        display: block;
-      }
-      .splash-version {
-        font-family: 'Segoe UI', -apple-system, sans-serif;
-        font-size: 12px; color: #8B8FA3; margin-bottom: 24px;
-      }
-      .splash-progress {
-        width: 200px; height: 3px; background: rgba(255,255,255,0.1);
-        border-radius: 2px; overflow: hidden;
-      }
-      .splash-progress-bar {
-        width: 0%; height: 100%;
-        background: linear-gradient(90deg, #6366F1, #8B5CF6);
-        border-radius: 2px;
-        animation: progress 4s linear forwards;
-      }
-      @keyframes pulse {
-        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-        50% { transform: scale(1.05); box-shadow: 0 0 30px 10px rgba(99, 102, 241, 0.2); }
-      }
-      @keyframes progress {
-        0% { width: 0%; }
-        50% { width: 70%; }
-        100% { width: 100%; }
-      }
     </style>
   </head>
   <body>
-    <div id="splash-screen">
-      <div class="splash-title"><img src="/Alogo.png" alt="VoxVer" class="splash-logo-img" /></div>
-      <div class="splash-version" id="splash-version">v0.0.0</div>
-      <div class="splash-progress">
-        <div class="splash-progress-bar"></div>
-      </div>
-    </div>
+    <!-- 启动画面由独立窗口 electron/splash.html 承担，这里不再放页内 splash -->
     <div id="svg-sprite" style="display:none"></div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
-    <script>
-      (function() {
-        // 动态设置版本号
-        var verEl = document.getElementById('splash-version');
-        if (verEl) verEl.textContent = 'v' + __APP_VERSION__;
-
-        var splash = document.getElementById('splash-screen');
-        var hidden = false;
-        function hideSplash() {
-          if (hidden) return;
-          hidden = true;
-          if (splash) {
-            splash.addEventListener('transitionend', function() {
-              splash.remove();
-            });
-            splash.classList.add('hidden');
-          }
-        }
-        // 进度条 4s 走完后直接缓慢淡出（0.8s）
-        setTimeout(hideSplash, 4100);
-        // 兜底：最多 10s 强制隐藏
-        setTimeout(hideSplash, 10000);
-      })();
-    </script>
   </body>
 </html>
