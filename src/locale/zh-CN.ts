@@ -1884,6 +1884,10 @@ export default {
     home: {
       searchTitle: '查找设置',
       searchPlaceholder: '搜索设置名称...',
+      korTitle: '主页',
+      korDesc: '版本信息与常用设置的快捷入口',
+      korOfficial: '正式版',
+      korCheckUpdate: '查看更新',
       quickBrowse: '快速浏览',
       commonSettings: '常用设置',
       accountTitle: 'VoxVer 账户',

@@ -1895,6 +1895,10 @@ export default {
     home: {
       searchTitle: 'Search Settings',
       searchPlaceholder: 'Search settings...',
+      korTitle: 'Home',
+      korDesc: 'Version info and shortcuts to common settings',
+      korOfficial: 'Official',
+      korCheckUpdate: 'Check for updates',
       quickBrowse: 'Quick Browse',
       commonSettings: 'Common Settings',
       accountTitle: 'VoxVer Account',

@@ -2,8 +2,25 @@
   <div class="settings-page" ref="pageRef">
     <!-- ========== 主页 ========== -->
     <template v-if="activeCategory === 'home'">
+      <!-- Koring 皮肤：页头 + 版本横幅 -->
+      <template v-if="appStore.skin === 'koring'">
+        <div class="kor-page-header">
+          <h2 class="kor-page-title">{{ $t('settings.home.korTitle') }}</h2>
+          <p class="kor-page-desc">{{ $t('settings.home.korDesc') }}</p>
+        </div>
+
+        <div class="kor-version-banner">
+          <span class="kor-version-badge">{{ $t('settings.home.korOfficial') }}</span>
+          <div class="kor-version-name">VoxVer Launcher</div>
+          <div class="kor-version-number">v{{ appVersion }}</div>
+          <button type="button" class="kor-version-link" @click="router.push('/update')">
+            {{ $t('settings.home.korCheckUpdate') }}
+          </button>
+        </div>
+      </template>
+
       <!-- 查找设置 -->
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8" />

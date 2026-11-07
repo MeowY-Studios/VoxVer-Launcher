@@ -762,3 +762,171 @@
   background: color-mix(in oklab, var(--voxver-primary) 16%, transparent);
   color: var(--voxver-primary);
 }
+/* ========== 设置主页（Koring 皮肤）：页头 + 版本横幅 + 列表行 ========== */
+[data-skin='koring'] .kor-page-header {
+  margin-bottom: 20px;
+}
+
+[data-skin='koring'] .kor-page-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--voxver-text-primary);
+}
+
+[data-skin='koring'] .kor-page-desc {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.56);
+}
+
+[data-skin='koring'] .kor-version-banner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 200px;
+  margin-bottom: 24px;
+  padding: 24px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in oklab, var(--voxver-primary) 40%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in oklab, var(--voxver-primary) 78%, #1b2b6b), color-mix(in oklab, var(--voxver-primary) 38%, #16308f));
+  box-shadow: 0 18px 48px -22px color-mix(in oklab, var(--voxver-primary) 70%, transparent);
+  overflow: hidden;
+}
+
+[data-skin='koring'] .kor-version-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 12% 8%, rgba(255, 255, 255, 0.28), transparent 60%);
+  pointer-events: none;
+}
+
+[data-skin='koring'] .kor-version-badge,
+[data-skin='koring'] .kor-version-name,
+[data-skin='koring'] .kor-version-number,
+[data-skin='koring'] .kor-version-link {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+}
+
+[data-skin='koring'] .kor-version-badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+}
+
+[data-skin='koring'] .kor-version-name {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+[data-skin='koring'] .kor-version-number {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+[data-skin='koring'] .kor-version-link {
+  margin-top: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+[data-skin='koring'] .quick-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+[data-skin='koring'] .quick-grid-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 4px;
+  border: none;
+  border-radius: 0;
+  background: none;
+  transform: none;
+  text-align: left;
+}
+
+[data-skin='koring'] .quick-grid-item + .quick-grid-item {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-skin='koring'] .quick-grid-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  transform: none;
+}
+
+[data-skin='koring'] .quick-grid-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.78);
+  flex-shrink: 0;
+}
+
+[data-skin='koring'] .quick-grid-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--voxver-text-primary);
+}
+
+[data-skin='koring'] .quick-grid-desc {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+[data-skin='koring'] .quick-grid-arrow {
+  color: rgba(255, 255, 255, 0.32);
+}
+/* 设置主页：标题在卡片外，列表自成一张卡（Koring 的 SectionTitle + 列表卡） */
+[data-skin='koring'] .sec:has(.quick-grid) {
+  padding: 0;
+  border: none;
+  background: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  margin-bottom: 24px;
+}
+
+[data-skin='koring'] .sec:has(.quick-grid) .sec-title {
+  padding: 0;
+  margin-bottom: 12px;
+  border-bottom: none;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+[data-skin='koring'] .sec:has(.quick-grid) .quick-grid {
+  padding: 6px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+}
