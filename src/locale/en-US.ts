@@ -1564,6 +1564,7 @@ export default {
     skinKoring: 'Koring',
     skinKoringDesc: 'Koring card-based layout',
     themePresetsDesc: 'Pick a theme color, or customize the primary color',
+    customPreset: 'Custom',
     themeModeDesc: 'Switch launcher between dark / light / system appearance',
     themeBg: 'Theme & Background',
     themeConfig: 'Theme Config',

@@ -633,3 +633,29 @@
   text-align: center;
   max-width: 150px;
 }
+/* * 自定义主题颜色：色号控件与主色预览左右排版 */
+.kor-custom-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.kor-custom-row .kor-preview-bar {
+  flex: 1;
+  min-width: 220px;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+.kor-swatch-custom-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 13px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}

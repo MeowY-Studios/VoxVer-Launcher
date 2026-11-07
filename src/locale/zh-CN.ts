@@ -1559,6 +1559,7 @@ export default {
     skinKoring: 'Koring',
     skinKoringDesc: 'Koring 风格卡片排版',
     themePresetsDesc: '选择一套主题颜色，或自定义主色',
+    customPreset: '自定义',
     themeModeDesc: '切换启动器的深色 / 浅色 / 跟随系统外观',
     themeBg: '主题与背景',
     themeConfig: '主题配置',

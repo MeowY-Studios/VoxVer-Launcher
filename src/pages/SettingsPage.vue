@@ -1259,20 +1259,47 @@
                   :key="p.id"
                   type="button"
                   class="kor-swatch"
-                  :class="{ 'is-active': s.themeColor === p.themeColor }"
+                  :class="{ 'is-active': isPresetColorActive(p.themeColor) }"
                   :style="{ background: p.themeColor }"
                   :title="p.name"
-                  @click="applyThemeColor(p.themeColor); s.accentColor = p.accentColor"
+                  @click="selectPresetColor(p.themeColor, p.accentColor)"
                 />
+                <button
+                  type="button"
+                  class="kor-swatch"
+                  :class="{ 'is-active': isCustomColorActive }"
+                  :style="{ background: s.themeCustomColor }"
+                  :title="$t('settings.customPreset')"
+                  @click="focusCustomColorInput"
+                >
+                  <span class="kor-swatch-custom-dot">+</span>
+                </button>
               </div>
-              <div class="kor-preview-bar">
-                <span class="kor-preview-label">{{ $t('settings.primaryColorPreview') }}</span>
-                <span
-                  v-for="i in 8"
-                  :key="i"
-                  class="kor-preview-chip"
-                  :style="{ background: `var(--voxver-primary-${i}00)` }"
-                />
+              <div class="kor-custom-row">
+                <div class="kor-inline">
+                  <span class="kor-color-chip" :style="{ background: s.themeCustomColor }" />
+                  <input
+                    ref="customColorInputRef"
+                    v-model="s.themeCustomColor"
+                    class="kor-input"
+                    type="text"
+                    maxlength="7"
+                    style="width: 104px"
+                    @input="previewThemeColor(s.themeCustomColor)"
+                  />
+                  <button type="button" class="kor-btn kor-btn--primary" @click="applyCustomThemeColor(s.themeCustomColor)">
+                    {{ $t('settings.apply') }}
+                  </button>
+                </div>
+                <div class="kor-preview-bar">
+                  <span class="kor-preview-label">{{ $t('settings.primaryColorPreview') }} · {{ s.themeCustomColor }}</span>
+                  <span
+                    v-for="i in 8"
+                    :key="i"
+                    class="kor-preview-chip"
+                    :style="{ background: `var(--voxver-primary-${i}00)` }"
+                  />
+                </div>
               </div>
             </SettingCard>
             <SettingCard>
@@ -1440,40 +1467,52 @@
             v-for="p in themePresets"
             :key="p.id"
             class="preset-card"
-            :class="{ active: s.themeColor === p.themeColor }"
-            @click="applyThemeColor(p.themeColor); s.accentColor = p.accentColor"
+            :class="{ active: isPresetColorActive(p.themeColor) }"
+            @click="selectPresetColor(p.themeColor, p.accentColor)"
           >
             <span class="preset-swatch" :style="{ background: p.themeColor }"></span>
             <span class="preset-name">{{ p.name }}</span>
           </button>
+          <!-- 自定义：手动输入色号后高亮到这里 -->
+          <button
+            class="preset-card"
+            :class="{ active: isCustomColorActive }"
+            @click="focusCustomColorInput"
+          >
+            <span class="preset-swatch preset-swatch--custom" :style="{ background: s.themeCustomColor }"></span>
+            <span class="preset-name">{{ $t('settings.customPreset') }}</span>
+          </button>
         </div>
 
-        <div class="mem-custom-row" style="margin-top:14px;align-items:center">
+        <!-- 取色器/色号 与 主色预览：左右排版 -->
+        <div class="theme-custom-row">
           <div class="input-group compact" style="align-items:center;gap:8px">
-            <div class="color-swatch" :style="{ background: s.themeCustomColor }">
+            <div ref="customColorSwatchRef" class="color-swatch" :style="{ background: s.themeCustomColor }">
               <input
                 type="color"
                 v-model="s.themeCustomColor"
-                @input="previewThemeColor(s.themeCustomColor)"
+                @input="onCustomColorInput(s.themeCustomColor)"
                 class="color-picker-input"
               />
             </div>
             <input
+              ref="customColorInputRef"
               type="text"
               class="inp"
               v-model="s.themeCustomColor"
               style="width:80px;font-family:var(--voxver-font-mono)"
+              @input="previewThemeColor(s.themeCustomColor)"
               @change="previewThemeColor(s.themeCustomColor)"
             />
             <button class="btn-sm vox-btn--primary" @click="applyCustomThemeColor(s.themeCustomColor)">
               {{ $t('settings.apply') }}
             </button>
           </div>
-        </div>
 
-        <div class="theme-preview-bar">
-          <div class="preview-chip" v-for="i in 8" :key="i" :style="{ background: `var(--voxver-primary-${i}00)` }"></div>
-          <span class="preview-label">{{ $t('settings.primaryColorPreview') }} · {{ s.themeCustomColor }}</span>
+          <div class="theme-preview-bar">
+            <div class="preview-chip" v-for="i in 8" :key="i" :style="{ background: `var(--voxver-primary-${i}00)` }"></div>
+            <span class="preview-label">{{ $t('settings.primaryColorPreview') }} · {{ s.themeCustomColor }}</span>
+          </div>
         </div>
       </div>
 
@@ -5423,6 +5462,45 @@ function applyThemeColor(hex: string) {
 // ====== 主题预设 ======
 const themePresets = ref<Array<{ id: string; name: string; description: string; themeColor: string; accentColor: string }>>([])
 
+// * ====== 主题颜色选择（预设 / 自定义） ======
+const customColorInputRef = ref<HTMLInputElement | null>(null)
+
+/** 当前选中的颜色是否就是某个预设 */
+function isPresetColorActive(hex: string): boolean {
+  return (
+    s.themeColor?.toLowerCase() === hex.toLowerCase() &&
+    s.themeCustomColor?.toLowerCase() === hex.toLowerCase()
+  )
+}
+
+/** 是否处于「自定义」状态：当前生效色不匹配任何预设，或已手动改动色号 */
+const isCustomColorActive = computed(() => {
+  const current = s.themeColor?.toLowerCase()
+  const custom = s.themeCustomColor?.toLowerCase()
+  if (!current) return true
+  if (custom && custom !== current) return true
+  return !themePresets.value.some((p) => p.themeColor.toLowerCase() === current)
+})
+
+/** 点选预设：应用颜色，同时把取色器/色号同步成该颜色 */
+function selectPresetColor(themeColor: string, accentColor: string) {
+  s.themeCustomColor = themeColor
+  s.accentColor = accentColor
+  applyThemeColor(themeColor)
+}
+
+/** 点「自定义」：聚焦到色号输入框，方便直接输入 */
+function focusCustomColorInput() {
+  customColorInputRef.value?.focus()
+  customColorInputRef.value?.select()
+}
+
+/** 取色器拖动时：写入色号并实时预览 */
+function onCustomColorInput(hex: string) {
+  s.themeCustomColor = hex
+  previewThemeColor(hex)
+}
+
 async function loadThemePresets() {
   try {
     const presets = await window.electronAPI?.theme?.getPresets()
@@ -8303,6 +8381,22 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 }
 
 /* ===== 自定义主题色增强 ===== */
+/* * 取色器与主色预览：左右排版 */
+.theme-custom-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.theme-custom-row .theme-preview-bar {
+  flex: 1;
+  min-width: 220px;
+  margin-top: 0;
+}
+.preset-swatch--custom {
+  border: 1px dashed var(--voxver-border-color-strong);
+}
 .theme-custom-card {
   padding: 12px;
   background: var(--voxver-bg-tertiary);
