@@ -1,5 +1,23 @@
 <template>
-  <div class="instances-page coming-soon-page">
+  <!-- Koring 主题：用 KorEmpty 呈现（与 Koring 的空态保持同一套视觉） -->
+  <div v-if="isKoring" class="instances-page instances-page--kor">
+    <KorSurface class="instances-kor-card">
+      <KorEmpty :title="t('instance.manager')" :desc="t('instance.comingSoon')">
+        <template #icon>
+          <svg width="40" height="40" viewBox="0 0 64 64" fill="none">
+            <polygon points="32,6 60,20 32,34 4,20" fill="#79C05A" />
+            <polygon points="32,14 42,19 32,24 22,19" fill="#8FCB6A" />
+            <polygon points="4,20 32,34 32,58 4,44" fill="#8B6B47" />
+            <polygon points="4,20 32,34 32,40 4,26" fill="#5FA53D" />
+            <polygon points="32,34 60,20 60,44 32,58" fill="#705234" />
+            <polygon points="32,34 60,20 60,26 32,40" fill="#4F8B2F" />
+          </svg>
+        </template>
+      </KorEmpty>
+    </KorSurface>
+  </div>
+
+  <div v-else class="instances-page coming-soon-page">
     <div class="coming-soon-placeholder">
       <div class="coming-soon-icon">
         <!-- Minecraft 草方块（等距立方体） -->
@@ -31,7 +49,13 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
+import { useAppStore } from '../stores'
+import { KorEmpty, KorSurface } from '../components/kor'
+
 const { t } = useI18n()
+const appStore = useAppStore()
+const isKoring = computed(() => appStore.skin === 'koring')
 </script>
 
 <style scoped>
@@ -63,5 +87,20 @@ const { t } = useI18n()
   font-size: 14px;
   color: var(--voxver-text-muted);
   margin: 0;
+}
+
+/* Koring 皮肤：居中的玻璃卡空态 */
+.instances-page--kor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 32px;
+}
+
+.instances-kor-card {
+  width: 100%;
+  max-width: 520px;
+  padding: 40px 32px;
 }
 </style>

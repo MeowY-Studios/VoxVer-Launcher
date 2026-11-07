@@ -1,5 +1,78 @@
 <template>
-  <div class="update-page">
+  <!-- ========== Koring 皮肤：Kor 组件版本 ========== -->
+  <div v-if="isKoring" class="update-page update-page--kor">
+    <div class="kor-page">
+      <KorPageHeader
+        :title="t('update.updatePage.releaseNotes')"
+        :desc="notesVersion ? t('update.updatePage.versionLabel', { version: notesVersion }) : ''"
+      />
+
+      <div class="kor-section">
+        <KorVersionCard
+          :version="appVersion"
+          :commit="appCommit"
+          :update-state="hasUpdate ? 'hasUpdate' : 'latest'"
+          :action-text="mainButtonLabel"
+          @update="primaryAction"
+        />
+      </div>
+
+      <div class="kor-section">
+        <KorSectionTitle>{{ t('update.updatePage.releaseNotes') }}</KorSectionTitle>
+
+        <KorSettingCard v-if="notesLoading">
+          <div class="kor-inline">
+            <span class="spinner" />
+            <span>{{ t('update.updatePage.loadingNotes') }}</span>
+          </div>
+        </KorSettingCard>
+
+        <template v-else-if="parsedSections.length > 0 && parsedSections.some((s) => s.title)">
+          <KorSettingCard v-for="(sec, idx) in parsedSections" :key="idx">
+            <div class="kor-row-label" v-if="sec.title">{{ sec.title }}</div>
+            <!-- eslint-disable-next-line vue/no-v-html -->
+            <div class="notes-body" v-html="sec.html" />
+          </KorSettingCard>
+        </template>
+
+        <KorSettingCard v-else>
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <div v-if="notesHtml" class="notes-body" v-html="notesHtml" />
+          <KorEmpty v-else :title="t('update.updatePage.noNotes')" />
+        </KorSettingCard>
+
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <div v-if="notesFooterHtml" class="notes-footer" v-html="notesFooterHtml" />
+      </div>
+
+      <div class="kor-section">
+        <KorSettingCard>
+          <div class="kor-row">
+            <div>
+              <div class="kor-row-label">{{ statusText }}</div>
+              <div class="kor-row-desc" v-if="state === 'downloading' && status?.bytesPerSecond">
+                {{ formatBytes(status.bytesPerSecond) }}/s
+              </div>
+            </div>
+            <div class="kor-row-control kor-inline">
+              <KorButton variant="primary" :loading="state === 'checking'" @click="primaryAction">
+                {{ mainButtonLabel }}
+              </KorButton>
+              <KorButton v-if="state === 'downloading'" variant="danger" @click="handleCancel">
+                {{ t('update.updatePage.cancelDownload') }}
+              </KorButton>
+            </div>
+          </div>
+          <KorProgress v-if="state === 'downloading'" :value="pct" />
+          <button type="button" class="kor-ghost-link" @click="openGithub">
+            {{ t('update.updatePage.viewOnGitHub') }}
+          </button>
+        </KorSettingCard>
+      </div>
+    </div>
+  </div>
+
+  <div v-else class="update-page">
     <!-- 页面左上角返回按钮 → 设置 -->
     <button class="back-btn" @click="goBack">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -106,10 +179,22 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SilkBackground from '../components/SilkBackground.vue'
+import {
+  KorButton,
+  KorEmpty,
+  KorPageHeader,
+  KorProgress,
+  KorSectionTitle,
+  KorSettingCard,
+  KorVersionCard
+} from '../components/kor'
+import { useAppStore } from '../stores'
 import { renderMarkdownSafe } from '../utils/markdown'
 
 const router = useRouter()
 const { t } = useI18n()
+const appStore = useAppStore()
+const isKoring = computed(() => appStore.skin === 'koring')
 
 const GITHUB_RELEASES_URL = 'https://github.com/MeowY-Studios/VoxVer-Launcher/releases'
 
@@ -136,6 +221,7 @@ interface StatusPayload {
 }
 
 const appVersion = ref('...')
+const appCommit = typeof __APP_COMMIT__ === 'string' && __APP_COMMIT__ !== 'dev' ? __APP_COMMIT__ : ''
 const checkResult = ref<CheckResult | null>(null)
 const checking = ref(false)
 const status = ref<StatusPayload | null>(null)
@@ -162,6 +248,7 @@ const state = computed<'idle' | 'checking' | 'downloading' | 'downloaded' | 'ava
 })
 
 const hasError = computed(() => state.value === 'error')
+const hasUpdate = computed(() => state.value === 'available')
 const errorText = computed(
   () => checkResult.value?.error ?? status.value?.error ?? ''
 )
