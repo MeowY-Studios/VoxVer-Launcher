@@ -490,3 +490,67 @@
   background: rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(12px);
 }
+/* ========== 其余页面通用（Koring 皮肤） ========== */
+[data-skin='koring'] :is(.account-page, .update-page, .version-detail-page, .instance-detail, .crash-analysis-page) {
+  padding: 32px 32px 48px;
+}
+
+[data-skin='koring'] :is(.page-header h1, .vd-title, .instance-name, .hero-version) {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+[data-skin='koring'] :is(.page-desc, .vd-meta, .hero-status) {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.56);
+}
+
+[data-skin='koring'] :is(.account-panel, .account-section, .update-hero, .vd-hero, .detail-content, .crash-list, .notes-section, .card-stack > *) {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  box-shadow: none;
+}
+
+[data-skin='koring'] :is(.section-header, .notes-title, .section-title) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+[data-skin='koring'] :is(.section-title, .notes-title) {
+  padding-bottom: 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+[data-skin='koring'] :is(.vd-icon, .detail-icon) {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+[data-skin='koring'] :is(.vd-type-badge, .status-badge) {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+}
+
+[data-skin='koring'] :is(.back-btn, .action-btn, .header-actions .vox-btn) {
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+}
+
+[data-skin='koring'] :is(.back-btn, .action-btn):hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-skin='koring'] .crash-item {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(0, 0, 0, 0.35);
+  margin-bottom: 8px;
+}
