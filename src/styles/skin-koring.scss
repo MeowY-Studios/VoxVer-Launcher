@@ -81,7 +81,7 @@
 }
 
 /* ========== 通用卡片容器 ========== */
-[data-skin='koring'] .vox-card,
+[data-skin='koring'] .vox-card:not(.acc-group),
 [data-skin='koring'] .memory-alloc-card,
 [data-skin='koring'] .bg-card-list,
 [data-skin='koring'] .debug-mode-card,
@@ -919,13 +919,16 @@
   padding: 4px 0;
 }
 
-[data-skin='koring'] .ver-accordion .acc-group {
+[data-skin='koring'] .ver-accordion .acc-group,
+[data-skin='koring'] .ver-accordion .vox-card.acc-group {
   border: 0 !important;
   border-radius: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
+  backdrop-filter: none !important;
   margin: 0 !important;
-  overflow: visible;
+  padding: 0 !important;
+  overflow: visible !important;
 }
 
 [data-skin='koring'] .ver-accordion .acc-group + .acc-group {
@@ -1004,4 +1007,32 @@
 [data-skin='koring'] .filter-section .vox-select-option.selected {
   background: color-mix(in oklab, var(--voxver-primary) 22%, transparent);
   color: var(--voxver-text-primary);
+}
+/* .acc-group 同时带 .vox-card 类，基础样式有 ::before 贝壳层和背景，逐层清掉 */
+[data-skin='koring'] .ver-accordion {
+  gap: 0 !important;
+  padding: 4px 16px !important;
+}
+
+[data-skin='koring'] .ver-accordion .acc-group.vox-card {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+[data-skin='koring'] .ver-accordion .acc-group.vox-card::before,
+[data-skin='koring'] .ver-accordion .acc-group.vox-card::after {
+  display: none !important;
+  content: none !important;
+}
+
+[data-skin='koring'] .ver-accordion .acc-header {
+  background: transparent !important;
+  border-radius: 8px !important;
+}
+
+[data-skin='koring'] .ver-accordion .acc-header:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
 }
