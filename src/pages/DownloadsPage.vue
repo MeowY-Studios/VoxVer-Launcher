@@ -11,7 +11,12 @@
     >
       <template #sidebar-footer>
         <button type="button" class="dl-kor-manager" @click="router.push('/download/manage')">
-          {{ $t('download.downloadManager') }}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          <span>{{ $t('download.downloadManager') }}</span>
         </button>
       </template>
     </KorPageShell>
@@ -1562,22 +1567,32 @@ watch(
 }
 
 .dl-kor-manager {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 9px;
   width: 100%;
-  margin-top: 10px;
-  padding: 9px 14px;
-  border: 1px solid var(--kor-hairline, rgba(255, 255, 255, 0.07));
-  border-radius: 999px;
+  height: 36px;
+  margin-top: 4px;
+  padding: 0 10px;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 0;
   background: transparent;
-  color: var(--voxver-text-secondary);
+  color: var(--voxver-text-tertiary);
   font-size: 12.5px;
+  text-align: left;
   cursor: pointer;
-  transition: background 160ms ease, color 160ms ease;
+  transition: background 140ms ease, color 140ms ease;
 }
 
 .dl-kor-manager:hover {
-  background: rgba(128, 128, 128, 0.12);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--voxver-text-primary);
+}
+
+.dl-kor-manager svg {
+  flex: 0 0 auto;
+  opacity: 0.75;
 }
 .downloads-page {
   padding: 20px 24px;

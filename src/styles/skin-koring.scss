@@ -329,8 +329,7 @@
   backdrop-filter: blur(12px);
 }
 
-[data-skin='koring'] .ver-accordion,
-[data-skin='koring'] .filter-grid {
+[data-skin='koring'] .ver-accordion {
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.07);
   background: rgba(0, 0, 0, 0.45);
@@ -901,4 +900,108 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+/* 筛选表单只保留外层卡片，内层 grid 不再套壳 */
+[data-skin='koring'] .filter-section .filter-grid {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+  overflow: visible;
+}
+/* 版本列表：手风琴去壳，组与组之间用分隔线，避免同层多张卡 */
+[data-skin='koring'] .ver-accordion {
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  padding: 4px 0;
+}
+
+[data-skin='koring'] .ver-accordion .acc-group {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  overflow: visible;
+}
+
+[data-skin='koring'] .ver-accordion .acc-group + .acc-group {
+  border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+
+[data-skin='koring'] .ver-accordion .acc-header {
+  height: 46px;
+  padding: 0 4px;
+}
+
+[data-skin='koring'] .ver-accordion .acc-body {
+  border-top: 0 !important;
+  background: transparent !important;
+  padding: 2px 4px 8px;
+}
+
+[data-skin='koring'] .ver-accordion .acc-empty {
+  padding: 14px 4px;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+/* 加载更多：只留按钮本身，不要外层框 */
+[data-skin='koring'] .ver-more {
+  height: auto;
+  margin-top: 6px;
+  padding: 14px 0 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-align: center;
+}
+
+[data-skin='koring'] .ver-more:hover {
+  background: transparent;
+}
+
+[data-skin='koring'] .btn-loadmore {
+  height: 32px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 12.5px;
+  color: var(--voxver-text-secondary);
+}
+
+[data-skin='koring'] .btn-loadmore:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--voxver-text-primary);
+}
+/* 筛选卡里的下拉弹层要盖住后面的资源列表（卡片 backdrop-filter 会新建层叠上下文） */
+[data-skin='koring'] .filter-section {
+  position: relative;
+  z-index: 20;
+  overflow: visible;
+}
+
+[data-skin='koring'] .filter-section .vox-select-popup {
+  z-index: 30;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: rgba(20, 20, 24, 0.96);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+  padding: 4px;
+}
+
+[data-skin='koring'] .filter-section .vox-select-option {
+  border-radius: 7px;
+  padding: 7px 10px;
+  font-size: 12.5px;
+}
+
+[data-skin='koring'] .filter-section .vox-select-option.selected {
+  background: color-mix(in oklab, var(--voxver-primary) 22%, transparent);
+  color: var(--voxver-text-primary);
 }

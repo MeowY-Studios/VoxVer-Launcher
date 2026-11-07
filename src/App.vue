@@ -602,7 +602,7 @@ const platform = ref<'windows' | 'macos' | 'linux' | 'unknown'>('unknown')
 const appStore = useAppStore()
 /** Koring 皮肤在下载页使用页面内导航，隐藏全局侧栏与侧栏分类 */
 const isKorOwnNav = computed(
-  () => appStore.skin === 'koring' && ['/settings', '/downloads'].includes(currentRoute.value)
+  () => appStore.skin === 'koring' && ['/settings', '/downloads', '/download/manage'].includes(currentRoute.value)
 )
 const isKorDownloads = computed(
   () => appStore.skin === 'koring' && currentRoute.value === '/downloads'
