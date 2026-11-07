@@ -475,3 +475,167 @@ html[data-theme='light'] .kor-shell__item:hover {
     opacity: 1;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* NumberField（Koring setting/SettingNumberField：- 值 + 步进条）      */
+/* ------------------------------------------------------------------ */
+.kor-num {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  border: 1px solid var(--kor-hairline, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  transition: border-color 160ms var(--voxver-ease-out-quart, ease-out);
+
+  &:focus-within {
+    border-color: color-mix(in oklab, var(--voxver-primary) 45%, transparent);
+  }
+
+  &.is-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+.kor-num__btn {
+  width: 28px;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--voxver-text-tertiary);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  transition: color 140ms ease, background 140ms ease;
+
+  &:hover {
+    color: var(--voxver-text-primary);
+    background: rgba(255, 255, 255, 0.07);
+  }
+}
+
+.kor-num__input {
+  flex: 1;
+  min-width: 0;
+  width: 52px;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--voxver-text-primary);
+  font-size: 13px;
+  text-align: center;
+  outline: none;
+  appearance: textfield;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+}
+
+.kor-num__suffix {
+  padding-right: 8px;
+  font-size: 12px;
+  color: var(--voxver-text-tertiary);
+}
+
+html[data-theme='light'] .kor-num {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+html[data-theme='light'] .kor-num__btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* ------------------------------------------------------------------ */
+/* RadioGroup（Koring ui/radio-group：竖排单选，选中主色圆点）           */
+/* ------------------------------------------------------------------ */
+.kor-radio {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+
+  &.is-inline {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &.is-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+.kor-radio__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &.is-checked {
+    border-color: color-mix(in oklab, var(--voxver-primary) 42%, transparent);
+    background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
+  }
+}
+
+.kor-radio__dot {
+  position: relative;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  border-radius: 50%;
+  border: 1px solid var(--kor-hairline, rgba(255, 255, 255, 0.18));
+}
+
+.kor-radio__item.is-checked .kor-radio__dot {
+  border-color: var(--voxver-primary);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 50%;
+    background: var(--voxver-primary);
+  }
+}
+
+.kor-radio__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.kor-radio__label {
+  font-size: 13px;
+  color: var(--voxver-text-primary);
+}
+
+.kor-radio__desc {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--voxver-text-tertiary);
+}
+
+html[data-theme='light'] .kor-radio__item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}

@@ -27,6 +27,9 @@ export { default as KorSettingCard } from './setting/KorSettingCard.vue'
 export { default as KorSettingRow } from './setting/KorSettingRow.vue'
 export { default as KorSettingBadge } from './setting/KorSettingBadge.vue'
 export { default as KorSettingListItem } from './setting/KorSettingListItem.vue'
+export { default as KorSettingNumberField } from './setting/KorSettingNumberField.vue'
+export { default as KorSettingRadioGroup } from './setting/KorSettingRadioGroup.vue'
+export type { KorRadioOption } from './setting/types'
 
 // 设置页常用控件的别名（Koring 里都叫 SettingXxx，这里保持同名以便对照原版源码）
 export { default as KorSettingSwitch } from './ui/KorSwitch.vue'
