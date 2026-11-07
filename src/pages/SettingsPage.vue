@@ -1293,12 +1293,7 @@
                 </div>
                 <div class="kor-preview-bar">
                   <span class="kor-preview-label">{{ $t('settings.primaryColorPreview') }} · {{ s.themeCustomColor }}</span>
-                  <span
-                    v-for="i in 8"
-                    :key="i"
-                    class="kor-preview-chip"
-                    :style="{ background: `var(--voxver-primary-${i}00)` }"
-                  />
+                  <span v-for="(c, i) in pendingColorScale" :key="i" class="kor-preview-chip" :style="{ background: c }" />
                 </div>
               </div>
             </SettingCard>
@@ -1510,7 +1505,7 @@
           </div>
 
           <div class="theme-preview-bar">
-            <div class="preview-chip" v-for="i in 8" :key="i" :style="{ background: `var(--voxver-primary-${i}00)` }"></div>
+            <div class="preview-chip" v-for="(c, i) in pendingColorScale" :key="i" :style="{ background: c }"></div>
             <span class="preview-label">{{ $t('settings.primaryColorPreview') }} · {{ s.themeCustomColor }}</span>
           </div>
         </div>
@@ -4674,6 +4669,13 @@ const quickColorPresets = [
   '#84cc16', '#f97316', '#3b82f6', '#a855f7'
 ]
 
+/** 待应用颜色的主色阶梯：跟随取色器/色号实时变化，供「应用」前预览 */
+const pendingColorScale = computed(() => {
+  const hex = /^#[0-9a-fA-F]{6}$/.test(s.themeCustomColor) ? s.themeCustomColor : s.themeColor
+  const light = (p: number) => `color-mix(in oklab, ${hex} ${p}%, #ffffff)`
+  const dark = (p: number) => `color-mix(in oklab, ${hex} ${p}%, #000000)`
+  return [light(8), light(16), light(32), light(48), light(64), hex, dark(86), dark(70)]
+})
 function previewThemeColor(hex: string) {
   if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return
   // 只预览主色和渐变，不保存
@@ -8388,6 +8390,9 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   gap: 16px;
   flex-wrap: wrap;
   margin-top: 14px;
+}
+.theme-custom-row > .input-group {
+  order: 2;
 }
 .theme-custom-row .theme-preview-bar {
   flex: 1;
