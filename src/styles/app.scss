@@ -1078,3 +1078,8 @@
     color: var(--voxver-text-tertiary);
   }
 }
+
+/* Koring 皮肤：下载页隐藏全局侧栏（页面内有分类导航） */
+.sidebar.is-kor-hidden {
+  display: none;
+}

@@ -3,11 +3,11 @@
  * Kor 列表条目（对应 Koring setting/SettingListItem.tsx）：
  * 左侧圆角图标块 + 标题/描述 + 右侧箭头，条目之间自动 hairline。
  */
-defineProps<{ label: string; desc?: string; arrow?: boolean }>()
+defineProps<{ label: string; desc?: string; arrow?: boolean; active?: boolean }>()
 </script>
 
 <template>
-  <button type="button" class="kor-list-item">
+  <button type="button" class="kor-list-item" :class="{ 'is-active': active }">
     <span v-if="$slots.icon" class="kor-list-item__icon">
       <slot name="icon" />
     </span>

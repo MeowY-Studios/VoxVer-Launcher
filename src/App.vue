@@ -92,7 +92,7 @@
       <div class="app-body-bg" :style="bgStyle"></div>
       <div v-if="bgOverlayVisible" class="app-body-overlay" :style="overlayStyle"></div>
       <!-- 左侧边栏（各页面上文内容；主导航已移到标题栏上导航） -->
-      <aside class="sidebar">
+      <aside class="sidebar" :class="{ 'is-kor-hidden': isKorDownloads }">
         <!-- 侧边栏内容区 -->
         <div class="sidebar-content">
         <!-- ========== 首页侧栏：账户 + 启动（PCL2 风格）========== -->
@@ -332,7 +332,7 @@
         </template>
 
         <!-- ========== 下载页侧栏：分类导航 ========== -->
-        <template v-else-if="currentRoute === '/downloads'">
+        <template v-else-if="currentRoute === '/downloads' && !isKorDownloads">
           <nav class="sb-nav">
             <button
               v-for="cat in dlCategories"
@@ -589,6 +589,10 @@ const isElectron = ref(false)
 const appVersion = ref('0.6.0')
 const platform = ref<'windows' | 'macos' | 'linux' | 'unknown'>('unknown')
 const appStore = useAppStore()
+/** Koring 皮肤在下载页使用页面内导航，隐藏全局侧栏与侧栏分类 */
+const isKorDownloads = computed(
+  () => appStore.skin === 'koring' && currentRoute.value === '/downloads'
+)
 const versionsStore = useVersionsStore()
 const accountsStore = useAccountsStore()
 const instancesStore = useInstancesStore()
