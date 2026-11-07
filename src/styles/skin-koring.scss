@@ -740,3 +740,25 @@
   background: rgba(255, 255, 255, 0.03);
   padding: 10px 12px;
 }
+/* ========== 设置页左侧导航（Koring 皮肤） ========== */
+[data-skin='koring'] .sb-nav {
+  padding: 6px 8px 10px;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+[data-skin='koring'] .sb-nav .nav-item {
+  height: 34px;
+  border-radius: 8px;
+}
+
+[data-skin='koring'] .sb-nav .nav-item.sub {
+  height: 32px;
+  padding-left: 26px;
+  font-size: 12.5px;
+}
+
+[data-skin='koring'] .sb-nav .nav-item.active {
+  background: color-mix(in oklab, var(--voxver-primary) 16%, transparent);
+  color: var(--voxver-primary);
+}
