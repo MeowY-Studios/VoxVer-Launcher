@@ -2396,7 +2396,7 @@
 
     <!-- ========== 下载与网络 ========== -->
     <template v-if="activeCategory === 'download-net'">
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
@@ -2536,12 +2536,71 @@
             </div>
           </div>
         </div>
-      </section>
+      </section>      <div v-else class="kor-c4">
+        <KorSectionTitle>{{ $t('settings.dlGroupService') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.serviceConnectivity')" :desc="$t('settings.serviceConnectivityEnter')">
+            <KorButton variant="outline" size="sm" @click="openServiceTest">
+              {{ $t('settings.serviceConnectivityEnter') }}
+            </KorButton>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle>{{ $t('settings.dlGroupSource') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.mirrorStrategy')">
+            <KorSettingSelect v-model="mirrorStrategyModel" :options="mirrorStrategyOptions" :width="180" />
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle>{{ $t('settings.dlGroupDownload') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.downloadConcurrent')">
+            <KorSettingSelect v-model="concurrentModel" :options="concurrentOptions" :width="140" />
+          </KorSettingRow>
+          <KorSettingRow
+            :label="$t('settings.maxThreads')"
+            :desc="threadsAuto ? $t('settings.threadsAutoOn') : $t('settings.threadsAutoOff')"
+          >
+            <KorSwitch v-model="threadsAuto" @update:model-value="(v: boolean) => setThreadsAuto(v)" />
+          </KorSettingRow>
+          <KorSettingRow v-if="!threadsAuto" :label="$t('settings.threadsCount')">
+            <div class="kor-c4__slider">
+              <KorSlider v-model="downloadConfig.maxThreadsPerFile" :min="1" :max="64" @update:model-value="onThreadsChange" />
+              <span class="kor-value">{{ downloadConfig.maxThreadsPerFile }}</span>
+            </div>
+          </KorSettingRow>
+          <KorSettingRow
+            :label="$t('settings.speedLimit')"
+            :desc="speedLimitAuto ? $t('settings.speedLimitAutoOn') : $t('settings.speedLimitAutoOff')"
+          >
+            <KorSwitch v-model="speedLimitAuto" @update:model-value="(v: boolean) => setSpeedLimitAuto(v)" />
+          </KorSettingRow>
+          <KorSettingRow v-if="!speedLimitAuto" :label="$t('settings.speedLimitValue')" :desc="$t('settings.speedLimitHint')">
+            <div class="kor-c4__inline">
+              <KorInput v-model.number="downloadConfig.speedLimit" type="number" class="kor-input--short" @change="onSpeedLimitChange" />
+              <span class="kor-value">KB/s</span>
+            </div>
+          </KorSettingRow>
+          <KorSettingRow
+            :label="$t('settings.downloadMaxRetries')"
+            :desc="retriesAuto ? $t('settings.retriesAutoOn') : $t('settings.retriesAutoOff')"
+          >
+            <KorSwitch v-model="retriesAuto" @update:model-value="(v: boolean) => setRetriesAuto(v)" />
+          </KorSettingRow>
+          <KorSettingRow v-if="!retriesAuto" :label="$t('settings.retriesCount')">
+            <div class="kor-c4__slider">
+              <KorSlider v-model="downloadConfig.maxRetries" :min="0" :max="20" @update:model-value="onRetriesChange" />
+              <span class="kor-value">{{ downloadConfig.maxRetries }}</span>
+            </div>
+          </KorSettingRow>
+        </KorSettingCard>
+      </div>
     </template>
 
     <!-- ========== 数据迁移（HMCL/PCL2） ========== -->
     <template v-if="activeCategory === 'data-migration'">
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83" />
@@ -2594,12 +2653,44 @@
         <div v-if="externalLaunchersDetected === false && !externalLaunchersLoading" class="migration-empty">
           {{ $t('settings.dataMigration.notFound') }}
         </div>
-      </section>
-    </template>
+      </section>      <div v-else class="kor-c4">
+        <KorSectionTitle>{{ $t('settings.dataMigration.title') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.dataMigration.detect')" :desc="$t('settings.dataMigration.detectDesc')">
+            <KorButton variant="outline" size="sm" :loading="externalLaunchersLoading" @click="detectExternalLaunchers">
+              {{ externalLaunchersLoading ? $t('settings.detecting') : $t('settings.dataMigration.detectBtn') }}
+            </KorButton>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <template v-if="externalLaunchers.length > 0">
+          <div v-for="launcher in externalLaunchers" :key="launcher.type" class="kor-c4__group">
+            <KorSectionTitle>
+              {{ launcher.name }} · {{ $t('settings.instancesCount', { n: launcher.instances.length }) }}
+            </KorSectionTitle>
+            <KorSettingCard>
+              <KorSettingRow
+                v-for="inst in launcher.instances"
+                :key="inst.gameDir"
+                :label="inst.name"
+                :desc="`${launcher.path ? launcher.path : ''} · MC ${inst.version}${inst.loaderType !== 'vanilla' ? ' · ' + inst.loaderType + ' ' + inst.loaderVersion : ''} · ${inst.modCount} mods`"
+              >
+                <KorButton variant="outline" size="sm" @click="importExternalInstance(inst.gameDir)">
+                  {{ $t('common.import') }}
+                </KorButton>
+              </KorSettingRow>
+            </KorSettingCard>
+          </div>
+        </template>
+
+        <KorSettingCard v-else-if="externalLaunchersDetected === false && !externalLaunchersLoading">
+          <KorEmpty :title="$t('settings.dataMigration.notFound')" />
+        </KorSettingCard>
+      </div>    </template>
 
     <!-- ========== 游戏截图 ========== -->
     <template v-if="activeCategory === 'screenshots'">
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
@@ -2662,13 +2753,51 @@
         <div v-else-if="screenshotInstanceId && !screenshotsLoading" class="migration-empty">
           {{ $t('settings.screenshots.empty') }}
         </div>
-      </section>
-    </template>
+      </section>      <div v-else class="kor-c4">
+        <KorSectionTitle>{{ $t('settings.screenshots.title') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.screenshots.selectInstance')" :desc="$t('settings.screenshots.desc')">
+            <KorSettingSelect v-model="screenshotInstanceId" :options="screenshotInstanceOptions" />
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <div v-if="screenshots.length > 0" class="screenshot-grid kor-c4__grid">
+          <div v-for="s in screenshots" :key="s.filePath" class="screenshot-card" @click="previewScreenshot(s)">
+            <img v-if="s.thumbnail" :src="s.thumbnail" class="screenshot-thumb" alt="" />
+            <div v-else class="screenshot-thumb-placeholder">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+            </div>
+            <div class="screenshot-info">
+              <span class="screenshot-name">{{ s.fileName }}</span>
+              <span class="screenshot-date">{{ formatScreenshotDate(s.createdAt) }}</span>
+            </div>
+            <div class="screenshot-actions">
+              <KorButton variant="outline" size="sm" @click.stop="copyScreenshot(s.filePath)" :title="$t('settings.copyToClipboard')">
+                {{ $t('settings.copyToClipboard') }}
+              </KorButton>
+              <KorButton variant="outline" size="sm" @click.stop="exportScreenshot(s.filePath)">
+                {{ $t('common.export') }}
+              </KorButton>
+              <KorButton variant="danger" size="sm" @click.stop="deleteScreenshotAction(s)">
+                {{ $t('common.delete') }}
+              </KorButton>
+            </div>
+          </div>
+        </div>
+
+        <KorSettingCard v-else-if="screenshotInstanceId && !screenshotsLoading">
+          <KorEmpty :title="$t('settings.screenshots.empty')" />
+        </KorSettingCard>
+      </div>    </template>
 
     <!-- ========== 联机 ========== -->
     <template v-if="activeCategory === 'online'">
       <!-- 信令服务器 -->
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title vox-sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
@@ -2724,7 +2853,7 @@
       </section>
 
       <!-- 传输设置 -->
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title vox-sec-title">{{ $t('p2p.transferSettings') }}</h3>
         <p class="sec-desc">{{ $t('p2p.transferSettingsDesc') }}</p>
 
@@ -2767,11 +2896,64 @@
           </div>
         </div>
       </section>
+      <div v-else class="kor-c4">
+        <KorSettingCard>
+          <KorSettingRow :label="$t('p2p.useCustomServer')" :desc="$t('p2p.useCustomServerDesc')">
+            <KorSwitch v-model="p2pSettings.useCustomServer" @update:model-value="() => saveP2pSettings()" />
+          </KorSettingRow>
+          <KorSettingRow
+            v-if="p2pSettings.useCustomServer"
+            :label="$t('p2p.signalingServer')"
+            :desc="$t('p2p.signalingServerDesc')"
+          >
+            <KorInput
+              v-model="p2pSettings.signalingServer"
+              class="kor-input--wide"
+              :placeholder="$t('p2p.signalingServerPlaceholder')"
+              @change="saveP2pSettings"
+            />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('p2p.currentServer')">
+            <span class="kor-value">
+              {{ p2pSettings.useCustomServer && p2pSettings.signalingServer ? p2pSettings.signalingServer : $t('p2p.defaultServer') }}
+            </span>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle>{{ $t('p2p.transferSettings') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('p2p.chunkSize')" :desc="$t('p2p.chunkSizeDesc')">
+            <KorSettingSelect
+              v-model="p2pSettings.chunkSize"
+              :options="[
+                { label: $t('p2p.chunk512'), value: '512' },
+                { label: $t('p2p.chunk1024'), value: '1024' },
+                { label: $t('p2p.chunk2048'), value: '2048' },
+                { label: $t('p2p.chunk4096'), value: '4096' }
+              ]"
+              :width="160"
+              @update:model-value="saveP2pSettings"
+            />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('p2p.connectionTimeout')" :desc="$t('p2p.connectionTimeoutDesc')">
+            <KorSettingSelect
+              v-model="p2pSettings.connectionTimeout"
+              :options="[
+                { label: $t('p2p.timeout15'), value: '15' },
+                { label: $t('p2p.timeout30'), value: '30' },
+                { label: $t('p2p.timeout60'), value: '60' }
+              ]"
+              :width="160"
+              @update:model-value="saveP2pSettings"
+            />
+          </KorSettingRow>
+        </KorSettingCard>
+      </div>
     </template>
 
     <!-- ========== 联机 ========== -->
     <template v-if="activeCategory === 'multiplayer'">
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title vox-sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -2786,11 +2968,18 @@
           <p>{{ $t('multiplayer.comingSoon') }}</p>
         </div>
       </section>
+      <div v-else class="kor-c4">
+        <KorSectionTitle>{{ $t('settings.sidebar.multiplayer') }}</KorSectionTitle>
+        <KorSettingCard>
+          <p class="kor-copy">{{ $t('multiplayer.desc') }}</p>
+          <p class="kor-copy">{{ $t('multiplayer.comingSoon') }}</p>
+        </KorSettingCard>
+      </div>
     </template>
 
     <!-- ========== 安全识别服务 ========== -->
     <template v-if="activeCategory === 'auth-service'">
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title vox-sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -2802,7 +2991,7 @@
       </section>
 
       <!-- Mod 安全扫描 -->
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title vox-sec-title">{{ $t('settings.security.modScan') }}</h3>
         <p class="sec-desc">{{ $t('settings.security.modScanDesc') }}</p>
 
@@ -2873,7 +3062,7 @@
       </section>
 
       <!-- 文件完整性校验 -->
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title vox-sec-title">{{ $t('settings.security.integrityCheck') }}</h3>
         <p class="sec-desc">{{ $t('settings.security.integrityCheckDesc') }}</p>
 
@@ -2905,7 +3094,7 @@
       </section>
 
       <!-- 信任的下载源 -->
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title vox-sec-title">{{ $t('settings.security.trustedSources') }}</h3>
         <p class="sec-desc">{{ $t('settings.security.trustedSourcesDesc') }}</p>
 
@@ -2937,7 +3126,7 @@
       </section>
 
       <!-- 安全日志 -->
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title vox-sec-title">{{ $t('settings.security.securityLog') }}</h3>
         <p class="sec-desc">{{ $t('settings.security.securityLogDesc') }}</p>
 
@@ -2957,6 +3146,49 @@
           </div>
         </div>
       </section>
+      <div v-else class="kor-c4">
+        <KorSectionTitle>{{ $t('settings.security.modScan') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.security.enableScan')" :desc="$t('settings.security.enableScanDesc')">
+            <KorSwitch v-model="securitySettings.modScan" @update:model-value="() => saveSecuritySettings()" />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.security.scanEngine')" :desc="$t('settings.security.scanEngineDesc')">
+            <KorSettingSelect
+              v-model="securitySettings.scanEngine"
+              :options="[
+                { label: $t('settings.security.engineBuiltin'), value: 'builtin' },
+                { label: 'VirusTotal', value: 'virustotal' }
+              ]"
+              :width="180"
+              @update:model-value="saveSecuritySettings"
+            />
+          </KorSettingRow>
+          <KorSettingRow
+            v-if="securitySettings.scanEngine === 'virustotal'"
+            label="VirusTotal API Key"
+            :desc="$t('settings.security.virusTotalKeyDesc')"
+          >
+            <KorInput
+              v-model="securitySettings.virusTotalKey"
+              class="kor-input--wide"
+              :placeholder="$t('settings.security.apiKeyPlaceholder')"
+              @change="saveSecuritySettings"
+            />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.security.sensitivity')" :desc="$t('settings.security.sensitivityDesc')">
+            <KorSettingSelect
+              v-model="securitySettings.sensitivity"
+              :options="[
+                { label: $t('settings.security.sensitivityLoose'), value: 'loose' },
+                { label: $t('settings.security.sensitivityStandard'), value: 'standard' },
+                { label: $t('settings.security.sensitivityStrict'), value: 'strict' }
+              ]"
+              :width="180"
+              @update:model-value="saveSecuritySettings"
+            />
+          </KorSettingRow>
+        </KorSettingCard>
+      </div>
     </template>
 
     <template v-if="activeCategory === 'other'">
@@ -3300,7 +3532,7 @@
 
     <!-- ========== 服务与反馈 ========== -->
     <template v-if="activeCategory === 'service'">
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
@@ -3309,7 +3541,7 @@
         </h3>
       </section>
 
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">{{ $t('more.help') }}</h3>
         <p class="sec-desc">{{ $t('more.helpSubtitle') }}</p>
 
@@ -3321,7 +3553,7 @@
         </div>
       </section>
 
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">{{ $t('more.feedback') }}</h3>
         <p class="sec-desc">{{ $t('more.feedbackSubtitle') }}</p>
 
@@ -3354,11 +3586,35 @@
           </div>
         </div>
       </section>
+      <div v-else class="kor-c4">
+        <KorSectionTitle>{{ $t('more.help') }}</KorSectionTitle>
+        <KorSettingCard>
+          <p class="kor-copy">{{ $t('more.helpSubtitle') }}</p>
+          <div v-for="(item, i) in faqItems" :key="i" class="kor-c4__group">
+            <KorSettingRow :label="item.q" :desc="item.a" />
+          </div>
+        </KorSettingCard>
+
+        <KorSectionTitle>{{ $t('more.feedback') }}</KorSectionTitle>
+        <KorSettingCard>
+          <p class="kor-copy">{{ $t('more.feedbackSubtitle') }}</p>
+          <KorSettingRow :label="$t('more.issueFeedback')" :desc="$t('more.issueDesc')">
+            <KorButton variant="outline" size="sm" @click="openExternal('https://github.com/MeowY-Studios/VoxVer-Launcher/issues')">
+              {{ $t('more.goToGitHub') }}
+            </KorButton>
+          </KorSettingRow>
+          <KorSettingRow :label="$t('more.otherContact')" :desc="$t('more.otherContactDesc')">
+            <KorButton variant="outline" size="sm" @click="showEmailModal = true">
+              {{ $t('more.sendEmail') }}
+            </KorButton>
+          </KorSettingRow>
+        </KorSettingCard>
+      </div>
     </template>
 
     <!-- ========== 赞助我们 ========== -->
     <template v-if="activeCategory === 'sponsor'">
-      <section class="sec">
+      <section v-if="appStore.skin !== 'koring'" class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
@@ -3375,6 +3631,15 @@
           </button>
         </div>
       </section>
+      <div v-else class="kor-c4">
+        <KorSectionTitle>{{ $t('settings.sidebar.sponsor') }}</KorSectionTitle>
+        <KorSettingCard>
+          <p class="kor-copy">{{ $t('settings.sponsor.desc') }}</p>
+          <div class="kor-c4__group">
+            <KorButton variant="primary" size="md" @click="openSponsorLink">{{ $t('more.sponsorMcla') }}</KorButton>
+          </div>
+        </KorSettingCard>
+      </div>
     </template>
 
     <!-- ========== 开发者选项 ========== -->

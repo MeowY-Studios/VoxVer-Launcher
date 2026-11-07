@@ -951,3 +951,40 @@ html[data-theme='light'] .kor-radio__item:hover {
   flex: 0 0 auto;
   height: 220px;
 }
+/* ---------- C4：设置里各分类正文（下载与网络 / 数据迁移 / 截图 / 联机 / 赞助 …） ---------- */
+[data-skin='koring'] .kor-c4 > .kor-section-title {
+  margin: 26px 2px 10px;
+}
+
+[data-skin='koring'] .kor-c4 > .kor-section-title:first-child {
+  margin-top: 0;
+}
+
+[data-skin='koring'] .kor-c4__slider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+[data-skin='koring'] .kor-c4__inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+[data-skin='koring'] .kor-c4__group {
+  margin-top: 14px;
+}
+
+[data-skin='koring'] .kor-c4__group .kor-section-title {
+  margin: 0 2px 10px;
+}
+
+[data-skin='koring'] .kor-c4__grid {
+  margin-top: 16px;
+}
+
+[data-skin='koring'] .kor-c4 .kor-input--short {
+  width: 120px;
+  min-width: 0;
+}
