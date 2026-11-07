@@ -1382,14 +1382,13 @@
       </div>
 
       <template v-else>
-      <!-- 外观 -->
+      <!-- 外观（显示模式） -->
       <div class="memory-alloc-card" style="margin-top: 12px">
         <div style="margin-bottom: 12px">
           <div class="debug-mode-label">{{ $t('settings.appearance') }}</div>
         </div>
 
-
-        <!-- 主题模式（Koring 风格预览缩略图） -->
+        <!-- 主题模式（仅切换界面明暗，不涉及排版） -->
         <div style="margin-top: 14px">
           <label class="row-label" style="margin-bottom:6px;display:block">{{ $t('settings.themeMode') }}</label>
           <p class="row-desc" style="margin-bottom:10px">{{ $t('settings.themeModeDesc') }}</p>
@@ -1403,83 +1402,23 @@
             />
           </div>
         </div>
+      </div>
 
-        <!-- 主题预设（排版） -->
-        <div style="margin-top: 14px">
-          <label class="row-label" style="margin-bottom:6px;display:block">{{ $t('settings.skinSection') }}</label>
-          <p class="row-desc" style="margin-bottom:10px">{{ $t('settings.skinSectionDesc') }}</p>
-          <div class="kor-theme-row">
-            <SkinPresetCard
-              v-for="opt in layoutOptions"
-              :key="opt.value"
-              :skin="opt.value"
-              :selected="appStore.skin === opt.value"
-              @select="onSelectSkin(opt.value)"
-            />
-          </div>
+      <!-- 主题预设（整体排版） -->
+      <div class="memory-alloc-card" style="margin-top: 12px">
+        <div style="margin-bottom: 12px">
+          <div class="debug-mode-label">{{ $t('settings.skinSection') }}</div>
         </div>
 
-        <!-- 自定义主题颜色 -->
-        <div class="theme-custom-card" style="margin-top:16px">
-          <div class="mem-custom-row" style="align-items:flex-start">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.customThemeColor') }}</label>
-              <p class="row-desc">{{ $t('settings.themePresetsDesc') }}</p>
-            </div>
-          </div>
-
-          <div class="preset-gallery" style="margin-top:12px">
-            <button
-              v-for="p in themePresets"
-              :key="p.id"
-              class="preset-card"
-              :class="{ active: s.themeColor === p.themeColor }"
-              @click="applyThemeColor(p.themeColor); s.accentColor = p.accentColor"
-            >
-              <span class="preset-swatch" :style="{ background: p.themeColor }"></span>
-              <span class="preset-name">{{ p.name }}</span>
-            </button>
-          </div>
-
-          <div class="quick-color-palette" style="margin-top:12px">
-            <button
-              v-for="c in quickColorPresets"
-              :key="c"
-              class="quick-swatch"
-              :class="{ active: s.themeCustomColor.toUpperCase() === c.toUpperCase() }"
-              :style="{ background: c }"
-              @click="s.themeCustomColor = c; previewThemeColor(c)"
-              :title="c"
-            />
-          </div>
-
-          <div class="mem-custom-row" style="margin-top:12px;align-items:center">
-            <div class="input-group compact" style="align-items:center;gap:8px">
-              <div class="color-swatch" :style="{ background: s.themeCustomColor }">
-                <input
-                  type="color"
-                  v-model="s.themeCustomColor"
-                  @input="previewThemeColor(s.themeCustomColor)"
-                  class="color-picker-input"
-                />
-              </div>
-              <input
-                type="text"
-                class="inp"
-                v-model="s.themeCustomColor"
-                style="width:80px;font-family:var(--voxver-font-mono)"
-                @change="previewThemeColor(s.themeCustomColor)"
-              />
-              <button class="btn-sm vox-btn--primary" @click="applyCustomThemeColor(s.themeCustomColor)">
-                {{ $t('settings.apply') }}
-              </button>
-            </div>
-          </div>
-
-          <div class="theme-preview-bar">
-            <div class="preview-chip" v-for="i in 8" :key="i" :style="{ background: `var(--voxver-primary-${i}00)` }"></div>
-            <span class="preview-label">{{ $t('settings.primaryColorPreview') }} · {{ s.themeCustomColor }}</span>
-          </div>
+        <p class="row-desc" style="margin-bottom:10px">{{ $t('settings.skinSectionDesc') }}</p>
+        <div class="kor-theme-row">
+          <SkinPresetCard
+            v-for="opt in layoutOptions"
+            :key="opt.value"
+            :skin="opt.value"
+            :selected="appStore.skin === opt.value"
+            @select="onSelectSkin(opt.value)"
+          />
         </div>
 
         <!-- 导入/导出主题 -->
@@ -1487,10 +1426,65 @@
           <button class="btn vox-btn vox-btn--secondary btn-sm" @click="exportCurrentTheme">{{ $t('settings.exportTheme') }}</button>
           <button class="btn vox-btn vox-btn--secondary btn-sm" @click="importThemeFile">{{ $t('settings.importTheme') }}</button>
         </div>
+      </div>
 
+      <!-- 自定义主题颜色 -->
+      <div class="memory-alloc-card" style="margin-top: 12px">
+        <div style="margin-bottom: 12px">
+          <div class="debug-mode-label">{{ $t('settings.customThemeColor') }}</div>
+        </div>
+
+        <p class="row-desc" style="margin-bottom:10px">{{ $t('settings.themePresetsDesc') }}</p>
+        <div class="preset-gallery">
+          <button
+            v-for="p in themePresets"
+            :key="p.id"
+            class="preset-card"
+            :class="{ active: s.themeColor === p.themeColor }"
+            @click="applyThemeColor(p.themeColor); s.accentColor = p.accentColor"
+          >
+            <span class="preset-swatch" :style="{ background: p.themeColor }"></span>
+            <span class="preset-name">{{ p.name }}</span>
+          </button>
+        </div>
+
+        <div class="mem-custom-row" style="margin-top:14px;align-items:center">
+          <div class="input-group compact" style="align-items:center;gap:8px">
+            <div class="color-swatch" :style="{ background: s.themeCustomColor }">
+              <input
+                type="color"
+                v-model="s.themeCustomColor"
+                @input="previewThemeColor(s.themeCustomColor)"
+                class="color-picker-input"
+              />
+            </div>
+            <input
+              type="text"
+              class="inp"
+              v-model="s.themeCustomColor"
+              style="width:80px;font-family:var(--voxver-font-mono)"
+              @change="previewThemeColor(s.themeCustomColor)"
+            />
+            <button class="btn-sm vox-btn--primary" @click="applyCustomThemeColor(s.themeCustomColor)">
+              {{ $t('settings.apply') }}
+            </button>
+          </div>
+        </div>
+
+        <div class="theme-preview-bar">
+          <div class="preview-chip" v-for="i in 8" :key="i" :style="{ background: `var(--voxver-primary-${i}00)` }"></div>
+          <span class="preview-label">{{ $t('settings.primaryColorPreview') }} · {{ s.themeCustomColor }}</span>
+        </div>
+      </div>
+
+      <!-- 界面 -->
+      <div class="memory-alloc-card" style="margin-top: 12px">
+        <div style="margin-bottom: 12px">
+          <div class="debug-mode-label">{{ $t('settings.interfaceSection') }}</div>
+        </div>
 
         <!-- 字号 -->
-        <div class="mem-custom-row" style="margin-top:14px">
+        <div class="mem-custom-row">
           <label class="row-label">{{ $t('settings.fontSize') }}</label>
           <div class="input-group compact" style="flex:1">
             <input type="range" class="range" style="flex:1" v-model.number="s.fontSize" min="12" max="20" step="1" />
