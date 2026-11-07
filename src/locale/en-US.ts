@@ -333,6 +333,16 @@ export default {
   },
 
   launch: {
+
+     currentVersion: 'Current version',
+
+     currentAccount: 'Current account',
+
+     noAccount: 'Not signed in',
+
+     changeVersion: 'Change version',
+
+     noVersionSelected: 'No version selected',
     manageAccounts: 'Manage Accounts',
     gameLog: 'Game Log',
     clearLog: 'Clear Log',

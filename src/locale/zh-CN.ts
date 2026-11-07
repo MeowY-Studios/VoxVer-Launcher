@@ -339,6 +339,16 @@ export default {
   },
 
   launch: {
+
+     currentVersion: '当前版本',
+
+     currentAccount: '当前账户',
+
+     noAccount: '未登录',
+
+     changeVersion: '更换版本',
+
+     noVersionSelected: '尚未选择版本',
     manageAccounts: '账户管理',
     gameLog: '游戏日志',
     clearLog: '清空日志',

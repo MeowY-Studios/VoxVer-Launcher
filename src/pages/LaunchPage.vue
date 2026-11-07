@@ -1,6 +1,7 @@
 <template>
   <div class="launch-page">
     <KorPageHeader v-if="isKoring" :title="$t('tabs.launch')" />
+    <template v-if="!isKoring">
     <!-- 中央启动区 -->
     <div class="launch-center">
       <!-- 启动按钮 -->
@@ -199,6 +200,130 @@
         </details>
       </div>
     </section>
+    </template>
+    <template v-else>
+      <div class="kor-c8">
+        <KorSettingCard>
+          <KorSettingRow
+            :label="$t('launch.currentVersion')"
+            :desc="versionsStore.currentVersionId || $t('launch.noVersionSelected')"
+          >
+            <KorButton variant="outline" size="sm" @click="router.push('/downloads')">
+              {{ $t('launch.changeVersion') }}
+            </KorButton>
+          </KorSettingRow>
+          <KorSettingRow
+            :label="$t('launch.currentAccount')"
+            :desc="accountsStore.activeAccount?.name || $t('launch.noAccount')"
+          >
+            <KorButton variant="outline" size="sm" @click="goAccountSettings">
+              {{ $t('launch.manageAccounts') }}
+            </KorButton>
+          </KorSettingRow>
+          <KorSettingRow :label="$t('launch.gameDir')" :desc="mcPathDisplay">
+            <div class="kor-c8__path-actions">
+              <KorButton
+                v-if="isCustomPath"
+                variant="ghost"
+                size="sm"
+                @click="restoreDefaultPath"
+              >
+                {{ $t('launch.restoreDefaultPath') }}
+              </KorButton>
+              <KorButton variant="outline" size="sm" @click="changePath">
+                {{ $t('launch.changePath') }}
+              </KorButton>
+            </div>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSettingCard>
+          <div class="kor-c8__launch">
+            <KorButton
+              :variant="isRunning ? 'danger' : 'primary'"
+              size="md"
+              :loading="isLaunching && !isRunning"
+              @click="handleLaunch"
+            >
+              {{ launchLabel }}
+            </KorButton>
+            <p v-if="statusMessage" class="kor-copy" :class="{ 'is-error': hasError }">
+              {{ statusMessage }}
+            </p>
+          </div>
+        </KorSettingCard>
+
+        <KorSectionTitle>{{ $t('launch.gameLog') }}</KorSectionTitle>
+        <KorSettingCard>
+          <div class="kor-c8__console-head">
+            <span class="kor-copy">{{ $t('launch.gameLog') }}</span>
+            <div class="kor-c8__console-actions">
+              <KorButton variant="ghost" size="sm" @click="clearLog">{{ $t('common.clear') }}</KorButton>
+              <KorButton variant="ghost" size="sm" @click="copyLog">{{ $t('common.copy') }}</KorButton>
+              <KorButton
+                v-if="isRunning"
+                variant="danger"
+                size="sm"
+                @click="terminateGame"
+              >
+                {{ $t('launch.terminate') }}
+              </KorButton>
+            </div>
+          </div>
+          <div ref="logContainerRef" class="kor-c8__console" @scroll="onScrollLog">
+            <div
+              v-for="(line, idx) in logLines"
+              :key="idx"
+              class="log-line"
+              :class="getLineClass(line)"
+            >
+              {{ line }}
+            </div>
+            <div v-if="logLines.length === 0" class="log-empty">
+              {{ $t('launch.noLogOutput') }}
+            </div>
+          </div>
+        </KorSettingCard>
+
+        <template v-if="crashReport">
+          <KorSectionTitle>{{ $t('launch.gameCrash') }}</KorSectionTitle>
+          <KorSettingCard>
+            <div class="kor-c8__crash">
+              <p class="kor-copy is-error">
+                <strong>{{ crashReport.crashCause.exception }}</strong>
+              </p>
+              <p class="kor-copy">{{ crashReport.crashCause.message }}</p>
+              <p v-if="crashReport.description" class="kor-copy">{{ crashReport.description }}</p>
+
+              <div v-if="crashReport.suggestedSolutions?.length" class="kor-c8__crash-list">
+                <strong>{{ $t('launch.suggestedActions') }}</strong>
+                <ul>
+                  <li v-for="(action, i) in crashReport.suggestedSolutions" :key="i">{{ action }}</li>
+                </ul>
+              </div>
+
+              <div v-if="crashReport.possibleCauses?.length" class="kor-c8__crash-list">
+                <strong>{{ $t('launch.possibleCauses') }}</strong>
+                <ul>
+                  <li v-for="(cause, i) in crashReport.possibleCauses" :key="i">{{ cause }}</li>
+                </ul>
+              </div>
+
+              <details class="kor-c8__crash-stack">
+                <summary>{{ $t('launch.viewCrashStack') }}</summary>
+                <pre>{{ crashReport.crashCause.stackTrace?.join('\n') || crashReport.rawContent || $t('launch.noStack') }}</pre>
+              </details>
+
+              <div class="kor-c8__crash-actions">
+                <KorButton variant="ghost" size="sm" @click="dismissCrashReport">
+                  {{ $t('common.close') }}
+                </KorButton>
+              </div>
+            </div>
+          </KorSettingCard>
+        </template>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -208,7 +333,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { CrashReport } from '../types/crash'
 import { useVersionsStore, useAccountsStore, useInstancesStore, useAppStore } from '../stores'
-import { KorPageHeader } from '../components/kor'
+import { KorButton, KorPageHeader, KorSectionTitle, KorSettingCard, KorSettingRow } from '../components/kor'
 import { getCurrentMcPath } from '../utils/mcPath'
 
 const { t, locale } = useI18n()
@@ -218,6 +343,7 @@ const isKoring = computed(() => appStore.skin === 'koring')
 const router = useRouter()
 const settingsActive = inject<Ref<string>>('settingsActive')
 const accountsStore = useAccountsStore()
+const versionsStore = useVersionsStore()
 
 // ====== 状态 ======
 const isLaunching = ref(false)
