@@ -930,3 +930,60 @@
   background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(12px);
 }
+/* 设置页侧栏顶部的账户卡（Koring PageShell 的 sidebarHeader） */
+[data-skin='koring'] .kor-side-account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.04);
+  text-align: left;
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+
+[data-skin='koring'] .kor-side-account:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-skin='koring'] .kor-side-account__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: color-mix(in oklab, var(--voxver-primary) 72%, #000);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+[data-skin='koring'] .kor-side-account__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+[data-skin='koring'] .kor-side-account__name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--voxver-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-skin='koring'] .kor-side-account__desc {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.48);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

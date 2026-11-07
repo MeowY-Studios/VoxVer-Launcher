@@ -359,6 +359,18 @@
         <!-- ========== 设置页侧栏：分类导航（分组结构） ========== -->
         <template v-else-if="currentRoute === '/settings'">
           <nav class="sb-nav">
+            <button
+              v-if="appStore.skin === 'koring'"
+              type="button"
+              class="kor-side-account"
+              @click="handleSettingsCategory('account')"
+            >
+              <span class="kor-side-account__avatar">V</span>
+              <span class="kor-side-account__meta">
+                <span class="kor-side-account__name">{{ $t('settings.home.accountTitle') }}</span>
+                <span class="kor-side-account__desc">{{ $t('settings.home.accountTitleDesc') }}</span>
+              </span>
+            </button>
             <template v-for="group in settingsGroups" :key="group.name">
               <div class="nav-group-header">{{ $t(group.name) }}</div>
               <button
