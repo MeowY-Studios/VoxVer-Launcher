@@ -78,6 +78,7 @@
                 :class="{ active: i === 0, clickable: i !== 0 }"
                 :style="cardStyle(i)"
                 @click="switchAccount(acc)"
+                @contextmenu.prevent="openAccountMenu($event, acc, 'ms')"
                 @mouseenter="hoverIndex = i"
                 @mouseleave="hoverIndex = -1"
               >
@@ -100,6 +101,7 @@
                 <div class="bc-bottom">
                   <p class="profile-name">{{ acc.name }}</p>
                   <button
+                    v-if="!isKoring"
                     class="vox-btn vox-btn--destructive bc-logout"
                     @click.stop="logoutMicrosoft(acc.id)"
                   >
@@ -188,6 +190,7 @@
               :class="{ active: i === 0, clickable: i !== 0 }"
               :style="offCardStyle(i)"
               @click="switchOffline(acc)"
+              @contextmenu.prevent="openAccountMenu($event, acc, 'offline')"
               @mouseenter="hoverIndex = i"
               @mouseleave="hoverIndex = -1"
             >
@@ -203,6 +206,7 @@
               <div class="bc-bottom">
                 <p class="profile-name">{{ acc.name }}</p>
                 <button
+                  v-if="!isKoring"
                   class="vox-btn vox-btn--destructive bc-logout"
                   @click.stop="deleteOffline(acc.id)"
                 >
@@ -343,11 +347,25 @@
         </button>
       </template>
     </PxModal>
+
+    <!-- 右键菜单：退出登录 / 删除账号（Koring 交互） -->
+    <Teleport to="body">
+      <div
+        v-if="ctxMenu"
+        class="account-ctx"
+        :style="{ left: `${ctxMenu.x}px`, top: `${ctxMenu.y}px` }"
+        @click.stop
+      >
+        <button type="button" class="account-ctx__danger" @click="runCtxAction">
+          {{ $t('auth.deleteAccount') }}
+        </button>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAccountsStore } from '../stores/accounts.store'
@@ -447,6 +465,26 @@ const offlineError = ref('')
 /** 是否展开「添加离线账户」表单 */
 const showAddOffline = ref(false)
 
+/** 右键菜单：{ x, y, id, kind } */
+const ctxMenu = ref<{ x: number; y: number; id: string; kind: 'ms' | 'offline' } | null>(null)
+
+function openAccountMenu(e: MouseEvent, acc: { id: string }, kind: 'ms' | 'offline'): void {
+  e.preventDefault()
+  ctxMenu.value = { x: e.clientX, y: e.clientY, id: acc.id, kind }
+}
+
+function closeAccountMenu(): void {
+  ctxMenu.value = null
+}
+
+async function runCtxAction(): Promise<void> {
+  const menu = ctxMenu.value
+  ctxMenu.value = null
+  if (!menu) return
+  if (menu.kind === 'ms') await logoutMicrosoft(menu.id)
+  else await deleteOffline(menu.id)
+}
+
 const offAccList = computed(() => accountsStore.accounts.filter((a) => a.type === 'offline'))
 
 async function switchOffline(acc: { id: string; isActive: number }) {
@@ -473,6 +511,8 @@ async function deleteOffline(id: string) {
 }
 
 onMounted(async () => {
+  window.addEventListener('click', closeAccountMenu)
+  window.addEventListener('keydown', onCtxEsc)
   await accountsStore.fetchAccounts()
   await loadAccountSkins()
 })
@@ -626,6 +666,14 @@ function generateUUID(): string {
     const v = c === 'x' ? r : (r & 0x3) | 0x8
     return v.toString(16)
   })
+}
+onBeforeUnmount(() => {
+  window.removeEventListener('click', closeAccountMenu)
+  window.removeEventListener('keydown', onCtxEsc)
+})
+
+function onCtxEsc(e: KeyboardEvent): void {
+  if (e.key === 'Escape') closeAccountMenu()
 }
 </script>
 
@@ -1083,5 +1131,35 @@ img.profile-avatar {
     font-size: 12px;
     color: var(--voxver-error);
   }
+}
+/* * ====== 右键菜单（Koring 交互：删除/退出账号） ====== */
+.account-ctx {
+  position: fixed;
+  z-index: 4000;
+  min-width: 132px;
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(20, 20, 24, 0.96);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(14px);
+}
+
+.account-ctx__danger {
+  display: block;
+  width: 100%;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #ff6b6b;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.account-ctx__danger:hover {
+  background: rgba(255, 107, 107, 0.14);
 }
 </style>
