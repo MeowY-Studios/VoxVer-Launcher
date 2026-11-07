@@ -22,8 +22,16 @@ const props = withDefaults(
     pageClassName?: string
     navLabel?: string
     keepAlive?: boolean
+    /** 只渲染侧栏导航，页面内容由调用方自行渲染（用于设置页/下载页接管导航） */
+    sidebarOnly?: boolean
   }>(),
-  { sidebarWidth: 220, pageClassName: 'kor-shell__page', navLabel: '页面导航', keepAlive: true }
+  {
+    sidebarWidth: 220,
+    pageClassName: 'kor-shell__page',
+    navLabel: '页面导航',
+    keepAlive: true,
+    sidebarOnly: false
+  }
 )
 
 const activeKey = defineModel<string>({ default: '' })
@@ -165,7 +173,7 @@ function pageClass(key: string) {
 </script>
 
 <template>
-  <div class="kor-shell">
+  <div class="kor-shell" :class="{ 'kor-shell--nav-only': sidebarOnly }">
     <aside v-if="sidebarGroups.length > 0" class="kor-shell__aside" :style="{ width: `${sidebarWidth}px` }">
       <slot name="sidebar-header" />
       <nav ref="navRef" class="kor-shell__nav" :aria-label="navLabel">
@@ -195,6 +203,7 @@ function pageClass(key: string) {
               <span v-if="$slots[`icon-${item.key}`]" class="kor-shell__icon">
                 <slot :name="`icon-${item.key}`" />
               </span>
+              <span v-else-if="item.icon" class="kor-shell__icon" v-html="item.icon" />
               <span class="kor-shell__text">
                 <span class="kor-shell__label">{{ item.label }}</span>
                 <span v-if="item.description" class="kor-shell__desc">{{ item.description }}</span>
@@ -206,9 +215,10 @@ function pageClass(key: string) {
       <slot name="sidebar-footer" />
     </aside>
 
-    <main class="kor-shell__main">
+    <main v-if="!sidebarOnly" class="kor-shell__main">
       <div v-for="item in renderedPages" :key="item.key" :class="pageClass(item.key)">
-        <slot :name="`page-${item.key}`" />
+        <slot v-if="$slots[`page-${item.key}`]" :name="`page-${item.key}`" />
+        <slot v-else-if="item.key === current" />
       </div>
     </main>
   </div>

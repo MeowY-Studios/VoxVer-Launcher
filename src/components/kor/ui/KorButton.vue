@@ -8,6 +8,7 @@ withDefaults(
     variant?: 'default' | 'primary' | 'outline' | 'ghost' | 'danger'
     size?: 'sm' | 'md'
     block?: boolean
+    pill?: boolean
     loading?: boolean
     disabled?: boolean
     type?: 'button' | 'submit'
@@ -24,6 +25,7 @@ withDefaults(
       `kor-btn--${variant}`,
       size === 'sm' && 'kor-btn--sm',
       block && 'kor-btn--block',
+      pill && 'kor-btn--pill',
       loading && 'is-loading'
     ]"
     :disabled="disabled || loading"

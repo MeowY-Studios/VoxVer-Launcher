@@ -39,6 +39,7 @@ export { default as KorSettingInput } from './ui/KorInput.vue'
 
 // shell
 export { default as KorPageShell } from './shell/KorPageShell.vue'
+export { default as KorAccountCard } from './setting/KorAccountCard.vue'
 
 // silk / version
 export { default as KorSilk } from './silk/KorSilk.vue'

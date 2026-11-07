@@ -9,6 +9,8 @@ export interface KorShellItem {
   onSelect?: () => void
   /** 不在侧栏列出，但仍可被外部切换显示 */
   hidden?: boolean
+  /** 图标 HTML（未提供 icon-<key> 插槽时使用） */
+  icon?: string
 }
 
 export interface KorShellGroup {

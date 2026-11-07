@@ -91,7 +91,7 @@
       <div class="app-body-bg" :style="bgStyle"></div>
       <div v-if="bgOverlayVisible" class="app-body-overlay" :style="overlayStyle"></div>
       <!-- 左侧边栏（各页面上文内容；主导航已移到标题栏上导航） -->
-      <aside class="sidebar" :class="{ 'is-kor-hidden': isKorDownloads }">
+      <aside class="sidebar" :class="{ 'is-kor-hidden': isKorOwnNav }">
         <!-- 侧边栏内容区 -->
         <div class="sidebar-content">
         <!-- ========== 首页侧栏：账户 + 启动（PCL2 风格）========== -->
@@ -559,6 +559,8 @@ import PxModal from './components/common/PxModal.vue'
 import PxLaunchProgress from './components/common/PxLaunchProgress.vue'
 import { useVersionsStore, useAccountsStore, useInstancesStore, useDownloadStore, useAppStore } from './stores'
 import { useConfirm } from './composables/useConfirm'
+import { downloadCategories as dlCategories, communityCategories } from './config/download-nav'
+import { settingsNavGroups as settingsGroups } from './config/settings-nav'
 import { useToast } from './composables/useToast'
 
 const route = useRoute()
@@ -589,6 +591,9 @@ const appVersion = ref('0.6.0')
 const platform = ref<'windows' | 'macos' | 'linux' | 'unknown'>('unknown')
 const appStore = useAppStore()
 /** Koring 皮肤在下载页使用页面内导航，隐藏全局侧栏与侧栏分类 */
+const isKorOwnNav = computed(
+  () => appStore.skin === 'koring' && ['/settings', '/downloads'].includes(currentRoute.value)
+)
 const isKorDownloads = computed(
   () => appStore.skin === 'koring' && currentRoute.value === '/downloads'
 )
@@ -1318,201 +1323,6 @@ const tabs = [
   },
 ]
 
-// * 下载分类
-const dlCategories = [
-  {
-    id: 'vanilla',
-    labelKey: 'download.sidebar.vanilla',
-    icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>'
-  }
-]
-const communityCategories = [
-  {
-    id: 'mod',
-    labelKey: 'download.sidebar.mod',
-    icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>'
-  },
-  {
-    id: 'modpack',
-    labelKey: 'download.sidebar.modpack',
-    icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L4 5v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V5l-8-3z"/></svg>'
-  },
-  {
-    id: 'datapack',
-    labelKey: 'download.sidebar.datapack',
-    icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>'
-  },
-  {
-    id: 'resourcepack',
-    labelKey: 'download.sidebar.resourcepack',
-    icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'
-  },
-  {
-    id: 'shader',
-    labelKey: 'download.sidebar.shader',
-    icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>'
-  }
-]
-
-// * 设置分类（Koring 分组结构）
-interface SettingsNavItem {
-  id: string
-  labelKey: string
-  category?: string
-  icon: string
-  disabled?: boolean
-}
-interface SettingsNavGroup {
-  name: string
-  items: SettingsNavItem[]
-}
-const settingsGroups: SettingsNavGroup[] = [
-  {
-    name: 'settings.group.general',
-    items: [
-      {
-        id: 'home',
-        labelKey: 'settings.sidebar.home',
-        category: 'home',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>'
-      },
-      {
-        id: 'account',
-        labelKey: 'settings.sidebar.account',
-        category: 'account',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'
-      },
-      {
-        id: 'about',
-        labelKey: 'settings.sidebar.about',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
-      },
-      {
-        id: 'copyright',
-        labelKey: 'settings.sidebar.copyright',
-        category: 'copyright',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9a4 4 0 100 6"/></svg>'
-      },
-      {
-        id: 'launcher',
-        labelKey: 'settings.sidebar.launcher',
-        category: 'launcher',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>'
-      }
-    ]
-  },
-  {
-    name: 'settings.group.game',
-    items: [
-      {
-        id: 'game-profile',
-        labelKey: 'settings.sidebar.gameProfile',
-        category: 'profile',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>'
-      },
-      {
-        id: 'java-memory',
-        labelKey: 'settings.sidebar.javaMemory',
-        category: 'java-memory',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>'
-      },
-      {
-        id: 'game-dir',
-        labelKey: 'settings.sidebar.gameDir',
-        category: 'game-dir',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>'
-      },
-      {
-        id: 'advanced',
-        labelKey: 'settings.sidebar.advanced',
-        category: 'advanced',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>'
-      }
-    ]
-  },
-  {
-    name: 'settings.group.personalize',
-    items: [
-      {
-        id: 'theme',
-        labelKey: 'settings.sidebar.theme',
-        category: 'personalize',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>'
-      },
-      {
-        id: 'interface',
-        labelKey: 'settings.sidebar.interface',
-        category: 'interface',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>'
-      },
-      {
-        id: 'lang',
-        labelKey: 'settings.sidebar.lang',
-        category: 'language',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>'
-      },
-      {
-        id: 'accessibility',
-        labelKey: 'settings.sidebar.accessibility',
-        category: 'accessibility',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>'
-      }
-    ]
-  },
-  {
-    name: 'settings.group.network',
-    items: [
-      {
-        id: 'download-net',
-        labelKey: 'settings.sidebar.downloadNet',
-        category: 'download-net',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'
-      },
-      {
-        id: 'online',
-        labelKey: 'settings.sidebar.online',
-        category: 'online',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17H4a2 2 0 01-2-2V5a2 2 0 012-2h16a2 2 0 012 2v10a2 2 0 01-2 2h-1"/><polygon points="12 15 17 21 7 21 12 15"/></svg>'
-      },
-      {
-        id: 'multiplayer',
-        labelKey: 'settings.sidebar.multiplayer',
-        category: 'multiplayer',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
-      },
-      {
-        id: 'auth-service',
-        labelKey: 'settings.sidebar.authService',
-        category: 'auth-service',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>'
-      }
-    ]
-  },
-  {
-    name: 'settings.group.other',
-    items: [
-      {
-        id: 'service',
-        labelKey: 'settings.sidebar.service',
-        category: 'service',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>'
-      },
-      {
-        id: 'sponsor',
-        labelKey: 'settings.sidebar.sponsor',
-        category: 'sponsor',
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>'
-      },
-      {
-        id: 'developer',
-        labelKey: 'settings.sidebar.developer',
-        category: 'developer',
-        disabled: true,
-        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>'
-      }
-    ]
-  }
-]
 
 function minimizeWindow() {
   window.electronAPI?.window?.minimize?.()

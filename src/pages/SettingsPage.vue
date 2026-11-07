@@ -1,5 +1,22 @@
 <template>
-  <div class="settings-page" ref="pageRef">
+  <div class="settings-page" :class="{ 'is-kor-page': appStore.skin === 'koring' }" ref="pageRef">
+    <!-- Koring 皮肤：设置页自带侧栏导航（KorPageShell 仅导航模式） -->
+    <KorPageShell
+      v-if="appStore.skin === 'koring'"
+      v-model="activeCategory"
+      sidebar-only
+      :groups="korSettingGroups"
+      nav-label="设置导航"
+      class="settings-kor-nav"
+    >
+      <template #sidebar-header>
+        <KorAccountCard
+          :name="$t('settings.home.accountTitle')"
+          :desc="$t('settings.home.accountTitleDesc')"
+          @select="activeCategory = 'account'"
+        />
+      </template>
+    </KorPageShell>
     <!-- Koring 皮肤：其余分类的统一页头 -->
     <div
       v-if="appStore.skin === 'koring' && activeCategory !== 'home' && activeCategory !== 'personalize'"
@@ -3239,6 +3256,9 @@ import {
   KorSettingSelect
 } from '@/components/kor'
 import { renderMarkdownSafe } from '../utils/markdown'
+import { KorAccountCard, KorPageShell } from '../components/kor'
+import { settingsNavGroups } from '../config/settings-nav'
+import type { KorShellGroup } from '../components/kor/shell/types'
 
 const pageRef = ref<HTMLElement | null>(null)
 
@@ -3265,7 +3285,23 @@ const layoutOptions = computed(() => [
 ])
 
 const settingsActive = inject<Ref<string>>('settingsActive')
-const activeCategory = computed(() => settingsActive?.value || 'home')
+const activeCategory = computed({
+  get: () => settingsActive?.value || 'home',
+  set: (next: string) => {
+    if (settingsActive) settingsActive.value = next
+  }
+})
+
+const korSettingGroups = computed<KorShellGroup[]>(() =>
+  settingsNavGroups.map((group) => ({
+    title: t(group.name),
+    items: group.items.map((item) => ({
+      key: item.category || item.id,
+      label: t(item.labelKey),
+      icon: item.icon
+    }))
+  }))
+)
 
 /** Koring 皮肤下各设置分类的页面标题（复用侧栏 i18n key） */
 const KOR_HEADER_KEYS: Record<string, string> = {
@@ -5597,6 +5633,15 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 </script>
 
 <style scoped lang="scss">
+.settings-page.is-kor-page {
+  padding-left: 244px;
+}
+
+.settings-kor-nav {
+  position: relative;
+  z-index: 6;
+}
+
 .settings-page {
   padding: 20px 28px;
   overflow-y: auto;

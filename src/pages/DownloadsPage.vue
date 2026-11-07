@@ -1,26 +1,20 @@
 <template>
   <div class="downloads-page" :class="{ 'is-kor': isKoring }" ref="pageRef">
-    <!-- ====== Koring 皮肤：页面内分类导航（原版布局仍用 App.vue 侧栏） ====== -->
-    <nav v-if="isKoring" class="dl-kor-nav">
-      <KorSurface flush>
-        <template v-for="group in korGroups" :key="group.title">
-          <div class="dl-kor-group">{{ $t(group.title) }}</div>
-          <KorSettingListItem
-            v-for="item in group.items"
-            :key="item.id"
-            :label="$t(item.labelKey)"
-            :active="activeCategory === item.id"
-            :arrow="false"
-            @click="activeCategory = item.id"
-          >
-            <template #icon><span class="dl-kor-icon" v-html="item.icon" /></template>
-          </KorSettingListItem>
-        </template>
-      </KorSurface>
-      <button type="button" class="dl-kor-manager" @click="router.push('/download/manage')">
-        {{ $t('download.downloadManager') }}
-      </button>
-    </nav>
+    <!-- ====== Koring 皮肤：页面内分类导航（KorPageShell 仅导航模式） ====== -->
+    <KorPageShell
+      v-if="isKoring"
+      v-model="activeCategory"
+      sidebar-only
+      :groups="korGroups"
+      nav-label="下载分类"
+      class="downloads-kor-nav"
+    >
+      <template #sidebar-footer>
+        <button type="button" class="dl-kor-manager" @click="router.push('/download/manage')">
+          {{ $t('download.downloadManager') }}
+        </button>
+      </template>
+    </KorPageShell>
 
     <!-- ====== 原版游戏视图 ====== -->
     <template v-if="activeCategory === 'vanilla'">
@@ -745,7 +739,9 @@ import type { GameInstance } from '../types/instance'
 import { isFeaturedVersion, getVersionDesc, getVersionTypeColor } from '../config/version.config'
 import type { VersionInfo } from '../types/versions'
 import PxSelect from '../components/common/PxSelect.vue'
-import { KorSettingListItem, KorSurface } from '../components/kor'
+import { KorPageShell } from '../components/kor'
+import { communityCategories, downloadCategories } from '../config/download-nav'
+import type { KorShellGroup } from '../components/kor/shell/types'
 import { useAppStore } from '../stores'
 
 const { t } = useI18n()
@@ -761,49 +757,17 @@ const activeCategory = computed<string>({
   }
 })
 
-/** Koring 布局的页面内导航（原版布局仍用 App.vue 侧栏） */
-const korGroups = [
+/** Koring 布局的页面内导航（数据来自 config/download-nav，与经典侧栏共用） */
+const korGroups = computed<KorShellGroup[]>(() => [
   {
-    title: 'download.vanilla',
-    items: [
-      {
-        id: 'vanilla',
-        labelKey: 'download.sidebar.vanilla',
-        icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>'
-      }
-    ]
+    title: t('download.vanilla'),
+    items: downloadCategories.map((item) => ({ key: item.id, label: t(item.labelKey), icon: item.icon }))
   },
   {
-    title: 'download.sidebar.community',
-    items: [
-      {
-        id: 'mod',
-        labelKey: 'download.sidebar.mod',
-        icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>'
-      },
-      {
-        id: 'modpack',
-        labelKey: 'download.sidebar.modpack',
-        icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L4 5v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V5l-8-3z"/></svg>'
-      },
-      {
-        id: 'datapack',
-        labelKey: 'download.sidebar.datapack',
-        icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>'
-      },
-      {
-        id: 'resourcepack',
-        labelKey: 'download.sidebar.resourcepack',
-        icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'
-      },
-      {
-        id: 'shader',
-        labelKey: 'download.sidebar.shader',
-        icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>'
-      }
-    ]
+    title: t('download.sidebar.community'),
+    items: communityCategories.map((item) => ({ key: item.id, label: t(item.labelKey), icon: item.icon }))
   }
-]
+])
 
 const route = useRoute()
 console.log('[DownloadsPage] setup, activeCategory=', activeCategory.value, 'route=', route.path, 'query=', route.query)

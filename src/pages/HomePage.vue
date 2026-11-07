@@ -11,15 +11,15 @@
     <div class="kor-home__bottom">
       <div class="kor-home__title">{{ korTitle }}</div>
       <div class="kor-home__actions">
-        <button type="button" class="kor-pill" @click="router.push('/launch')">
+        <KorButton variant="primary" size="md" pill @click="router.push('/launch')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M8 5v14l11-7z" />
           </svg>
           <span>{{ $t('home.koringStart') }}</span>
-        </button>
-        <button type="button" class="kor-pill kor-pill--ghost" @click="router.push('/downloads')">
+        </KorButton>
+        <KorButton variant="ghost" size="md" pill @click="router.push('/downloads')">
           {{ $t('home.koringBrowse') }}
-        </button>
+        </KorButton>
       </div>
     </div>
   </div>
@@ -94,6 +94,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAppStore, useInstancesStore, useVersionsStore } from '../stores'
+import { KorButton } from '../components/kor'
 import ReceiveModal from '../components/share/ReceiveModal.vue'
 
 const { t } = useI18n()
