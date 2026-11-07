@@ -1,0 +1,625 @@
+/**
+ * Koring 风格设置页视觉系统
+ *
+ * 复刻来源：Koring Launcher（React + HeroUI/shadcn）的设置页排版。
+ * 这里只做「外观与排版」，业务逻辑仍在各页面里，不引入 React 侧任何依赖。
+ *
+ * 结构约定（组件见 src/components/settings/）：
+ *   .kor-page / .kor-header / .kor-section / .kor-section-title
+ *   .kor-cards / .kor-card / .kor-row（label + desc + 控件）
+ *
+ * 视觉要点：磨砂玻璃卡片（blur 12px）、12px 圆角、hairline 边框、
+ * 行内左文右控件、卡片间距 12px、分组间距 24px。
+ */
+
+.kor-page {
+  padding: 4px 0 48px;
+}
+
+/* ---------- 页头 ---------- */
+.kor-header {
+  margin-bottom: 24px;
+}
+
+.kor-header-title {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--voxver-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.kor-header-desc {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--voxver-text-secondary);
+}
+
+/* ---------- 分组 ---------- */
+.kor-section + .kor-section {
+  margin-top: 24px;
+}
+
+.kor-section-title {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--voxver-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.kor-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---------- 磨砂卡片 ---------- */
+.kor-card {
+  border-radius: 14px;
+  border: 1px solid transparent;
+  padding: 16px 20px;
+  background: rgba(0, 0, 0, 0.45);
+  border-color: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+[data-theme='light'] .kor-card {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+.kor-card--flush {
+  padding: 16px 0;
+}
+
+/* ---------- 行：左文右控件 ---------- */
+.kor-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.kor-row + .kor-row {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(128, 128, 128, 0.14);
+}
+
+.kor-row-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.kor-row-label {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--voxver-text-primary);
+}
+
+.kor-row-desc {
+  margin: 2px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--voxver-text-secondary);
+}
+
+.kor-row-control {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---------- 开关（32 × 18.4，拇指 16） ---------- */
+.kor-switch {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 32px;
+  height: 18.4px;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background: var(--voxver-bg-tertiary);
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background-color 200ms var(--voxver-ease-out-quart),
+    border-color 200ms var(--voxver-ease-out-quart);
+}
+
+.kor-switch::after {
+  content: '';
+  position: absolute;
+  inset: -8px -12px;
+}
+
+.kor-switch.is-checked {
+  background: var(--voxver-primary);
+}
+
+.kor-switch-thumb {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background: var(--voxver-bg-primary);
+  transform: translateX(0);
+  transition: transform 300ms var(--voxver-ease-out-quart);
+}
+
+.kor-switch.is-checked .kor-switch-thumb {
+  transform: translateX(calc(100% - 2px));
+  background: #fff;
+}
+
+.kor-switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ---------- 滑杆（track 6px，fill 主色） ---------- */
+.kor-slider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 180px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.kor-slider-track {
+  position: relative;
+  flex: 1 1 auto;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--voxver-bg-tertiary);
+  overflow: hidden;
+}
+
+.kor-slider-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 9999px;
+  background: var(--voxver-primary);
+}
+
+.kor-slider-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.kor-slider-thumb {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3);
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: transform 120ms var(--voxver-ease-out-quart);
+}
+
+.kor-slider:active .kor-slider-thumb {
+  transform: translateY(-50%) scale(1.08);
+}
+
+.kor-slider:focus-within .kor-slider-thumb {
+  outline: 3px solid color-mix(in oklab, var(--voxver-primary) 35%, transparent);
+}
+
+/* ---------- 下拉（h 32，13px，圆角 8） ---------- */
+.kor-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-width: 224px;
+}
+
+.kor-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 32px;
+  padding: 0 28px 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--voxver-border-color);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 70%, transparent);
+  color: var(--voxver-text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 30px;
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color 150ms var(--voxver-ease-out-quart),
+    background-color 150ms var(--voxver-ease-out-quart);
+}
+
+[data-theme='light'] .kor-select select {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+.kor-select select:hover {
+  border-color: color-mix(in oklab, var(--voxver-primary) 45%, var(--voxver-border-color));
+}
+
+.kor-select select:focus-visible {
+  border-color: var(--voxver-primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 20%, transparent);
+}
+
+.kor-select-caret {
+  position: absolute;
+  right: 9px;
+  width: 14px;
+  height: 14px;
+  color: var(--voxver-text-secondary);
+  pointer-events: none;
+}
+
+/* ---------- 按钮（outline / danger / sm） ---------- */
+.kor-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--voxver-border-color);
+  background: transparent;
+  color: var(--voxver-text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 150ms var(--voxver-ease-out-quart),
+    border-color 150ms var(--voxver-ease-out-quart),
+    color 150ms var(--voxver-ease-out-quart);
+}
+
+.kor-btn:hover {
+  background: var(--voxver-bg-hover);
+  border-color: var(--voxver-border-strong);
+}
+
+.kor-btn--danger {
+  color: var(--voxver-error);
+  border-color: color-mix(in oklab, var(--voxver-error) 35%, transparent);
+}
+
+.kor-btn--danger:hover {
+  background: color-mix(in oklab, var(--voxver-error) 12%, transparent);
+  border-color: color-mix(in oklab, var(--voxver-error) 55%, transparent);
+}
+
+.kor-btn--primary {
+  color: #fff;
+  background: var(--voxver-primary);
+  border-color: transparent;
+}
+
+.kor-btn--primary:hover {
+  background: var(--voxver-primary-hover);
+}
+
+.kor-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- 深色模式预览卡（140 × 96） ---------- */
+.kor-theme-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.kor-theme-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  transition:
+    border-color 150ms var(--voxver-ease-out-quart),
+    box-shadow 150ms var(--voxver-ease-out-quart);
+}
+
+.kor-theme-card:hover {
+  border-color: var(--voxver-border-strong);
+}
+
+.kor-theme-card.is-selected {
+  border-color: var(--voxver-primary);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--voxver-primary) 20%, transparent);
+}
+
+.kor-theme-shot {
+  display: flex;
+  border: 1px solid color-mix(in oklab, var(--voxver-border-color) 80%, transparent);
+  flex-direction: column;
+  width: 140px;
+  height: 96px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.kor-theme-shot.is-auto {
+  flex-direction: row;
+}
+
+.kor-theme-shot-half {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  height: 100%;
+}
+
+.kor-theme-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 6px;
+  padding: 0 4px;
+  flex: 0 0 auto;
+}
+
+.kor-theme-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 9999px;
+}
+
+.kor-theme-body {
+  flex: 1 1 auto;
+  padding: 4px 8px;
+}
+
+.kor-theme-bar {
+  height: 4px;
+  border-radius: 2px;
+  margin-bottom: 4px;
+}
+
+.kor-theme-bar.is-short {
+  height: 3px;
+  margin-bottom: 3px;
+}
+
+.kor-theme-label {
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--voxver-text-secondary);
+}
+
+/* 浅色/深色/双色预览的取色（对齐 Koring 的 Tailwind 值） */
+.kor-theme-shot[data-mode='light'] .kor-theme-titlebar {
+  background: #e5e7eb;
+}
+.kor-theme-shot[data-mode='light'] .kor-theme-body {
+  background: #fff;
+}
+.kor-theme-shot[data-mode='light'] .kor-theme-bar {
+  background: #e5e7eb;
+}
+.kor-theme-shot[data-mode='light'] .kor-theme-bar.is-short {
+  background: #f3f4f6;
+}
+
+.kor-theme-shot[data-mode='dark'] .kor-theme-titlebar,
+.kor-theme-shot[data-mode='dark'] .kor-theme-shot-half .kor-theme-titlebar {
+  background: #2c2c2e;
+}
+.kor-theme-shot[data-mode='dark'] .kor-theme-body,
+.kor-theme-shot[data-mode='dark'] .kor-theme-shot-half .kor-theme-body {
+  background: #1c1c1e;
+}
+.kor-theme-shot[data-mode='dark'] .kor-theme-bar {
+  background: #3a3a3c;
+}
+.kor-theme-shot[data-mode='dark'] .kor-theme-bar.is-short {
+  background: #2c2c2e;
+}
+
+.kor-theme-shot-half[data-mode='light'] .kor-theme-titlebar {
+  background: #e5e7eb;
+}
+.kor-theme-shot-half[data-mode='light'] .kor-theme-body {
+  background: #fff;
+}
+.kor-theme-shot-half[data-mode='light'] .kor-theme-bar {
+  background: #e5e7eb;
+}
+.kor-theme-shot-half[data-mode='light'] .kor-theme-bar.is-short {
+  background: #f3f4f6;
+}
+.kor-theme-shot-half[data-mode='dark'] .kor-theme-titlebar {
+  background: #2c2c2e;
+}
+.kor-theme-shot-half[data-mode='dark'] .kor-theme-body {
+  background: #1c1c1e;
+}
+.kor-theme-shot-half[data-mode='dark'] .kor-theme-bar {
+  background: #3a3a3c;
+}
+.kor-theme-shot-half[data-mode='dark'] .kor-theme-bar.is-short {
+  background: #2c2c2e;
+}
+
+/* ---------- 背景预览 ---------- */
+.kor-preview {
+  margin-top: 12px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--voxver-border-color);
+}
+
+.kor-preview img {
+  display: block;
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+
+.kor-empty {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 32px 12px;
+  border-radius: 8px;
+  border: 1px dashed var(--voxver-border-strong);
+  background: color-mix(in oklab, var(--voxver-text-primary) 2%, transparent);
+  font-size: 12px;
+  color: var(--voxver-text-tertiary);
+}
+
+/* ---------- 预设/色板等附属控件 ---------- */
+.kor-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.kor-swatch-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kor-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 120ms var(--voxver-ease-out-quart);
+}
+
+.kor-swatch:hover {
+  transform: scale(1.06);
+}
+
+.kor-swatch.is-active {
+  border-color: var(--voxver-text-primary);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--voxver-primary) 25%, transparent);
+}
+
+.kor-input {
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--voxver-border-color);
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 70%, transparent);
+  color: var(--voxver-text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.kor-input:focus-visible {
+  border-color: var(--voxver-primary);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 20%, transparent);
+}
+
+.kor-color-chip {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--voxver-border-color);
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.kor-color-chip input[type='color'] {
+  position: absolute;
+  inset: -8px;
+  width: calc(100% + 16px);
+  height: calc(100% + 16px);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+}
+
+.kor-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--voxver-text-tertiary);
+}
+
+/* ---------- 行内控件组 / 快捷色板 / 主色预览条 ---------- */
+.kor-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kor-quick-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kor-swatch--sm {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+}
+
+.kor-preview-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(128, 128, 128, 0.14);
+}
+
+.kor-preview-chip {
+  width: 28px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.kor-preview-bar .kor-hint {
+  flex: 0 0 auto;
+  margin: 0 0 0 4px;
+}
