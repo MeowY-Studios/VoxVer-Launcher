@@ -55,11 +55,16 @@ import {
   cleanupHotkeys
 } from './services/hotkey.service'
 import { logger } from './utils/logger'
+import { createSplashWindow, finishSplash, SPLASH_MIN_VISIBLE_MS, SPLASH_TITLE } from './splash'
 
 const log = logger.child('Main')
 
 // 加载 .env（开发/未打包时均需；打包后 .env 不存在则静默跳过）
 try { require('dotenv').config() } catch { /* 无 .env 文件或 dotenv 未安装 */ }
+
+// ── 启动画面（先于主窗口显示，主窗口 ready 后淡出销毁）──────────
+let splashWindow: BrowserWindow | null = null
+let splashStartAt = 0
 
 // ── 服务实例（模块级，供 IPC 使用）──────────────────────────
 let versionsService: VersionsService
@@ -207,7 +212,17 @@ function createWindow(): BrowserWindow {
   // DevTools 默认不自动打开，用户可通过 F12 快捷键手动打开
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
+    // 启动画面至少停留 SPLASH_MIN_VISIBLE_MS：主窗口渲染太快时也不至于一闪而过。
+    // 顺序：先 show() 主窗口，再由启动画面淡出并在动画结束后销毁——两个窗口不会同时消失。
+    const wait = splashWindow
+      ? Math.max(0, SPLASH_MIN_VISIBLE_MS - (Date.now() - splashStartAt))
+      : 0
+    setTimeout(() => {
+      if (mainWindow.isDestroyed()) return
+      mainWindow.show()
+      finishSplash(splashWindow)
+      splashWindow = null
+    }, wait)
   })
 
   // 在窗口中打开外部链接
@@ -280,6 +295,8 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     window.webContents.on('before-input-event', (_e, input) => {
       if (input.type === 'keyDown' && input.key === 'F12') {
+        // 启动画面没有渲染进程调试价值，按 F12 不该在它上面弹 DevTools
+        if (window.getTitle() === SPLASH_TITLE) return
         if (window.webContents.isDevToolsOpened()) {
           window.webContents.closeDevTools()
         } else {
@@ -289,9 +306,24 @@ app.whenReady().then(() => {
     })
   })
 
+  // ========== 启动画面：先于主窗口出现，遮住渲染进程冷启动的空白 ==========
+  splashStartAt = Date.now()
+  splashWindow = createSplashWindow(app.getVersion())
+  writeLog('Splash window created:', splashWindow !== null)
+
   // ========== 快速路径：立即创建窗口，减少白屏时间 ==========
   const win = createWindow()
   writeLog('Window created, renderer loading started')
+
+  // 兜底：主窗口 15s 仍未 ready-to-show（渲染进程卡死/崩溃）也切过去，
+  // 否则用户会一直停在启动画面上，看不到任何错误。
+  setTimeout(() => {
+    if (!splashWindow || win.isDestroyed()) return
+    writeLog('[Splash] ready-to-show timeout, switching to main window')
+    if (!win.isVisible()) win.show()
+    finishSplash(splashWindow)
+    splashWindow = null
+  }, 15000)
 
   // ========== 异步并行初始化服务 ==========
   const initStartTime = Date.now()

@@ -53,7 +53,9 @@ export default defineConfig({
       outDir: 'out/renderer',
       rollupOptions: {
         input: {
-          index: resolve(__dirname, 'index.html')
+          index: resolve(__dirname, 'index.html'),
+          // 启动画面是独立入口：无 Vue 运行时，保证冷启动第一时间能画出来
+          splash: resolve(__dirname, 'splash.html')
         }
       }
     },
