@@ -1252,38 +1252,6 @@
             <SettingCard>
               <div class="kor-row">
                 <div class="kor-row-main">
-                  <div class="kor-row-label">{{ $t('settings.customThemeColor') }}</div>
-                  <div class="kor-row-desc">{{ $t('settings.customThemeColorDesc') }}</div>
-                </div>
-                <div class="kor-row-control kor-inline">
-                  <span class="kor-color-chip" :style="{ background: s.themeCustomColor }" />
-                  <input
-                    v-model="s.themeCustomColor"
-                    class="kor-input"
-                    type="text"
-                    maxlength="7"
-                    style="width: 104px"
-                    @input="previewThemeColor(s.themeCustomColor)"
-                  />
-                  <button type="button" class="kor-btn kor-btn--primary" @click="applyCustomThemeColor(s.themeCustomColor)">
-                    {{ $t('settings.apply') }}
-                  </button>
-                </div>
-              </div>
-              <div class="kor-swatch-group kor-swatch-group--sm" style="margin-top: 14px">
-                <button
-                  v-for="c in quickColorPresets"
-                  :key="c"
-                  type="button"
-                  class="kor-swatch kor-swatch--sm"
-                  :style="{ background: c }"
-                  @click="s.themeCustomColor = c; previewThemeColor(c)"
-                />
-              </div>
-            </SettingCard>
-            <SettingCard>
-              <div class="kor-row">
-                <div class="kor-row-main">
                   <div class="kor-row-label">{{ $t('settings.themeFile') }}</div>
                   <div class="kor-row-desc">{{ $t('settings.themeFileDesc') }}</div>
                 </div>
@@ -1371,9 +1339,6 @@
         <section class="kor-section">
           <SettingSectionTitle>{{ $t('settings.interfaceSection') }}</SettingSectionTitle>
           <SettingCard>
-            <SettingRow :label="$t('settings.opacity')" :desc="`${s.opacity}%`">
-              <SettingSlider v-model="s.opacity" :min="30" :max="100" :step="5" />
-            </SettingRow>
             <SettingRow :label="$t('settings.fontSize')" :desc="`${s.fontSize}px`">
               <SettingSlider v-model="s.fontSize" :min="12" :max="20" :step="1" />
             </SettingRow>
@@ -1397,14 +1362,6 @@
           <div class="debug-mode-label">{{ $t('settings.appearance') }}</div>
         </div>
 
-        <!-- 不透明度 -->
-        <div class="mem-custom-row">
-          <label class="row-label">{{ $t('settings.opacity') }}</label>
-          <div class="input-group compact" style="flex:1">
-            <input type="range" class="range" style="flex:1" v-model.number="s.opacity" min="30" max="100" step="5" />
-            <span class="range-val">{{ s.opacity }}%</span>
-          </div>
-        </div>
 
         <!-- 主题模式（Koring 风格预览缩略图） -->
         <div style="margin-top: 14px">
@@ -1444,54 +1401,6 @@
           <button class="btn vox-btn vox-btn--secondary btn-sm" @click="importThemeFile">{{ $t('settings.importTheme') }}</button>
         </div>
 
-        <!-- 自定义主题色 -->
-        <div class="theme-custom-card" style="margin-top:16px">
-          <div class="mem-custom-row" style="align-items:flex-start">
-            <div class="row-main">
-              <label class="row-label">{{ $t('settings.customThemeColor') }}</label>
-              <p class="row-desc">{{ $t('settings.customThemeColorDesc') }}</p>
-            </div>
-            <div class="input-group compact" style="align-items:center;gap:8px">
-              <div class="color-swatch" :style="{ background: s.themeCustomColor }">
-                <input
-                  type="color"
-                  v-model="s.themeCustomColor"
-                  @input="previewThemeColor(s.themeCustomColor)"
-                  class="color-picker-input"
-                />
-              </div>
-              <input
-                type="text"
-                class="inp"
-                v-model="s.themeCustomColor"
-                style="width:80px;font-family:var(--voxver-font-mono)"
-                @change="previewThemeColor(s.themeCustomColor)"
-              />
-              <button class="btn-sm vox-btn--primary" @click="applyCustomThemeColor(s.themeCustomColor)">
-                {{ $t('settings.apply') }}
-              </button>
-            </div>
-          </div>
-
-          <!-- 快速颜色预设 -->
-          <div class="quick-color-palette">
-            <button
-              v-for="c in quickColorPresets"
-              :key="c"
-              class="quick-swatch"
-              :class="{ active: s.themeCustomColor.toUpperCase() === c.toUpperCase() }"
-              :style="{ background: c }"
-              @click="s.themeCustomColor = c; previewThemeColor(c)"
-              :title="c"
-            />
-          </div>
-
-          <!-- 实时预览 -->
-          <div class="theme-preview-bar">
-            <div class="preview-chip" v-for="i in 8" :key="i" :style="{ background: `var(--voxver-primary-${i}00)` }"></div>
-            <span class="preview-label">{{ $t('settings.primaryColorPreview') }} · {{ s.themeCustomColor }}</span>
-          </div>
-        </div>
 
         <!-- 字号 -->
         <div class="mem-custom-row" style="margin-top:14px">
