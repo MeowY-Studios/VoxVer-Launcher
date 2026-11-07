@@ -42,23 +42,23 @@ withDefaults(
   overflow: hidden;
   pointer-events: none;
   mix-blend-mode: soft-light;
-  opacity: 0.6;
+  opacity: 0.78;
 }
 
 .kor-silk__layer {
   position: absolute;
   inset: 0;
   background-repeat: repeat;
-  filter: blur(7px);
+  filter: blur(16px);
 }
 
 .kor-silk__layer--a {
   background-image: repeating-linear-gradient(
     112deg,
-    rgba(255, 255, 255, 0.9) 0px,
-    rgba(255, 255, 255, 0.9) 2px,
-    transparent 2px,
-    transparent 9px
+    rgba(255, 255, 255, 0.62) 0px,
+    rgba(255, 255, 255, 0.42) 26px,
+    transparent 46px,
+    transparent 104px
   );
   background-size: calc(120px * var(--kor-silk-scale, 1.2)) 100%;
   animation: kor-silk-drift-a var(--kor-silk-speed, 5s) linear infinite;
@@ -67,10 +67,10 @@ withDefaults(
 .kor-silk__layer--b {
   background-image: repeating-linear-gradient(
     76deg,
-    rgba(255, 255, 255, 0.5) 0px,
-    rgba(255, 255, 255, 0.5) 1px,
-    transparent 1px,
-    transparent 14px
+    rgba(255, 255, 255, 0.4) 0px,
+    rgba(255, 255, 255, 0.22) 40px,
+    transparent 70px,
+    transparent 168px
   );
   background-size: calc(160px * var(--kor-silk-scale, 1.2)) 100%;
   opacity: calc(0.5 * var(--kor-silk-noise, 1.2));
