@@ -10,32 +10,16 @@
 
     <!-- ========== 主页 ========== -->
     <template v-if="activeCategory === 'home'">
-      <!-- Koring 皮肤：页头 + 版本横幅 -->
+      <!-- Koring 皮肤：页头 + 版本卡（Kor 组件层） -->
       <template v-if="appStore.skin === 'koring'">
-        <div class="kor-page-header">
-          <h2 class="kor-page-title">{{ $t('settings.home.korTitle') }}</h2>
-          <p class="kor-page-desc">{{ $t('settings.home.korDesc') }}</p>
-        </div>
-
-        <button type="button" class="kor-version-banner" @click="router.push('/update')">
-          <span class="kor-version-silk" aria-hidden="true"></span>
-          <span class="kor-version-shine" aria-hidden="true"></span>
-          <span class="kor-version-content">
-            <span class="kor-version-badge">{{ $t('settings.home.korOfficial') }}</span>
-            <span class="kor-version-brand">
-              <span class="kor-version-logo">V</span>
-              <span class="kor-version-name">VoxVer<br />Launcher</span>
-            </span>
-            <span class="kor-version-number">v{{ appVersion }}</span>
-            <span v-if="appCommit" class="kor-version-commit">commit {{ appCommit }}</span>
-            <span class="kor-version-link">
-              {{ $t('settings.home.korCheckUpdate') }}
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </span>
-          </span>
-        </button>
+        <KorPageHeader :title="$t('settings.home.korTitle')" :desc="$t('settings.home.korDesc')" />
+        <KorVersionCard
+          :label="$t('settings.home.korOfficial')"
+          :version="appVersion"
+          :commit="appCommit"
+          :action-text="$t('settings.home.korCheckUpdate')"
+          @update="router.push('/update')"
+        />
       </template>
 
       <!-- 查找设置 -->
@@ -1246,11 +1230,11 @@
 
       <!-- Koring 排版：整套 Koring 风格（在「主题预设」中选择 Koring 并重启后生效） -->
       <div v-if="appStore.skin === 'koring'" class="kor-page">
-        <SettingPageHeader :title="$t('settings.themeBg')" :desc="$t('settings.themeBgDesc')" />
+        <KorPageHeader :title="$t('settings.themeBg')" :desc="$t('settings.themeBgDesc')" />
 
         <section class="kor-section">
-          <SettingSectionTitle>{{ $t('settings.darkMode') }}</SettingSectionTitle>
-          <SettingCard flush>
+          <KorSectionTitle>{{ $t('settings.darkMode') }}</KorSectionTitle>
+          <KorSettingCard flush>
           <div class="kor-theme-row">
               <ThemeModeCard
                 v-for="opt in themePreviewOptions"
@@ -1260,12 +1244,12 @@
                 @select="onSelectThemeMode(opt.value)"
               />
             </div>
-          </SettingCard>
+          </KorSettingCard>
         </section>
 
         <section class="kor-section">
-          <SettingSectionTitle>{{ $t('settings.skinSection') }}</SettingSectionTitle>
-          <SettingCard flush>
+          <KorSectionTitle>{{ $t('settings.skinSection') }}</KorSectionTitle>
+          <KorSettingCard flush>
           <div class="kor-theme-row">
               <SkinPresetCard
                 v-for="opt in layoutOptions"
@@ -1275,13 +1259,13 @@
                 @select="onSelectSkin(opt.value)"
               />
             </div>
-          </SettingCard>
+          </KorSettingCard>
         </section>
 
         <section class="kor-section">
-          <SettingSectionTitle>{{ $t('settings.customThemeColor') }}</SettingSectionTitle>
+          <KorSectionTitle>{{ $t('settings.customThemeColor') }}</KorSectionTitle>
           <div class="kor-cards">
-            <SettingCard>
+            <KorSettingCard>
               <div class="kor-row">
                 <div class="kor-row-main">
                   <div class="kor-row-label">{{ $t('settings.themePresets') }}</div>
@@ -1330,8 +1314,8 @@
                   <span v-for="(c, i) in pendingColorScale" :key="i" class="kor-preview-chip" :style="{ background: c }" />
                 </div>
               </div>
-            </SettingCard>
-            <SettingCard>
+            </KorSettingCard>
+            <KorSettingCard>
               <div class="kor-row">
                 <div class="kor-row-main">
                   <div class="kor-row-label">{{ $t('settings.themeFile') }}</div>
@@ -1342,46 +1326,46 @@
                   <button type="button" class="kor-btn" @click="importThemeFile">{{ $t('settings.importTheme') }}</button>
                 </div>
               </div>
-            </SettingCard>
+            </KorSettingCard>
           </div>
         </section>
 
         <section class="kor-section">
-          <SettingSectionTitle>{{ $t('settings.background') }}</SettingSectionTitle>
+          <KorSectionTitle>{{ $t('settings.background') }}</KorSectionTitle>
           <div class="kor-cards">
-            <SettingCard>
-              <SettingRow :label="$t('settings.bgMode')" :desc="$t('settings.bgModeDesc')">
-                <SettingSelect v-model="bgImageModeModel" :options="bgImageOptions" />
-              </SettingRow>
-            </SettingCard>
-            <SettingCard v-if="appStore.bgImageMode === 'custom'">
-              <SettingRow :label="$t('settings.bgImage')" :desc="$t('settings.bgImageDesc')">
+            <KorSettingCard>
+              <KorSettingRow :label="$t('settings.bgMode')" :desc="$t('settings.bgModeDesc')">
+                <KorSelect v-model="bgImageModeModel" :options="bgImageOptions" />
+              </KorSettingRow>
+            </KorSettingCard>
+            <KorSettingCard v-if="appStore.bgImageMode === 'custom'">
+              <KorSettingRow :label="$t('settings.bgImage')" :desc="$t('settings.bgImageDesc')">
                 <button type="button" class="kor-btn" @click="browseBgImage">{{ $t('settings.selectImageBtn') }}</button>
-              </SettingRow>
+              </KorSettingRow>
               <div v-if="bgImagePreviewUrl" class="kor-preview">
                 <img :src="bgImagePreviewUrl" alt="" @error="onBgPreviewError" />
               </div>
               <div v-else class="kor-empty">{{ $t('settings.noBgImageSelected') }}</div>
-            </SettingCard>
-            <SettingCard v-if="appStore.bgImageMode === 'custom'">
-              <SettingRow :label="$t('settings.bgBlur')" :desc="`${$t('settings.bgBlurDesc')} · ${appStore.themeBgBlur}px`">
-                <SettingSlider
+            </KorSettingCard>
+            <KorSettingCard v-if="appStore.bgImageMode === 'custom'">
+              <KorSettingRow :label="$t('settings.bgBlur')" :desc="`${$t('settings.bgBlurDesc')} · ${appStore.themeBgBlur}px`">
+                <KorSlider
                   :model-value="appStore.themeBgBlur"
                   :min="0"
                   :max="20"
                   @update:model-value="appStore.setThemeBgBlur($event)"
                 />
-              </SettingRow>
-              <SettingRow :label="$t('settings.bgDim')" :desc="`${$t('settings.bgDimDesc')} · ${appStore.bgDimAmount}%`">
-                <SettingSlider
+              </KorSettingRow>
+              <KorSettingRow :label="$t('settings.bgDim')" :desc="`${$t('settings.bgDimDesc')} · ${appStore.bgDimAmount}%`">
+                <KorSlider
                   :model-value="appStore.bgDimAmount"
                   :min="0"
                   :max="100"
                   :step="5"
                   @update:model-value="appStore.setBgDimAmount($event)"
                 />
-              </SettingRow>
-              <SettingRow :label="$t('settings.colorOverlay')">
+              </KorSettingRow>
+              <KorSettingRow :label="$t('settings.colorOverlay')">
                 <div class="kor-inline">
                   <input
                     v-if="appStore.bgColorOverlay"
@@ -1390,31 +1374,31 @@
                     :value="appStore.bgOverlayColor"
                     @input="appStore.setBgOverlayColor(($event.target as HTMLInputElement).value)"
                   />
-                  <SettingSwitch
+                  <KorSettingSwitch
                     :model-value="appStore.bgColorOverlay"
                     @update:model-value="appStore.setBgColorOverlay($event)"
                   />
                 </div>
-              </SettingRow>
-              <SettingRow :label="$t('settings.bgParallax')" :desc="$t('settings.bgParallaxDesc')">
-                <SettingSwitch
+              </KorSettingRow>
+              <KorSettingRow :label="$t('settings.bgParallax')" :desc="$t('settings.bgParallaxDesc')">
+                <KorSettingSwitch
                   :model-value="appStore.bgParallax"
                   @update:model-value="appStore.setBgParallax($event)"
                 />
-              </SettingRow>
-            </SettingCard>
-            <SettingCard>
-              <SettingRow :label="$t('settings.bgMusic')" :desc="$t('settings.bgMusicDesc')">
-                <SettingSelect v-model="s.bgMusicMode" :options="bgMusicOptions" />
-              </SettingRow>
-            </SettingCard>
-            <SettingCard>
-              <SettingRow :label="$t('settings.restoreDefaultBg')" :desc="$t('settings.restoreDefaultBgDesc')">
+              </KorSettingRow>
+            </KorSettingCard>
+            <KorSettingCard>
+              <KorSettingRow :label="$t('settings.bgMusic')" :desc="$t('settings.bgMusicDesc')">
+                <KorSelect v-model="s.bgMusicMode" :options="bgMusicOptions" />
+              </KorSettingRow>
+            </KorSettingCard>
+            <KorSettingCard>
+              <KorSettingRow :label="$t('settings.restoreDefaultBg')" :desc="$t('settings.restoreDefaultBgDesc')">
                 <button type="button" class="kor-btn kor-btn--danger" @click="onResetBackground">
                   {{ $t('settings.restoreDefaultBg') }}
                 </button>
-              </SettingRow>
-            </SettingCard>
+              </KorSettingRow>
+            </KorSettingCard>
           </div>
         </section>
 
@@ -3235,15 +3219,25 @@ import AccountPage from './AccountPage.vue'
 import { useConfirm } from '@/composables/useConfirm'
 import { useToast } from '@/composables/useToast'
 import PxSelect from '@/components/common/PxSelect.vue'
-import SettingCard from '@/components/settings/SettingCard.vue'
-import SettingRow from '@/components/settings/SettingRow.vue'
-import SettingSwitch from '@/components/settings/SettingSwitch.vue'
-import SettingSlider from '@/components/settings/SettingSlider.vue'
-import SettingSelect from '@/components/settings/SettingSelect.vue'
-import SettingPageHeader from '@/components/settings/SettingPageHeader.vue'
-import SettingSectionTitle from '@/components/settings/SettingSectionTitle.vue'
+
+
+
+
+
+
+
 import ThemeModeCard from '@/components/settings/ThemeModeCard.vue'
 import SkinPresetCard from '@/components/settings/SkinPresetCard.vue'
+import {
+  KorPageHeader,
+  KorVersionCard,
+  KorSectionTitle,
+  KorSettingCard,
+  KorSettingRow,
+  KorSettingSwitch,
+  KorSettingSlider,
+  KorSettingSelect
+} from '@/components/kor'
 import { renderMarkdownSafe } from '../utils/markdown'
 
 const pageRef = ref<HTMLElement | null>(null)

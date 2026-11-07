@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** 设置页页头：标题 20/700 + 描述 14px muted（Koring PageHeader）。 */
+/** Kor 页头（对应 Koring setting/SectionTitle.tsx 的 PageHeader）。 */
 defineProps<{ title: string; desc?: string }>()
 </script>
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * 一行设置：左侧标题 + 描述，右侧控件插槽。
- * 排版对齐 Koring 的 SettingRow（label 14/500，desc 13px muted，gap 16px）。
+ * Kor 设置行（对应 Koring setting/SettingRow.tsx）：
+ * 左 label 14/500 + desc 13 muted，右控件；行间自动 hairline 分隔。
  */
 defineProps<{ label: string; desc?: string }>()
 </script>

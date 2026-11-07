@@ -28,6 +28,9 @@ const rendererGlobals = {
   HTMLElement: 'readonly',
   HTMLInputElement: 'readonly',
   HTMLDivElement: 'readonly',
+  HTMLButtonElement: 'readonly',
+  HTMLAnchorElement: 'readonly',
+  HTMLSpanElement: 'readonly',
   HTMLSelectElement: 'readonly',
   HTMLTextAreaElement: 'readonly',
   HTMLCanvasElement: 'readonly',
@@ -50,7 +53,10 @@ const rendererGlobals = {
   ScrollBehavior: 'readonly',
   alert: 'readonly',
   confirm: 'readonly',
-  prompt: 'readonly'
+  prompt: 'readonly',
+  // * 构建期 define 注入的常量（electron.vite.config.ts）
+  __APP_VERSION__: 'readonly',
+  __APP_COMMIT__: 'readonly'
 }
 
 module.exports = tseslint.config(

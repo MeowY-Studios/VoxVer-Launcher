@@ -16,6 +16,7 @@ import './styles/themes/dark.scss'
 import './styles/themes/light.scss'
 // * Koring 风格设置页视觉系统（设置页复刻用）
 import './styles/settings-surface.scss'
+import './styles/kor-components.scss'
 import './styles/skin-koring.scss'
 
 // * 注入 SVG 图标 Sprite 到 DOM（供全局 <use xlink:href="#pc-icon-xxx"> 引用）
