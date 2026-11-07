@@ -1207,115 +1207,95 @@
     </template>
 
     <!-- ========== 个性化 ========== -->
-    <!-- ========== 个性化（Koring 风格排版） ========== -->
     <template v-if="activeCategory === 'personalize'">
-      <div class="kor-page">
+
+      <!-- Koring 主题：整套排版（选择 Koring 主题模式并重启后生效） -->
+      <div v-if="appStore.theme === 'koring'" class="kor-page">
         <SettingPageHeader :title="$t('settings.themeBg')" :desc="$t('settings.themeBgDesc')" />
 
-        <!-- 深色模式 -->
         <section class="kor-section">
           <SettingSectionTitle>{{ $t('settings.darkMode') }}</SettingSectionTitle>
-          <div class="kor-cards">
-            <SettingCard flush>
-              <div class="kor-theme-row">
-                <ThemeModeCard
-                  v-for="opt in themePreviewOptions"
-                  :key="opt.value"
-                  :mode="opt.value"
-                  :selected="appStore.theme === opt.value"
-                  @select="appStore.setTheme(opt.value)"
-                />
-              </div>
-            </SettingCard>
-          </div>
+          <SettingCard flush>
+            <div class="kor-theme-row">
+              <ThemeModeCard
+                v-for="opt in themePreviewOptions"
+                :key="opt.value"
+                :mode="opt.value"
+                :selected="appStore.theme === opt.value"
+                @select="onSelectThemeMode(opt.value)"
+              />
+            </div>
+          </SettingCard>
         </section>
 
-        <!-- 主题色 -->
         <section class="kor-section">
           <SettingSectionTitle>{{ $t('settings.themeColorSection') }}</SettingSectionTitle>
           <div class="kor-cards">
-            <SettingCard v-if="themePresets.length > 0">
-              <p class="kor-row-label" style="margin-bottom: 10px">{{ $t('settings.themePresets') }}</p>
-              <div class="kor-swatch-group">
+            <SettingCard>
+              <div class="kor-row">
+                <div class="kor-row-main">
+                  <div class="kor-row-label">{{ $t('settings.themePresets') }}</div>
+                </div>
+              </div>
+              <div class="kor-swatch-group" style="margin-top: 12px">
                 <button
                   v-for="p in themePresets"
                   :key="p.id"
                   type="button"
                   class="kor-swatch"
-                  :class="{ 'is-active': s.themeColor === p.themeColor }"
                   :style="{ background: p.themeColor }"
                   :title="p.name"
                   @click="applyThemeColor(p.themeColor); s.accentColor = p.accentColor"
                 />
               </div>
             </SettingCard>
-
             <SettingCard>
-              <SettingRow
-                :label="$t('settings.customThemeColor')"
-                :desc="$t('settings.customThemeColorDesc')"
-              >
-                <div class="kor-inline">
-                  <label class="kor-color-chip" :style="{ background: s.themeCustomColor }">
-                    <input
-                      type="color"
-                      :value="s.themeCustomColor"
-                      @input="s.themeCustomColor = ($event.target as HTMLInputElement).value; previewThemeColor(s.themeCustomColor)"
-                    />
-                  </label>
+              <div class="kor-row">
+                <div class="kor-row-main">
+                  <div class="kor-row-label">{{ $t('settings.customThemeColor') }}</div>
+                  <div class="kor-row-desc">{{ $t('settings.customThemeColorDesc') }}</div>
+                </div>
+                <div class="kor-row-control kor-inline">
+                  <span class="kor-color-chip" :style="{ background: s.themeCustomColor }" />
                   <input
                     v-model="s.themeCustomColor"
                     class="kor-input"
                     type="text"
-                    style="width: 96px"
-                    @change="previewThemeColor(s.themeCustomColor)"
+                    maxlength="7"
+                    style="width: 104px"
+                    @input="previewThemeColor(s.themeCustomColor)"
                   />
-                  <button class="kor-btn kor-btn--primary" @click="applyCustomThemeColor(s.themeCustomColor)">
+                  <button type="button" class="kor-btn kor-btn--primary" @click="applyCustomThemeColor(s.themeCustomColor)">
                     {{ $t('settings.apply') }}
                   </button>
                 </div>
-              </SettingRow>
-
-              <div class="kor-row">
-                <div class="kor-row-main">
-                  <div class="kor-quick-colors">
-                    <button
-                      v-for="c in quickColorPresets"
-                      :key="c"
-                      type="button"
-                      class="kor-swatch kor-swatch--sm"
-                      :class="{ 'is-active': s.themeCustomColor.toUpperCase() === c.toUpperCase() }"
-                      :style="{ background: c }"
-                      :title="c"
-                      @click="s.themeCustomColor = c; previewThemeColor(c)"
-                    />
-                  </div>
-                </div>
               </div>
-
-              <div class="kor-preview-bar">
-                <span
-                  v-for="i in 8"
-                  :key="i"
-                  class="kor-preview-chip"
-                  :style="{ background: `var(--voxver-primary-${i}00)` }"
+              <div class="kor-swatch-group kor-swatch-group--sm" style="margin-top: 14px">
+                <button
+                  v-for="c in quickColorPresets"
+                  :key="c"
+                  type="button"
+                  class="kor-swatch kor-swatch--sm"
+                  :style="{ background: c }"
+                  @click="s.themeCustomColor = c; previewThemeColor(c)"
                 />
-                <span class="kor-hint">{{ $t('settings.primaryColorPreview') }} · {{ s.themeCustomColor }}</span>
               </div>
             </SettingCard>
-
             <SettingCard>
-              <SettingRow :label="$t('settings.themeFile')" :desc="$t('settings.themeFileDesc')">
-                <div class="kor-inline">
-                  <button class="kor-btn" @click="exportCurrentTheme">{{ $t('settings.exportTheme') }}</button>
-                  <button class="kor-btn" @click="importThemeFile">{{ $t('settings.importTheme') }}</button>
+              <div class="kor-row">
+                <div class="kor-row-main">
+                  <div class="kor-row-label">{{ $t('settings.themeFile') }}</div>
+                  <div class="kor-row-desc">{{ $t('settings.themeFileDesc') }}</div>
                 </div>
-              </SettingRow>
+                <div class="kor-row-control kor-inline">
+                  <button type="button" class="kor-btn" @click="exportCurrentTheme">{{ $t('settings.exportTheme') }}</button>
+                  <button type="button" class="kor-btn" @click="importThemeFile">{{ $t('settings.importTheme') }}</button>
+                </div>
+              </div>
             </SettingCard>
           </div>
         </section>
 
-        <!-- 背景 -->
         <section class="kor-section">
           <SettingSectionTitle>{{ $t('settings.background') }}</SettingSectionTitle>
           <div class="kor-cards">
@@ -1324,88 +1304,63 @@
                 <SettingSelect v-model="bgImageModeModel" :options="bgImageOptions" />
               </SettingRow>
             </SettingCard>
-
             <SettingCard v-if="appStore.bgImageMode === 'custom'">
               <SettingRow :label="$t('settings.bgImage')" :desc="$t('settings.bgImageDesc')">
-                <button class="kor-btn" @click="browseBgImage">{{ $t('settings.selectImageBtn') }}</button>
+                <button type="button" class="kor-btn" @click="browseBgImage">{{ $t('settings.selectImageBtn') }}</button>
               </SettingRow>
-              <div v-if="appStore.bgImagePath" class="kor-preview">
-                <img :src="bgImagePreviewUrl" :alt="$t('settings.bgPreview')" @error="onBgPreviewError" />
+              <div v-if="bgImagePreviewUrl" class="kor-preview">
+                <img :src="bgImagePreviewUrl" alt="" @error="onBgPreviewError" />
               </div>
               <div v-else class="kor-empty">{{ $t('settings.noBgImageSelected') }}</div>
-
-              <SettingRow
-                :label="$t('settings.bgBlur')"
-                :desc="`${$t('settings.bgBlurDesc')} · ${appStore.themeBgBlur}px`"
-              >
+            </SettingCard>
+            <SettingCard v-if="appStore.bgImageMode === 'custom'">
+              <SettingRow :label="$t('settings.bgBlur')" :desc="`${$t('settings.bgBlurDesc')} · ${appStore.themeBgBlur}px`">
                 <SettingSlider
                   :model-value="appStore.themeBgBlur"
                   :min="0"
                   :max="20"
-                  :step="1"
-                  :label="$t('settings.bgBlur')"
-                  @update:model-value="appStore.setThemeBgBlur"
+                  @update:model-value="appStore.setThemeBgBlur($event)"
                 />
               </SettingRow>
-
-              <SettingRow
-                :label="$t('settings.bgDim')"
-                :desc="`${$t('settings.bgDimDesc')} · ${appStore.bgDimAmount}%`"
-              >
+              <SettingRow :label="$t('settings.bgDim')" :desc="`${$t('settings.bgDimDesc')} · ${appStore.bgDimAmount}%`">
                 <SettingSlider
                   :model-value="appStore.bgDimAmount"
                   :min="0"
                   :max="100"
                   :step="5"
-                  :label="$t('settings.bgDim')"
-                  @update:model-value="appStore.setBgDimAmount"
+                  @update:model-value="appStore.setBgDimAmount($event)"
                 />
               </SettingRow>
-
               <SettingRow :label="$t('settings.colorOverlay')">
                 <div class="kor-inline">
-                  <label
+                  <input
                     v-if="appStore.bgColorOverlay"
-                    class="kor-color-chip"
-                    :style="{ background: appStore.bgOverlayColor }"
-                  >
-                    <input
-                      type="color"
-                      :value="appStore.bgOverlayColor"
-                      @input="appStore.setBgOverlayColor(($event.target as HTMLInputElement).value)"
-                    />
-                  </label>
+                    type="color"
+                    class="kor-color-input"
+                    :value="appStore.bgOverlayColor"
+                    @input="appStore.setBgOverlayColor(($event.target as HTMLInputElement).value)"
+                  />
                   <SettingSwitch
                     :model-value="appStore.bgColorOverlay"
-                    :label="$t('settings.colorOverlay')"
-                    @update:model-value="appStore.setBgColorOverlay"
+                    @update:model-value="appStore.setBgColorOverlay($event)"
                   />
                 </div>
               </SettingRow>
-
               <SettingRow :label="$t('settings.bgParallax')" :desc="$t('settings.bgParallaxDesc')">
                 <SettingSwitch
                   :model-value="appStore.bgParallax"
-                  :label="$t('settings.bgParallax')"
-                  @update:model-value="appStore.setBgParallax"
+                  @update:model-value="appStore.setBgParallax($event)"
                 />
               </SettingRow>
             </SettingCard>
-
             <SettingCard>
               <SettingRow :label="$t('settings.bgMusic')" :desc="$t('settings.bgMusicDesc')">
-                <div class="kor-inline">
-                  <button v-if="s.bgMusicMode === 'custom'" class="kor-btn">
-                    {{ $t('settings.selectFolder') }}
-                  </button>
-                  <SettingSelect v-model="s.bgMusicMode" :options="bgMusicOptions" />
-                </div>
+                <SettingSelect v-model="s.bgMusicMode" :options="bgMusicOptions" />
               </SettingRow>
             </SettingCard>
-
             <SettingCard>
               <SettingRow :label="$t('settings.restoreDefaultBg')" :desc="$t('settings.restoreDefaultBgDesc')">
-                <button class="kor-btn kor-btn--danger" @click="onResetBackground">
+                <button type="button" class="kor-btn kor-btn--danger" @click="onResetBackground">
                   {{ $t('settings.restoreDefaultBg') }}
                 </button>
               </SettingRow>
@@ -1413,46 +1368,265 @@
           </div>
         </section>
 
-        <!-- 界面 -->
         <section class="kor-section">
           <SettingSectionTitle>{{ $t('settings.interfaceSection') }}</SettingSectionTitle>
-          <div class="kor-cards">
-            <SettingCard>
-              <SettingRow :label="$t('settings.opacity')" :desc="`${s.opacity}%`">
-                <SettingSlider
-                  v-model="s.opacity"
-                  :min="30"
-                  :max="100"
-                  :step="5"
-                  :label="$t('settings.opacity')"
-                />
-              </SettingRow>
-
-              <SettingRow :label="$t('settings.fontSize')" :desc="`${s.fontSize}px`">
-                <SettingSlider
-                  v-model="s.fontSize"
-                  :min="12"
-                  :max="20"
-                  :step="1"
-                  :label="$t('settings.fontSize')"
-                />
-              </SettingRow>
-            </SettingCard>
-
-            <SettingCard>
-              <SettingRow :label="$t('settings.animations')">
-                <SettingSwitch v-model="s.enableAnimations" :label="$t('settings.animations')" />
-              </SettingRow>
-              <SettingRow :label="$t('settings.effects')">
-                <SettingSwitch v-model="s.enableEffects" :label="$t('settings.effects')" />
-              </SettingRow>
-              <SettingRow :label="$t('settings.sounds')">
-                <SettingSwitch v-model="s.enableSounds" :label="$t('settings.sounds')" />
-              </SettingRow>
-            </SettingCard>
-          </div>
+          <SettingCard>
+            <SettingRow :label="$t('settings.opacity')" :desc="`${s.opacity}%`">
+              <SettingSlider v-model="s.opacity" :min="30" :max="100" :step="5" />
+            </SettingRow>
+            <SettingRow :label="$t('settings.fontSize')" :desc="`${s.fontSize}px`">
+              <SettingSlider v-model="s.fontSize" :min="12" :max="20" :step="1" />
+            </SettingRow>
+            <SettingRow :label="$t('settings.animations')">
+              <SettingSwitch v-model="s.enableAnimations" />
+            </SettingRow>
+            <SettingRow :label="$t('settings.effects')">
+              <SettingSwitch v-model="s.enableEffects" />
+            </SettingRow>
+            <SettingRow :label="$t('settings.sounds')">
+              <SettingSwitch v-model="s.enableSounds" />
+            </SettingRow>
+          </SettingCard>
         </section>
       </div>
+
+      <template v-else>
+      <!-- 外观 -->
+      <div class="memory-alloc-card" style="margin-top: 12px">
+        <div style="margin-bottom: 12px">
+          <div class="debug-mode-label">{{ $t('settings.appearance') }}</div>
+        </div>
+
+        <!-- 不透明度 -->
+        <div class="mem-custom-row">
+          <label class="row-label">{{ $t('settings.opacity') }}</label>
+          <div class="input-group compact" style="flex:1">
+            <input type="range" class="range" style="flex:1" v-model.number="s.opacity" min="30" max="100" step="5" />
+            <span class="range-val">{{ s.opacity }}%</span>
+          </div>
+        </div>
+
+        <!-- 主题模式（Koring 风格预览缩略图） -->
+        <div style="margin-top: 14px">
+          <label class="row-label" style="margin-bottom:6px;display:block">{{ $t('settings.themeMode') }}</label>
+          <p class="row-desc" style="margin-bottom:10px">{{ $t('settings.themeModeDesc') }}</p>
+          <div class="kor-theme-row">
+            <ThemeModeCard
+              v-for="opt in themePreviewOptions"
+              :key="opt.value"
+              :mode="opt.value"
+              :selected="appStore.theme === opt.value"
+              @select="onSelectThemeMode(opt.value)"
+            />
+          </div>
+        </div>
+
+        <!-- 主题预设画廊 -->
+        <div v-if="themePresets.length > 0" style="margin-top:14px">
+          <label class="row-label" style="margin-bottom:6px;display:block">{{ $t('settings.themePresets') }}</label>
+          <div class="preset-gallery">
+            <button
+              v-for="p in themePresets"
+              :key="p.id"
+              class="preset-card"
+              :class="{ active: s.themeColor === p.themeColor }"
+              @click="applyThemeColor(p.themeColor); s.accentColor = p.accentColor"
+            >
+              <span class="preset-swatch" :style="{ background: p.themeColor }"></span>
+              <span class="preset-name">{{ p.name }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 导入/导出主题 -->
+        <div style="margin-top:14px;display:flex;gap:8px">
+          <button class="btn vox-btn vox-btn--secondary btn-sm" @click="exportCurrentTheme">{{ $t('settings.exportTheme') }}</button>
+          <button class="btn vox-btn vox-btn--secondary btn-sm" @click="importThemeFile">{{ $t('settings.importTheme') }}</button>
+        </div>
+
+        <!-- 自定义主题色 -->
+        <div class="theme-custom-card" style="margin-top:16px">
+          <div class="mem-custom-row" style="align-items:flex-start">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.customThemeColor') }}</label>
+              <p class="row-desc">{{ $t('settings.customThemeColorDesc') }}</p>
+            </div>
+            <div class="input-group compact" style="align-items:center;gap:8px">
+              <div class="color-swatch" :style="{ background: s.themeCustomColor }">
+                <input
+                  type="color"
+                  v-model="s.themeCustomColor"
+                  @input="previewThemeColor(s.themeCustomColor)"
+                  class="color-picker-input"
+                />
+              </div>
+              <input
+                type="text"
+                class="inp"
+                v-model="s.themeCustomColor"
+                style="width:80px;font-family:var(--voxver-font-mono)"
+                @change="previewThemeColor(s.themeCustomColor)"
+              />
+              <button class="btn-sm vox-btn--primary" @click="applyCustomThemeColor(s.themeCustomColor)">
+                {{ $t('settings.apply') }}
+              </button>
+            </div>
+          </div>
+
+          <!-- 快速颜色预设 -->
+          <div class="quick-color-palette">
+            <button
+              v-for="c in quickColorPresets"
+              :key="c"
+              class="quick-swatch"
+              :class="{ active: s.themeCustomColor.toUpperCase() === c.toUpperCase() }"
+              :style="{ background: c }"
+              @click="s.themeCustomColor = c; previewThemeColor(c)"
+              :title="c"
+            />
+          </div>
+
+          <!-- 实时预览 -->
+          <div class="theme-preview-bar">
+            <div class="preview-chip" v-for="i in 8" :key="i" :style="{ background: `var(--voxver-primary-${i}00)` }"></div>
+            <span class="preview-label">{{ $t('settings.primaryColorPreview') }} · {{ s.themeCustomColor }}</span>
+          </div>
+        </div>
+
+        <!-- 字号 -->
+        <div class="mem-custom-row" style="margin-top:14px">
+          <label class="row-label">{{ $t('settings.fontSize') }}</label>
+          <div class="input-group compact" style="flex:1">
+            <input type="range" class="range" style="flex:1" v-model.number="s.fontSize" min="12" max="20" step="1" />
+            <span class="range-val">{{ s.fontSize }}px</span>
+          </div>
+        </div>
+
+        <!-- 动画 / 特效 / 音效 -->
+        <div style="margin-top:14px;display:flex;flex-direction:column;gap:6px">
+          <label class="skin-radio-item" :class="{ active: s.enableAnimations }" @click="s.enableAnimations = !s.enableAnimations">
+            <span class="skin-radio-dot" :class="{ checked: s.enableAnimations }"></span>
+            {{ $t('settings.animations') }}
+          </label>
+          <label class="skin-radio-item" :class="{ active: s.enableEffects }" @click="s.enableEffects = !s.enableEffects">
+            <span class="skin-radio-dot" :class="{ checked: s.enableEffects }"></span>
+            {{ $t('settings.effects') }}
+          </label>
+          <label class="skin-radio-item" :class="{ active: s.enableSounds }" @click="s.enableSounds = !s.enableSounds">
+            <span class="skin-radio-dot" :class="{ checked: s.enableSounds }"></span>
+            {{ $t('settings.sounds') }}
+          </label>
+        </div>
+      </div>
+
+      <!-- 背景（Koring 风格卡片布局） -->
+      <div class="memory-alloc-card" style="margin-top: 12px">
+        <div style="margin-bottom: 12px">
+          <div class="debug-mode-label">{{ $t('settings.background') }}</div>
+        </div>
+
+        <div class="bg-card-list">
+          <!-- 背景图片 -->
+          <div class="bg-card-row">
+            <div class="bg-card-main">
+              <div class="row-label">{{ $t('settings.bgImage') }}</div>
+              <div class="row-desc">{{ $t('settings.bgImageDesc') }}</div>
+            </div>
+            <div class="bg-card-control">
+              <PxSelect v-model="bgImageModeModel" :options="bgImageOptions" />
+              <button v-if="appStore.bgImageMode === 'custom'" class="btn-sm" @click="browseBgImage">
+                {{ $t('settings.selectImageBtn') }}
+              </button>
+            </div>
+          </div>
+
+          <!-- 背景预览图 -->
+          <div v-if="appStore.bgImageMode === 'custom' && appStore.bgImagePath" class="bg-preview-wrap">
+            <img :src="bgImagePreviewUrl" :alt="$t('settings.bgPreview')" class="bg-preview-img" @error="onBgPreviewError" />
+          </div>
+
+          <!-- 背景模糊 -->
+          <div v-if="appStore.bgImageMode === 'custom'" class="bg-card-row">
+            <div class="bg-card-main">
+              <div class="row-label">{{ $t('settings.bgBlur') }}</div>
+              <div class="row-desc">{{ $t('settings.bgBlurDesc') }}，{{ appStore.themeBgBlur }}px</div>
+            </div>
+            <div class="bg-card-control" style="flex:1;max-width:220px">
+              <input type="range" class="range" style="width:100%" :value="appStore.themeBgBlur" @input="appStore.setThemeBgBlur(Number(($event.target as HTMLInputElement).value))" min="0" max="20" step="1" />
+            </div>
+          </div>
+
+          <!-- 背景暗化 -->
+          <div v-if="appStore.bgImageMode === 'custom'" class="bg-card-row">
+            <div class="bg-card-main">
+              <div class="row-label">{{ $t('settings.bgDim') }}</div>
+              <div class="row-desc">{{ $t('settings.bgDimDesc') }}，{{ appStore.bgDimAmount }}%</div>
+            </div>
+            <div class="bg-card-control" style="flex:1;max-width:220px">
+              <input type="range" class="range" style="width:100%" :value="appStore.bgDimAmount" @input="appStore.setBgDimAmount(Number(($event.target as HTMLInputElement).value))" min="0" max="100" step="5" />
+            </div>
+          </div>
+
+          <!-- 颜色叠加 -->
+          <div v-if="appStore.bgImageMode === 'custom'" class="bg-card-row">
+            <div class="bg-card-main">
+              <div class="row-label">{{ $t('settings.colorOverlay') }}</div>
+            </div>
+            <div class="bg-card-control">
+              <label class="toggle-switch">
+                <input type="checkbox" :checked="appStore.bgColorOverlay" @change="appStore.setBgColorOverlay(($event.target as HTMLInputElement).checked)" />
+                <span class="toggle-slider"></span>
+              </label>
+              <input
+                v-if="appStore.bgColorOverlay"
+                type="color"
+                class="color-picker"
+                :value="appStore.bgOverlayColor"
+                @input="appStore.setBgOverlayColor(($event.target as HTMLInputElement).value)"
+                style="width: 36px; height: 36px; border: none; border-radius: var(--voxver-radius-sm); cursor: pointer; flex-shrink: 0"
+              />
+            </div>
+          </div>
+
+          <!-- 背景图片视差 -->
+          <div v-if="appStore.bgImageMode === 'custom'" class="bg-card-row">
+            <div class="bg-card-main">
+              <div class="row-label">{{ $t('settings.bgParallax') }}</div>
+              <div class="row-desc">{{ $t('settings.bgParallaxDesc') }}</div>
+            </div>
+            <div class="bg-card-control">
+              <label class="toggle-switch">
+                <input type="checkbox" :checked="appStore.bgParallax" @change="appStore.setBgParallax(($event.target as HTMLInputElement).checked)" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 背景音乐 -->
+          <div class="bg-card-row">
+            <div class="bg-card-main">
+              <div class="row-label">{{ $t('settings.bgMusic') }}</div>
+              <div class="row-desc">{{ $t('settings.bgMusicDesc') }}</div>
+            </div>
+            <div class="bg-card-control">
+              <PxSelect v-model="s.bgMusicMode" :options="bgMusicOptions" />
+              <button v-if="s.bgMusicMode === 'custom'" class="btn-sm">{{ $t('settings.selectFolder') }}</button>
+            </div>
+          </div>
+
+          <!-- 恢复默认 -->
+          <div class="bg-card-row">
+            <div class="bg-card-main">
+              <div class="row-label">{{ $t('settings.restoreDefaultBg') }}</div>
+              <div class="row-desc">{{ $t('settings.restoreDefaultBgDesc') }}</div>
+            </div>
+            <div class="bg-card-control">
+              <button class="btn-sm btn-destructive" @click="onResetBackground">{{ $t('settings.restoreDefaultBg') }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </template>
     </template>
 
     <!-- ========== 主界面 ========== -->
@@ -3108,7 +3282,8 @@ const faqItems = computed(() => (tm('more.faq') as Array<{ q: string; a: string 
 const themePreviewOptions = computed(() => [
   { value: 'light' as const, label: t('settings.themeLight') },
   { value: 'auto' as const, label: t('settings.themeAuto') },
-  { value: 'dark' as const, label: t('settings.themeDark') }
+  { value: 'dark' as const, label: t('settings.themeDark') },
+  { value: 'koring' as const, label: t('settings.themeKoring') }
 ])
 
 const settingsActive = inject<Ref<string>>('settingsActive')
@@ -4474,6 +4649,28 @@ function previewThemeColor(hex: string) {
   root.style.setProperty('--voxver-accent', hex)
   root.style.setProperty('--voxver-progress-bg', hex)
   root.style.setProperty('--voxver-gradient-primary', hex)
+}
+
+
+/** 切换主题模式：进出 Koring 皮肤需要重启以应用整套排版 */
+async function onSelectThemeMode(mode: ThemeMode) {
+  if (appStore.theme === mode) return
+  const previous = appStore.theme
+  const needsRestart = mode === 'koring' || previous === 'koring'
+  appStore.setTheme(mode)
+  if (!needsRestart) return
+  const ok = await pxConfirm({
+    title: 'Koring',
+    message: t('settings.koringRestartConfirm'),
+    type: 'warning',
+    confirmText: t('common.confirm'),
+    cancelText: t('common.cancel')
+  })
+  if (!ok) {
+    appStore.setTheme(previous)
+    return
+  }
+  window.electronAPI?.app?.relaunch?.()
 }
 
 async function applyCustomThemeColor(hex: string) {

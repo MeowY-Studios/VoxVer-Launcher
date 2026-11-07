@@ -5,7 +5,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-export type ThemeMode = 'dark' | 'light' | 'auto'
+export type ThemeMode = 'dark' | 'light' | 'auto' | 'koring'
 export type Language = 'zh-CN' | 'en-US'
 
 export const useAppStore = defineStore('app', () => {
@@ -26,6 +26,9 @@ export const useAppStore = defineStore('app', () => {
   const bgParallax = ref(false)
 
   // * ====== 计算属性 ======
+  /** 是否处于 Koring 皮肤（独立排版主题，切换需重启生效） */
+  const isKoring = computed(() => theme.value === 'koring')
+
   const isDark = computed(() => {
     const t = resolveTheme()
     return t === 'dark'
@@ -35,6 +38,7 @@ export const useAppStore = defineStore('app', () => {
 
   /** 解析 auto 主题为实际深浅色 */
   function resolveTheme(): 'dark' | 'light' {
+    if (theme.value === 'koring') return 'dark'
     if (theme.value === 'auto') {
       return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
     }
@@ -111,6 +115,12 @@ export const useAppStore = defineStore('app', () => {
   function applyTheme() {
     const resolved = resolveTheme()
     document.documentElement.setAttribute('data-theme', resolved)
+    // * Koring 主题：额外标记 skin，用于切换整套排版样式
+    if (theme.value === 'koring') {
+      document.documentElement.setAttribute('data-skin', 'koring')
+    } else {
+      document.documentElement.removeAttribute('data-skin')
+    }
     // * 持久化（保存用户选择，包括 auto）
     localStorage.setItem('voxver_theme', theme.value)
   }
@@ -118,12 +128,7 @@ export const useAppStore = defineStore('app', () => {
   /** 初始化（从 localStorage 恢复） */
   function init() {
     isElectron.value = !!window.electronAPI
-    let saved = localStorage.getItem('voxver_theme') as ThemeMode | 'koring' | null
-    // ! 迁移已废弃的 koring 主题为 dark
-    if (saved === 'koring') {
-      saved = 'dark'
-      localStorage.setItem('voxver_theme', 'dark')
-    }
+    const saved = localStorage.getItem('voxver_theme') as ThemeMode | null
     if (saved) {
       theme.value = saved
       applyTheme()
@@ -162,6 +167,7 @@ export const useAppStore = defineStore('app', () => {
 
   return {
     theme,
+    isKoring,
     language,
     sidebarCollapsed,
     sidebarWidth,

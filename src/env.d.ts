@@ -86,6 +86,7 @@ interface ElectronAPI {
   }
   app: {
     getVersion: () => Promise<string>
+    relaunch: () => Promise<void>
     getMemoryInfo: () => Promise<{
       totalGB: number
       freeGB: number

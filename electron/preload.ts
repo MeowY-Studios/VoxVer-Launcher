@@ -124,6 +124,7 @@ const api = {
   // 应用信息
   app: {
     getVersion: () => ipcRenderer.invoke('app:get-version'),
+    relaunch: () => ipcRenderer.invoke('app:relaunch'),
     getPaths: () => ipcRenderer.invoke('app:get-paths'),
     getMemoryInfo: (): Promise<{ totalGB: number; freeGB: number; usedGB: number }> =>
       ipcRenderer.invoke('app:get-system-memory'),

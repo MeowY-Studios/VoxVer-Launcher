@@ -35,6 +35,11 @@ export function registerWindowHandlers(mainWindow: BrowserWindow): void {
 
   // 获取应用版本号（从 package.json）
   ipcMain.handle('app:get-version', () => app.getVersion())
+  // * 重启应用（切换 Koring 主题皮肤后需要重启以应用整套排版）
+  ipcMain.handle('app:relaunch', () => {
+    app.relaunch()
+    app.exit(0)
+  })
 
   // 打开开发者工具
   ipcMain.handle('devtools:open', () => mainWindow.webContents.openDevTools())

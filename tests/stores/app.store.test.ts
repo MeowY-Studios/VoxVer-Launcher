@@ -197,12 +197,16 @@ describe('app store - 初始化', () => {
     expect(store.theme).toBe('light')
   })
 
-  it('init 应迁移废弃的 koring 主题为 dark', () => {
+  it('init 应恢复 koring 主题并标记 data-skin', () => {
     const store = freshStore()
     localStorage.setItem('voxver_theme', 'koring')
     store.init()
-    expect(store.theme).toBe('dark')
-    expect(localStorage.getItem('voxver_theme')).toBe('dark')
+    expect(store.theme).toBe('koring')
+    expect(store.isKoring).toBe(true)
+    expect(localStorage.getItem('voxver_theme')).toBe('koring')
+    // * Koring 以深色为底，并额外打上 skin 标记
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
+    expect(document.documentElement.getAttribute('data-skin')).toBe('koring')
   })
 
   it('init 应从 localStorage 恢复所有背景设置', () => {
