@@ -132,31 +132,30 @@
         opacity: 0.75;
       }
 
-      /* ---------- 舞台：草方块落在草地上 ---------- */
+      /* ---------- 舞台：品牌标记落在草地上 ---------- */
       .stage {
         position: absolute;
-        left: 46px;
+        left: 40px;
         bottom: 40px;
-        width: 52px;
-        height: 52px;
+        width: 64px;
+        height: 64px;
       }
 
       .block-wrap {
         position: absolute;
         left: 50%;
         top: 0;
-        width: 52px;
-        height: 52px;
-        margin-left: -26px;
+        width: 64px;
+        height: 64px;
+        margin-left: -32px;
         animation: block-drop 0.68s cubic-bezier(0.45, 0, 0.9, 0.5) both;
       }
 
       .block {
-        width: 52px;
-        height: 52px;
+        width: 64px;
+        height: 64px;
         display: block;
-        image-rendering: pixelated;
-        filter: drop-shadow(0 8px 10px rgba(74, 66, 34, 0.28));
+        filter: drop-shadow(0 8px 12px rgba(48, 96, 156, 0.34));
         animation: block-squash 0.42s cubic-bezier(0.3, 1.6, 0.5, 1) 0.68s both;
       }
 
@@ -164,10 +163,10 @@
       .block-shadow {
         position: absolute;
         left: 50%;
-        top: 50px;
-        width: 54px;
-        height: 9px;
-        margin-left: -27px;
+        top: 62px;
+        width: 66px;
+        height: 10px;
+        margin-left: -33px;
         border-radius: 50%;
         background: radial-gradient(ellipse, rgba(74, 92, 48, 0.34) 0%, rgba(74, 92, 48, 0) 72%);
         opacity: 0;
@@ -178,24 +177,24 @@
       .ring {
         position: absolute;
         left: 50%;
-        top: 44px;
-        width: 18px;
-        height: 18px;
-        margin-left: -9px;
-        border: 2px solid rgba(139, 168, 96, 0.55);
+        top: 56px;
+        width: 22px;
+        height: 22px;
+        margin-left: -11px;
+        border: 2px solid rgba(122, 180, 236, 0.6);
         border-radius: 50%;
         opacity: 0;
         animation: ring-out 0.62s cubic-bezier(0.2, 0.6, 0.3, 1) 0.66s forwards;
       }
 
-      /* 像素尘埃（泥土颗粒） */
+      /* 像素尘埃（被溅起的浅蓝碎光） */
       .dust {
         position: absolute;
         left: 50%;
-        top: 52px;
+        top: 64px;
         width: 4px;
         height: 4px;
-        background: var(--dirt);
+        background: rgba(160, 208, 248, 0.95);
         opacity: 0;
         animation: dust-fly 0.52s ease-out 0.66s forwards;
       }
@@ -487,7 +486,7 @@
       <div class="stage">
         <div class="block-shadow"></div>
         <div class="block-wrap">
-          <img class="block" src="./minecraft-grass-block.png" alt="" draggable="false" />
+          <img class="block" src="./brand/mark-256.png" alt="" draggable="false" />
         </div>
         <div class="ring"></div>
       </div>

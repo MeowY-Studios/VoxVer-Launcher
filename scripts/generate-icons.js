@@ -82,6 +82,12 @@ async function main() {
     }
   }
 
+  // 启动画面用的品牌标记（PNG，透明度保留）
+  const brandDir = path.join(ROOT, 'public/brand');
+  fs.mkdirSync(brandDir, { recursive: true });
+  fs.writeFileSync(path.join(brandDir, 'mark-256.png'), at(256).data);
+  fs.writeFileSync(path.join(brandDir, 'mark-512.png'), at(512).data);
+
   // 预览条（深/浅两种底，验证小尺寸可读性）
   fs.mkdirSync(PREVIEW_DIR, { recursive: true });
   const tiles = [];
