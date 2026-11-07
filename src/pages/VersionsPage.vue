@@ -6,6 +6,7 @@
     </div>
 
     <!-- 版本列表 -->
+    <template v-if="!isKoring">
     <section class="versions-section vox-card">
       <div class="section-header">
         <h3>{{ $t('game.minecraftVersion') }}</h3>
@@ -187,6 +188,109 @@
         </div>
       </div>
     </section>
+    </template>
+    <div v-else class="kor-c5">
+      <KorSectionTitle>{{ $t('game.minecraftVersion') }}</KorSectionTitle>
+      <KorSettingCard>
+        <div class="kor-c5__toolbar">
+          <KorInput
+            v-model="searchKeyword"
+            class="kor-c5__search"
+            :placeholder="$t('version.searchPlaceholder')"
+            :disabled="loading"
+          />
+          <KorButton variant="outline" size="sm" :loading="loading" @click="refreshVersions">
+            {{ $t('common.refresh') }}
+          </KorButton>
+        </div>
+        <div v-if="!loading && versions.length" class="kor-c5__tabs">
+          <KorButton
+            v-for="tab in korTabs"
+            :key="tab.value"
+            size="sm"
+            :variant="activeFilter === tab.value ? 'primary' : 'ghost'"
+            @click="activeFilter = tab.value"
+          >
+            {{ tab.label }}
+          </KorButton>
+        </div>
+      </KorSettingCard>
+
+      <KorSettingCard>
+        <div v-if="loading" class="kor-c5__list">
+          <KorSkeleton v-for="n in 6" :key="n" height="44" />
+        </div>
+        <div v-else-if="error" class="kor-c5__state">
+          <p class="kor-copy is-error">{{ error }}</p>
+          <KorButton variant="primary" size="sm" @click="refreshVersions">{{ $t('common.retry') }}</KorButton>
+        </div>
+        <div v-else-if="totalFiltered > 0" class="kor-c5__list">
+          <VirtualScroll
+            :items="filteredVersions(activeFilter)"
+            :item-height="52"
+            :overscan="8"
+            :get-item-key="(item: MCVersion) => item.id"
+          >
+            <template #item="{ item: version }">
+              <div
+                class="kor-c5__ver"
+                :class="{ 'is-selected': selectedVersion === version.id }"
+                @click="selectVersion(version.id)"
+              >
+                <div class="kor-c5__ver-main">
+                  <span class="kor-c5__ver-id">{{ version.id }}</span>
+                  <span class="kor-c5__ver-meta">
+                    {{ getVersionTypeLabel(version.type) }} · {{ formatDate(version.releaseTime) }}
+                  </span>
+                </div>
+                <KorButton
+                  size="sm"
+                  :variant="selectedVersion === version.id ? 'primary' : 'outline'"
+                  @click.stop="selectVersion(version.id)"
+                >
+                  {{ selectedVersion === version.id ? $t('version.selected') : $t('version.select') }}
+                </KorButton>
+              </div>
+            </template>
+          </VirtualScroll>
+        </div>
+        <KorEmpty
+          v-else
+          :title="searchKeyword || activeFilter !== 'all' ? $t('version.noMatches') : $t('common.noData')"
+        />
+      </KorSettingCard>
+
+      <KorSectionTitle>{{ $t('modloader.install') }}</KorSectionTitle>
+      <KorSettingCard>
+        <KorSettingRow :label="$t('modloader.selectMinecraftVersion')">
+          <KorSettingSelect v-model="selectedVersion" :options="korMcOptions" :width="220" />
+        </KorSettingRow>
+        <template v-if="selectedVersion">
+          <KorSettingRow v-if="fabricVersions.length" label="Fabric">
+            <KorSettingSelect v-model="fabricSelectedVersion" :options="korFabricOptions" :width="180" />
+          </KorSettingRow>
+          <KorSettingRow v-if="forgeVersions.length" label="Forge">
+            <KorSettingSelect v-model="forgeSelectedVersion" :options="korForgeOptions" :width="180" />
+          </KorSettingRow>
+          <KorSettingRow
+            v-if="!fabricVersions.length && !forgeVersions.length"
+            :label="$t('modloader.noAvailable')"
+            :desc="modLoaderLoading ? $t('modloader.loading') : ''"
+          />
+          <KorSettingRow :label="$t('modloader.install')">
+            <KorButton
+              variant="primary"
+              size="md"
+              :loading="modLoaderLoading"
+              :disabled="!selectedVersion || (!fabricSelectedVersion && !forgeSelectedVersion) || modLoaderLoading"
+              @click="installModLoader"
+            >
+              {{ $t('modloader.install') }}
+            </KorButton>
+          </KorSettingRow>
+        </template>
+      </KorSettingCard>
+    </div>
   </div>
 </template>
 
@@ -198,7 +302,7 @@ import type { MCVersion } from '../stores/versions.store'
 import { useInstancesStore } from '../stores/instances.store'
 import { getCurrentLocale } from '../locale/i18n'
 import VirtualScroll from '../components/common/VirtualScroll.vue'
-import { KorPageHeader } from '../components/kor'
+import { KorButton, KorEmpty, KorPageHeader, KorSectionTitle, KorSettingCard, KorSettingRow, KorSettingSelect, KorInput, KorSkeleton } from '../components/kor'
 import { useAppStore } from '../stores'
 
 const { t } = useI18n()
@@ -244,6 +348,29 @@ function filteredVersions(filter: 'all' | 'release' | 'snapshot' | 'old') {
 
 /** 当前 Tab + 搜索后的完整数据 */
 const totalFiltered = computed(() => filteredVersions(activeFilter.value).length)
+
+/* ---------- Koring 皮肤：Tab 与下拉选项 ---------- */
+const korTabs = computed(() => [
+  { value: 'all' as const, label: `${t('version.all')} (${filteredVersions('all').length})` },
+  { value: 'release' as const, label: `${t('game.release')} (${filteredVersions('release').length})` },
+  { value: 'snapshot' as const, label: `${t('game.snapshot')} (${filteredVersions('snapshot').length})` },
+  { value: 'old' as const, label: `${t('version.old')} (${filteredVersions('old').length})` },
+])
+
+const korMcOptions = computed(() => [
+  { value: '', label: t('common.pleaseSelect') },
+  ...versions.value.map((v) => ({ value: v.id, label: `${v.id} (${getVersionTypeLabel(v.type)})` })),
+])
+
+const korFabricOptions = computed(() => [
+  { value: '', label: t('common.pleaseSelect') },
+  ...fabricVersions.value.map((v) => ({ value: v.version, label: v.version })),
+])
+
+const korForgeOptions = computed(() => [
+  { value: '', label: t('common.pleaseSelect') },
+  ...forgeVersions.value.map((v) => ({ value: v.version, label: v.version })),
+])
 
 // ===== 事件处理 =====
 

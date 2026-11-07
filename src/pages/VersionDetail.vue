@@ -19,6 +19,7 @@
       </button>
       <h1 v-if="!isKoring" class="vd-title">{{ $t('version.detail') }}</h1>
     </div>
+    <template v-if="!isKoring">
 
     <!-- 加载中 -->
     <div v-if="loading" class="vd-loading">
@@ -355,6 +356,137 @@
       <p>{{ $t('version.loadFailed') }}</p>
       <button class="vox-btn vox-btn--primary" @click="loadVersionInfo">{{ $t('common.retry') }}</button>
     </div>
+    </template>
+    <template v-else>
+      <div class="kor-c6">
+        <div v-if="loading" class="kor-c6__state">
+          <KorSkeleton height="120" />
+          <KorSkeleton height="64" />
+        </div>
+
+        <template v-else-if="versionInfo">
+          <KorSettingCard>
+            <div class="kor-c6__hero">
+              <div class="kor-c6__hero-icon">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                  <line x1="12" y1="22.08" x2="12" y2="12" />
+                </svg>
+              </div>
+              <div class="kor-c6__hero-info">
+                <div class="kor-c6__hero-name">{{ versionDisplayName }}</div>
+                <div class="kor-c6__hero-meta">
+                  <span class="kor-c6__badge">{{ typeLabel }}</span>
+                  <span v-if="versionInfo.releaseTime">{{ formatDate(versionInfo.releaseTime) }}</span>
+                  <span class="kor-c6__hero-id">{{ versionInfo.id }}</span>
+                </div>
+              </div>
+            </div>
+          </KorSettingCard>
+
+          <KorSectionTitle>{{ $t('version.addons') }}</KorSectionTitle>
+          <KorSettingCard>
+            <p class="kor-copy">{{ $t('version.selectLoaderHint') }}</p>
+            <KorSettingRow
+              v-for="loader in modLoaders"
+              :key="loader.type"
+              :label="loader.name"
+              :desc="$t(loader.descKey)"
+            >
+              <span v-if="!isLoaderCompatible(loader.type)" class="kor-c6__badge is-muted">{{ $t('version.incompatible') }}</span>
+              <KorButton
+                v-else
+                size="sm"
+                :variant="selectedLoader === loader.type ? 'primary' : 'outline'"
+                @click="selectLoader(loader.type)"
+              >
+                {{ selectedLoader === loader.type ? $t('version.selected') : $t('version.select') }}
+              </KorButton>
+            </KorSettingRow>
+            <KorSettingRow :label="$t('game.vanilla')" :desc="$t('version.noModLoader')">
+              <KorButton
+                size="sm"
+                :variant="selectedLoader === '' ? 'primary' : 'outline'"
+                @click="selectLoader('')"
+              >
+                {{ selectedLoader === '' ? $t('version.selected') : $t('version.select') }}
+              </KorButton>
+            </KorSettingRow>
+          </KorSettingCard>
+
+          <template v-if="selectedLoader">
+            <KorSectionTitle>{{ currentLoaderName }} {{ $t('version.addonsTitle') }}</KorSectionTitle>
+            <KorSettingCard>
+              <template v-if="selectedLoader === 'forge' || selectedLoader === 'neoforge'">
+                <KorSettingRow label="OptiFine" :desc="$t('version.optifineHint')">
+                  <KorInput v-model="selectedOptiFineVersion" class="kor-input--short" :placeholder="$t('version.optifineCustom')" />
+                </KorSettingRow>
+                <KorSettingRow v-if="availableOptiFineVersions.length" :label="$t('version.highDefinition')">
+                  <div class="kor-c6__chips">
+                    <KorButton
+                      v-for="ver in availableOptiFineVersions"
+                      :key="ver"
+                      size="sm"
+                      :variant="selectedOptiFineVersion === ver ? 'primary' : 'ghost'"
+                      @click="selectedOptiFineVersion = ver"
+                    >
+                      {{ ver }}
+                    </KorButton>
+                  </div>
+                </KorSettingRow>
+              </template>
+
+              <template v-else-if="selectedLoader === 'fabric'">
+                <KorSettingRow label="Fabric API" :desc="$t('version.fabricApiHint')">
+                  <span v-if="fabricApiLoading" class="kor-c6__badge is-muted">{{ $t('modloader.loading') }}</span>
+                  <span v-else-if="!fabricApiVersions.length" class="kor-c6__badge is-muted">{{ $t('version.fabricApiLoadFailed') }}</span>
+                </KorSettingRow>
+                <KorSettingRow v-if="fabricApiVersions.length" :label="$t('version.fabricApiAutoSelected')">
+                  <div class="kor-c6__chips">
+                    <KorButton
+                      v-for="ver in fabricApiVersions"
+                      :key="ver"
+                      size="sm"
+                      :variant="selectedFabricApiVersion === ver ? 'primary' : 'ghost'"
+                      @click="selectedFabricApiVersion = ver"
+                    >
+                      {{ ver }}
+                    </KorButton>
+                  </div>
+                </KorSettingRow>
+              </template>
+
+              <template v-else-if="selectedLoader === 'quilt'">
+                <KorSettingRow label="QSL / QFAPI" :desc="$t('version.quiltApiHint')">
+                  <span class="kor-c6__badge is-muted">{{ $t('version.incompatible') }}</span>
+                </KorSettingRow>
+              </template>
+            </KorSettingCard>
+          </template>
+
+          <KorSectionTitle>{{ $t('version.startDownload') }}</KorSectionTitle>
+          <KorSettingCard>
+            <KorSettingRow :label="$t('version.selectFolder')" :desc="targetFolder || $t('version.selectFolder')">
+              <KorButton variant="outline" size="sm" @click="browseFolder">{{ $t('common.open') }}</KorButton>
+            </KorSettingRow>
+            <KorSettingRow v-if="selectedLoader && selectedLoaderVersion" :label="$t('version.versionNameLabel')">
+              <span class="kor-value">{{ versionDisplayName }}</span>
+            </KorSettingRow>
+            <KorSettingRow :label="$t('version.startDownload')">
+              <KorButton variant="primary" size="md" :loading="downloading" @click="handleDownload">
+                {{ downloading ? $t('version.preparingDownload') : $t('version.startDownload') }}
+              </KorButton>
+            </KorSettingRow>
+          </KorSettingCard>
+        </template>
+
+        <div v-else class="kor-c6__state">
+          <p class="kor-copy is-error">{{ $t('version.loadFailed') }}</p>
+          <KorButton variant="primary" size="sm" @click="loadVersionInfo">{{ $t('common.retry') }}</KorButton>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -363,7 +495,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '../stores'
-import { KorPageHeader } from '../components/kor'
+import { KorButton, KorInput, KorPageHeader, KorSectionTitle, KorSettingCard, KorSettingRow, KorSkeleton } from '../components/kor'
 import { useDownloadStore } from '../stores/download.store'
 
 interface VersionDetailInfo {
