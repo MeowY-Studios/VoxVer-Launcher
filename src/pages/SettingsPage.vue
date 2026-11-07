@@ -1531,9 +1531,7 @@
         <KorSectionTitle>{{ $t('settings.advancedSection.windowSettings') }}</KorSectionTitle>
         <KorSettingCard>
           <KorSettingRow :label="$t('settings.windowTitle')" :desc="$t('settings.windowTitleDesc')">
-            <template #below>
-              <KorInput v-model="s.windowTitle" placeholder="Minecraft {version}" />
-            </template>
+            <KorInput v-model="s.windowTitle" class="kor-input--wide" placeholder="Minecraft {version}" />
           </KorSettingRow>
           <KorSettingRow :label="$t('settings.windowSize')">
             <KorSettingSelect v-model="windowPresetModel" :options="windowPresetOptions" :width="200" />
@@ -1555,9 +1553,7 @@
             </template>
           </KorSettingRow>
           <KorSettingRow :label="$t('settings.preLaunchCmd')" :desc="$t('settings.preLaunchCmdDesc')">
-            <template #below>
-              <KorInput v-model="s.preLaunchCmd" placeholder="taskkill /f /im java.exe" />
-            </template>
+            <KorInput v-model="s.preLaunchCmd" class="kor-input--wide" placeholder="taskkill /f /im java.exe" />
           </KorSettingRow>
         </KorSettingCard>
 
