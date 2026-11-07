@@ -1938,7 +1938,7 @@ export default {
       minecraftCreator: 'Creator of Minecraft',
       msSupport: 'Technology & Ecosystem Support',
       ossCommunity: 'Open Source Community Contributors',
-      koringUi: 'Koring Settings Page Design & Content',
+      koringUi: 'Koring theme',
       archReference: 'Modular Architecture Reference (Mohen Studio)',
       xmcl: 'X Minecraft Launcher (XMCL)',
       xmclRole: "Launcher Core & Toolkits ({'@'}xmcl)",
