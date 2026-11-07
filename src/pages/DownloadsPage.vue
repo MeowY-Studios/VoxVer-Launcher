@@ -492,26 +492,34 @@
 
         <template v-if="latestRelease || latestSnapshot">
           <KorSectionTitle>{{ $t('download.latestVersion') }}</KorSectionTitle>
-          <KorSettingCard>
-            <KorSettingRow
+          <div class="kor-c12__group">
+            <button
               v-if="latestRelease"
-              :label="latestRelease.name"
-              :desc="latestRelease.desc"
+              type="button"
+              class="kor-c12__ver"
+              @click="goToDetail(latestRelease)"
             >
-              <KorButton size="sm" @click="goToDetail(latestRelease)">{{
-                $t('download.release')
-              }}</KorButton>
-            </KorSettingRow>
-            <KorSettingRow
+              <span class="kor-c12__ver-head">
+                <span class="kor-c12__ver-name">{{ latestRelease.name }}</span>
+                <span class="kor-c12__ver-tag">{{ $t('download.release') }}</span>
+                <span class="kor-c12__ver-date">{{ latestRelease.date }}</span>
+              </span>
+              <span class="kor-c12__ver-desc">{{ latestRelease.desc }}</span>
+            </button>
+            <button
               v-if="latestSnapshot"
-              :label="latestSnapshot.name"
-              :desc="latestSnapshot.desc"
+              type="button"
+              class="kor-c12__ver"
+              @click="goToDetail(latestSnapshot)"
             >
-              <KorButton size="sm" @click="goToDetail(latestSnapshot)">{{
-                $t('download.snapshot')
-              }}</KorButton>
-            </KorSettingRow>
-          </KorSettingCard>
+              <span class="kor-c12__ver-head">
+                <span class="kor-c12__ver-name">{{ latestSnapshot.name }}</span>
+                <span class="kor-c12__ver-tag">{{ $t('download.snapshot') }}</span>
+                <span class="kor-c12__ver-date">{{ latestSnapshot.date }}</span>
+              </span>
+              <span class="kor-c12__ver-desc">{{ latestSnapshot.desc }}</span>
+            </button>
+          </div>
         </template>
 
         <div class="kor-c12__groups">
