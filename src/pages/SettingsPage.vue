@@ -880,6 +880,7 @@
     <!-- ========== 启动选项 ========== -->
     <!-- ========== Java虚拟机与内存 ========== -->
     <template v-if="activeCategory === 'java-memory'">
+      <div v-if="appStore.skin !== 'koring'">
       <!-- Java 环境 -->
       <section class="sec">
         <h3 class="sec-title">
@@ -1015,10 +1016,110 @@
           </div>
         </div>
       </section>
+      </div>
+
+      <!-- Koring：Java 环境 / 内存 / JVM 参数 / 垃圾回收 -->
+      <div v-else class="kor-c2">
+        <KorSectionTitle>{{ $t('settings.gameJava') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.gameJava')" :desc="$t('settings.gameJavaDesc')">
+            <div class="kor-inline">
+              <KorSettingSelect v-model="selectedJavaPreset" :options="javaPresetOptions" :width="200" />
+              <KorButton
+                variant="outline"
+                size="sm"
+                :loading="isDetectingJava"
+                @click="detectJava"
+              >
+                {{ isDetectingJava ? $t('settings.detecting') : $t('settings.detectJava') }}
+              </KorButton>
+            </div>
+          </KorSettingRow>
+          <KorSettingRow v-if="s.javaPreset === 'custom'" :label="$t('settings.custom')">
+            <div class="kor-inline">
+              <KorInput v-model="s.javaPath" placeholder="C:\Program Files\Java\..." class="kor-input--wide" />
+              <KorButton variant="outline" size="sm" @click="browseJava">{{ $t('settings.browse') }}</KorButton>
+            </div>
+          </KorSettingRow>
+          <KorSettingRow v-if="isDetectingJava" :label="currentStep" :desc="progressText">
+            <div class="kor-inline">
+              <KorProgress :value="progressPercent" :max="100" />
+              <span class="kor-value">{{ progressPercent }}%</span>
+            </div>
+          </KorSettingRow>
+          <KorSettingRow
+            v-if="detectionComplete && detectedJava.length === 0"
+            :label="$t('settings.noJavaDetected')"
+            :desc="$t('settings.noJavaDetectedDesc')"
+          >
+            <KorButton variant="outline" size="sm" @click="openExternal('https://adoptium.net/')">
+              {{ $t('settings.downloadEclipseTemurin') }}
+            </KorButton>
+          </KorSettingRow>
+          <KorSettingRow
+            v-for="java in detectedJava"
+            :key="java.id"
+            :label="`Java ${java.version}${java.vendor ? ' · ' + java.vendor : ''}`"
+            :desc="java.path"
+          >
+            <KorButton variant="outline" size="sm" @click="selectJava(java)">
+              {{ $t('settings.apply') }}
+            </KorButton>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle>{{ $t('settings.javaMemory.memoryAllocation') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.javaMemory.autoConfig')">
+            <KorSwitch
+              :model-value="s.memoryMode === 'auto'"
+              @update:model-value="(v: boolean) => (s.memoryMode = v ? 'auto' : 'custom')"
+            />
+          </KorSettingRow>
+          <KorSettingRow
+            v-if="s.memoryMode === 'custom'"
+            :label="$t('settings.javaMemory.allocateMemory')"
+            :desc="`1 GB - ${systemTotalGB} GB`"
+          >
+            <div class="kor-inline">
+              <KorSlider
+                v-model="s.memoryCustomGB"
+                :min="1"
+                :max="32"
+                :step="0.5"
+              />
+              <span class="kor-value">{{ s.memoryCustomGB }} GB</span>
+            </div>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle>{{ $t('settings.javaMemory.jvmExtraArgs') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.javaMemory.jvmExtraArgs')" :desc="$t('settings.jvmArgsDesc')">
+            <template #below>
+              <textarea
+                class="textarea"
+                v-model="s.jvmArgs"
+                rows="3"
+                placeholder="-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions ..."
+                style="width: 100%"
+              ></textarea>
+            </template>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle>{{ $t('settings.memoryManagement') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.memoryManagement')">
+            <KorSettingSelect v-model="s.memoryManage" :options="korGcOptions" :width="200" />
+          </KorSettingRow>
+        </KorSettingCard>
+      </div>
     </template>
 
     <!-- ========== 游戏目录 ========== -->
     <template v-if="activeCategory === 'game-dir'">
+      <div v-if="appStore.skin !== 'koring'">
       <!-- 文件夹列表 -->
       <section class="sec">
         <h3 class="sec-title">
@@ -1108,10 +1209,63 @@
           </div>
         </div>
       </section>
+      </div>
+
+      <!-- Koring：文件夹列表 / 版本隔离 -->
+      <div v-else class="kor-c2">
+        <KorSectionTitle>{{ $t('component.folderList') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow
+            v-for="folder in folderItems"
+            :key="folder.path"
+            :label="folder.name"
+            :desc="folder.path"
+          >
+            <div class="kor-inline">
+              <span v-if="folder.isActive" class="kor-hint">{{ $t('component.currentFolder') }}</span>
+              <KorButton v-else variant="outline" size="sm" @click="switchFolder(folder.path)">
+                {{ $t('settings.apply') }}
+              </KorButton>
+              <KorButton variant="danger" size="sm" @click="removeFolder(folder.path)">
+                {{ $t('component.remove') }}
+              </KorButton>
+            </div>
+          </KorSettingRow>
+          <KorSettingRow v-if="folderItems.length === 0" :label="$t('component.addOrImport')">
+            <KorButton variant="outline" size="sm" @click="addGameFolder">
+              {{ $t('component.addExistingFolder') }}
+            </KorButton>
+          </KorSettingRow>
+        </KorSettingCard>
+        <div class="kor-inline kor-inline--end">
+          <KorButton v-if="folderItems.length > 0" variant="outline" size="sm" @click="addGameFolder">
+            {{ $t('component.addExistingFolder') }}
+          </KorButton>
+          <KorButton variant="outline" size="sm" @click="importModpackFromSettings">
+            {{ $t('component.importModpack') }}
+          </KorButton>
+          <KorButton
+            v-if="!folderItems.some((f) => f.name === '.minecraft')"
+            variant="outline"
+            size="sm"
+            @click="createMinecraftFolderHere"
+          >
+            {{ $t('component.createMinecraft') }}
+          </KorButton>
+        </div>
+
+        <KorSectionTitle>{{ $t('settings.versionIsolation') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.versionIsolation')" :desc="$t('settings.versionIsolationDesc')">
+            <KorSettingSelect v-model="s.versionIsolation" :options="versionIsolationOptions" :width="200" />
+          </KorSettingRow>
+        </KorSettingCard>
+      </div>
     </template>
 
     <!-- ========== 高级设置 ========== -->
     <template v-if="activeCategory === 'advanced'">
+      <div v-if="appStore.skin !== 'koring'">
       <section class="sec">
         <h3 class="sec-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1358,6 +1512,142 @@
         </div>
         <div class="btn-row" style="padding-top:6px">
           <button class="action-btn outline" @click="reloadHotkeys">{{ $t('settings.reloadHotkeys') }}</button>
+        </div>
+      </div>
+      </div>
+
+      <!-- Koring：高级设置 -->
+      <div v-else class="kor-c2">
+        <KorSectionTitle>{{ $t('settings.advancedSection.launchBehavior') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.whenLaunching')">
+            <KorSettingSelect v-model="launchVisibilityModel" :options="launchVisibilityOptions" :width="200" />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.processPriority')" :desc="$t('settings.processPriorityDesc')">
+            <KorSettingSelect v-model="processPriorityModel" :options="processPriorityOptions" :width="200" />
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle>{{ $t('settings.advancedSection.windowSettings') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.windowTitle')" :desc="$t('settings.windowTitleDesc')">
+            <template #below>
+              <KorInput v-model="s.windowTitle" placeholder="Minecraft {version}" />
+            </template>
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.windowSize')">
+            <KorSettingSelect v-model="windowPresetModel" :options="windowPresetOptions" :width="200" />
+          </KorSettingRow>
+          <KorSettingRow v-if="s.windowPreset === 'custom'" :label="$t('settings.advancedSection.width')">
+            <div class="kor-inline">
+              <KorSettingNumberField v-model="s.winW" :min="1" />
+              <span class="kor-hint">×</span>
+              <KorSettingNumberField v-model="s.winH" :min="1" />
+            </div>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle>{{ $t('settings.advancedSection.gameParams') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.gameArgs')" :desc="$t('settings.gameArgsDesc')">
+            <template #below>
+              <textarea class="textarea" v-model="s.gameArgs" rows="2" placeholder="--tweakClass com.example.Tweak" style="width: 100%"></textarea>
+            </template>
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.preLaunchCmd')" :desc="$t('settings.preLaunchCmdDesc')">
+            <template #below>
+              <KorInput v-model="s.preLaunchCmd" placeholder="taskkill /f /im java.exe" />
+            </template>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle>{{ $t('settings.advancedSection.launchCommand') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.advancedSection.launchCommand')">
+            <template #below>
+              <textarea
+                class="textarea kor-mono"
+                rows="4"
+                readonly
+                :value="launchCommandPreview"
+                :placeholder="$t('settings.advancedSection.launchCommandPlaceholder')"
+              ></textarea>
+            </template>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle>{{ $t('settings.advancedSection.debug') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.debugMode')" :desc="$t('settings.advancedSection.debugModeDesc')">
+            <KorSwitch v-model="s.debugMode" @update:model-value="toggleDebugMode" />
+          </KorSettingRow>
+          <KorSettingRow v-if="s.debugMode" :label="$t('settings.disableJavaLaunchWrapper')">
+            <KorSwitch v-model="s.disableJavaLaunchWrapper" />
+          </KorSettingRow>
+          <KorSettingRow v-if="s.debugMode" :label="$t('settings.disableLwjglUnsafeAgent')">
+            <KorSwitch v-model="s.disableLwjglUnsafeAgent" />
+          </KorSettingRow>
+          <KorSettingRow v-if="s.debugMode" :label="$t('settings.useHighPerformanceGPU')">
+            <KorSwitch v-model="s.useHighPerformanceGPU" />
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle>{{ $t('settings.offlineSkin') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.offlineSkin')" :desc="$t('settings.skinWarning')">
+            <KorSettingSelect
+              :model-value="s.offlineSkin"
+              :options="skinOptions"
+              :width="180"
+              @update:model-value="onSkinSelect"
+            />
+          </KorSettingRow>
+          <KorSettingRow v-if="s.offlineSkin === 'official'" :label="$t('settings.officialPlayerName')">
+            <div class="kor-inline">
+              <KorInput v-model="s.officialSkinName" class="kor-input--wide" />
+              <KorButton variant="outline" size="sm" @click="saveSkin">{{ $t('settings.skinSave') }}</KorButton>
+              <KorButton variant="outline" size="sm" @click="refreshSkin">{{ $t('settings.skinRefresh') }}</KorButton>
+            </div>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSectionTitle>{{ $t('settings.globalHotkeys') }}</KorSectionTitle>
+        <KorSettingCard>
+          <KorSettingRow :label="$t('settings.launchGame')" :desc="$t('settings.launchGameDesc')">
+            <div class="kor-inline">
+              <KorInput v-model="s.hotkeyLaunch" placeholder="Ctrl+Shift+L" class="kor-input--short" />
+              <KorButton variant="outline" size="sm" @click="updateHotkey('launch-game', s.hotkeyLaunch)">
+                {{ $t('settings.save') }}
+              </KorButton>
+            </div>
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.toggleWindow')" :desc="$t('settings.toggleWindowDesc')">
+            <div class="kor-inline">
+              <KorInput v-model="s.hotkeyToggleWindow" placeholder="Ctrl+Shift+H" class="kor-input--short" />
+              <KorButton variant="outline" size="sm" @click="updateHotkey('toggle-window', s.hotkeyToggleWindow)">
+                {{ $t('settings.save') }}
+              </KorButton>
+            </div>
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.openHome')" :desc="$t('settings.openHomeDesc')">
+            <div class="kor-inline">
+              <KorInput v-model="s.hotkeyOpenHome" placeholder="Ctrl+Shift+O" class="kor-input--short" />
+              <KorButton variant="outline" size="sm" @click="updateHotkey('open-home', s.hotkeyOpenHome)">
+                {{ $t('settings.save') }}
+              </KorButton>
+            </div>
+          </KorSettingRow>
+          <KorSettingRow :label="$t('settings.openSettings')" :desc="$t('settings.openSettingsDesc')">
+            <div class="kor-inline">
+              <KorInput v-model="s.hotkeyOpenSettings" placeholder="Ctrl+," class="kor-input--short" />
+              <KorButton variant="outline" size="sm" @click="updateHotkey('open-settings', s.hotkeyOpenSettings)">
+                {{ $t('settings.save') }}
+              </KorButton>
+            </div>
+          </KorSettingRow>
+        </KorSettingCard>
+        <div class="kor-inline kor-inline--end">
+          <KorButton variant="outline" size="sm" @click="reloadHotkeys">{{ $t('settings.reloadHotkeys') }}</KorButton>
         </div>
       </div>
     </template>
@@ -3431,7 +3721,10 @@ import {
   KorSettingRow,
   KorSettingSwitch,
   KorSettingSlider,
-  KorSettingSelect
+  KorSettingSelect,
+  KorInput,
+  KorProgress,
+  KorSwitch
 } from '@/components/kor'
 import { renderMarkdownSafe } from '../utils/markdown'
 import { settingsNavGroups } from '../config/settings-nav'
@@ -3486,6 +3779,13 @@ const korColorBlindOptions = computed(() => [
 function openExternal(url: string) {
   window.electronAPI?.shell?.openExternal?.(url)
 }
+
+const korGcOptions = computed(() => [
+  { value: 'g1gc', label: t('settings.g1gc') },
+  { value: 'zgc', label: t('settings.zgc') },
+  { value: 'parallel', label: t('settings.parallelGc') },
+  { value: 'none', label: t('settings.noOptimize') }
+])
 
 const korChannelOptions = computed(() => [
   { value: 'stable', label: t('settings.updateChannel.stable') },
