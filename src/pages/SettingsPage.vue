@@ -1292,7 +1292,6 @@
                   </button>
                 </div>
                 <div class="kor-preview-bar">
-                  <span class="kor-preview-label">{{ $t('settings.primaryColorPreview') }} · {{ s.themeCustomColor }}</span>
                   <span v-for="(c, i) in pendingColorScale" :key="i" class="kor-preview-chip" :style="{ background: c }" />
                 </div>
               </div>
@@ -1506,7 +1505,6 @@
 
           <div class="theme-preview-bar">
             <div class="preview-chip" v-for="(c, i) in pendingColorScale" :key="i" :style="{ background: c }"></div>
-            <span class="preview-label">{{ $t('settings.primaryColorPreview') }} · {{ s.themeCustomColor }}</span>
           </div>
         </div>
       </div>
