@@ -3,8 +3,8 @@
     <div v-if="isKoring" class="vd-kor-head">
       <KorPageHeader :title="$t('version.detail')" />
     </div>
-    <!-- 顶部导航栏 -->
-    <div class="vd-header">
+    <!-- 顶部导航栏（Koring 下用页头，不要返回按钮） -->
+    <div v-if="!isKoring" class="vd-header">
       <button class="back-btn" @click="goBack">
         <svg
           width="20"
@@ -17,7 +17,7 @@
           <polyline points="15 18 9 12 15 6" />
         </svg>
       </button>
-      <h1 v-if="!isKoring" class="vd-title">{{ $t('version.detail') }}</h1>
+      <h1 class="vd-title">{{ $t('version.detail') }}</h1>
     </div>
     <template v-if="!isKoring">
 
