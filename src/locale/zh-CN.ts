@@ -1526,7 +1526,8 @@ export default {
       authService: '安全识别服务',
       service: '服务与反馈',
       sponsor: '赞助我们',
-      developer: '开发者选项'
+      developer: '开发者选项',
+      other: '其他'
     },
     accessibilityScreenReader: '屏幕阅读器模式',
     accessibilityScreenReaderDesc: '增强屏幕阅读器兼容性，优化焦点导航',

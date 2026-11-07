@@ -1531,7 +1531,8 @@ export default {
       authService: 'Auth Service',
       service: 'Service & Feedback',
       sponsor: 'Sponsor Us',
-      developer: 'Developer Options'
+      developer: 'Developer Options',
+      other: 'Other'
     },
     accessibilityScreenReader: 'Screen Reader',
     accessibilityScreenReaderDesc: 'Enhance screen reader compatibility and focus navigation',
