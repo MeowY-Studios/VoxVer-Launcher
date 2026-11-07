@@ -13,7 +13,7 @@
     </KorPageShell>
 
     <!-- ====== 原版游戏视图 ====== -->
-    <template v-if="activeCategory === 'vanilla'">
+    <template v-if="activeCategory === 'vanilla' && !isKoring">
       <!-- 顶部提示 -->
       <div class="dl-header">
         <div class="dl-header-icon">
@@ -476,9 +476,89 @@
         <button class="btn-loadmore" @click="loadMoreVersions">{{ $t('download.loadMoreVersions') }}</button>
       </div>
     </template>
+    <!-- ====== 原版游戏视图（Koring） ====== -->
+    <template v-else-if="activeCategory === 'vanilla'">
+      <div class="kor-c12">
+        <KorSettingCard>
+          <KorSettingRow :label="$t('download.vanilla')" :desc="$t('download.vanillaSubtitle')">
+            <KorButton size="sm" variant="ghost" @click="refreshVersions">{{
+              $t('download.refresh')
+            }}</KorButton>
+          </KorSettingRow>
+          <KorSettingRow :label="$t('download.searchVersion')">
+            <KorInput
+              v-model="verSearch"
+              :placeholder="$t('download.searchVersion')"
+              class="kor-input--wide"
+            />
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <template v-if="latestRelease || latestSnapshot">
+          <KorSectionTitle>{{ $t('download.latestVersion') }}</KorSectionTitle>
+          <KorSettingCard>
+            <KorSettingRow
+              v-if="latestRelease"
+              :label="latestRelease.name"
+              :desc="latestRelease.desc"
+            >
+              <KorButton size="sm" @click="goToDetail(latestRelease)">{{
+                $t('download.release')
+              }}</KorButton>
+            </KorSettingRow>
+            <KorSettingRow
+              v-if="latestSnapshot"
+              :label="latestSnapshot.name"
+              :desc="latestSnapshot.desc"
+            >
+              <KorButton size="sm" @click="goToDetail(latestSnapshot)">{{
+                $t('download.snapshot')
+              }}</KorButton>
+            </KorSettingRow>
+          </KorSettingCard>
+        </template>
+
+        <div class="kor-c12__groups">
+          <div v-for="group in korVersionGroups" :key="group.key" class="kor-c12__group">
+            <button type="button" class="kor-c12__group-head" @click="group.toggle()">
+              <span class="kor-c12__group-title">{{ group.label }}</span>
+              <span class="kor-c12__group-count">{{ group.total }}</span>
+              <span class="kor-c12__chevron" :class="{ 'is-open': group.open }">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </span>
+            </button>
+            <div v-show="group.open" class="kor-c12__group-body">
+              <button
+                v-for="ver in filteredBySearch(group.list)"
+                :key="group.key + '-' + ver.id"
+                type="button"
+                class="kor-c12__ver"
+                @click="goToDetail(ver)"
+              >
+                <span class="kor-c12__ver-head">
+                  <span class="kor-c12__ver-name">{{ ver.name }}</span>
+                  <span class="kor-c12__ver-tag">{{ group.tag }}</span>
+                  <span class="kor-c12__ver-date">{{ ver.date }}</span>
+                </span>
+                <span class="kor-c12__ver-desc">{{ ver.desc }}</span>
+              </button>
+              <p v-if="filteredBySearch(group.list).length === 0" class="kor-c12__empty">
+                {{ isLoadingVersions ? $t('download.loading') : $t('download.noResults') }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="hasMoreVersions" class="kor-c12__more">
+          <KorButton size="sm" @click="loadMoreVersions">{{ $t('download.loadMoreVersions') }}</KorButton>
+        </div>
+      </div>
+    </template>
 
     <!-- ====== 社区资源视图（Mod/整合包/数据包/资源包/光影包） ====== -->
-    <template v-else>
+    <template v-else-if="!isKoring">
       <!-- 筛选表单 -->
       <section class="filter-section vox-card">
         <h3 class="fs-title">{{ $t('download.search') }}{{ categoryLabel }}</h3>
@@ -706,6 +786,113 @@
         <button class="btn-retry" @click="doSearch">{{ $t('common.retry') }}</button>
       </div>
     </template>
+    <!-- ====== 社区资源视图（Koring） ====== -->
+    <template v-else>
+      <div class="kor-c12">
+        <KorSettingCard>
+          <KorSettingRow :label="$t('download.name')">
+            <KorInput
+              v-model="searchName"
+              :placeholder="$t('download.enterKeyword')"
+              class="kor-input--wide"
+              @keydown.enter="doSearch"
+            />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('download.source')">
+            <KorSettingSelect v-model="sourceModel" :options="sourceOptions" />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('download.version')">
+            <KorInput
+              v-model="searchVersion"
+              :placeholder="$t('download.versionPlaceholder')"
+              class="kor-input--short"
+            />
+          </KorSettingRow>
+          <KorSettingRow
+            v-if="
+              activeCategory === 'mod' ||
+              activeCategory === 'shader' ||
+              activeCategory === 'resourcepack' ||
+              activeCategory === 'datapack'
+            "
+            :label="$t('download.type')"
+          >
+            <KorSettingSelect v-model="searchType" :options="typeOptions" />
+          </KorSettingRow>
+          <KorSettingRow v-if="activeCategory === 'mod' && searchVersion" :label="$t('download.loader')">
+            <KorSettingSelect v-model="searchLoader" :options="loaderOptions" />
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <div class="kor-c12__actions">
+          <KorButton size="sm" variant="primary" @click="doSearch">{{ $t('download.search') }}</KorButton>
+          <KorButton size="sm" @click="resetSearch">{{ $t('download.resetFilters') }}</KorButton>
+          <KorButton v-if="activeCategory === 'modpack'" size="sm">{{
+            $t('download.installExistingModpack')
+          }}</KorButton>
+        </div>
+
+        <p v-if="isLoading && !paginatedResources.length" class="kor-c12__hint">
+          {{ $t('download.loading') }} {{ categoryLabel }} {{ $t('download.list') }} ·
+          {{ loadProgress }}%
+        </p>
+        <p v-else-if="isLoading" class="kor-c12__hint">{{ $t('download.loading') }}…</p>
+        <p v-else-if="dlStore.searching && paginatedResources.length" class="kor-c12__hint">
+          {{ $t('download.loadingMore') }}
+        </p>
+
+        <KorSettingCard v-if="paginatedResources.length" flush>
+          <button
+            v-for="r in paginatedResources"
+            :key="r.id + '-' + r.source"
+            type="button"
+            class="kor-c12__res"
+            @click="handleCardClick(r)"
+          >
+            <span class="kor-c12__res-icon" :style="!r.icon ? { background: r.color } : undefined">
+              <img v-if="r.icon" :src="r.icon" :alt="r.name" />
+              <template v-else>{{ r.name[0] }}</template>
+            </span>
+            <span class="kor-c12__res-body">
+              <span class="kor-c12__res-name">{{ r.name }}</span>
+              <span class="kor-c12__res-tags">
+                <span v-for="tag in (r.tags || []).slice(0, 4)" :key="tag" class="kor-c12__tag">{{
+                  tag
+                }}</span>
+              </span>
+              <span class="kor-c12__res-desc">{{ r.desc }}</span>
+              <span class="kor-c12__res-meta">
+                <span v-if="r.loaders && r.loaders.length">{{ r.loaders.join(' / ') }}</span>
+                <span>{{ r.downloads }}</span>
+                <span v-if="r.time">{{ r.time }}</span>
+                <span>{{ r.source }}</span>
+              </span>
+            </span>
+          </button>
+        </KorSettingCard>
+
+        <KorSettingCard v-else-if="!isLoading">
+          <KorEmpty :title="$t('download.noResults')" :desc="$t('download.enterKeyword')" />
+        </KorSettingCard>
+
+        <div v-if="totalPages > 1" class="kor-c12__pager">
+          <KorButton size="sm" :disabled="currentPage <= 1" @click="goPage(1)">«</KorButton>
+          <KorButton size="sm" :disabled="currentPage <= 1" @click="goPage(currentPage - 1)">‹</KorButton>
+          <span class="kor-c12__pager-current">{{ currentPage }}</span>
+          <KorButton
+            size="sm"
+            :disabled="currentPage >= totalPages && !dlStore.hasMore"
+            @click="goPage(currentPage + 1)"
+            >›</KorButton
+          >
+        </div>
+
+        <p v-if="dlStore.searchError && !isLoading" class="kor-c12__error">
+          {{ $t('download.searchError') }}: {{ dlStore.searchError }}
+          <KorButton size="sm" @click="doSearch">{{ $t('common.retry') }}</KorButton>
+        </p>
+      </div>
+    </template>
 
     <!-- 回到顶部 -->
     <button v-show="showBackToTop" class="btn-back-to-top" @click="scrollToTop" :title="$t('download.backToTop')">
@@ -735,7 +922,16 @@ import type { GameInstance } from '../types/instance'
 import { isFeaturedVersion, getVersionDesc, getVersionTypeColor } from '../config/version.config'
 import type { VersionInfo } from '../types/versions'
 import PxSelect from '../components/common/PxSelect.vue'
-import { KorPageShell } from '../components/kor'
+import {
+  KorButton,
+  KorEmpty,
+  KorInput,
+  KorPageShell,
+  KorSectionTitle,
+  KorSettingCard,
+  KorSettingRow,
+  KorSettingSelect
+} from '../components/kor'
 import { communityCategories, downloadCategories } from '../config/download-nav'
 import type { KorShellGroup } from '../components/kor/shell/types'
 import { useAppStore } from '../stores'
@@ -917,6 +1113,53 @@ const hasMoreReleases = computed(
   () => allVersions.value.filter((v) => v.type === 'release').length > displayedCount.value
 )
 
+/** Koring 版本分组（复用经典折叠面板的状态与数据） */
+const korVersionGroups = computed(() => [
+  {
+    key: 'release',
+    label: t('download.release'),
+    tag: t('download.release'),
+    list: releaseVersions.value,
+    total: allVersions.value.filter((v) => v.type === 'release').length,
+    open: accOpen.release,
+    toggle: () => {
+      accOpen.release = !accOpen.release
+    }
+  },
+  {
+    key: 'snapshot',
+    label: t('download.snapshotVersion'),
+    tag: t('download.snapshot'),
+    list: snapshotVersions.value,
+    total: allVersions.value.filter((v) => v.type === 'snapshot').length,
+    open: accOpen.snapshot,
+    toggle: () => {
+      accOpen.snapshot = !accOpen.snapshot
+    }
+  },
+  {
+    key: 'old',
+    label: t('download.oldVersion'),
+    tag: t('download.oldVersion'),
+    list: oldVersions.value,
+    total: allVersions.value.filter((v) => v.type === 'old').length,
+    open: accOpen.old,
+    toggle: () => {
+      accOpen.old = !accOpen.old
+    }
+  },
+  {
+    key: 'april',
+    label: t('download.aprilVersion'),
+    tag: t('download.aprilVersion'),
+    list: aprilVersions.value,
+    total: aprilVersions.value.length,
+    open: accOpen.april,
+    toggle: () => {
+      accOpen.april = !accOpen.april
+    }
+  }
+])
 function loadMoreVersions() {
   if (!hasMoreReleases.value) return
   displayedCount.value += PAGE_SIZE
