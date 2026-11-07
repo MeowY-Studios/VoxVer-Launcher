@@ -963,9 +963,8 @@
           </svg>
           {{ $t('settings.sidebar.advanced') }}
         </h3>
+        <p class="sec-desc" style="margin:8px 0 0">{{ $t('settings.advancedSection.desc') }}</p>
       </section>
-      <div style="height:4px"></div>
-      <p class="sec-desc" style="margin:0 0 12px">{{ $t('settings.advancedSection.desc') }}</p>
       <!-- 启动行为 -->
       <section class="sec">
         <h3 class="sec-title">
