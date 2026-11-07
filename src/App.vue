@@ -19,7 +19,22 @@
     <!-- 深蓝标题栏 -->
     <header class="titlebar">
       <!-- 品牌 -->
+      <img class="brand-mark" src="/brand/mark-256.png" alt="" aria-hidden="true" />
       <span class="brand">VoxVer</span>
+
+      <!-- 上导航栏（原左侧图标栏） -->
+      <nav class="top-nav">
+        <button
+          v-for="tab in tabs"
+          :key="tab.path"
+          class="top-nav-item"
+          :class="{ active: currentRoute === tab.path }"
+          @click="$router.push(tab.path)"
+        >
+          <span class="top-nav-icon" v-html="tab.svg"></span>
+          <span class="top-nav-label">{{ $t(tab.labelKey) }}</span>
+        </button>
+      </nav>
 
       <!-- 窗口控制 — macOS: 关闭/最小化/最大化（从左到右），Windows: 最小化/最大化/关闭 -->
       <div class="wc" v-if="isElectron">
@@ -67,23 +82,8 @@
       <!-- 背景图层（覆盖侧边栏 + 主内容区） -->
       <div class="app-body-bg" :style="bgStyle"></div>
       <div v-if="bgOverlayVisible" class="app-body-overlay" :style="overlayStyle"></div>
-      <!-- 左侧边栏 -->
+      <!-- 左侧边栏（各页面上文内容；主导航已移到标题栏上导航） -->
       <aside class="sidebar">
-        <!-- 主导航（左侧图标栏） -->
-        <nav class="sidebar-main-nav">
-          <button
-            v-for="tab in tabs"
-            :key="tab.path"
-            class="nav-icon"
-            :class="{ active: currentRoute === tab.path }"
-            @click="$router.push(tab.path)"
-            :title="$t(tab.labelKey)"
-          >
-            <span v-html="tab.svg"></span>
-            <span class="nav-icon-label">{{ $t(tab.labelKey) }}</span>
-          </button>
-        </nav>
-
         <!-- 侧边栏内容区 -->
         <div class="sidebar-content">
         <!-- ========== 首页侧栏：账户 + 启动（PCL2 风格）========== -->
