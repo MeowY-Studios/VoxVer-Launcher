@@ -1668,37 +1668,6 @@
           </div>
         </div>
 
-        <!-- 功能隐藏 -->
-        <div class="memory-alloc-card" style="margin-top: 12px">
-          <div style="margin-bottom: 10px">
-            <div class="debug-mode-label">{{ $t('settings.features') }}</div>
-            <div class="debug-mode-desc">{{ $t('settings.featuresDesc') }}</div>
-          </div>
-          <div class="feature-hide-table">
-            <template v-for="row in featureRows" :key="row.labelKey">
-              <span class="fh-row-label">{{ $t(row.labelKey) }}</span>
-              <template v-for="feat in row.items" :key="feat.key">
-                <label class="fh-cell" :class="{ hidden: feat.hidden, disabled: feat.disabled }">
-                  <input type="checkbox" v-model="feat.hidden" :disabled="feat.disabled" />
-                  <span class="feat-name">{{ $t(feat.nameKey) }}</span>
-                </label>
-              </template>
-              <span
-                v-for="i in 4 - row.items.length"
-                :key="'pad-' + i + row.labelKey"
-                class="fh-cell fh-pad"
-              />
-            </template>
-          </div>
-          <div class="warn-bar warn-orange" style="margin-top: 12px">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            {{ $t('settings.featuresWarning') }}
-          </div>
-        </div>
       </section>
     </template>
 
@@ -3956,72 +3925,6 @@ const colorPresets = computed(() => [
   { name: t('settings.colorPresets.violet'), value: '#8b5cf6' }
 ])
 
-const featureRows = reactive([
-  {
-    labelKey: 'settings.featureHide.mainPage',
-    items: [
-      { key: 'hideDownload', nameKey: 'settings.featureHide.download', hidden: false, disabled: false },
-      { key: 'hideOnline1', nameKey: 'settings.featureHide.online', hidden: true, disabled: true },
-      { key: 'hideSettings', nameKey: 'settings.featureHide.settings', hidden: false, disabled: false },
-      { key: 'hideMore', nameKey: 'settings.featureHide.more', hidden: false, disabled: false }
-    ]
-  },
-  {
-    labelKey: 'settings.featureHide.settingsSub',
-    items: [
-      { key: 'hideLaunch', nameKey: 'settings.featureHide.launch', hidden: false, disabled: false },
-      { key: 'hideOnline2', nameKey: 'settings.featureHide.online', hidden: true, disabled: true },
-      { key: 'hidePersonalize', nameKey: 'settings.featureHide.personalize', hidden: false, disabled: false },
-      { key: 'hideOther', nameKey: 'settings.featureHide.other', hidden: false, disabled: false }
-    ]
-  },
-  {
-    labelKey: 'settings.featureHide.moreSub',
-    items: [
-      { key: 'hideHelp', nameKey: 'settings.featureHide.help', hidden: false, disabled: false },
-      { key: 'hideAbout', nameKey: 'settings.featureHide.aboutCredits', hidden: false, disabled: false },
-      { key: 'hideBaibao', nameKey: 'settings.featureHide.toolbox', hidden: false, disabled: false },
-      { key: 'hideFeedback', nameKey: 'settings.featureHide.feedback', hidden: false, disabled: false }
-    ]
-  },
-  {
-    labelKey: 'settings.featureHide.specificFeatures',
-    items: [
-      { key: 'hideEmailHide', nameKey: 'settings.featureHide.emailHide', hidden: false, disabled: false },
-      { key: 'hideVersionMgr', nameKey: 'settings.featureHide.versionMgr', hidden: false, disabled: false },
-      { key: 'hideModUpdate', nameKey: 'settings.featureHide.modUpdate', hidden: false, disabled: false },
-      { key: 'hideFeatureHide', nameKey: 'settings.featureHide.featureHide', hidden: false, disabled: false }
-    ]
-  }
-])
-
-// ====== featureRows 功能隐藏持久化（放在 featureRows 声明之后，避免声明前引用） ======
-interface FeatureHideState { [key: string]: { hidden: boolean; disabled: boolean } }
-function loadFeatureHide() {
-  try {
-    const raw = localStorage.getItem('voxver_featureHide')
-    if (!raw) return
-    const saved: FeatureHideState = JSON.parse(raw)
-    featureRows.forEach((row) => {
-      row.items.forEach((item) => {
-        if (saved[item.key] && !item.disabled) {
-          item.hidden = saved[item.key].hidden
-        }
-      })
-    })
-  } catch { /* ignore parse errors */ }
-}
-function saveFeatureHide() {
-  const state: FeatureHideState = {}
-  featureRows.forEach((row) => {
-    row.items.forEach((item) => {
-      state[item.key] = { hidden: item.hidden, disabled: item.disabled }
-    })
-  })
-  localStorage.setItem('voxver_featureHide', JSON.stringify(state))
-}
-watch(featureRows, saveFeatureHide, { deep: true })
-loadFeatureHide()
 
 async function browseJava() {
   const path = await window.electronAPI?.dialog.selectFile({
