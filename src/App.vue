@@ -86,7 +86,7 @@
     </header>
 
     <!-- 主体区域 -->
-    <div class="app-body">
+    <div class="app-body" :class="{ 'is-kor-home': appStore.skin === 'koring' && currentRoute === '/' }">
       <!-- 背景图层（覆盖侧边栏 + 主内容区） -->
       <div class="app-body-bg" :style="bgStyle"></div>
       <div v-if="bgOverlayVisible" class="app-body-overlay" :style="overlayStyle"></div>
@@ -602,7 +602,7 @@ const platform = ref<'windows' | 'macos' | 'linux' | 'unknown'>('unknown')
 const appStore = useAppStore()
 /** Koring 皮肤在下载页使用页面内导航，隐藏全局侧栏与侧栏分类 */
 const isKorOwnNav = computed(
-  () => appStore.skin === 'koring' && ['/settings', '/downloads', '/download/manage'].includes(currentRoute.value)
+  () => appStore.skin === 'koring' && ['/settings', '/downloads', '/download/manage', '/'].includes(currentRoute.value)
 )
 const isKorDownloads = computed(
   () => appStore.skin === 'koring' && currentRoute.value === '/downloads'

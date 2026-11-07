@@ -172,88 +172,151 @@
   border: 3px solid transparent;
   background-clip: padding-box;
 }
-/* ========== 首页（Koring 排版） ========== */
+/* ========== 首页（Koring 排版：满屏主色 + 大圆环） ========== */
 [data-skin='koring'] .kor-home {
   position: relative;
   height: 100%;
   overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 78% 8%, rgba(255, 255, 255, 0.16), transparent 60%),
+    linear-gradient(158deg, color-mix(in oklab, var(--voxver-primary) 82%, #0a1b3a) 0%, color-mix(in oklab, var(--voxver-primary) 46%, #061024) 62%, #050b16 100%);
 }
 
+/* 背景大圆环：两层柔和半透明白 */
+[data-skin='koring'] .kor-home__bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+[data-skin='koring'] .kor-home__ring {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, transparent 56%, rgba(255, 255, 255, 0.30) 63%, rgba(255, 255, 255, 0.08) 100%);
+  filter: blur(13px);
+}
+
+[data-skin='koring'] .kor-home__ring--outer {
+  width: min(118vh, 118%);
+  aspect-ratio: 1;
+  opacity: 0.72;
+}
+
+[data-skin='koring'] .kor-home__ring--inner {
+  width: min(66vh, 66%);
+  aspect-ratio: 1;
+  opacity: 0.52;
+  filter: blur(22px);
+}
+
+/* 左上账户卡 */
 [data-skin='koring'] .kor-home__account {
   position: absolute;
-  left: 24px;
-  top: 24px;
+  left: 22px;
+  top: 20px;
   z-index: 5;
-}
-
-[data-skin='koring'] .kor-account {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 14px 8px 8px;
+  gap: 12px;
+  max-width: 320px;
+  padding: 10px 16px 10px 10px;
+  border: 0;
   border-radius: 14px;
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  max-width: 280px;
+  background: transparent;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: background 160ms ease;
 }
 
-[data-skin='koring'] .kor-account__avatar {
+[data-skin='koring'] .kor-home__account:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-skin='koring'] .kor-home__avatar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  background: color-mix(in oklab, var(--voxver-primary) 78%, #000);
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
   color: #fff;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
 }
 
-[data-skin='koring'] .kor-account__name {
-  display: block;
-  font-size: 13px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.92);
+[data-skin='koring'] .kor-home__account-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+[data-skin='koring'] .kor-home__account-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+[data-skin='koring'] .kor-home__account-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+[data-skin='koring'] .kor-home__chev {
+  flex: 0 0 auto;
+  margin-left: 6px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* 左下大标题 */
 [data-skin='koring'] .kor-home__bottom {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: 22px;
+  right: 22px;
+  bottom: 22px;
+  z-index: 4;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 12px;
-  padding: 0 24px 24px;
-  transition: transform 320ms var(--voxver-ease-out-quart, cubic-bezier(0.22, 1, 0.36, 1));
-  transform: translateY(56px);
-}
-
-[data-skin='koring'] .kor-home:hover .kor-home__bottom {
-  transform: translateY(0);
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
 }
 
 [data-skin='koring'] .kor-home__title {
-  font-size: 44px;
-  line-height: 1.05;
+  font-size: 56px;
+  line-height: 1.02;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: #fff;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
-  cursor: default;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
 }
 
-[data-skin='koring'] .kor-home__actions {
-  display: flex;
-  gap: 10px;
+[data-skin='koring'] .kor-home__hint {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.62);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 200ms ease, transform 200ms ease;
 }
 
+[data-skin='koring'] .kor-home__bottom:hover .kor-home__hint {
+  opacity: 1;
+  transform: translateY(0);
+}
 [data-skin='koring'] .kor-pill {
   display: inline-flex;
   align-items: center;
@@ -1326,4 +1389,8 @@
 
 [data-skin='koring'] .mod-detail-page .sidebar-actions .btn-ext:not(.primary):hover {
   background: rgba(255, 255, 255, 0.09) !important;
+}
+/* Koring 首页：内容区铺满，去掉全局内边距 */
+[data-skin='koring'] .app-body.is-kor-home .main-content {
+  padding: 0;
 }

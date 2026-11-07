@@ -1,27 +1,26 @@
 <template>
-  <!-- Koring 皮肤：账户在左上，标题与启动胶囊贴底（hover 浮出） -->
+  <!-- Koring 皮肤：满屏主色背景 + 大圆环，账户在左上，版本名贴底 -->
   <div v-if="appStore.skin === 'koring'" class="kor-home">
-    <div class="kor-home__account">
-      <div class="kor-account">
-        <span class="kor-account__avatar">V</span>
-        <span class="kor-account__name">{{ korTitle }}</span>
-      </div>
+    <div class="kor-home__bg" aria-hidden="true">
+      <span class="kor-home__ring kor-home__ring--outer" />
+      <span class="kor-home__ring kor-home__ring--inner" />
     </div>
 
-    <div class="kor-home__bottom">
-      <div class="kor-home__title">{{ korTitle }}</div>
-      <div class="kor-home__actions">
-        <KorButton variant="primary" size="md" pill @click="router.push('/launch')">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-          <span>{{ $t('home.koringStart') }}</span>
-        </KorButton>
-        <KorButton variant="ghost" size="md" pill @click="router.push('/downloads')">
-          {{ $t('home.koringBrowse') }}
-        </KorButton>
-      </div>
-    </div>
+    <button type="button" class="kor-home__account" @click="router.push('/account')">
+      <span class="kor-home__avatar">{{ korAccountInitial }}</span>
+      <span class="kor-home__account-text">
+        <span class="kor-home__account-name">{{ korAccountName }}</span>
+        <span class="kor-home__account-desc">{{ korAccountDesc }}</span>
+      </span>
+      <svg class="kor-home__chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <polyline points="9 6 15 12 9 18" />
+      </svg>
+    </button>
+
+    <button type="button" class="kor-home__bottom" @click="router.push('/launch')">
+      <span class="kor-home__title">{{ korTitle }}</span>
+      <span class="kor-home__hint">{{ $t('home.koringLaunchHint') }}</span>
+    </button>
   </div>
 
   <div v-else class="home-page">
@@ -93,19 +92,28 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAppStore, useInstancesStore, useVersionsStore } from '../stores'
-import { KorButton } from '../components/kor'
+import { useAppStore, useAccountsStore, useInstancesStore, useVersionsStore } from '../stores'
 import ReceiveModal from '../components/share/ReceiveModal.vue'
 
 const { t } = useI18n()
 
 const instancesStore = useInstancesStore()
+const accountsStore = useAccountsStore()
 const appStore = useAppStore()
 const versionsStore = useVersionsStore()
 const router = useRouter()
 
 /** Koring 首页标题：当前选中版本名，未选则提示选择版本 */
 const korTitle = computed(() => versionsStore.currentVersionId || t('home.koringPickVersion'))
+
+/** Koring 首页左上账户卡：显示当前账号名与类型 */
+const korAccountName = computed(() => accountsStore.activeAccount?.name || t('home.koringNotSignedIn'))
+const korAccountDesc = computed(() => {
+  const account = accountsStore.activeAccount
+  if (!account) return t('home.koringAccountHint')
+  return account.type === 'microsoft' ? t('home.koringMicrosoft') : t('home.koringOffline')
+})
+const korAccountInitial = computed(() => (accountsStore.activeAccount?.name || 'V').slice(0, 1).toUpperCase())
 
 const showReceiveModal = ref(false)
 const initialShareCode = ref('')
