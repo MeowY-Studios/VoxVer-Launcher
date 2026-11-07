@@ -1,6 +1,7 @@
 <template>
   <div class="versions-page">
-    <div class="page-header">
+    <KorPageHeader v-if="isKoring" :title="$t('version.manager')" />
+    <div v-else class="page-header">
       <h2>{{ $t('version.manager') }}</h2>
     </div>
 
@@ -197,8 +198,13 @@ import type { MCVersion } from '../stores/versions.store'
 import { useInstancesStore } from '../stores/instances.store'
 import { getCurrentLocale } from '../locale/i18n'
 import VirtualScroll from '../components/common/VirtualScroll.vue'
+import { KorPageHeader } from '../components/kor'
+import { useAppStore } from '../stores'
 
 const { t } = useI18n()
+
+const appStore = useAppStore()
+const isKoring = computed(() => appStore.skin === 'koring')
 
 // ===== Pinia Store（代替本地状态） =====
 const versionsStore = useVersionsStore()

@@ -1,7 +1,8 @@
 <template>
   <div class="crash-analysis-page">
     <!-- 页面标题 -->
-    <div class="page-header">
+    <KorPageHeader v-if="isKoring" :title="$t('crashAnalysis.title')" />
+    <div v-else class="page-header">
       <h2>{{ $t('crashAnalysis.title') }}</h2>
       <p class="page-desc">{{ $t('crashAnalysis.description') }}</p>
     </div>
@@ -127,12 +128,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { CrashReport } from '../types/crash'
+import { KorPageHeader } from '../components/kor'
+import { useAppStore } from '../stores'
 import { getCurrentMcPath } from '../utils/mcPath'
 
 const { t } = useI18n()
+const appStore = useAppStore()
+const isKoring = computed(() => appStore.skin === 'koring')
 
 const loading = ref(false)
 const crashList = ref<CrashReport[]>([])

@@ -1,5 +1,6 @@
 <template>
   <div class="launch-page">
+    <KorPageHeader v-if="isKoring" :title="$t('tabs.launch')" />
     <!-- 中央启动区 -->
     <div class="launch-center">
       <!-- 启动按钮 -->
@@ -206,10 +207,13 @@ import { ref, computed, onMounted, onUnmounted, inject, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { CrashReport } from '../types/crash'
-import { useVersionsStore, useAccountsStore, useInstancesStore } from '../stores'
+import { useVersionsStore, useAccountsStore, useInstancesStore, useAppStore } from '../stores'
+import { KorPageHeader } from '../components/kor'
 import { getCurrentMcPath } from '../utils/mcPath'
 
 const { t, locale } = useI18n()
+const appStore = useAppStore()
+const isKoring = computed(() => appStore.skin === 'koring')
 
 const router = useRouter()
 const settingsActive = inject<Ref<string>>('settingsActive')

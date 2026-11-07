@@ -1,6 +1,7 @@
 <template>
   <div class="account-page">
-    <div class="page-header">
+    <KorPageHeader v-if="isKoring" :title="$t('auth.accountManager')" :desc="$t('auth.tabOnline') + ' / ' + $t('auth.tabOffline')" />
+    <div v-else class="page-header">
       <h2 class="vox-sec-title">
         <svg
           width="16"
@@ -334,8 +335,13 @@ import { useAccountsStore } from '../stores/accounts.store'
 import MicrosoftLoginModal from '../components/auth/MicrosoftLoginModal.vue'
 import SkinViewer3D from '../components/auth/SkinViewer3D.vue'
 import PxModal from '../components/common/PxModal.vue'
+import { KorPageHeader } from '../components/kor'
+import { useAppStore } from '../stores'
 
 const { t } = useI18n()
+
+const appStore = useAppStore()
+const isKoring = computed(() => appStore.skin === 'koring')
 const route = useRoute()
 const accountsStore = useAccountsStore()
 
