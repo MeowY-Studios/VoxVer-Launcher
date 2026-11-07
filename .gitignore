@@ -114,3 +114,6 @@ docs/
 
 # ========== 测试运行产物（不上传）==========
 test-results/
+
+# 图标生成预览（scripts/generate-icons.js 产物）
+.icon-preview/

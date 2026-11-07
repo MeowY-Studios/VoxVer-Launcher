@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="card" x1="0.12" y1="0" x2="0.72" y2="1">
+      <stop offset="0" stop-color="#A8DCFF"/>
+      <stop offset="1" stop-color="#4C93F5"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="0.05" y1="0" x2="0.95" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/>
+      <stop offset="0.42" stop-color="#E4F6FF" stop-opacity="0.92"/>
+      <stop offset="0.78" stop-color="#A9E0FF" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#A9E0FF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.30"/>
+      <stop offset="0.62" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="spec" cx="0.28" cy="0.1" r="0.52">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="cardClip"><rect x="3" y="3" width="250" height="250" rx="58"/></clipPath>
+  </defs>
+  <g clip-path="url(#cardClip)">
+    <rect width="256" height="256" fill="url(#card)"/>
+    <rect width="256" height="256" fill="url(#spec)"/>
+    <rect width="256" height="150" fill="url(#sheen)"/>
+  </g>
+  <path d="M42 38 L99 38 L128 147 L156 38 L213 38 L131 206 L125 206 Z" fill="url(#mark)"/>
+  <rect x="3.5" y="3.5" width="249" height="249" rx="57.5" fill="none" stroke="rgba(255,255,255,0.42)"/>
+</svg>
