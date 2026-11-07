@@ -5,12 +5,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-export type ThemeMode = 'dark' | 'light' | 'auto' | 'koring'
+export type ThemeMode = 'dark' | 'light' | 'auto'
+export type ThemeSkin = 'voxver' | 'koring'
 export type Language = 'zh-CN' | 'en-US'
 
 export const useAppStore = defineStore('app', () => {
   // * ====== 状态 ======
   const theme = ref<ThemeMode>('dark')
+  const skin = ref<ThemeSkin>('voxver')
   const language = ref<Language>('zh-CN')
   const sidebarCollapsed = ref(false)
   const sidebarWidth = ref(220)
@@ -27,7 +29,7 @@ export const useAppStore = defineStore('app', () => {
 
   // * ====== 计算属性 ======
   /** 是否处于 Koring 皮肤（独立排版主题，切换需重启生效） */
-  const isKoring = computed(() => theme.value === 'koring')
+  const isKoring = computed(() => skin.value === 'koring')
 
   const isDark = computed(() => {
     const t = resolveTheme()
@@ -38,7 +40,6 @@ export const useAppStore = defineStore('app', () => {
 
   /** 解析 auto 主题为实际深浅色 */
   function resolveTheme(): 'dark' | 'light' {
-    if (theme.value === 'koring') return 'dark'
     if (theme.value === 'auto') {
       return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
     }
@@ -54,6 +55,13 @@ export const useAppStore = defineStore('app', () => {
 
   function setTheme(t: ThemeMode) {
     theme.value = t
+    applyTheme()
+  }
+
+  /** 切换界面排版预设（VoxVer 原版 / Koring），切换后需重启生效 */
+  function setSkin(next: ThemeSkin) {
+    skin.value = next
+    localStorage.setItem('voxver_skin', next)
     applyTheme()
   }
 
@@ -115,8 +123,8 @@ export const useAppStore = defineStore('app', () => {
   function applyTheme() {
     const resolved = resolveTheme()
     document.documentElement.setAttribute('data-theme', resolved)
-    // * Koring 主题：额外标记 skin，用于切换整套排版样式
-    if (theme.value === 'koring') {
+    // * 排版预设：Koring 皮肤时打上 data-skin，用于切换整套排版样式
+    if (skin.value === 'koring') {
       document.documentElement.setAttribute('data-skin', 'koring')
     } else {
       document.documentElement.removeAttribute('data-skin')
@@ -129,9 +137,19 @@ export const useAppStore = defineStore('app', () => {
   function init() {
     isElectron.value = !!window.electronAPI
     const saved = localStorage.getItem('voxver_theme') as ThemeMode | null
-    if (saved) {
+    if (saved === 'dark' || saved === 'light' || saved === 'auto') {
       theme.value = saved
-      applyTheme()
+    }
+    // * 兼容旧版本：历史上 'koring' 曾存在主题模式里，这里迁移成排版预设
+    if (localStorage.getItem('voxver_theme') === 'koring') {
+      localStorage.setItem('voxver_theme', 'dark')
+      localStorage.setItem('voxver_skin', 'koring')
+      theme.value = 'dark'
+      skin.value = 'koring'
+    }
+    const savedSkin = localStorage.getItem('voxver_skin') as ThemeSkin | null
+    if (savedSkin === 'voxver' || savedSkin === 'koring') {
+      skin.value = savedSkin
     }
     applyTheme()
 
@@ -167,6 +185,7 @@ export const useAppStore = defineStore('app', () => {
 
   return {
     theme,
+    skin,
     isKoring,
     language,
     sidebarCollapsed,
@@ -183,6 +202,7 @@ export const useAppStore = defineStore('app', () => {
     resolveTheme,
     toggleTheme,
     setTheme,
+    setSkin,
     setBgImageMode,
     setBgImagePath,
     setBgColorOverlay,

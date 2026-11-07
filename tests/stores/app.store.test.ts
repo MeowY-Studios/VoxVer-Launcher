@@ -197,16 +197,27 @@ describe('app store - 初始化', () => {
     expect(store.theme).toBe('light')
   })
 
-  it('init 应恢复 koring 主题并标记 data-skin', () => {
+  it('init 应恢复排版预设并标记 data-skin，显示模式仍独立', () => {
     const store = freshStore()
-    localStorage.setItem('voxver_theme', 'koring')
+    localStorage.setItem('voxver_theme', 'light')
+    localStorage.setItem('voxver_skin', 'koring')
     store.init()
-    expect(store.theme).toBe('koring')
+    // * 显示模式与排版预设互不影响
+    expect(store.theme).toBe('light')
+    expect(store.skin).toBe('koring')
     expect(store.isKoring).toBe(true)
-    expect(localStorage.getItem('voxver_theme')).toBe('koring')
-    // * Koring 以深色为底，并额外打上 skin 标记
-    expect(document.documentElement.getAttribute('data-theme')).toBe('dark')
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light')
     expect(document.documentElement.getAttribute('data-skin')).toBe('koring')
+  })
+
+  it('setSkin 应写回 data-skin 与 localStorage', () => {
+    const store = freshStore()
+    store.setSkin('koring')
+    expect(document.documentElement.getAttribute('data-skin')).toBe('koring')
+    expect(localStorage.getItem('voxver_skin')).toBe('koring')
+    store.setSkin('voxver')
+    expect(document.documentElement.hasAttribute('data-skin')).toBe(false)
+    expect(localStorage.getItem('voxver_skin')).toBe('voxver')
   })
 
   it('init 应从 localStorage 恢复所有背景设置', () => {

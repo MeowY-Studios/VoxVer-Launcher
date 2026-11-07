@@ -1209,8 +1209,8 @@
     <!-- ========== 个性化 ========== -->
     <template v-if="activeCategory === 'personalize'">
 
-      <!-- Koring 主题：整套排版（选择 Koring 主题模式并重启后生效） -->
-      <div v-if="appStore.theme === 'koring'" class="kor-page">
+      <!-- Koring 排版：整套 Koring 风格（在「主题预设」中选择 Koring 并重启后生效） -->
+      <div v-if="appStore.skin === 'koring'" class="kor-page">
         <SettingPageHeader :title="$t('settings.themeBg')" :desc="$t('settings.themeBgDesc')" />
 
         <section class="kor-section">
@@ -1229,12 +1229,28 @@
         </section>
 
         <section class="kor-section">
-          <SettingSectionTitle>{{ $t('settings.themeColorSection') }}</SettingSectionTitle>
+          <SettingSectionTitle>{{ $t('settings.skinSection') }}</SettingSectionTitle>
+          <SettingCard flush>
+            <div class="kor-theme-row">
+              <SkinPresetCard
+                v-for="opt in layoutOptions"
+                :key="opt.value"
+                :skin="opt.value"
+                :selected="appStore.skin === opt.value"
+                @select="onSelectSkin(opt.value)"
+              />
+            </div>
+          </SettingCard>
+        </section>
+
+        <section class="kor-section">
+          <SettingSectionTitle>{{ $t('settings.customThemeColor') }}</SettingSectionTitle>
           <div class="kor-cards">
             <SettingCard>
               <div class="kor-row">
                 <div class="kor-row-main">
                   <div class="kor-row-label">{{ $t('settings.themePresets') }}</div>
+                  <div class="kor-row-desc">{{ $t('settings.themePresetsDesc') }}</div>
                 </div>
               </div>
               <div class="kor-swatch-group" style="margin-top: 12px">
@@ -1243,9 +1259,19 @@
                   :key="p.id"
                   type="button"
                   class="kor-swatch"
+                  :class="{ 'is-active': s.themeColor === p.themeColor }"
                   :style="{ background: p.themeColor }"
                   :title="p.name"
                   @click="applyThemeColor(p.themeColor); s.accentColor = p.accentColor"
+                />
+              </div>
+              <div class="kor-preview-bar">
+                <span class="kor-preview-label">{{ $t('settings.primaryColorPreview') }}</span>
+                <span
+                  v-for="i in 8"
+                  :key="i"
+                  class="kor-preview-chip"
+                  :style="{ background: `var(--voxver-primary-${i}00)` }"
                 />
               </div>
             </SettingCard>
@@ -1378,10 +1404,31 @@
           </div>
         </div>
 
-        <!-- 主题预设画廊 -->
-        <div v-if="themePresets.length > 0" style="margin-top:14px">
-          <label class="row-label" style="margin-bottom:6px;display:block">{{ $t('settings.themePresets') }}</label>
-          <div class="preset-gallery">
+        <!-- 主题预设（排版） -->
+        <div style="margin-top: 14px">
+          <label class="row-label" style="margin-bottom:6px;display:block">{{ $t('settings.skinSection') }}</label>
+          <p class="row-desc" style="margin-bottom:10px">{{ $t('settings.skinSectionDesc') }}</p>
+          <div class="kor-theme-row">
+            <SkinPresetCard
+              v-for="opt in layoutOptions"
+              :key="opt.value"
+              :skin="opt.value"
+              :selected="appStore.skin === opt.value"
+              @select="onSelectSkin(opt.value)"
+            />
+          </div>
+        </div>
+
+        <!-- 自定义主题颜色 -->
+        <div class="theme-custom-card" style="margin-top:16px">
+          <div class="mem-custom-row" style="align-items:flex-start">
+            <div class="row-main">
+              <label class="row-label">{{ $t('settings.customThemeColor') }}</label>
+              <p class="row-desc">{{ $t('settings.themePresetsDesc') }}</p>
+            </div>
+          </div>
+
+          <div class="preset-gallery" style="margin-top:12px">
             <button
               v-for="p in themePresets"
               :key="p.id"
@@ -1392,6 +1439,46 @@
               <span class="preset-swatch" :style="{ background: p.themeColor }"></span>
               <span class="preset-name">{{ p.name }}</span>
             </button>
+          </div>
+
+          <div class="quick-color-palette" style="margin-top:12px">
+            <button
+              v-for="c in quickColorPresets"
+              :key="c"
+              class="quick-swatch"
+              :class="{ active: s.themeCustomColor.toUpperCase() === c.toUpperCase() }"
+              :style="{ background: c }"
+              @click="s.themeCustomColor = c; previewThemeColor(c)"
+              :title="c"
+            />
+          </div>
+
+          <div class="mem-custom-row" style="margin-top:12px;align-items:center">
+            <div class="input-group compact" style="align-items:center;gap:8px">
+              <div class="color-swatch" :style="{ background: s.themeCustomColor }">
+                <input
+                  type="color"
+                  v-model="s.themeCustomColor"
+                  @input="previewThemeColor(s.themeCustomColor)"
+                  class="color-picker-input"
+                />
+              </div>
+              <input
+                type="text"
+                class="inp"
+                v-model="s.themeCustomColor"
+                style="width:80px;font-family:var(--voxver-font-mono)"
+                @change="previewThemeColor(s.themeCustomColor)"
+              />
+              <button class="btn-sm vox-btn--primary" @click="applyCustomThemeColor(s.themeCustomColor)">
+                {{ $t('settings.apply') }}
+              </button>
+            </div>
+          </div>
+
+          <div class="theme-preview-bar">
+            <div class="preview-chip" v-for="i in 8" :key="i" :style="{ background: `var(--voxver-primary-${i}00)` }"></div>
+            <span class="preview-label">{{ $t('settings.primaryColorPreview') }} · {{ s.themeCustomColor }}</span>
           </div>
         </div>
 
@@ -3160,7 +3247,7 @@ import { reactive, inject, computed, onMounted, onUnmounted, watch, ref, type Re
 import { useRouter, useRoute } from 'vue-router'
 import { setLocale } from '../locale/i18n'
 import { useI18n } from 'vue-i18n'
-import { useAppStore } from '../stores/app.store'
+import { useAppStore, type ThemeMode, type ThemeSkin } from '../stores/app.store'
 import { useInstancesStore } from '../stores/instances.store'
 import AccountPage from './AccountPage.vue'
 import { useConfirm } from '@/composables/useConfirm'
@@ -3174,6 +3261,7 @@ import SettingSelect from '@/components/settings/SettingSelect.vue'
 import SettingPageHeader from '@/components/settings/SettingPageHeader.vue'
 import SettingSectionTitle from '@/components/settings/SettingSectionTitle.vue'
 import ThemeModeCard from '@/components/settings/ThemeModeCard.vue'
+import SkinPresetCard from '@/components/settings/SkinPresetCard.vue'
 import { renderMarkdownSafe } from '../utils/markdown'
 
 const pageRef = ref<HTMLElement | null>(null)
@@ -3191,8 +3279,13 @@ const faqItems = computed(() => (tm('more.faq') as Array<{ q: string; a: string 
 const themePreviewOptions = computed(() => [
   { value: 'light' as const, label: t('settings.themeLight') },
   { value: 'auto' as const, label: t('settings.themeAuto') },
-  { value: 'dark' as const, label: t('settings.themeDark') },
-  { value: 'koring' as const, label: t('settings.themeKoring') }
+  { value: 'dark' as const, label: t('settings.themeDark') }
+])
+
+/** 排版预设：VoxVer 原版 / Koring（与显示模式相互独立） */
+const layoutOptions = computed(() => [
+  { value: 'voxver' as const, label: t('settings.skinVoxver') },
+  { value: 'koring' as const, label: t('settings.skinKoring') }
 ])
 
 const settingsActive = inject<Ref<string>>('settingsActive')
@@ -4561,24 +4654,24 @@ function previewThemeColor(hex: string) {
 }
 
 
-/** 切换主题模式：进出 Koring 皮肤需要重启以应用整套排版 */
-async function onSelectThemeMode(mode: ThemeMode) {
+/** 切换显示模式：仅切换界面明暗，不涉及排版 */
+function onSelectThemeMode(mode: ThemeMode) {
   if (appStore.theme === mode) return
-  const previous = appStore.theme
-  const needsRestart = mode === 'koring' || previous === 'koring'
   appStore.setTheme(mode)
-  if (!needsRestart) return
+}
+
+/** 切换排版预设：进入/离开 Koring 需要重启以应用整套排版 */
+async function onSelectSkin(next: ThemeSkin) {
+  if (appStore.skin === next) return
   const ok = await pxConfirm({
-    title: 'Koring',
+    title: t('settings.skinSection'),
     message: t('settings.koringRestartConfirm'),
     type: 'warning',
     confirmText: t('common.confirm'),
     cancelText: t('common.cancel')
   })
-  if (!ok) {
-    appStore.setTheme(previous)
-    return
-  }
+  if (!ok) return
+  appStore.setSkin(next)
   window.electronAPI?.app?.relaunch?.()
 }
 
