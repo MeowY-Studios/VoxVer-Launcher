@@ -1,8 +1,9 @@
 <template>
   <div class="dm-page">
+    <KorPageHeader v-if="isKoring" :title="$t('download.downloadManager')" />
     <!-- 顶部导航 -->
     <div class="dm-header">
-      <h1 class="dm-title">{{ $t('download.downloadManager') }}</h1>
+      <h1 v-if="!isKoring" class="dm-title">{{ $t('download.downloadManager') }}</h1>
       <div class="header-actions">
         <button v-if="completedCount > 0" class="btn-clear vox-btn vox-btn--destructive" @click="clearCompleted">
           <svg
@@ -288,9 +289,13 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDownloadStore, type UnifiedTask } from '../stores/download.store'
+import { useAppStore } from '../stores'
+import { KorPageHeader } from '../components/kor'
 
 const router = useRouter()
 const { t } = useI18n()
+const appStore = useAppStore()
+const isKoring = computed(() => appStore.skin === 'koring')
 const downloadStore = useDownloadStore()
 
 const searchQuery = ref('')
