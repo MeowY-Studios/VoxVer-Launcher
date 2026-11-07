@@ -81,6 +81,9 @@
         height: 38px;
         background: linear-gradient(180deg, var(--ground-hi) 0%, var(--ground-lo) 100%);
         border-top: 1px solid rgba(126, 168, 92, 0.45);
+        /* 出场顺序①：先出底（地面从下往上长出来） */
+        transform-origin: bottom;
+        animation: ground-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.12s both;
       }
 
       /* 交界处的像素草叶 */
@@ -133,14 +136,13 @@
       }
 
       /* ---------- 品牌组合：图标 + 文字同一行，垂直居中 ---------- */
+      /* 固定总宽 182px（图标 56 + 间距 14 + 文字槽 112），左右位置不随动画变化 */
       .lockup {
         position: absolute;
-        left: 0;
-        right: 0;
+        left: 129px;
         top: 74px;
         display: flex;
         align-items: center;
-        justify-content: center;
         gap: 14px;
         pointer-events: none;
       }
@@ -156,7 +158,8 @@
       .block-wrap {
         position: absolute;
         inset: 0;
-        animation: block-drop 0.68s cubic-bezier(0.45, 0, 0.9, 0.5) both;
+        /* 出场顺序②：地面就位后图标落下 */
+        animation: block-drop 0.68s cubic-bezier(0.45, 0, 0.9, 0.5) 0.3s both;
       }
 
       .block {
@@ -164,7 +167,7 @@
         height: 56px;
         display: block;
         filter: drop-shadow(0 7px 10px rgba(48, 96, 156, 0.3));
-        animation: block-squash 0.42s cubic-bezier(0.3, 1.6, 0.5, 1) 0.68s both;
+        animation: block-squash 0.42s cubic-bezier(0.3, 1.6, 0.5, 1) 0.8s both;
       }
 
       /* 落地阴影 */
@@ -178,7 +181,7 @@
         border-radius: 50%;
         background: radial-gradient(ellipse, rgba(74, 92, 48, 0.28) 0%, rgba(74, 92, 48, 0) 72%);
         opacity: 0;
-        animation: shadow-in 0.68s cubic-bezier(0.45, 0, 0.9, 0.5) both;
+        animation: shadow-in 0.68s cubic-bezier(0.45, 0, 0.9, 0.5) 0.3s both;
       }
 
       /* 落地时的一圈浅色扬尘 */
@@ -192,7 +195,7 @@
         border: 2px solid rgba(122, 180, 236, 0.6);
         border-radius: 50%;
         opacity: 0;
-        animation: ring-out 0.62s cubic-bezier(0.2, 0.6, 0.3, 1) 0.66s forwards;
+        animation: ring-out 0.62s cubic-bezier(0.2, 0.6, 0.3, 1) 0.8s forwards;
       }
 
       /* 像素尘埃（被溅起的浅蓝碎光） */
@@ -204,15 +207,25 @@
         height: 4px;
         background: rgba(160, 208, 248, 0.95);
         opacity: 0;
-        animation: dust-fly 0.52s ease-out 0.66s forwards;
+        animation: dust-fly 0.52s ease-out 0.8s forwards;
       }
 
-      /* ---------- 品牌文字（与图标同排，垂直居中） ---------- */
+      /* ---------- 品牌文字（从图标里向右冒出来） ---------- */
       .wordmark {
+        position: relative;
+        width: 112px;
+        height: 40px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+      }
+
+      .wordmark-inner {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         gap: 7px;
+        animation: wordmark-emerge 0.52s cubic-bezier(0.2, 0.8, 0.2, 1) 0.92s both;
       }
 
       .brand-name {
@@ -222,8 +235,6 @@
         letter-spacing: 0.14em;
         color: var(--ink);
         text-shadow: 0 2px 0 rgba(255, 255, 255, 0.85);
-        opacity: 0;
-        animation: fade-up 0.42s ease-out 0.84s both;
       }
 
       .brand-sub {
@@ -233,8 +244,6 @@
         letter-spacing: 0.42em;
         color: var(--muted);
         text-align: left;
-        opacity: 0;
-        animation: fade-up 0.42s ease-out 0.94s both;
       }
 
       /* ---------- 进度条 ---------- */
@@ -245,7 +254,7 @@
         width: 244px;
         margin-left: -122px;
         opacity: 0;
-        animation: fade-up 0.4s ease-out 0.98s both;
+        animation: fade-up 0.4s ease-out 1.5s both;
       }
 
       .bar {
@@ -265,7 +274,7 @@
         height: 100%;
         border-radius: 1px;
         background: linear-gradient(90deg, #4f9e33 0%, var(--grass) 55%, var(--grass-hi) 100%);
-        animation: bar-fill 1.55s cubic-bezier(0.25, 0.7, 0.25, 1) 1.02s both;
+        animation: bar-fill 1.2s cubic-bezier(0.25, 0.7, 0.25, 1) 1.55s both;
       }
 
       /* 进度条上的高光扫过 */
@@ -275,7 +284,7 @@
         inset: 0;
         background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.6) 50%, transparent 80%);
         transform: translateX(-100%);
-        animation: bar-shine 1.15s ease-in-out 1.15s infinite;
+        animation: bar-shine 1.15s ease-in-out 1.7s infinite;
       }
 
       /* 像素刻度 */
@@ -303,7 +312,7 @@
         letter-spacing: 0.06em;
         color: var(--muted);
         opacity: 0;
-        animation: fade-up 0.4s ease-out 1.06s both;
+        animation: fade-up 0.4s ease-out 1.6s both;
         transition: opacity 0.18s ease;
       }
 
@@ -320,7 +329,7 @@
         letter-spacing: 0.14em;
         color: #5c7a4f;
         opacity: 0;
-        animation: fade-up 0.4s ease-out 1.14s both;
+        animation: fade-up 0.4s ease-out 1.68s both;
       }
 
       /* ---------- 动画 ---------- */
@@ -350,6 +359,34 @@
         }
         to {
           margin-left: 16px;
+        }
+      }
+
+      @keyframes ground-rise {
+        from {
+          opacity: 0;
+          transform: scaleY(0.15);
+        }
+        to {
+          opacity: 1;
+          transform: scaleY(1);
+        }
+      }
+
+      /* 品牌字从图标里被「推」出来：先贴住左侧被裁掉，再向右展开 */
+      @keyframes wordmark-emerge {
+        0% {
+          opacity: 0;
+          transform: translateX(-20px);
+          clip-path: inset(0 100% 0 0);
+        }
+        35% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(0);
+          clip-path: inset(0 0 0 0);
         }
       }
 
@@ -495,8 +532,10 @@
           <div class="ring"></div>
         </div>
         <div class="wordmark">
-          <div class="brand-name">VOXVER</div>
-          <div class="brand-sub">LAUNCHER</div>
+          <div class="wordmark-inner">
+            <div class="brand-name">VOXVER</div>
+            <div class="brand-sub">LAUNCHER</div>
+          </div>
         </div>
       </div>
 
@@ -530,27 +569,31 @@
           dust.style.setProperty('--dx0', dir * (2 + i) + 'px')
           dust.style.setProperty('--dx1', dir * (14 + i * 4) + 'px')
           dust.style.setProperty('--dy1', -(10 + i * 3) + 'px')
-          dust.style.animationDelay = 0.66 + (i % 4) * 0.02 + 's'
+          dust.style.animationDelay = 0.8 + (i % 4) * 0.02 + 's'
           stage.appendChild(dust)
         }
 
-        // 进度条推完后，状态文字依次切换
+        // 进度条开始推进后，状态文字才依次切换
         var lines = ['正在准备渲染进程…', '正在加载本地资源…', '即将就绪…']
         var lineIndex = 0
-        var statusTimer = setInterval(function () {
-          if (lineIndex >= lines.length) {
-            clearInterval(statusTimer)
-            return
-          }
-          statusEl.classList.add('swapping')
-          setTimeout(function () {
-            statusEl.textContent = lines[lineIndex++]
-            statusEl.classList.remove('swapping')
-          }, 160)
-        }, 620)
+        var statusTimer = null
+        var statusStart = setTimeout(function () {
+          statusTimer = setInterval(function () {
+            if (lineIndex >= lines.length) {
+              clearInterval(statusTimer)
+              return
+            }
+            statusEl.classList.add('swapping')
+            setTimeout(function () {
+              statusEl.textContent = lines[lineIndex++]
+              statusEl.classList.remove('swapping')
+            }, 160)
+          }, 620)
+        }, 1620)
 
         // 主进程在窗口就绪时调用：播放退场动画（240ms），随后由主进程销毁窗口
         window.__voxSplashExit = function () {
+          clearTimeout(statusStart)
           clearInterval(statusTimer)
           if (!splash || !splash.animate) return
           splash.animate(
