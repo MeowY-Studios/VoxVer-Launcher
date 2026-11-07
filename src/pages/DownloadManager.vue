@@ -24,6 +24,7 @@
     </div>
 
     <!-- 搜索、统计、筛选 -->
+    <template v-if="!isKoring">
     <div class="dm-toolbar">
       <div class="search-box">
         <svg
@@ -281,6 +282,102 @@
       </div>
     </div>
 
+    </template>
+    <template v-else>
+      <div class="kor-c9">
+        <KorSettingCard>
+          <KorSettingRow :label="$t('download.searchTask')">
+            <KorInput v-model="searchQuery" class="kor-input--wide" :placeholder="$t('download.searchTask')" />
+          </KorSettingRow>
+          <KorSettingRow :label="$t('download.totalTasks')">
+            <div class="kor-c9__stats">
+              <span class="kor-c9__stat">{{ $t('download.totalTasks') }} <strong>{{ totalCount }}</strong></span>
+              <span class="kor-c9__stat is-active">{{ $t('download.downloading') }} <strong>{{ downloadingCount }}</strong></span>
+              <span class="kor-c9__stat is-done">{{ $t('download.completed') }} <strong>{{ completedCount }}</strong></span>
+              <span class="kor-c9__stat is-failed">{{ $t('download.failed') }} <strong>{{ failedCount }}</strong></span>
+            </div>
+          </KorSettingRow>
+          <KorSettingRow :label="$t('download.all')">
+            <div class="kor-c9__tabs">
+              <KorButton
+                v-for="tab in tabs"
+                :key="tab.value"
+                size="sm"
+                :variant="activeTab === tab.value ? 'primary' : 'ghost'"
+                @click="activeTab = tab.value"
+              >
+                {{ tab.label }}
+                <span v-if="getTabCount(tab.value) > 0" class="kor-c9__tab-count">{{ getTabCount(tab.value) }}</span>
+              </KorButton>
+              <KorButton
+                v-if="completedCount > 0"
+                size="sm"
+                variant="ghost"
+                @click="clearCompleted"
+              >
+                {{ $t('download.clearCompleted') }}
+              </KorButton>
+            </div>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <KorSettingCard v-if="filteredTasks.length === 0">
+          <KorEmpty :title="$t('download.noDownloadTasks')" :desc="$t('download.goToDownloadHint')">
+            <KorButton variant="primary" size="sm" @click="goToDownloads">
+              {{ $t('download.goToDownload') }}
+            </KorButton>
+          </KorEmpty>
+        </KorSettingCard>
+
+        <KorSettingCard v-else>
+          <div v-for="task in filteredTasks" :key="task.id" class="kor-c9__task">
+            <span
+              class="kor-c9__dot"
+              :class="{
+                'is-done': task.phase === 'completed',
+                'is-failed': task.phase === 'failed',
+                'is-active': isActivePhase(task.phase)
+              }"
+            />
+            <div class="kor-c9__task-main">
+              <div class="kor-c9__task-head">
+                <span class="kor-c9__task-name">{{ task.name }}</span>
+                <span class="kor-c9__task-size">{{ formatSize(task.totalSize) }}</span>
+              </div>
+              <div class="kor-c9__task-meta">
+                <span class="kor-c9__phase" :class="task.phase">{{ task.phaseLabel }}</span>
+                <span v-if="isActivePhase(task.phase)">{{ formatSpeed(task.speed) }}</span>
+                <span v-else>{{ formatTime(task._lastTime) }}</span>
+              </div>
+              <div class="kor-c9__bar">
+                <span class="kor-c9__bar-fill" :style="{ width: task.progress + '%' }" />
+              </div>
+            </div>
+            <div class="kor-c9__task-actions">
+              <KorButton
+                v-if="task.phase === 'failed'"
+                variant="outline"
+                size="sm"
+                @click="retryTask(task)"
+              >
+                {{ $t('download.retryDownload') }}
+              </KorButton>
+              <KorButton
+                v-else-if="task.phase === 'completed'"
+                variant="outline"
+                size="sm"
+                @click="viewInstance(task)"
+              >
+                {{ $t('download.viewInstance') }}
+              </KorButton>
+              <KorButton variant="ghost" size="sm" @click="removeTask(task)">
+                {{ $t('common.delete') }}
+              </KorButton>
+            </div>
+          </div>
+        </KorSettingCard>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -290,7 +387,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDownloadStore, type UnifiedTask } from '../stores/download.store'
 import { useAppStore } from '../stores'
-import { KorPageHeader } from '../components/kor'
+import { KorButton, KorEmpty, KorInput, KorPageHeader, KorSettingCard, KorSettingRow } from '../components/kor'
 
 const router = useRouter()
 const { t } = useI18n()

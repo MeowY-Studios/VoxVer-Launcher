@@ -6,6 +6,7 @@
       <h2>{{ $t('crashAnalysis.title') }}</h2>
       <p class="page-desc">{{ $t('crashAnalysis.description') }}</p>
     </div>
+    <template v-if="!isKoring">
 
     <!-- 工具栏 -->
     <div class="toolbar">
@@ -124,6 +125,102 @@
         </div>
       </div>
     </div>
+    </template>
+    <template v-else>
+      <div class="kor-c10">
+        <KorSettingCard>
+          <KorSettingRow :label="$t('common.refresh')" :desc="$t('crashAnalysis.description')">
+            <div class="kor-c10__actions">
+              <span v-if="crashList.length" class="kor-copy">{{ $t('crashAnalysis.totalCrashes', { count: crashList.length }) }}</span>
+              <KorButton variant="outline" size="sm" :loading="loading" @click="refreshList">
+                {{ $t('common.refresh') }}
+              </KorButton>
+            </div>
+          </KorSettingRow>
+        </KorSettingCard>
+
+        <div v-if="loading" class="kor-c10__state">
+          <KorSkeleton height="64" />
+          <KorSkeleton height="64" />
+          <KorSkeleton height="64" />
+        </div>
+
+        <KorSettingCard v-else-if="crashList.length === 0">
+          <KorEmpty :title="$t('crashAnalysis.noCrashes')" :desc="$t('crashAnalysis.noCrashesHint')" />
+        </KorSettingCard>
+
+        <KorSettingCard v-else>
+          <button
+            v-for="crash in crashList"
+            :key="crash.id"
+            type="button"
+            class="kor-c10__item"
+            :class="{ 'is-active': selectedCrash?.id === crash.id }"
+            @click="selectCrash(crash)"
+          >
+            <span class="kor-c10__severity" :class="crash.severity">{{ crash.severity }}</span>
+            <span class="kor-c10__main">
+              <span class="kor-c10__cause">{{ crash.cause }}</span>
+              <span class="kor-c10__meta">
+                <span>MC {{ crash.minecraftVersion }}</span>
+                <span>{{ formatTime(crash.time) }}</span>
+                <span v-if="crash.instanceId">{{ crash.instanceId }}</span>
+              </span>
+            </span>
+          </button>
+        </KorSettingCard>
+
+        <template v-if="selectedCrash">
+          <KorSectionTitle>{{ $t('crashAnalysis.crashDetail') }}</KorSectionTitle>
+
+          <KorSettingCard>
+            <KorSettingRow :label="$t('crashAnalysis.exception')">
+              <span class="kor-value is-error">{{ selectedCrash.crashCause.exception }}</span>
+            </KorSettingRow>
+            <KorSettingRow :label="$t('crashAnalysis.version')">
+              <span class="kor-value">{{ selectedCrash.minecraftVersion }}</span>
+            </KorSettingRow>
+            <KorSettingRow :label="$t('crashAnalysis.javaVersion')">
+              <span class="kor-value">{{ selectedCrash.javaVersion || $t('common.unknown') }}</span>
+            </KorSettingRow>
+            <KorSettingRow :label="$t('crashAnalysis.os')">
+              <span class="kor-value">{{ selectedCrash.operatingSystem || $t('common.unknown') }}</span>
+            </KorSettingRow>
+          </KorSettingCard>
+
+          <KorSettingCard>
+            <div class="kor-c10__detail">
+              <span class="kor-c10__label">{{ $t('crashAnalysis.errorMessage') }}</span>
+              <p class="kor-copy is-error">{{ selectedCrash.crashCause.message }}</p>
+              <p v-if="selectedCrash.description" class="kor-copy">{{ selectedCrash.description }}</p>
+
+              <template v-if="selectedCrash.possibleCauses?.length">
+                <span class="kor-c10__label">{{ $t('crashAnalysis.possibleCauses') }}</span>
+                <ul class="kor-c10__list">
+                  <li v-for="(cause, i) in selectedCrash.possibleCauses" :key="i">{{ cause }}</li>
+                </ul>
+              </template>
+
+              <template v-if="selectedCrash.suggestedSolutions?.length">
+                <span class="kor-c10__label">{{ $t('crashAnalysis.suggestedSolutions') }}</span>
+                <ul class="kor-c10__list">
+                  <li v-for="(solution, i) in selectedCrash.suggestedSolutions" :key="i">{{ solution }}</li>
+                </ul>
+              </template>
+
+              <span class="kor-c10__label">{{ $t('crashAnalysis.stackTrace') }}</span>
+              <pre class="kor-c10__stack">{{ selectedCrash.crashCause.stackTrace?.join('\n') || selectedCrash.rawContent || $t('crashAnalysis.noStackTrace') }}</pre>
+
+              <div class="kor-c10__detail-actions">
+                <KorButton variant="ghost" size="sm" @click="selectedCrash = null">
+                  {{ $t('common.close') }}
+                </KorButton>
+              </div>
+            </div>
+          </KorSettingCard>
+        </template>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -131,7 +228,7 @@
 import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { CrashReport } from '../types/crash'
-import { KorPageHeader } from '../components/kor'
+import { KorButton, KorEmpty, KorPageHeader, KorSectionTitle, KorSettingCard, KorSettingRow, KorSkeleton } from '../components/kor'
 import { useAppStore } from '../stores'
 import { getCurrentMcPath } from '../utils/mcPath'
 
