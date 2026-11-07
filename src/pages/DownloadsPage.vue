@@ -789,48 +789,84 @@
     <!-- ====== 社区资源视图（Koring） ====== -->
     <template v-else>
       <div class="kor-c12">
-        <KorSettingCard>
-          <KorSettingRow :label="$t('download.name')">
-            <KorInput
+      <section class="filter-section vox-card">
+        <h3 class="fs-title">{{ $t('download.search') }}{{ categoryLabel }}</h3>
+        <div class="filter-grid">
+          <div class="f-row">
+            <label>{{ $t('download.name') }}</label>
+            <input
+              type="text"
+              class="f-input vox-input"
               v-model="searchName"
               :placeholder="$t('download.enterKeyword')"
-              class="kor-input--wide"
               @keydown.enter="doSearch"
             />
-          </KorSettingRow>
-          <KorSettingRow :label="$t('download.source')">
-            <KorSettingSelect v-model="sourceModel" :options="sourceOptions" />
-          </KorSettingRow>
-          <KorSettingRow :label="$t('download.version')">
-            <KorInput
-              v-model="searchVersion"
-              :placeholder="$t('download.versionPlaceholder')"
-              class="kor-input--short"
-            />
-          </KorSettingRow>
-          <KorSettingRow
+          </div>
+          <div class="f-row">
+            <label>{{ $t('download.source') }}</label>
+            <PxSelect class="f-select" v-model="sourceModel" :options="sourceOptions" />
+          </div>
+          <div class="f-row">
+            <label>{{ $t('download.version') }}</label>
+            <!-- * 自定义可输入下拉框：原生 datalist 弹层由系统渲染，无法适配主题 -->
+            <div class="f-select vox-select-wrapper" ref="versionDropdownRef">
+              <input
+                class="vox-select"
+                v-model="searchVersion"
+                autocomplete="off"
+                :placeholder="$t('download.versionPlaceholder')"
+                @focus="versionDropdownOpen = true"
+                @input="versionDropdownOpen = true"
+                @blur="versionDropdownOpen = false"
+                @keydown.esc="versionDropdownOpen = false"
+              />
+              <span class="vox-select-arrow" :class="{ open: versionDropdownOpen }">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </span>
+              <div class="vox-select-popup" :class="{ open: versionDropdownOpen }">
+                <div
+                  v-for="v in filteredVersionOptions"
+                  :key="v"
+                  class="vox-select-option"
+                  :class="{ selected: v === searchVersion }"
+                  @mousedown.prevent="selectVersion(v)"
+                >
+                  {{ v }}
+                </div>
+                <div v-if="filteredVersionOptions.length === 0" class="vox-select-option disabled">
+                  {{ $t('download.noResults') }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Mod 分类 / 光影分类 -->
+          <div
+            class="f-row"
             v-if="
               activeCategory === 'mod' ||
               activeCategory === 'shader' ||
               activeCategory === 'resourcepack' ||
               activeCategory === 'datapack'
             "
-            :label="$t('download.type')"
           >
-            <KorSettingSelect v-model="searchType" :options="typeOptions" />
-          </KorSettingRow>
-          <KorSettingRow v-if="activeCategory === 'mod' && searchVersion" :label="$t('download.loader')">
-            <KorSettingSelect v-model="searchLoader" :options="loaderOptions" />
-          </KorSettingRow>
-        </KorSettingCard>
-
-        <div class="kor-c12__actions">
-          <KorButton size="sm" variant="primary" @click="doSearch">{{ $t('download.search') }}</KorButton>
-          <KorButton size="sm" @click="resetSearch">{{ $t('download.resetFilters') }}</KorButton>
-          <KorButton v-if="activeCategory === 'modpack'" size="sm">{{
-            $t('download.installExistingModpack')
-          }}</KorButton>
+            <label>{{ $t('download.type') }}</label>
+            <PxSelect class="f-select" v-model="searchType" :options="typeOptions" />
+          </div>
+          <!-- 选了版本后出现加载器选项（仅 Mod） -->
+          <div class="f-row" v-if="activeCategory === 'mod' && searchVersion">
+            <label>{{ $t('download.loader') }}</label>
+            <PxSelect class="f-select" v-model="searchLoader" :options="loaderOptions" />
+          </div>
         </div>
+
+        <div class="filter-actions">
+          <button class="btn-search" @click="doSearch">{{ $t('download.search') }}</button>
+          <button class="btn-reset" @click="resetSearch">{{ $t('download.resetFilters') }}</button>
+          <button v-if="activeCategory === 'modpack'" class="btn-secondary">{{ $t('download.installExistingModpack') }}</button>
+        </div>
+      </section>
 
         <p v-if="isLoading && !paginatedResources.length" class="kor-c12__hint">
           {{ $t('download.loading') }} {{ categoryLabel }} {{ $t('download.list') }} ·
