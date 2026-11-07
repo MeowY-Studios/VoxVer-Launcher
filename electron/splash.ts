@@ -22,7 +22,7 @@ export const SPLASH_TITLE = 'VoxVer Splash'
  */
 export const SPLASH_MIN_VISIBLE_MS = ((): number => {
   const override = Number(process.env['VOXVER_SPLASH_MIN_MS'])
-  return Number.isFinite(override) && override >= 0 ? override : 2600
+  return Number.isFinite(override) && override >= 0 ? override : 7000
 })()
 
 /** 退场动画时长（毫秒），需与 splash.html 里 __voxSplashExit 的动画时长一致 */

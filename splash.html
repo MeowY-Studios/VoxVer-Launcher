@@ -69,7 +69,7 @@
         box-shadow:
           0 18px 44px rgba(56, 76, 46, 0.22),
           inset 0 1px 0 rgba(255, 255, 255, 0.9);
-        animation: card-in 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+        animation: card-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
       }
 
       /* ---------- 背景：地面带（地平线） ---------- */
@@ -83,7 +83,7 @@
         border-top: 1px solid rgba(126, 168, 92, 0.45);
         /* 出场顺序①：先出底（地面从下往上长出来） */
         transform-origin: bottom;
-        animation: ground-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.12s both;
+        animation: ground-rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both;
       }
 
       /* 交界处的像素草叶 */
@@ -159,7 +159,7 @@
         position: absolute;
         inset: 0;
         /* 出场顺序②：地面就位后图标落下 */
-        animation: block-drop 0.68s cubic-bezier(0.45, 0, 0.9, 0.5) 0.3s both;
+        animation: block-drop 0.85s cubic-bezier(0.45, 0, 0.9, 0.5) 0.7s both;
       }
 
       .block {
@@ -167,7 +167,7 @@
         height: 56px;
         display: block;
         filter: drop-shadow(0 7px 10px rgba(48, 96, 156, 0.3));
-        animation: block-squash 0.42s cubic-bezier(0.3, 1.6, 0.5, 1) 0.8s both;
+        animation: block-squash 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) 1.5s both;
       }
 
       /* 落地阴影 */
@@ -181,7 +181,7 @@
         border-radius: 50%;
         background: radial-gradient(ellipse, rgba(74, 92, 48, 0.28) 0%, rgba(74, 92, 48, 0) 72%);
         opacity: 0;
-        animation: shadow-in 0.68s cubic-bezier(0.45, 0, 0.9, 0.5) 0.3s both;
+        animation: shadow-in 0.85s cubic-bezier(0.45, 0, 0.9, 0.5) 0.7s both;
       }
 
       /* 落地时的一圈浅色扬尘 */
@@ -195,7 +195,7 @@
         border: 2px solid rgba(122, 180, 236, 0.6);
         border-radius: 50%;
         opacity: 0;
-        animation: ring-out 0.62s cubic-bezier(0.2, 0.6, 0.3, 1) 0.8s forwards;
+        animation: ring-out 0.7s cubic-bezier(0.2, 0.6, 0.3, 1) 1.5s forwards;
       }
 
       /* 像素尘埃（被溅起的浅蓝碎光） */
@@ -207,7 +207,7 @@
         height: 4px;
         background: rgba(160, 208, 248, 0.95);
         opacity: 0;
-        animation: dust-fly 0.52s ease-out 0.8s forwards;
+        animation: dust-fly 0.6s ease-out 1.5s forwards;
       }
 
       /* ---------- 品牌文字（从图标里向右冒出来） ---------- */
@@ -225,7 +225,7 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 7px;
-        animation: wordmark-emerge 0.52s cubic-bezier(0.2, 0.8, 0.2, 1) 0.92s both;
+        animation: wordmark-emerge 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 2.1s both;
       }
 
       .brand-name {
@@ -254,7 +254,7 @@
         width: 244px;
         margin-left: -122px;
         opacity: 0;
-        animation: fade-up 0.4s ease-out 1.5s both;
+        animation: fade-up 0.5s ease-out 3.1s both;
       }
 
       .bar {
@@ -274,7 +274,7 @@
         height: 100%;
         border-radius: 1px;
         background: linear-gradient(90deg, #4f9e33 0%, var(--grass) 55%, var(--grass-hi) 100%);
-        animation: bar-fill 1.2s cubic-bezier(0.25, 0.7, 0.25, 1) 1.55s both;
+        animation: bar-fill 2.6s cubic-bezier(0.25, 0.7, 0.25, 1) 3.2s both;
       }
 
       /* 进度条上的高光扫过 */
@@ -284,7 +284,7 @@
         inset: 0;
         background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.6) 50%, transparent 80%);
         transform: translateX(-100%);
-        animation: bar-shine 1.15s ease-in-out 1.7s infinite;
+        animation: bar-shine 1.4s ease-in-out 3.5s infinite;
       }
 
       /* 像素刻度 */
@@ -312,7 +312,7 @@
         letter-spacing: 0.06em;
         color: var(--muted);
         opacity: 0;
-        animation: fade-up 0.4s ease-out 1.6s both;
+        animation: fade-up 0.5s ease-out 3.3s both;
         transition: opacity 0.18s ease;
       }
 
@@ -329,7 +329,7 @@
         letter-spacing: 0.14em;
         color: #5c7a4f;
         opacity: 0;
-        animation: fade-up 0.4s ease-out 1.68s both;
+        animation: fade-up 0.5s ease-out 3.5s both;
       }
 
       /* ---------- 动画 ---------- */
@@ -569,7 +569,7 @@
           dust.style.setProperty('--dx0', dir * (2 + i) + 'px')
           dust.style.setProperty('--dx1', dir * (14 + i * 4) + 'px')
           dust.style.setProperty('--dy1', -(10 + i * 3) + 'px')
-          dust.style.animationDelay = 0.8 + (i % 4) * 0.02 + 's'
+          dust.style.animationDelay = 1.5 + (i % 4) * 0.02 + 's'
           stage.appendChild(dust)
         }
 
@@ -588,8 +588,8 @@
               statusEl.textContent = lines[lineIndex++]
               statusEl.classList.remove('swapping')
             }, 160)
-          }, 620)
-        }, 1620)
+          }, 900)
+        }, 3320)
 
         // 主进程在窗口就绪时调用：播放退场动画（240ms），随后由主进程销毁窗口
         window.__voxSplashExit = function () {
