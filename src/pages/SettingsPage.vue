@@ -1383,23 +1383,6 @@
           </div>
         </section>
 
-        <section class="kor-section">
-          <SettingSectionTitle>{{ $t('settings.interfaceSection') }}</SettingSectionTitle>
-          <SettingCard>
-            <SettingRow :label="$t('settings.fontSize')" :desc="`${s.fontSize}px`">
-              <SettingSlider v-model="s.fontSize" :min="12" :max="20" :step="1" />
-            </SettingRow>
-            <SettingRow :label="$t('settings.animations')">
-              <SettingSwitch v-model="s.enableAnimations" />
-            </SettingRow>
-            <SettingRow :label="$t('settings.effects')">
-              <SettingSwitch v-model="s.enableEffects" />
-            </SettingRow>
-            <SettingRow :label="$t('settings.sounds')">
-              <SettingSwitch v-model="s.enableSounds" />
-            </SettingRow>
-          </SettingCard>
-        </section>
       </div>
 
       <template v-else>
@@ -1509,37 +1492,6 @@
         </div>
       </div>
 
-      <!-- 界面 -->
-      <div class="memory-alloc-card" style="margin-top: 12px">
-        <div style="margin-bottom: 12px">
-          <div class="debug-mode-label">{{ $t('settings.interfaceSection') }}</div>
-        </div>
-
-        <!-- 字号 -->
-        <div class="mem-custom-row">
-          <label class="row-label">{{ $t('settings.fontSize') }}</label>
-          <div class="input-group compact" style="flex:1">
-            <input type="range" class="range" style="flex:1" v-model.number="s.fontSize" min="12" max="20" step="1" />
-            <span class="range-val">{{ s.fontSize }}px</span>
-          </div>
-        </div>
-
-        <!-- 动画 / 特效 / 音效 -->
-        <div style="margin-top:14px;display:flex;flex-direction:column;gap:6px">
-          <label class="skin-radio-item" :class="{ active: s.enableAnimations }" @click="s.enableAnimations = !s.enableAnimations">
-            <span class="skin-radio-dot" :class="{ checked: s.enableAnimations }"></span>
-            {{ $t('settings.animations') }}
-          </label>
-          <label class="skin-radio-item" :class="{ active: s.enableEffects }" @click="s.enableEffects = !s.enableEffects">
-            <span class="skin-radio-dot" :class="{ checked: s.enableEffects }"></span>
-            {{ $t('settings.effects') }}
-          </label>
-          <label class="skin-radio-item" :class="{ active: s.enableSounds }" @click="s.enableSounds = !s.enableSounds">
-            <span class="skin-radio-dot" :class="{ checked: s.enableSounds }"></span>
-            {{ $t('settings.sounds') }}
-          </label>
-        </div>
-      </div>
 
       <!-- 背景（Koring 风格卡片布局） -->
       <div class="memory-alloc-card" style="margin-top: 12px">
