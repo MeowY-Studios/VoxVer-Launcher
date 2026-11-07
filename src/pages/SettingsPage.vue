@@ -3644,6 +3644,7 @@
 
     <!-- ========== 开发者选项 ========== -->
     <template v-if="activeCategory === 'developer'">
+      <template v-if="appStore.skin !== 'koring'">
       <!-- 未解锁：开发者模式禁用提示 -->
       <section v-if="!appStore.developerUnlocked" class="sec">
         <h3 class="sec-title">{{ $t('settings.developerLockedTitle') }}</h3>
@@ -3920,6 +3921,116 @@
           </button>
         </div>
       </section>
+      </template>
+      </template>
+      <template v-else>
+        <div class="kor-c4">
+          <template v-if="!appStore.developerUnlocked">
+            <KorSectionTitle>{{ $t('settings.developerLockedTitle') }}</KorSectionTitle>
+            <KorSettingCard>
+              <p class="kor-copy">{{ $t('settings.developerLockedDesc') }}</p>
+              <KorSettingRow :label="$t('settings.developerKeyLabel')" :desc="$t('settings.developerKeyDesc')">
+                <div class="kor-c4__inline">
+                  <KorInput v-model="developerKeyInput" class="kor-input--short" :placeholder="$t('settings.developerKeyPlaceholder')" @keyup.enter="handleUnlockDeveloper" />
+                  <KorButton variant="primary" size="sm" @click="handleUnlockDeveloper">{{ $t('settings.developerKeyUnlock') }}</KorButton>
+                </div>
+              </KorSettingRow>
+            </KorSettingCard>
+          </template>
+
+          <template v-else>
+            <KorSectionTitle>{{ $t('settings.devOptions.debugDiag') }}</KorSectionTitle>
+            <KorSettingCard>
+              <p class="kor-copy">{{ $t('settings.devOptions.debugDiagDesc') }}</p>
+              <KorSettingRow :label="$t('settings.debugMode')" :desc="$t('settings.devOptions.debugModeDesc')">
+                <KorSwitch :model-value="s.debugMode" @update:model-value="(v: boolean) => { s.debugMode = v; toggleDebugMode() }" />
+              </KorSettingRow>
+              <KorSettingRow :label="$t('settings.exportDiagnostics')" :desc="$t('settings.devOptions.exportDiagDesc')">
+                <KorButton variant="outline" size="sm" :loading="isExportingDiagnostics" @click="exportDiagnostics">{{ $t('settings.devOptions.exportLog') }}</KorButton>
+              </KorSettingRow>
+              <KorSettingRow :label="$t('settings.openDevTools')" :desc="$t('settings.devOptions.openDevToolsDesc')">
+                <KorButton variant="outline" size="sm" @click="openDevTools">{{ $t('settings.devOptions.openDevToolsBtn') }}</KorButton>
+              </KorSettingRow>
+              <KorSettingRow :label="$t('settings.enableF12Label')" :desc="$t('settings.enableF12Desc')">
+                <KorSwitch :model-value="appStore.enableF12" @update:model-value="onToggleF12" />
+              </KorSettingRow>
+              <KorSettingRow :label="$t('settings.logLevel')" :desc="$t('settings.devOptions.logLevelDesc')">
+                <KorSettingSelect v-model="s.logLevel" :options="logLevelOptions" :width="180" />
+              </KorSettingRow>
+              <KorSettingRow :label="$t('settings.useProxy')" :desc="$t('settings.devOptions.proxyDesc')">
+                <KorSwitch v-model="s.useProxy" />
+                <template #below>
+                  <div v-if="s.useProxy" class="kor-c4__inline">
+                    <KorInput v-model="s.proxyHost" class="kor-input--short" placeholder="127.0.0.1" />
+                    <KorInput v-model.number="s.proxyPort" class="kor-input--short" placeholder="7890" />
+                  </div>
+                </template>
+              </KorSettingRow>
+              <KorSettingRow :label="$t('settings.closeToTray')" :desc="$t('settings.devOptions.closeToTrayDesc')">
+                <KorSwitch v-model="s.closeToTray" />
+              </KorSettingRow>
+            </KorSettingCard>
+
+            <KorSectionTitle>{{ $t('settings.devQuickDirs') }}</KorSectionTitle>
+            <KorSettingCard>
+              <p class="kor-copy">{{ $t('settings.devQuickDirsDesc') }}</p>
+              <KorSettingRow :label="$t('settings.openUserDataDir')" :desc="$t('settings.openUserDataDirDesc')">
+                <KorButton variant="ghost" size="sm" @click="openDirectory('userData')">{{ $t('common.open') }}</KorButton>
+              </KorSettingRow>
+              <KorSettingRow :label="$t('settings.openLogsDir')" :desc="$t('settings.openLogsDirDesc')">
+                <KorButton variant="ghost" size="sm" @click="openDirectory('logs')">{{ $t('common.open') }}</KorButton>
+              </KorSettingRow>
+              <KorSettingRow :label="$t('settings.openCacheDir')" :desc="$t('settings.openCacheDirDesc')">
+                <KorButton variant="ghost" size="sm" @click="openDirectory('cache')">{{ $t('common.open') }}</KorButton>
+              </KorSettingRow>
+              <KorSettingRow :label="$t('settings.openTempDir')" :desc="$t('settings.openTempDirDesc')">
+                <KorButton variant="ghost" size="sm" @click="openDirectory('temp')">{{ $t('common.open') }}</KorButton>
+              </KorSettingRow>
+            </KorSettingCard>
+
+            <KorSectionTitle>{{ $t('settings.clearCache') }}</KorSectionTitle>
+            <KorSettingCard>
+              <p class="kor-copy">{{ $t('settings.clearCacheDesc') }}</p>
+              <KorSettingRow :label="$t('settings.clearCache')">
+                <KorButton variant="outline" size="sm" :loading="isClearingCache" @click="clearCache">{{ $t('settings.clearCacheBtn') }}</KorButton>
+              </KorSettingRow>
+            </KorSettingCard>
+
+            <KorSectionTitle>{{ $t('settings.devExperimental') }}</KorSectionTitle>
+            <KorSettingCard>
+              <p class="kor-copy">{{ $t('settings.devExperimentalDesc') }}</p>
+              <KorSettingRow :label="$t('settings.gpuAcceleration')" :desc="$t('settings.gpuAccelerationDesc')">
+                <KorSwitch v-model="s.gpuAcceleration" />
+              </KorSettingRow>
+              <KorSettingRow :label="$t('settings.networkLogging')" :desc="$t('settings.networkLoggingDesc')">
+                <KorSwitch v-model="s.networkLogging" />
+              </KorSettingRow>
+              <KorSettingRow :label="$t('settings.skipCorsCheck')" :desc="$t('settings.skipCorsCheckDesc')">
+                <KorSwitch v-model="s.skipCorsCheck" />
+              </KorSettingRow>
+            </KorSettingCard>
+
+            <KorSectionTitle>{{ $t('settings.devEnvInfo') }}</KorSectionTitle>
+            <KorSettingCard>
+              <template v-if="runtimeInfo">
+                <KorSettingRow :label="$t('settings.devAppVersion')"><span class="kor-value">v{{ runtimeInfo.appVersion }}</span></KorSettingRow>
+                <KorSettingRow :label="$t('settings.electronVersion')"><span class="kor-value">{{ runtimeInfo.electron }}</span></KorSettingRow>
+                <KorSettingRow :label="$t('settings.chromeVersion')"><span class="kor-value">{{ runtimeInfo.chrome }}</span></KorSettingRow>
+                <KorSettingRow :label="$t('settings.nodeVersion')"><span class="kor-value">{{ runtimeInfo.node }}</span></KorSettingRow>
+                <KorSettingRow :label="$t('settings.platform')"><span class="kor-value">{{ runtimeInfo.platform }} ({{ runtimeInfo.arch }})</span></KorSettingRow>
+              </template>
+              <p v-else class="kor-copy">{{ $t('settings.devOptions.loading') }}</p>
+            </KorSettingCard>
+
+            <KorSectionTitle>{{ $t('settings.devResetSettings') }}</KorSectionTitle>
+            <KorSettingCard>
+              <p class="kor-copy">{{ $t('settings.devResetSettingsDesc') }}</p>
+              <KorSettingRow :label="$t('settings.devResetSettings')">
+                <KorButton variant="danger" size="sm" @click="resetSettings">{{ $t('settings.devResetBtn') }}</KorButton>
+              </KorSettingRow>
+            </KorSettingCard>
+          </template>
+        </div>
       </template>
     </template>
 

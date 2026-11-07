@@ -2044,3 +2044,14 @@ html[data-theme='light'] .kor-radio__item:hover {
 [data-skin='koring'] .service-test-kor__group > .kor-section-title {
   margin: 4px 2px 10px;
 }
+
+/* 开发者选项（C4 收尾）：数值行与二级标题节奏 */
+[data-skin='koring'] .kor-c4 .kor-value {
+  font-size: 13px;
+  color: var(--voxver-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+[data-skin='koring'] .kor-c4 .kor-input--short {
+  width: 140px;
+}
