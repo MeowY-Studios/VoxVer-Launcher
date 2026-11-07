@@ -13,9 +13,12 @@ env:
 jobs:
   release:
     name: Build and Release
+    # 目前只出 Windows 包：macOS 腿在 CI 上跑 electron-vite build 会报
+    # ModManager.vue 模板表达式解析失败（本地 Windows 构建正常，待查），
+    # 修好后再把 macos 加回 matrix。
     strategy:
       matrix:
-        platform: [windows, macos]
+        platform: [windows]
         include:
           - platform: windows
             artifact-pattern: |
@@ -23,12 +26,6 @@ jobs:
               build/*.blockmap
               build/latest.yml
             build-script: build:win
-          - platform: macos
-            artifact-pattern: |
-              build/*.dmg
-              build/*.blockmap
-              build/latest-mac.yml
-            build-script: build:mac
     runs-on: ${{ matrix.platform }}-latest
     steps:
       - name: Checkout code
