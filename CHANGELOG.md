@@ -1,5 +1,25 @@
 # 更新日志
 
+## v0.7.6 — 2026-11-08
+
+### 新增
+- **独立启动画面**：新增无边框 splash 窗口，先于主窗口出现。草方块落地（带扬尘与光圈）→ VOXVER 像素字 → 像素进度条 → 状态文案；主窗口就绪后播放退场动画再销毁，避免「先黑屏、窗口出现后再等 4 秒假进度」
+- **晴空草原配色**：启动画面从深色科技风改为浅蓝天空 / 奶油地平线 / 像素云 / 草地条，草方块落在画面左下草地上
+- **应用图标重做**：字标改为 V 记号图标（天蓝渐变底 + 渐变透明 V），`resources/icons/icon.svg` 为唯一矢量源，`node scripts/generate-icons.js` 产出 16–1024 全尺寸与多尺寸 ICO
+- **CI Type Check**：新增 `npm run typecheck`（node + web 双配置）并接入 CI，包构建改为依赖 lint/typecheck/test 全绿
+
+### 修复
+- **存储型 XSS（S-01）**：设置页更新说明原用自写 `v-html` 净化（不转义引号、不限制链接协议），改为受控 Markdown 渲染器
+- **命令注入（S-02）**：Java 检测/查找原先用 `execSync("...")` 拼接路径，改为参数化 `spawnSync` + 参数数组
+- **任意文件读写（S-03）**：截图 / Mod / 对话框相关 IPC 原先直接信任渲染端路径，改为白名单根目录 + 扩展名 + 路径分段校验
+- **潜在运行时错误**：`LaunchPage.vue` 调用未定义函数、`InstanceDetail.vue` 同元素 v-else+v-if、`PxConfirm.vue` 无效 Transition、`perf-monitor.ipc.ts` 死缓存
+- **CI 从未生效**：工作流级使用 `${{ runner.os }}` 导致整份 workflow 无效（自 v0.7.5 起每次发布均未真正构建），改为 step 级上下文与真实缓存目录
+
+### 优化
+- **类型与 lint 门禁清零**：7 处 tsc 错误、135 处 ESLint 错误全部清除；ESLint 忽略生成产物与外部技能目录，全量检查从 21 分钟降到 29 秒
+- **依赖解析**：新增 `.npmrc` 开启 `legacy-peer-deps`，解决 electron-vite / plugin-vue 对 Vite 8 的 peer 冲突（`npm ci` 不再失败）
+- 主窗口内旧的页内 splash 与假进度条一并移除
+
 ## v0.7.5 — 2026-10-27
 
 ### 新增

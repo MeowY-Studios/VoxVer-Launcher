@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.7.5-14b8a6?style=flat-square&labelColor=1e1e2e)
+![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.7.6-14b8a6?style=flat-square&labelColor=1e1e2e)
 ![Electron](https://img.shields.io/badge/Electron-42-478cbf?style=flat-square&logo=electron&logoColor=white)
 ![Vue](https://img.shields.io/badge/Vue-3.5-4db08b?style=flat-square&logo=vuedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6?style=flat-square&logo=typescript&logoColor=white)
@@ -19,7 +19,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 ## 📋 目录
 
 - [📥 下载](#-下载)
-- [🆕 v0.7.5 最近更新](#-v075-最近更新)
+- [🆕 v0.7.6 最近更新](#-v076-最近更新)
 - [✨ 功能概览](#-功能概览)
 - [🖥️ 支持平台](#️-支持平台)
 - [📦 相关文档](#-相关文档)
@@ -30,11 +30,35 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 ## 📥 下载
 
-**[👉 前往 GitHub Releases 下载 v0.7.5](https://github.com/MeowY-Studios/VoxVer-Launcher/releases)**
+**[👉 前往 GitHub Releases 下载 v0.7.6](https://github.com/MeowY-Studios/VoxVer-Launcher/releases)**
 
 ---
 
-## 🆕 v0.7.5 最近更新
+## 🆕 v0.7.6 最近更新
+
+### 🖼️ 全新启动画面（新增）
+- 独立无边框启动画面窗口，先于主窗口出现：草方块落地扬尘 → 品牌字 → 像素进度条 → 状态文案，主窗口就绪后淡出衔接
+- 晴空草原配色（浅蓝天空 / 奶油地平线 / 像素云 / 草地条），不再是深色科技风
+- 移除主窗口内原先的 4 秒假进度条，启动不再需要「等两轮」
+
+### 🎨 应用图标重做（新增）
+- 新图标：天蓝渐变底 + 渐变透明的 V 记号，覆盖 16–1024 全尺寸与多尺寸 ICO
+- `resources/icons/icon.svg` 作为唯一矢量源，`node scripts/generate-icons.js` 一键重出全套
+
+### 🔒 安全加固（修复）
+- 修复设置页更新说明的存储型 XSS（改为受控 Markdown 渲染，杜绝属性/协议注入）
+- Java 检测从拼接命令改为参数化 `spawnSync`，杜绝命令注入
+- 截图 / Mod / 对话框等 IPC 增加路径白名单与扩展名校验，禁止任意路径读写
+
+### 🧪 工程质量（优化）
+- `tsc` 双配置清零（7 处类型错误），CI 新增 Type Check job
+- ESLint 门禁清零（135 个错误 → 0），顺带修掉 4 处潜在运行时 bug（未定义函数、无效 v-if/v-else、死代码）
+- 修复 CI 自 v0.7.5 起完全未生效的问题（工作流级 `runner.os` 非法），并补 `.npmrc` 解决 peer 依赖解析冲突
+
+---
+
+<details>
+<summary>v0.7.5 主要内容</summary>
 
 ### 🔌 服务联通性测试（新增）
 - 设置 → 下载与网络 → 服务联通性测试，进入后先列出 **下载源 / 版本源 / Mod 平台 / 登录与更新** 共 10 项服务
@@ -51,6 +75,8 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 ### ⌨️ 全局快捷键修复（修复）
 - 快速启动游戏、打开主页、打开设置、显示/隐藏窗口四个动作全部可用，触发时自动唤起并聚焦窗口
 - 注册失败时明确提示「可能已被其他程序占用」，不再静默提示成功
+
+</details>
 
 ---
 

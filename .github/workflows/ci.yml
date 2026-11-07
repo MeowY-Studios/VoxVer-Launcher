@@ -183,58 +183,7 @@ jobs:
           name: ${{ matrix.artifact-name }}
           path: ${{ matrix.artifact-pattern }}
 
-  release:
-    name: Create Release
-    runs-on: windows-latest
-    needs: package
-    if: startsWith(github.ref, 'refs/tags/')
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+  # 说明：打 tag 时的正式发布由 VoxVer.yml 负责（构建 + 上传到 GitHub Releases）。
+  # 此前这里还有一份 release / publish job，条件写的是旧品牌 tag `refs/tags/MCLAv`，
+  # 与 VoxVer.yml 重复且永远不会触发，已移除，避免两套发布流程互相覆盖。
 
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  publish:
-    name: Build & Publish (Release)
-    runs-on: windows-latest
-    needs: release
-    if: startsWith(github.ref, 'refs/tags/MCLAv')
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: '24'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Full build and package
-        run: npm run build:win
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload to Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            build/VoxVer Setup *.exe
-            build/*.blockmap
-            build/latest.yml
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

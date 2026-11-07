@@ -1,5 +1,6 @@
 name: VoxVer Launcher Release Workflow
 
+# 打 tag（形如 VoxVer-v0.7.6）时构建 Windows / macOS 安装包并发布到 GitHub Releases。
 on:
   push:
     tags:
@@ -11,14 +12,14 @@ env:
 
 jobs:
   release:
-    name: Build and Release VoxVer Launcher
+    name: Build and Release
     strategy:
       matrix:
         platform: [windows, macos]
         include:
           - platform: windows
             artifact-pattern: |
-              build/VoxVer Launcher Setup *.exe
+              build/VoxVer-Launcher-Setup-*.exe
               build/*.blockmap
               build/latest.yml
             build-script: build:win
@@ -41,18 +42,35 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: ${{ env.NPM_REGISTRY }}
 
+      # 版本号、发布说明都从仓库读取，避免像之前那样把 v0.6.3 写死在 workflow 里
+      - name: Read version
+        id: ver
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "release note: docs/releases/v$VERSION.md"
+
+      - name: Verify release note exists
+        shell: bash
+        run: |
+          NOTE="docs/releases/v${{ steps.ver.outputs.version }}.md"
+          if [ ! -f "$NOTE" ]; then
+            echo "::error::缺少发布说明 $NOTE，请先补上再打 tag"
+            exit 1
+          fi
+
       - name: Install dependencies
         run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Lint code
         run: npm run lint
-        continue-on-error: false
 
-      - name: Build TypeScript
-        run: npm run build
-        continue-on-error: false
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npx vitest run
 
       - name: Build & Package
         run: npm run ${{ matrix.build-script }}
@@ -65,29 +83,15 @@ jobs:
         with:
           files: ${{ matrix.artifact-pattern }}
           tag_name: ${{ github.ref_name }}
-          name: VoxVer Launcher v0.6.3
-          body: |
-            ## VoxVer Launcher v0.6.3 发布
-
-            **版本类型**: 启动器设置重构 + 更新弹窗 + 审查修复
-
-            **主要变更**:
-            - 启动器设置独立分类（更新通道 + 自动检查）
-            - 更新通道稳定版/测试版分段芯片
-            - 自动检查开启/关闭左右双芯片
-            - 更新弹窗重构（Markdown 渲染 + 下载即时反馈）
-            - i18n 中英文完全对齐
-            - updater 错误清除 + 内存泄漏修复
-            - 支持 Windows + macOS 双平台
-
-            **技术栈**: Electron 33.4.11 + Vue 3.5 + TypeScript 5.5
-
+          name: VoxVer Launcher v${{ steps.ver.outputs.version }}
+          body_path: docs/releases/v${{ steps.ver.outputs.version }}.md
           draft: false
           prerelease: false
 
       - name: Cleanup
+        shell: bash
         run: |
-          echo "Release workflow completed successfully"
-          echo "Version: 0.6.3"
+          echo "Release workflow completed"
+          echo "Version: ${{ steps.ver.outputs.version }}"
           echo "Platform: ${{ matrix.platform }}"
           echo "Tag: ${{ github.ref_name }}"
