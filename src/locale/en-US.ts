@@ -1215,7 +1215,14 @@ export default {
     checkingUpdates: 'Checking...',
     modUpdatesFound: '{count} mod(s) have updates available',
     modNoUpdates: 'All mods are up to date',
-    comingSoon: 'This feature is not yet available. Stay tuned!'
+    comingSoon: 'This feature is not yet available. Stay tuned!',
+    gameFolders: 'Game folders',
+    addAndImport: 'Add & import',
+    importFolder: 'Import existing folder',
+    importing: 'Scanning…',
+    vanilla: 'Vanilla',
+    emptyTitle: 'No instances yet',
+    emptyDesc: 'Import an existing .minecraft folder from the left, or create one from the Downloads page.'
   },
 
   p2p: {

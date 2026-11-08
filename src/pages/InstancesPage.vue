@@ -1,106 +1,363 @@
 <template>
-  <!-- Koring 主题：用 KorEmpty 呈现（与 Koring 的空态保持同一套视觉） -->
-  <div v-if="isKoring" class="instances-page instances-page--kor">
-    <KorSurface class="instances-kor-card">
-      <KorEmpty :title="t('instance.manager')" :desc="t('instance.comingSoon')">
-        <template #icon>
-          <svg width="40" height="40" viewBox="0 0 64 64" fill="none">
-            <polygon points="32,6 60,20 32,34 4,20" fill="#79C05A" />
-            <polygon points="32,14 42,19 32,24 22,19" fill="#8FCB6A" />
-            <polygon points="4,20 32,34 32,58 4,44" fill="#8B6B47" />
-            <polygon points="4,20 32,34 32,40 4,26" fill="#5FA53D" />
-            <polygon points="32,34 60,20 60,44 32,58" fill="#705234" />
-            <polygon points="32,34 60,20 60,26 32,40" fill="#4F8B2F" />
-          </svg>
-        </template>
-      </KorEmpty>
-    </KorSurface>
-  </div>
-
-  <div v-else class="instances-page coming-soon-page">
-    <div class="coming-soon-placeholder">
-      <div class="coming-soon-icon">
-        <!-- Minecraft 草方块（等距立方体） -->
-        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-          <!-- 顶面：草地 -->
-          <polygon points="32,6 60,20 32,34 4,20" fill="#79C05A" />
-          <!-- 顶面草色高光 -->
-          <polygon points="32,14 42,19 32,24 22,19" fill="#8FCB6A" />
-          <!-- 左面：泥土 -->
-          <polygon points="4,20 32,34 32,58 4,44" fill="#8B6B47" />
-          <!-- 左面草皮边缘 -->
-          <polygon points="4,20 32,34 32,40 4,26" fill="#5FA53D" />
-          <!-- 左面泥土纹理 -->
-          <polygon points="12,32 18,35 18,39 12,36" fill="#7A5C3B" />
-          <polygon points="20,41 26,44 26,48 20,45" fill="#7A5C3B" />
-          <!-- 右面：泥土（暗面） -->
-          <polygon points="32,34 60,20 60,44 32,58" fill="#705234" />
-          <!-- 右面草皮边缘 -->
-          <polygon points="32,34 60,20 60,26 32,40" fill="#4F8B2F" />
-          <!-- 右面泥土纹理 -->
-          <polygon points="42,32 48,29 48,33 42,36" fill="#62462C" />
-        </svg>
-      </div>
-      <h2 class="coming-soon-title">{{ $t('instance.manager') }}</h2>
-      <p class="coming-soon-desc">{{ $t('instance.comingSoon') }}</p>
-    </div>
+  <div style="padding:24px;color:#fff;font-size:20px">
+    INSTANCES DEBUG OK — folders={{ folders.length }} instances={{ instancesStore.instances.length }}
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
-import { useAppStore } from '../stores'
-import { KorEmpty, KorSurface } from '../components/kor'
+import { useRouter } from 'vue-router'
+import { useAppStore, useInstancesStore } from '../stores'
+import type { GameInstance, LoaderType } from '../types/instance'
 
 const { t } = useI18n()
+const router = useRouter()
 const appStore = useAppStore()
+const instancesStore = useInstancesStore()
+
 const isKoring = computed(() => appStore.skin === 'koring')
+const activeFolder = ref<string | null>(null)
+const importing = ref(false)
+
+/** 实例按游戏目录归组 */
+const folders = computed(() => {
+  const map = new Map<string, { key: string; name: string; path: string }>()
+  for (const inst of instancesStore.instances) {
+    const root = (inst.path || '').replace(/[\\/]+$/, '')
+    if (!root || map.has(root)) continue
+    const parts = root.split(/[\\/]/)
+    map.set(root, { key: root, name: parts[parts.length - 1] || root, path: root })
+  }
+  return [...map.values()]
+})
+
+const visibleInstances = computed(() =>
+  activeFolder.value
+    ? instancesStore.instances.filter((i) => (i.path || '').replace(/[\\/]+$/, '') === activeFolder.value)
+    : instancesStore.instances
+)
+
+function toggleFolder(key: string) {
+  activeFolder.value = activeFolder.value === key ? null : key
+}
+
+function loaderLabel(loader: LoaderType): string {
+  if (loader === 'vanilla') return t('instance.vanilla')
+  if (loader === 'forge') return 'Forge'
+  if (loader === 'fabric') return 'Fabric'
+  if (loader === 'neoforge') return 'NeoForge'
+  if (loader === 'quilt') return 'Quilt'
+  return loader
+}
+
+function selectInstance(inst: GameInstance) {
+  instancesStore.selectInstance(inst.id)
+}
+
+function openInstance(inst: GameInstance) {
+  instancesStore.selectInstance(inst.id)
+  router.push(`/instance/${inst.id}`)
+}
+
+/** 导入已有 .minecraft 文件夹：扫描后建实例 */
+async function importFolder() {
+  const dir = await window.electronAPI?.dialog.selectFolder({ title: t('instance.importFolder') })
+  if (!dir) return
+  importing.value = true
+  try {
+    const raw = await window.electronAPI?.instance.scanMinecraft(dir)
+    const result = raw && (raw as { ok?: boolean }).ok ? (raw as { data?: unknown }).data : null
+    const scan = (result || {}) as {
+      valid?: boolean
+      mcVersion?: string
+      loaderType?: string
+      loaderVersion?: string
+    }
+    const parts = dir.replace(/[\\/]+$/, '').split(/[\\/]/)
+    await instancesStore.createInstance({
+      name: parts[parts.length - 1] || 'minecraft',
+      path: dir,
+      mcVersion: scan.mcVersion || '1.20.1',
+      loaderType: (scan.loaderType as LoaderType) || 'vanilla',
+      loaderVersion: scan.loaderVersion || ''
+    })
+    await instancesStore.fetchInstances()
+  } finally {
+    importing.value = false
+  }
+}
+
+onMounted(() => {
+  instancesStore.fetchInstances()
+})
 </script>
 
 <style scoped>
-.coming-soon-page {
+.instances-page {
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 20px;
   height: 100%;
+  padding: 24px;
+  overflow: hidden;
 }
 
-.coming-soon-placeholder {
-  text-align: center;
+/* ===== Koring 背景 ===== */
+.inst-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.instances-page.is-kor {
+  background:
+    radial-gradient(120% 90% at 78% 8%, rgba(255, 255, 255, 0.14), transparent 60%),
+    linear-gradient(158deg, color-mix(in oklab, var(--voxver-primary) 82%, #0a1b3a) 0%, color-mix(in oklab, var(--voxver-primary) 46%, #061024) 62%, #050b16 100%);
+}
+
+.inst-ring {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, transparent 56%, rgba(255, 255, 255, 0.28) 63%, rgba(255, 255, 255, 0.07) 100%);
+  filter: blur(13px);
+}
+
+.inst-ring--outer {
+  width: min(118vh, 118%);
+  aspect-ratio: 1;
+  opacity: 0.7;
+}
+
+.inst-ring--inner {
+  width: min(66vh, 66%);
+  aspect-ratio: 1;
+  opacity: 0.5;
+  filter: blur(20px);
+}
+
+/* ===== 左侧目录栏 ===== */
+.inst-rail {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 236px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.inst-rail__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.inst-rail__title {
+  padding: 4px 10px 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--voxver-text-tertiary);
+}
+
+.instances-page.is-kor .inst-rail__title {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.inst-folder,
+.inst-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--voxver-text-primary);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+
+.inst-folder:hover,
+.inst-action:hover {
+  background: var(--voxver-bg-tertiary);
+}
+
+.instances-page.is-kor .inst-folder,
+.instances-page.is-kor .inst-action {
+  color: #fff;
+}
+
+.instances-page.is-kor .inst-folder:hover,
+.instances-page.is-kor .inst-action:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.inst-folder.is-active {
+  background: color-mix(in oklab, var(--voxver-primary) 16%, transparent);
+}
+
+.instances-page.is-kor .inst-folder.is-active {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.inst-folder__icon {
+  flex: 0 0 auto;
+  opacity: 0.8;
+}
+
+.inst-folder__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.inst-folder__name {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inst-folder__path {
+  font-size: 11px;
+  color: var(--voxver-text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.instances-page.is-kor .inst-folder__path {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.inst-action:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ===== 右侧列表 ===== */
+.inst-main {
+  position: relative;
+  z-index: 2;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.inst-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inst-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--voxver-border-color);
+  border-radius: 14px;
+  background: var(--voxver-bg-secondary);
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+
+.inst-card:hover {
+  background: var(--voxver-bg-tertiary);
+}
+
+.inst-card.is-active {
+  border-color: color-mix(in oklab, var(--voxver-primary) 55%, transparent);
+}
+
+.instances-page.is-kor .inst-card {
+  border-color: var(--kor-hairline, rgba(255, 255, 255, 0.09));
+  background: rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(12px);
+  color: #fff;
+}
+
+.instances-page.is-kor .inst-card:hover {
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.instances-page.is-kor .inst-card.is-active {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(12, 26, 46, 0.6);
+}
+
+.inst-card__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.inst-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.inst-card__name {
+  font-size: 14.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inst-card__meta {
+  font-size: 12.5px;
   color: var(--voxver-text-secondary);
 }
 
-.coming-soon-icon {
-  margin-bottom: 16px;
-  filter: drop-shadow(0 4px 12px rgb(0 0 0 / 0.18));
+.instances-page.is-kor .inst-card__meta {
+  color: rgba(255, 255, 255, 0.6);
 }
 
-.coming-soon-title {
-  font-size: 20px;
-  font-weight: 700;
+.inst-card__check {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: #4ade80;
+}
+
+.inst-state {
+  padding: 40px 4px;
+  font-size: 13px;
+  color: var(--voxver-text-secondary);
+}
+
+.instances-page.is-kor .inst-state {
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.inst-state__title {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
   color: var(--voxver-text-primary);
-  margin: 0 0 8px;
 }
 
-.coming-soon-desc {
-  font-size: 14px;
-  color: var(--voxver-text-muted);
+.instances-page.is-kor .inst-state__title {
+  color: #fff;
+}
+
+.inst-state__desc {
   margin: 0;
-}
-
-/* Koring 皮肤：居中的玻璃卡空态 */
-.instances-page--kor {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 32px;
-}
-
-.instances-kor-card {
-  width: 100%;
-  max-width: 520px;
-  padding: 40px 32px;
+  font-size: 13px;
+  opacity: 0.8;
 }
 </style>

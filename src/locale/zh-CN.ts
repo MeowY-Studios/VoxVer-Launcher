@@ -1210,7 +1210,14 @@ export default {
     checkingUpdates: '正在检查...',
     modUpdatesFound: '发现 {count} 个可更新的 Mod',
     modNoUpdates: '所有 Mod 已是最新版本',
-    comingSoon: '该区域功能暂未开放，敬请期待'
+    comingSoon: '该区域功能暂未开放，敬请期待',
+    gameFolders: '游戏目录',
+    addAndImport: '添加与导入',
+    importFolder: '导入已有文件夹',
+    importing: '正在扫描…',
+    vanilla: '原版',
+    emptyTitle: '还没有实例',
+    emptyDesc: '从左侧导入已有的 .minecraft 文件夹，或去下载页新建一个实例。'
   },
 
   p2p: {
