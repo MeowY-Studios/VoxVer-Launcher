@@ -93,14 +93,14 @@
     <main class="inst-main">
       <div v-if="loading" class="inst-state">{{ t('common.loading') }}</div>
 
-      <div v-else-if="visibleVersions.length === 0" class="inst-state inst-state--empty">
+      <div v-else-if="versionCards.length === 0" class="inst-state inst-state--empty">
         <p class="inst-state__title">{{ t('instance.noVersionsTitle') }}</p>
         <p class="inst-state__desc">{{ t('instance.noVersionsDesc') }}</p>
       </div>
 
       <ul v-else class="inst-list">
         <li
-          v-for="ver in visibleVersions"
+          v-for="ver in versionCards"
           :key="`${ver.folderPath}::${ver.id}`"
           class="inst-card"
           :class="{ 'is-active': isSelected(ver) }"
@@ -173,6 +173,12 @@ interface VersionItem extends ScannedVersion {
   folderName: string
 }
 
+/** 合并后的「一个完整安装」：基版 + 加载器 + OptiFine 这类同链版本只显示一行 */
+interface VersionCard extends VersionItem {
+  /** 同一链上的所有版本目录名，用于选中态判断 */
+  members: string[]
+}
+
 const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
@@ -218,6 +224,40 @@ const visibleVersions = computed<VersionItem[]>(() => {
     }
   }
   return list
+})
+
+/**
+ * 把一个目录里的版本合并成「完整安装链」：
+ * `1.18.2` / `1.18.2-forge-40.3.12` / `1.18.2-forge-40.3.12-OptiFine_HD_U_H9`
+ * 只保留最长（层数最多）的那条，避免同一个安装被拆成三行。
+ */
+const versionCards = computed<VersionCard[]>(() => {
+  const groups: VersionItem[][] = []
+  for (const ver of visibleVersions.value) {
+    const hit = groups.find((group) =>
+      group.some(
+        (m) => m.id === ver.id || ver.id.startsWith(`${m.id}-`) || m.id.startsWith(`${ver.id}-`)
+      )
+    )
+    if (hit) hit.push(ver)
+    else groups.push([ver])
+  }
+  return groups.map((group) => {
+    const chosen = [...group].sort((a, b) => b.id.length - a.id.length)[0]
+    // 组里同时有「加载器」和「OptiFine 独立档案」时，用合成名显示完整安装，
+    // 例如 1.18.2 + forge-40.3.12 + OptiFine_HD_U_H9 → 1.18.2-forge-40.3.12-OptiFine_HD_U_H9
+    const loaderSuffix = group
+      .map((item) => item.id.slice(item.baseVersion?.length ?? 0).replace(/^-/, ''))
+      .find((suffix) => /^(forge|neoforge|fabric|quilt)-/i.test(suffix))
+    const optifineSuffix = group
+      .map((item) => item.id.slice(item.baseVersion?.length ?? 0).replace(/^-/, ''))
+      .find((suffix) => /^optifine/i.test(suffix))
+    const mergedName =
+      loaderSuffix && optifineSuffix && chosen.baseVersion
+        ? `${chosen.baseVersion}-${loaderSuffix}-${optifineSuffix}`
+        : chosen.name
+    return { ...chosen, name: mergedName, members: group.map((item) => item.id) }
+  })
 })
 
 function baseName(dir: string): string {
@@ -313,17 +353,20 @@ async function removeFolder() {
   }
 }
 
-function versionMeta(ver: VersionItem): string {
+function versionMeta(ver: VersionCard): string {
   const loader = ver.loaderInfo?.trim() || t('instance.vanilla')
   const mc = ver.baseVersion?.trim()
   const parts = [loader]
+  // 合并链里的 OptiFine 等叠加层单独标出，让用户知道这条是「完整安装」
+  if (/optifine/i.test(ver.id) && !/optifine/i.test(loader)) parts.push('OptiFine')
   if (mc && mc !== ver.loaderInfo) parts.push(mc)
   if (!activeFolder.value && ver.folderName) parts.push(ver.folderName)
   return parts.filter(Boolean).join(' · ')
 }
 
-function isSelected(ver: VersionItem): boolean {
-  if (versionsStore.currentVersionId !== ver.id) return false
+function isSelected(ver: VersionCard): boolean {
+  // 合并链上的任意一层被选中，都算这张卡被选中
+  if (!ver.members.includes(versionsStore.currentVersionId ?? '')) return false
   // 不同目录可能有同名版本：有记录时再比一次目录，避免两边同时显示选中
   const storedPath = readStored(VERSION_PATH_KEY)
   if (!storedPath) return true
@@ -331,7 +374,7 @@ function isSelected(ver: VersionItem): boolean {
 }
 
 /** 选中版本：写回当前版本 + 记住所在目录，并跳到启动页（是否开跑由用户决定） */
-function selectVersion(ver: VersionItem) {
+function selectVersion(ver: VersionCard) {
   versionsStore.setCurrentVersion(ver.id)
   writeStored('voxver_last_version', ver.id)
   writeStored('voxver_last_version_name', ver.name)
@@ -341,13 +384,13 @@ function selectVersion(ver: VersionItem) {
 }
 
 /** 单击：选中并回到启动页（首页 /），由用户决定是否开跑 */
-function openVersion(ver: VersionItem) {
+function openVersion(ver: VersionCard) {
   selectVersion(ver)
   router.push('/')
 }
 
 /** 双击：选中并直接进启动页自动启动 */
-function launchVersion(ver: VersionItem) {
+function launchVersion(ver: VersionCard) {
   selectVersion(ver)
   router.push({ path: '/launch', query: { autostart: '1' } })
 }
@@ -450,8 +493,8 @@ async function applyRouteSelection() {
   }
 
   const hit = candidates
-    .map((id) => visibleVersions.value.find((ver) => ver.id === id))
-    .find((ver): ver is VersionItem => ver !== undefined)
+    .map((id) => versionCards.value.find((card) => card.members.includes(id)))
+    .find((card): card is VersionCard => card !== undefined)
   if (hit) selectVersion(hit)
 
   // * 用完即清掉 query，避免刷新或再次进入时重复选中
