@@ -150,33 +150,39 @@ interface ElectronAPI {
       others: number
     }>
     // 资源包
-    listResourcePacks: (id: string) => Promise<Array<{
-      filename: string
-      size: number
-      enabled: boolean
-      modifiedAt: string
-      isDir: boolean
-    }>>
+    listResourcePacks: (id: string) => Promise<
+      Array<{
+        filename: string
+        size: number
+        enabled: boolean
+        modifiedAt: string
+        isDir: boolean
+      }>
+    >
     toggleResourcePack: (id: string, filename: string, enabled: boolean) => Promise<boolean>
     deleteResourcePack: (id: string, filename: string) => Promise<boolean>
     // 光影包
-    listShaderPacks: (id: string) => Promise<Array<{
-      filename: string
-      size: number
-      enabled: boolean
-      modifiedAt: string
-      isDir: boolean
-    }>>
+    listShaderPacks: (id: string) => Promise<
+      Array<{
+        filename: string
+        size: number
+        enabled: boolean
+        modifiedAt: string
+        isDir: boolean
+      }>
+    >
     toggleShaderPack: (id: string, filename: string, enabled: boolean) => Promise<boolean>
     deleteShaderPack: (id: string, filename: string) => Promise<boolean>
     // 存档
-    listSaves: (id: string) => Promise<Array<{
-      filename: string
-      size: number
-      enabled: boolean
-      modifiedAt: string
-      isDir: boolean
-    }>>
+    listSaves: (id: string) => Promise<
+      Array<{
+        filename: string
+        size: number
+        enabled: boolean
+        modifiedAt: string
+        isDir: boolean
+      }>
+    >
     renameSave: (id: string, oldName: string, newName: string) => Promise<boolean>
     backupSave: (id: string, name: string) => Promise<string | null>
     deleteSave: (id: string, name: string) => Promise<boolean>
@@ -215,13 +221,33 @@ interface ElectronAPI {
     onCancelled: (callback: (data: unknown) => void) => () => void
     cancelDownload: (id: string) => Promise<void>
     // 镜像源管理
-    getMirrors: () => Promise<{ success: boolean; data: Array<{ name: string; url: string; ping: number }> }>
-    getCurrentMirror: () => Promise<{ success: boolean; data: { name: string; url: string; ping: number } }>
+    getMirrors: () => Promise<{
+      success: boolean
+      data: Array<{ name: string; url: string; ping: number }>
+    }>
+    getCurrentMirror: () => Promise<{
+      success: boolean
+      data: { name: string; url: string; ping: number }
+    }>
     setMirror: (index: number) => Promise<{ success: boolean }>
-    testMirrorSpeed: () => Promise<{ success: boolean; data: Array<{ name: string; url: string; ping: number }> }>
+    testMirrorSpeed: () => Promise<{
+      success: boolean
+      data: Array<{ name: string; url: string; ping: number }>
+    }>
     autoSelectMirror: () => Promise<{ success: boolean; data: number }>
     // 下载设置
-    getDownloadConfig: () => Promise<{ success: boolean; data: { maxConcurrent: number; maxThreadsPerFile: number; speedLimit: number; maxRetries: number; currentMirror: { name: string; url: string; ping: number }; mirrorStrategy?: string; mirrors: Array<{ name: string; url: string; ping: number }> } }>
+    getDownloadConfig: () => Promise<{
+      success: boolean
+      data: {
+        maxConcurrent: number
+        maxThreadsPerFile: number
+        speedLimit: number
+        maxRetries: number
+        currentMirror: { name: string; url: string; ping: number }
+        mirrorStrategy?: string
+        mirrors: Array<{ name: string; url: string; ping: number }>
+      }
+    }>
     setMaxConcurrent: (max: number) => Promise<{ success: boolean }>
     setMaxThreads: (max: number) => Promise<{ success: boolean }>
     setSpeedLimit: (limit: number) => Promise<{ success: boolean }>
@@ -235,7 +261,15 @@ interface ElectronAPI {
     }>
     testServices: () => Promise<{
       success: boolean
-      data: Array<{ key: string; name: string; url: string; group: string; online: boolean; latency: number; error?: string }>
+      data: Array<{
+        key: string
+        name: string
+        url: string
+        group: string
+        online: boolean
+        latency: number
+        error?: string
+      }>
       error?: string
     }>
   }
@@ -243,7 +277,9 @@ interface ElectronAPI {
     detect: () => Promise<unknown[]>
     getDefault: () => Promise<string | null>
     setDefault: (javaPath: string) => Promise<void>
-    validate: (javaPath: string) => Promise<{ success: boolean; javaVersion?: string; javacVersion?: string; error?: string }>
+    validate: (
+      javaPath: string
+    ) => Promise<{ success: boolean; javaVersion?: string; javacVersion?: string; error?: string }>
     recommendedMajor: (mcVersion: string) => Promise<number>
   }
   version: {
@@ -259,36 +295,108 @@ interface ElectronAPI {
     getInfo: (versionId: string) => Promise<unknown>
     download: (versionId: string, gameDir: string) => Promise<IpcResult>
     downloadServer: (versionId: string, filePath: string) => Promise<IpcResult>
-    downloadStart: (versionId: string, gameDir: string, opts?: { loader?: string; loaderVersion?: string; optifine?: string; optifineVersion?: string; displayName?: string }) => Promise<IpcResult<{ taskId: string }>>
+    downloadStart: (
+      versionId: string,
+      gameDir: string,
+      opts?: {
+        loader?: string
+        loaderVersion?: string
+        optifine?: string
+        optifineVersion?: string
+        displayName?: string
+      }
+    ) => Promise<IpcResult<{ taskId: string }>>
     delete: (versionId: string, gameDir: string) => Promise<void>
     validate: (versionId: string, gameDir: string) => Promise<unknown>
-    downloadMissing: (versionId: string, gameDir: string) => Promise<IpcResult<{ downloaded: number; total?: number; message?: string }>>
-    onDownloadProgress: (callback: (data: { taskId: string; versionId: string; phase: string; phaseLabel: string; progress: number; downloaded: number; total: number; speed: number; gameDir: string }) => void) => () => void
-    onDownloadComplete: (callback: (data: { taskId: string; versionId: string; gameDir: string }) => void) => () => void
-    onDownloadError: (callback: (data: { taskId: string; versionId: string; error: string }) => void) => () => void
+    downloadMissing: (
+      versionId: string,
+      gameDir: string
+    ) => Promise<IpcResult<{ downloaded: number; total?: number; message?: string }>>
+    onDownloadProgress: (
+      callback: (data: {
+        taskId: string
+        versionId: string
+        phase: string
+        phaseLabel: string
+        progress: number
+        downloaded: number
+        total: number
+        speed: number
+        gameDir: string
+      }) => void
+    ) => () => void
+    onDownloadComplete: (
+      callback: (data: { taskId: string; versionId: string; gameDir: string }) => void
+    ) => () => void
+    onDownloadError: (
+      callback: (data: { taskId: string; versionId: string; error: string }) => void
+    ) => () => void
   }
   modloader: {
     getLoaders: (mcVersion: string) => Promise<unknown[]>
-    getVersions: (mcVersion: string, loaderType: string) => Promise<{ ok: boolean; data: string[]; error?: string }>
-    install: (instanceId: string, loaderType: string, loaderVersion: string, gameDir: string) => Promise<void>
+    getVersions: (
+      mcVersion: string,
+      loaderType: string
+    ) => Promise<{ ok: boolean; data: string[]; error?: string }>
+    install: (
+      instanceId: string,
+      loaderType: string,
+      loaderVersion: string,
+      gameDir: string
+    ) => Promise<void>
     onProgress: (callback: (data: unknown) => void) => () => void
   }
   game: {
-    launch: (instanceId: string, accountId: string, versionId?: string) => Promise<IpcResult & { success?: boolean; pid?: number; needsFileDownload?: boolean; missingFiles?: Array<{ type: string; name: string; path: string; size?: number }> }>
+    launch: (
+      instanceId: string,
+      accountId: string,
+      versionId?: string
+    ) => Promise<
+      IpcResult & {
+        success?: boolean
+        pid?: number
+        needsFileDownload?: boolean
+        missingFiles?: Array<{ type: string; name: string; path: string; size?: number }>
+      }
+    >
     getLog: (instanceId: string) => Promise<string>
     terminate: () => Promise<void>
     isRunning: () => Promise<boolean>
     onProgress: (callback: (progress: unknown) => void) => () => void
     onLog: (callback: (log: { text: string; level: string }) => void) => () => void
-    onExit: (callback: (code: { code: number; signal: string | null; instanceId?: string }) => void) => () => void
+    onExit: (
+      callback: (code: { code: number; signal: string | null; instanceId?: string }) => void
+    ) => () => void
+    onStopped: (
+      callback: (
+        status: string,
+        code: number,
+        detail?: {
+          error?: string
+          code?: number
+          codeText?: string
+          tailPreview?: string
+          badJars?: string
+          aborted?: boolean
+        }
+      ) => void
+    ) => () => void
     checkMissingFiles: (versionId: string) => Promise<unknown[]>
-    confirmDownloadAndLaunch: (versionId: string, accountId?: string) => Promise<IpcResult & { success?: boolean; pid?: number }>
-    onJavaMissing: (callback: (data: { majorVersion: number; responseChannel: string }) => void) => () => void
+    confirmDownloadAndLaunch: (
+      versionId: string,
+      accountId?: string
+    ) => Promise<IpcResult & { success?: boolean; pid?: number }>
+    onJavaMissing: (
+      callback: (data: { majorVersion: number; responseChannel: string }) => void
+    ) => () => void
     respondJavaMissing: (channel: string, accepted: boolean) => void
   }
   dialog: {
     selectFolder: (options?: { title?: string }) => Promise<string | null>
-    selectFile: (options?: { title?: string; filters?: Array<{ name: string; extensions: string[] }> }) => Promise<string | null>
+    selectFile: (options?: {
+      title?: string
+      filters?: Array<{ name: string; extensions: string[] }>
+    }) => Promise<string | null>
     readAsDataURL: (filePath: string) => Promise<string | null>
   }
   shell: {
@@ -314,20 +422,65 @@ interface ElectronAPI {
     setLast: (path: string) => Promise<void>
   }
   crash: {
-    parse: (logPath: string, instanceId: string) => Promise<{ ok: boolean; data: import('./types/crash').CrashReport | null; error?: string }>
-    diagnose: (logPath: string, instanceId: string) => Promise<{ ok: boolean; data: import('./types/crash').CrashDiagnosis | null; error?: string }>
-    list: (gameDir: string) => Promise<{ ok: boolean; data: import('./types/crash').CrashHistoryItem[]; error?: string }>
-    latest: (gameDir: string) => Promise<{ ok: boolean; data: import('./types/crash').CrashReport | null; error?: string }>
+    parse: (
+      logPath: string,
+      instanceId: string
+    ) => Promise<{ ok: boolean; data: import('./types/crash').CrashReport | null; error?: string }>
+    diagnose: (
+      logPath: string,
+      instanceId: string
+    ) => Promise<{
+      ok: boolean
+      data: import('./types/crash').CrashDiagnosis | null
+      error?: string
+    }>
+    list: (
+      gameDir: string
+    ) => Promise<{ ok: boolean; data: import('./types/crash').CrashHistoryItem[]; error?: string }>
+    latest: (
+      gameDir: string
+    ) => Promise<{ ok: boolean; data: import('./types/crash').CrashReport | null; error?: string }>
     onCrash: (callback: (data: import('./types/crash').CrashReport) => void) => () => void
   }
   notification: {
-    send: (payload: unknown) => Promise<void>
+    send: (payload: {
+      title: string
+      body?: string
+      type?: 'info' | 'success' | 'warning' | 'error'
+      source?: 'system' | 'download' | 'official'
+      key?: string
+      progress?: number
+      status?: 'info' | 'running' | 'success' | 'warning' | 'error'
+      route?: string
+      pinned?: boolean
+    }) => Promise<void>
     getHistory: (limit?: number) => Promise<{ ok: boolean; data: unknown[]; error?: string }>
     markRead: (id: string) => Promise<void>
     markAllRead: () => Promise<void>
     clear: () => Promise<void>
-    getUnreadCount: () => Promise<number>
-    onNotify: (callback: (item: { id: string; title: string; body: string; type: 'success' | 'error' | 'warning' | 'info'; timestamp: number; read: boolean; route?: string }) => void) => () => void
+    getUnreadCount: () => Promise<{ ok: boolean; data?: number }>
+    onNotify: (
+      callback: (item: {
+        id: string
+        title: string
+        body: string
+        type: 'success' | 'error' | 'warning' | 'info'
+        timestamp: number
+        read: boolean
+        route?: string
+      }) => void
+    ) => () => void
+    onUpdated: (
+      callback: (item: {
+        id: string
+        title: string
+        body: string
+        type: 'success' | 'error' | 'warning' | 'info'
+        timestamp: number
+        read: boolean
+        route?: string
+      }) => void
+    ) => () => void
     onClicked: (callback: (data: { id: string; route?: string }) => void) => () => void
   }
   mod: {
@@ -347,13 +500,31 @@ interface ElectronAPI {
     openConfigDir: (gameDir: string) => Promise<IpcResult<string>>
     checkUpdate: (mods: unknown[], mcVersion?: string, loader?: string) => Promise<IpcResult>
     update: (mod: unknown, updateInfo: unknown) => Promise<IpcResult>
-    onUpdateProgress: (callback: (data: { filePath: string; progress: number }) => void) => () => void
+    onUpdateProgress: (
+      callback: (data: { filePath: string; progress: number }) => void
+    ) => () => void
     checkDependencies: (mods: unknown[], mcVersion?: string, loader?: string) => Promise<IpcResult>
-    installDependencies: (mod: unknown, gameDir: string, mcVersion?: string, loader?: string) => Promise<IpcResult>
-    onDependencyProgress: (callback: (data: { modPath: string; depName: string; progress: number }) => void) => () => void
+    installDependencies: (
+      mod: unknown,
+      gameDir: string,
+      mcVersion?: string,
+      loader?: string
+    ) => Promise<IpcResult>
+    onDependencyProgress: (
+      callback: (data: { modPath: string; depName: string; progress: number }) => void
+    ) => () => void
   }
   updater: {
-    check: () => Promise<{ success: boolean; data?: { currentVersion: string; latestVersion: string | null; hasUpdate: boolean; notes: string | null; error: string | null } }>
+    check: () => Promise<{
+      success: boolean
+      data?: {
+        currentVersion: string
+        latestVersion: string | null
+        hasUpdate: boolean
+        notes: string | null
+        error: string | null
+      }
+    }>
     download: () => Promise<{ success: boolean }>
     cancel: () => Promise<{ success: boolean }>
     install: () => Promise<{ success: boolean }>
@@ -384,8 +555,22 @@ interface ElectronAPI {
     deleteBackground: (localPath: string) => Promise<void>
     computeVars: (hex: string) => Promise<unknown>
     exportTheme: (settings: unknown) => Promise<{ ok: boolean; json?: string; error?: string }>
-    importTheme: (json: string) => Promise<{ ok: boolean; settings?: unknown; cssVars?: unknown; backgroundDataUrl?: string | null; error?: string }>
-    getPresets: () => Promise<Array<{ id: string; name: string; description: string; themeColor: string; accentColor: string }>>
+    importTheme: (json: string) => Promise<{
+      ok: boolean
+      settings?: unknown
+      cssVars?: unknown
+      backgroundDataUrl?: string | null
+      error?: string
+    }>
+    getPresets: () => Promise<
+      Array<{
+        id: string
+        name: string
+        description: string
+        themeColor: string
+        accentColor: string
+      }>
+    >
   }
   backup: {
     create: (options?: unknown) => Promise<IpcResult & { filePath?: string; size?: number }>
@@ -396,12 +581,52 @@ interface ElectronAPI {
     onProgress: (callback: (progress: unknown) => void) => () => void
   }
   externalLauncher: {
-    detect: () => Promise<{ success: boolean; data: Array<{ type: string; name: string; path: string; instances: Array<{ name: string; version: string; loaderType: string; loaderVersion: string; gameDir: string; modCount: number; source: string }>; detected: boolean }> }>
-    scanDir: (gameDir: string) => Promise<{ success: boolean; data: { name: string; version: string; loaderType: string; loaderVersion: string; gameDir: string; modCount: number; source: string } | null }>
+    detect: () => Promise<{
+      success: boolean
+      data: Array<{
+        type: string
+        name: string
+        path: string
+        instances: Array<{
+          name: string
+          version: string
+          loaderType: string
+          loaderVersion: string
+          gameDir: string
+          modCount: number
+          source: string
+        }>
+        detected: boolean
+      }>
+    }>
+    scanDir: (gameDir: string) => Promise<{
+      success: boolean
+      data: {
+        name: string
+        version: string
+        loaderType: string
+        loaderVersion: string
+        gameDir: string
+        modCount: number
+        source: string
+      } | null
+    }>
   }
   screenshot: {
-    list: (gameDir: string) => Promise<{ ok: boolean; data: Array<{ fileName: string; filePath: string; size: number; createdAt: number; thumbnail: string | null }> }>
-    listAll: (gameDir: string) => Promise<{ ok: boolean; data: Array<{ fileName: string; filePath: string; size: number; createdAt: number }> }>
+    list: (gameDir: string) => Promise<{
+      ok: boolean
+      data: Array<{
+        fileName: string
+        filePath: string
+        size: number
+        createdAt: number
+        thumbnail: string | null
+      }>
+    }>
+    listAll: (gameDir: string) => Promise<{
+      ok: boolean
+      data: Array<{ fileName: string; filePath: string; size: number; createdAt: number }>
+    }>
     preview: (filePath: string) => Promise<{ ok: boolean; dataUrl: string | null }>
     thumbnail: (filePath: string) => Promise<{ ok: boolean; dataUrl: string | null }>
     delete: (filePath: string) => Promise<{ ok: boolean }>
@@ -414,7 +639,16 @@ interface ElectronAPI {
     start: (pid: number) => Promise<{ ok: boolean }>
     stop: () => Promise<{ ok: boolean }>
     status: () => Promise<{ active: boolean; pid: number | null }>
-    onSnapshot: (callback: (snap: { pid: number; alive: boolean; cpu: number; memoryMB: number; uptimeMs: number; timestamp: number }) => void) => () => void
+    onSnapshot: (
+      callback: (snap: {
+        pid: number
+        alive: boolean
+        cpu: number
+        memoryMB: number
+        uptimeMs: number
+        timestamp: number
+      }) => void
+    ) => () => void
   }
   share: {
     startInstance: (instanceId: string) => Promise<ShareStartResult>
@@ -423,16 +657,79 @@ interface ElectronAPI {
     receiveInstance: (shareCode: string) => Promise<{ sessionId: string }>
     importReceived: (sessionId: string) => Promise<ShareImportResult>
     getSession: (sessionId: string) => Promise<unknown>
-    saveSettings: (settings: { chunkSize?: number; connectionTimeout?: number; signalingServer?: string }) => Promise<{ ok: boolean; error?: string }>
-    getSettings: () => Promise<{ ok: boolean; settings?: { chunkSize: number; connectionTimeout: number; signalingServer: string }; error?: string }>
-    getHistory: (options?: { limit?: number }) => Promise<{ ok: boolean; history?: Array<{ id: string; type: string; instanceName: string; mcVersion: string | null; loaderType: string | null; shareCode: string; fileSize: number; status: string; errorMsg: string | null; createdAt: string }>; error?: string }>
+    saveSettings: (settings: {
+      chunkSize?: number
+      connectionTimeout?: number
+      signalingServer?: string
+    }) => Promise<{ ok: boolean; error?: string }>
+    getSettings: () => Promise<{
+      ok: boolean
+      settings?: { chunkSize: number; connectionTimeout: number; signalingServer: string }
+      error?: string
+    }>
+    getHistory: (options?: { limit?: number }) => Promise<{
+      ok: boolean
+      history?: Array<{
+        id: string
+        type: string
+        instanceName: string
+        mcVersion: string | null
+        loaderType: string | null
+        shareCode: string
+        fileSize: number
+        status: string
+        errorMsg: string | null
+        createdAt: string
+      }>
+      error?: string
+    }>
     onProtocolInvoke: (callback: (shareCode: string) => void) => () => void
-    onPackProgress: (callback: (event: Event, data: { instanceId: string; stage: string; progress: number }) => void) => () => void
-    onSessionUpdate: (callback: (event: Event, data: { sessionId: string; session: ShareSession }) => void) => () => void
-    onProgressUpdate: (callback: (event: Event, data: { sessionId: string; progress: { transferredChunks: number; totalChunks: number; bytesPerSecond: number; estimatedRemaining: number } }) => void) => () => void
-    removePackProgressListener: (callback: (event: Event, data: { instanceId: string; stage: string; progress: number }) => void) => void
-    removeSessionUpdateListener: (callback: (event: Event, data: { sessionId: string; session: ShareSession }) => void) => void
-    removeProgressUpdateListener: (callback: (event: Event, data: { sessionId: string; progress: { transferredChunks: number; totalChunks: number; bytesPerSecond: number; estimatedRemaining: number } }) => void) => void
+    onPackProgress: (
+      callback: (
+        event: Event,
+        data: { instanceId: string; stage: string; progress: number }
+      ) => void
+    ) => () => void
+    onSessionUpdate: (
+      callback: (event: Event, data: { sessionId: string; session: ShareSession }) => void
+    ) => () => void
+    onProgressUpdate: (
+      callback: (
+        event: Event,
+        data: {
+          sessionId: string
+          progress: {
+            transferredChunks: number
+            totalChunks: number
+            bytesPerSecond: number
+            estimatedRemaining: number
+          }
+        }
+      ) => void
+    ) => () => void
+    removePackProgressListener: (
+      callback: (
+        event: Event,
+        data: { instanceId: string; stage: string; progress: number }
+      ) => void
+    ) => void
+    removeSessionUpdateListener: (
+      callback: (event: Event, data: { sessionId: string; session: ShareSession }) => void
+    ) => void
+    removeProgressUpdateListener: (
+      callback: (
+        event: Event,
+        data: {
+          sessionId: string
+          progress: {
+            transferredChunks: number
+            totalChunks: number
+            bytesPerSecond: number
+            estimatedRemaining: number
+          }
+        }
+      ) => void
+    ) => void
   }
   logger: {
     setLevel: (level: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR') => Promise<void>
@@ -441,6 +738,7 @@ interface ElectronAPI {
 
   devTools: {
     open: () => Promise<void>
+    setF12Enabled: (enabled: boolean) => Promise<void>
   }
 }
 

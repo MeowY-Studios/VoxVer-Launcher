@@ -1327,19 +1327,20 @@ html[data-theme='light'] .kor-radio__item:hover {
 
 
 
-.kor-shell--nav-only .kor-shell__aside::-webkit-scrollbar {
+/* 滚动条默认透明，仅在滚动中（.is-scrolling）显现，停止滚动后自动消失 */
+.kor-shell--nav-only .kor-shell__aside {
 
-  width: 6px;
+  scrollbar-width: thin;
+
+  scrollbar-color: transparent transparent;
 
 }
 
 
 
-.kor-shell--nav-only .kor-shell__aside::-webkit-scrollbar-thumb {
+.kor-shell--nav-only .kor-shell__aside.is-scrolling {
 
-  background: rgba(255, 255, 255, 0.14);
-
-  border-radius: 3px;
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
 
 }
 
@@ -1781,7 +1782,7 @@ html[data-theme='light'] .kor-radio__item:hover {
 
 
 
-/* * ====== 账户页：Koring 下只留文字标题、去分隔线、卡堆改纵向流式 ====== */
+/* * ====== 账户页：Koring 下只留文字标题、去分隔线；卡堆保持原版的银行卡折叠 ====== */
 
 [data-skin='koring'] .account-page .section-header svg {
 
@@ -1814,34 +1815,6 @@ html[data-theme='light'] .kor-radio__item:hover {
 [data-skin='koring'] .account-page .card-stack {
 
   padding: 0;
-
-  height: auto !important;
-
-}
-
-
-
-[data-skin='koring'] .account-page .profile-item.id-card {
-
-  position: relative;
-
-  top: auto !important;
-
-  left: 0;
-
-  right: 0;
-
-  height: auto;
-
-  min-height: 148px;
-
-}
-
-
-
-[data-skin='koring'] .account-page .profile-item.id-card + .profile-item.id-card {
-
-  margin-top: 10px;
 
 }
 
@@ -2197,11 +2170,44 @@ html[data-theme='light'] .kor-radio__item:hover {
   justify-content: flex-end;
 }
 
-/* 启动页（C8） */
+/* 启动页（C8）：左「启动」右「游戏日志」，页面本身不滚动 */
 [data-skin='koring'] .kor-c8 {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.82fr) minmax(0, 1.18fr);
+  /* 单行高度锁定为容器剩余高度，日志卡片不会随日志增多无限变长 */
+  grid-template-rows: minmax(0, 1fr);
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+[data-skin='koring'] .kor-c8__col {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 12px;
+  min-height: 0;
+}
+
+[data-skin='koring'] .kor-c8__col--left {
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+[data-skin='koring'] .kor-c8__col--left .kor-header {
+  margin-bottom: 2px;
+}
+
+[data-skin='koring'] .kor-c8__col--right {
+  overflow: hidden;
+}
+
+[data-skin='koring'] .kor-c8__crash-caption {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--voxver-text-secondary);
 }
 
 [data-skin='koring'] .kor-c8__path-actions {
@@ -2215,6 +2221,15 @@ html[data-theme='light'] .kor-radio__item:hover {
   align-items: center;
   gap: 14px;
   flex-wrap: wrap;
+  margin: 6px 0 16px;
+}
+
+[data-skin='koring'] .kor-c8__col-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--voxver-text-primary);
 }
 
 [data-skin='koring'] .kor-c8__console-head {
@@ -2223,6 +2238,15 @@ html[data-theme='light'] .kor-radio__item:hover {
   justify-content: space-between;
   gap: 12px;
   padding-bottom: 10px;
+  flex-shrink: 0;
+}
+
+[data-skin='koring'] .kor-c8__log-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 [data-skin='koring'] .kor-c8__console-actions {
@@ -2232,7 +2256,9 @@ html[data-theme='light'] .kor-radio__item:hover {
 }
 
 [data-skin='koring'] .kor-c8__console {
-  max-height: 320px;
+  flex: 1;
+  min-height: 0;
+  max-height: none;
   overflow-y: auto;
   padding: 12px 14px;
   border-radius: 10px;
@@ -2856,4 +2882,26 @@ html[data-theme='light'] .kor-radio__item:hover {
 
 [data-skin='koring'] .kor-c12__toolbar .kor-input--wide {
   flex: 1;
+}
+/* 启动页：Koring 下改为居中的宽栏布局 */
+[data-skin='koring'] .launch-page.launch-page {
+  align-items: stretch;
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
+  padding: 16px 28px 20px;
+  gap: 10px;
+  /* 撑满主内容区，padding 计入高度，避免页面比窗口高出内边距导致日志卡片沉底被裁 */
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+/* 启动页：只放一个按钮的卡片不再画成整条卡片 */
+[data-skin='koring'] .kor-card:has(> .kor-c8__launch) {
+  background: transparent;
+  border-color: transparent;
+  padding: 0;
+  backdrop-filter: none;
+  box-shadow: none;
 }

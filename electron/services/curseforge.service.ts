@@ -86,7 +86,11 @@ export class CurseForgeService {
     const resp = await fetch(url, { headers })
     if (!resp.ok) {
       let body = ''
-      try { body = await resp.text() } catch { /* ignore */ }
+      try {
+        body = await resp.text()
+      } catch {
+        /* ignore */
+      }
       log.error(`CF API ${resp.status} ${resp.statusText} | URL: ${url} | body: ${body}`)
       throw new Error(`CurseForge API error ${resp.status}: ${resp.statusText}`)
     }

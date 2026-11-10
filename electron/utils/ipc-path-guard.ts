@@ -96,7 +96,9 @@ export function assertSafeIpcPath(raw: unknown, opts: PathGuardOptions = {}): st
     }
   }
 
-  const roots = [...getTrustedRoots(), ...(opts.extraRoots ?? [])].map((r) => normalizeRoot(r).toLowerCase())
+  const roots = [...getTrustedRoots(), ...(opts.extraRoots ?? [])].map((r) =>
+    normalizeRoot(r).toLowerCase()
+  )
   const within = roots.some((root) => {
     if (!root) return false
     return lower === root || lower.startsWith(root + sep) || lower.startsWith(root + '/')

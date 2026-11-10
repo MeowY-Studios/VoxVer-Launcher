@@ -13,7 +13,9 @@ const emit = defineEmits<{ select: [] }>()
 
 const { t } = useI18n()
 
-const label = computed(() => (props.skin === 'koring' ? t('settings.skinKoring') : t('settings.skinVoxver')))
+const label = computed(() =>
+  props.skin === 'koring' ? t('settings.skinKoring') : t('settings.skinVoxver')
+)
 
 const desc = computed(() =>
   props.skin === 'koring' ? t('settings.skinKoringDesc') : t('settings.skinVoxverDesc')

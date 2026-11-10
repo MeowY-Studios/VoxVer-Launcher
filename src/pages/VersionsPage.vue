@@ -7,187 +7,201 @@
 
     <!-- 版本列表 -->
     <template v-if="!isKoring">
-    <section class="versions-section vox-card">
-      <div class="section-header">
-        <h3>{{ $t('game.minecraftVersion') }}</h3>
-        <div class="section-actions">
-          <!-- 搜索框 -->
-          <input
-            class="search-input vox-input"
-            v-model="searchKeyword"
-            :placeholder="$t('version.searchPlaceholder')"
-            :disabled="loading"
-          />
-          <button class="vox-btn vox-btn--primary" @click="refreshVersions" :disabled="loading">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              :class="{ spinning: loading }"
-            >
-              <polyline points="23 4 23 10 17 10" />
-              <polyline points="1 20 1 14 7 14" />
-              <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
-            </svg>
-            {{ loading ? $t('common.loading') : $t('common.refresh') }}
-          </button>
-        </div>
-      </div>
-
-      <!-- 分类 Tabs -->
-      <div class="filter-tabs" v-if="!loading && versions.length">
-        <button
-          class="filter-tab"
-          :class="{ active: activeFilter === 'all' }"
-          @click="activeFilter = 'all'"
-        >
-          {{ $t('version.all') }} ({{ filteredVersions('all').length }})
-        </button>
-        <button
-          class="filter-tab"
-          :class="{ active: activeFilter === 'release' }"
-          @click="activeFilter = 'release'"
-        >
-          {{ $t('game.release') }} ({{ filteredVersions('release').length }})
-        </button>
-        <button
-          class="filter-tab"
-          :class="{ active: activeFilter === 'snapshot' }"
-          @click="activeFilter = 'snapshot'"
-        >
-          {{ $t('game.snapshot') }} ({{ filteredVersions('snapshot').length }})
-        </button>
-        <button
-          class="filter-tab"
-          :class="{ active: activeFilter === 'old' }"
-          @click="activeFilter = 'old'"
-        >
-          {{ $t('version.old') }} ({{ filteredVersions('old').length }})
-        </button>
-      </div>
-
-      <!-- 加载中状态：骨架屏 -->
-      <div class="skeleton-state" v-if="loading">
-        <div class="skeleton-item" v-for="n in 8" :key="n">
-          <div class="skeleton-id"></div>
-          <div class="skeleton-type"></div>
-          <div class="skeleton-date"></div>
-        </div>
-      </div>
-
-      <!-- 错误状态 -->
-      <div class="error-state" v-else-if="error">
-        <p class="error-text">{{ error }}</p>
-        <button class="vox-btn vox-btn--primary" @click="refreshVersions">{{ $t('common.retry') }}</button>
-      </div>
-
-      <!-- 版本列表（虚拟滚动） -->
-      <div class="versions-list-wrapper" v-else-if="totalFiltered > 0">
-        <VirtualScroll
-          :items="filteredVersions(activeFilter)"
-          :item-height="56"
-          :overscan="8"
-          :get-item-key="(item: MCVersion) => item.id"
-          class="versions-virtual-list"
-        >
-          <template #item="{ item: version }">
-            <div
-              class="version-item"
-              :class="{ selected: selectedVersion === version.id }"
-              @click="selectVersion(version.id)"
-            >
-              <div class="version-info">
-                <div class="version-id">{{ version.id }}</div>
-                <div class="version-type" :class="version.type">
-                  {{ getVersionTypeLabel(version.type) }}
-                </div>
-                <div class="version-date">{{ formatDate(version.releaseTime) }}</div>
-              </div>
-              <div class="version-actions">
-                <button class="btn-sm vox-btn" @click.stop="selectVersion(version.id)">
-                  {{ selectedVersion === version.id ? $t('version.selected') : $t('version.select') }}
-                </button>
-              </div>
-            </div>
-          </template>
-        </VirtualScroll>
-      </div>
-
-      <!-- 空状态 -->
-      <div class="empty-state" v-else>
-        <p>
-          {{
-            searchKeyword || activeFilter !== 'all'
-              ? $t('version.noMatches')
-              : $t('common.noData')
-          }}
-        </p>
-      </div>
-    </section>
-
-    <!-- ModLoader 安装 -->
-    <section class="modloader-section vox-card">
-      <div class="section-header">
-        <h3>{{ $t('modloader.install') }}</h3>
-      </div>
-
-      <div class="modloader-form">
-        <div class="form-group">
-          <label>{{ $t('modloader.selectMinecraftVersion') }}</label>
-          <select class="input-field vox-input" v-model="selectedVersion">
-            <option value="">{{ $t('common.pleaseSelect') }}</option>
-            <option v-for="version in versions" :key="version.id" :value="version.id">
-              {{ version.id }} ({{ getVersionTypeLabel(version.type) }})
-            </option>
-          </select>
-        </div>
-
-        <div class="form-group" v-if="selectedVersion">
-          <label>{{ $t('modloader.selectModLoader') }}</label>
-          <div class="loader-options">
-            <!-- Fabric -->
-            <div class="loader-type-group" v-if="fabricVersions.length">
-              <span class="loader-type-label">Fabric</span>
-              <select class="input-field vox-input loader-version-select" v-model="fabricSelectedVersion">
-                <option value="">{{ $t('common.pleaseSelect') }}</option>
-                <option v-for="v in fabricVersions" :key="v.version" :value="v.version">
-                  {{ v.version }}
-                </option>
-              </select>
-            </div>
-            <!-- Forge -->
-            <div class="loader-type-group" v-if="forgeVersions.length">
-              <span class="loader-type-label">Forge</span>
-              <select class="input-field vox-input loader-version-select" v-model="forgeSelectedVersion">
-                <option value="">{{ $t('common.pleaseSelect') }}</option>
-                <option v-for="v in forgeVersions" :key="v.version" :value="v.version">
-                  {{ v.version }}
-                </option>
-              </select>
-            </div>
-
-            <div class="loader-empty" v-if="!fabricVersions.length && !forgeVersions.length">
-              <span class="muted">
-                {{ modLoaderLoading ? $t('modloader.loading') : $t('modloader.noAvailable') }}
-              </span>
-            </div>
+      <section class="versions-section vox-card">
+        <div class="section-header">
+          <h3>{{ $t('game.minecraftVersion') }}</h3>
+          <div class="section-actions">
+            <!-- 搜索框 -->
+            <input
+              class="search-input vox-input"
+              v-model="searchKeyword"
+              :placeholder="$t('version.searchPlaceholder')"
+              :disabled="loading"
+            />
+            <button class="vox-btn vox-btn--primary" @click="refreshVersions" :disabled="loading">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                :class="{ spinning: loading }"
+              >
+                <polyline points="23 4 23 10 17 10" />
+                <polyline points="1 20 1 14 7 14" />
+                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
+              </svg>
+              {{ loading ? $t('common.loading') : $t('common.refresh') }}
+            </button>
           </div>
         </div>
 
-        <div class="form-actions">
+        <!-- 分类 Tabs -->
+        <div class="filter-tabs" v-if="!loading && versions.length">
           <button
-            class="vox-btn vox-btn--primary"
-            @click="installModLoader"
-            :disabled="!selectedVersion || (!fabricSelectedVersion && !forgeSelectedVersion) || modLoaderLoading"
+            class="filter-tab"
+            :class="{ active: activeFilter === 'all' }"
+            @click="activeFilter = 'all'"
           >
-            {{ modLoaderLoading ? $t('modloader.installing') : $t('modloader.install') }}
+            {{ $t('version.all') }} ({{ filteredVersions('all').length }})
+          </button>
+          <button
+            class="filter-tab"
+            :class="{ active: activeFilter === 'release' }"
+            @click="activeFilter = 'release'"
+          >
+            {{ $t('game.release') }} ({{ filteredVersions('release').length }})
+          </button>
+          <button
+            class="filter-tab"
+            :class="{ active: activeFilter === 'snapshot' }"
+            @click="activeFilter = 'snapshot'"
+          >
+            {{ $t('game.snapshot') }} ({{ filteredVersions('snapshot').length }})
+          </button>
+          <button
+            class="filter-tab"
+            :class="{ active: activeFilter === 'old' }"
+            @click="activeFilter = 'old'"
+          >
+            {{ $t('version.old') }} ({{ filteredVersions('old').length }})
           </button>
         </div>
-      </div>
-    </section>
+
+        <!-- 加载中状态：骨架屏 -->
+        <div class="skeleton-state" v-if="loading">
+          <div class="skeleton-item" v-for="n in 8" :key="n">
+            <div class="skeleton-id"></div>
+            <div class="skeleton-type"></div>
+            <div class="skeleton-date"></div>
+          </div>
+        </div>
+
+        <!-- 错误状态 -->
+        <div class="error-state" v-else-if="error">
+          <p class="error-text">{{ error }}</p>
+          <button class="vox-btn vox-btn--primary" @click="refreshVersions">
+            {{ $t('common.retry') }}
+          </button>
+        </div>
+
+        <!-- 版本列表（虚拟滚动） -->
+        <div class="versions-list-wrapper" v-else-if="totalFiltered > 0">
+          <VirtualScroll
+            :items="filteredVersions(activeFilter)"
+            :item-height="56"
+            :overscan="8"
+            :get-item-key="(item: MCVersion) => item.id"
+            class="versions-virtual-list"
+          >
+            <template #item="{ item: version }">
+              <div
+                class="version-item"
+                :class="{ selected: selectedVersion === version.id }"
+                @click="selectVersion(version.id)"
+              >
+                <div class="version-info">
+                  <div class="version-id">{{ version.id }}</div>
+                  <div class="version-type" :class="version.type">
+                    {{ getVersionTypeLabel(version.type) }}
+                  </div>
+                  <div class="version-date">{{ formatDate(version.releaseTime) }}</div>
+                </div>
+                <div class="version-actions">
+                  <button class="btn-sm vox-btn" @click.stop="selectVersion(version.id)">
+                    {{
+                      selectedVersion === version.id ? $t('version.selected') : $t('version.select')
+                    }}
+                  </button>
+                </div>
+              </div>
+            </template>
+          </VirtualScroll>
+        </div>
+
+        <!-- 空状态 -->
+        <div class="empty-state" v-else>
+          <p>
+            {{
+              searchKeyword || activeFilter !== 'all'
+                ? $t('version.noMatches')
+                : $t('common.noData')
+            }}
+          </p>
+        </div>
+      </section>
+
+      <!-- ModLoader 安装 -->
+      <section class="modloader-section vox-card">
+        <div class="section-header">
+          <h3>{{ $t('modloader.install') }}</h3>
+        </div>
+
+        <div class="modloader-form">
+          <div class="form-group">
+            <label>{{ $t('modloader.selectMinecraftVersion') }}</label>
+            <select class="input-field vox-input" v-model="selectedVersion">
+              <option value="">{{ $t('common.pleaseSelect') }}</option>
+              <option v-for="version in versions" :key="version.id" :value="version.id">
+                {{ version.id }} ({{ getVersionTypeLabel(version.type) }})
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group" v-if="selectedVersion">
+            <label>{{ $t('modloader.selectModLoader') }}</label>
+            <div class="loader-options">
+              <!-- Fabric -->
+              <div class="loader-type-group" v-if="fabricVersions.length">
+                <span class="loader-type-label">Fabric</span>
+                <select
+                  class="input-field vox-input loader-version-select"
+                  v-model="fabricSelectedVersion"
+                >
+                  <option value="">{{ $t('common.pleaseSelect') }}</option>
+                  <option v-for="v in fabricVersions" :key="v.version" :value="v.version">
+                    {{ v.version }}
+                  </option>
+                </select>
+              </div>
+              <!-- Forge -->
+              <div class="loader-type-group" v-if="forgeVersions.length">
+                <span class="loader-type-label">Forge</span>
+                <select
+                  class="input-field vox-input loader-version-select"
+                  v-model="forgeSelectedVersion"
+                >
+                  <option value="">{{ $t('common.pleaseSelect') }}</option>
+                  <option v-for="v in forgeVersions" :key="v.version" :value="v.version">
+                    {{ v.version }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="loader-empty" v-if="!fabricVersions.length && !forgeVersions.length">
+                <span class="muted">
+                  {{ modLoaderLoading ? $t('modloader.loading') : $t('modloader.noAvailable') }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button
+              class="vox-btn vox-btn--primary"
+              @click="installModLoader"
+              :disabled="
+                !selectedVersion ||
+                (!fabricSelectedVersion && !forgeSelectedVersion) ||
+                modLoaderLoading
+              "
+            >
+              {{ modLoaderLoading ? $t('modloader.installing') : $t('modloader.install') }}
+            </button>
+          </div>
+        </div>
+      </section>
     </template>
     <div v-else class="kor-c5">
       <KorSectionTitle>{{ $t('game.minecraftVersion') }}</KorSectionTitle>
@@ -222,7 +236,9 @@
         </div>
         <div v-else-if="error" class="kor-c5__state">
           <p class="kor-copy is-error">{{ error }}</p>
-          <KorButton variant="primary" size="sm" @click="refreshVersions">{{ $t('common.retry') }}</KorButton>
+          <KorButton variant="primary" size="sm" @click="refreshVersions">{{
+            $t('common.retry')
+          }}</KorButton>
         </div>
         <div v-else-if="totalFiltered > 0" class="kor-c5__list">
           <VirtualScroll
@@ -248,7 +264,9 @@
                   :variant="selectedVersion === version.id ? 'primary' : 'outline'"
                   @click.stop="selectVersion(version.id)"
                 >
-                  {{ selectedVersion === version.id ? $t('version.selected') : $t('version.select') }}
+                  {{
+                    selectedVersion === version.id ? $t('version.selected') : $t('version.select')
+                  }}
                 </KorButton>
               </div>
             </template>
@@ -256,7 +274,9 @@
         </div>
         <KorEmpty
           v-else
-          :title="searchKeyword || activeFilter !== 'all' ? $t('version.noMatches') : $t('common.noData')"
+          :title="
+            searchKeyword || activeFilter !== 'all' ? $t('version.noMatches') : $t('common.noData')
+          "
         />
       </KorSettingCard>
 
@@ -267,10 +287,18 @@
         </KorSettingRow>
         <template v-if="selectedVersion">
           <KorSettingRow v-if="fabricVersions.length" label="Fabric">
-            <KorSettingSelect v-model="fabricSelectedVersion" :options="korFabricOptions" :width="180" />
+            <KorSettingSelect
+              v-model="fabricSelectedVersion"
+              :options="korFabricOptions"
+              :width="180"
+            />
           </KorSettingRow>
           <KorSettingRow v-if="forgeVersions.length" label="Forge">
-            <KorSettingSelect v-model="forgeSelectedVersion" :options="korForgeOptions" :width="180" />
+            <KorSettingSelect
+              v-model="forgeSelectedVersion"
+              :options="korForgeOptions"
+              :width="180"
+            />
           </KorSettingRow>
           <KorSettingRow
             v-if="!fabricVersions.length && !forgeVersions.length"
@@ -282,7 +310,11 @@
               variant="primary"
               size="md"
               :loading="modLoaderLoading"
-              :disabled="!selectedVersion || (!fabricSelectedVersion && !forgeSelectedVersion) || modLoaderLoading"
+              :disabled="
+                !selectedVersion ||
+                (!fabricSelectedVersion && !forgeSelectedVersion) ||
+                modLoaderLoading
+              "
               @click="installModLoader"
             >
               {{ $t('modloader.install') }}
@@ -302,7 +334,17 @@ import type { MCVersion } from '../stores/versions.store'
 import { useInstancesStore } from '../stores/instances.store'
 import { getCurrentLocale } from '../locale/i18n'
 import VirtualScroll from '../components/common/VirtualScroll.vue'
-import { KorButton, KorEmpty, KorPageHeader, KorSectionTitle, KorSettingCard, KorSettingRow, KorSettingSelect, KorInput, KorSkeleton } from '../components/kor'
+import {
+  KorButton,
+  KorEmpty,
+  KorPageHeader,
+  KorSectionTitle,
+  KorSettingCard,
+  KorSettingRow,
+  KorSettingSelect,
+  KorInput,
+  KorSkeleton
+} from '../components/kor'
 import { useAppStore } from '../stores'
 
 const { t } = useI18n()
@@ -352,24 +394,30 @@ const totalFiltered = computed(() => filteredVersions(activeFilter.value).length
 /* ---------- Koring 皮肤：Tab 与下拉选项 ---------- */
 const korTabs = computed(() => [
   { value: 'all' as const, label: `${t('version.all')} (${filteredVersions('all').length})` },
-  { value: 'release' as const, label: `${t('game.release')} (${filteredVersions('release').length})` },
-  { value: 'snapshot' as const, label: `${t('game.snapshot')} (${filteredVersions('snapshot').length})` },
-  { value: 'old' as const, label: `${t('version.old')} (${filteredVersions('old').length})` },
+  {
+    value: 'release' as const,
+    label: `${t('game.release')} (${filteredVersions('release').length})`
+  },
+  {
+    value: 'snapshot' as const,
+    label: `${t('game.snapshot')} (${filteredVersions('snapshot').length})`
+  },
+  { value: 'old' as const, label: `${t('version.old')} (${filteredVersions('old').length})` }
 ])
 
 const korMcOptions = computed(() => [
   { value: '', label: t('common.pleaseSelect') },
-  ...versions.value.map((v) => ({ value: v.id, label: `${v.id} (${getVersionTypeLabel(v.type)})` })),
+  ...versions.value.map((v) => ({ value: v.id, label: `${v.id} (${getVersionTypeLabel(v.type)})` }))
 ])
 
 const korFabricOptions = computed(() => [
   { value: '', label: t('common.pleaseSelect') },
-  ...fabricVersions.value.map((v) => ({ value: v.version, label: v.version })),
+  ...fabricVersions.value.map((v) => ({ value: v.version, label: v.version }))
 ])
 
 const korForgeOptions = computed(() => [
   { value: '', label: t('common.pleaseSelect') },
-  ...forgeVersions.value.map((v) => ({ value: v.version, label: v.version })),
+  ...forgeVersions.value.map((v) => ({ value: v.version, label: v.version }))
 ])
 
 // ===== 事件处理 =====
@@ -587,14 +635,10 @@ onMounted(() => {
   }
 }
 
-
-
 /* ===== Loading spinner 动画 ===== */
 .spinning {
   animation: spin 0.8s linear infinite;
 }
-
-
 
 /* ===== 错误状态 ===== */
 .error-state {

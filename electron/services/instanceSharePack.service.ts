@@ -263,7 +263,9 @@ export async function unpackSharedInstance(
 
   const dir = await unzipper.Open.file(archivePath)
 
-  const manifestEntry = dir.files.find((f: { path: string; dir?: boolean }) => f.path === 'share_manifest.json')
+  const manifestEntry = dir.files.find(
+    (f: { path: string; dir?: boolean }) => f.path === 'share_manifest.json'
+  )
   if (!manifestEntry) {
     throw new Error('Invalid share file (missing manifest)')
   }
@@ -279,7 +281,9 @@ export async function unpackSharedInstance(
 
   await fs.promises.mkdir(gameDir, { recursive: true })
 
-  const files = dir.files.filter((f: { path: string; dir?: boolean }) => !f.dir && f.path !== 'share_manifest.json')
+  const files = dir.files.filter(
+    (f: { path: string; dir?: boolean }) => !f.dir && f.path !== 'share_manifest.json'
+  )
   const totalFiles = files.length
   let extractedFiles = 0
 

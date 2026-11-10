@@ -3,12 +3,21 @@
     <!-- 队列头部 -->
     <div class="queue-header" v-if="showHeader">
       <h3>{{ $t('download.downloadQueue') }}</h3>
-      <span class="queue-count" v-if="total > 0">{{ $t('component.taskCount', { n: total }) }}</span>
+      <span class="queue-count" v-if="total > 0">{{
+        $t('component.taskCount', { n: total })
+      }}</span>
     </div>
 
     <!-- 空状态 -->
     <div v-if="tasks.length === 0" class="queue-empty">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-text-muted)" stroke-width="1.5">
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="var(--voxver-text-muted)"
+        stroke-width="1.5"
+      >
         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
       </svg>
       <p>{{ $t('component.noDownloadTasks') }}</p>
@@ -16,16 +25,23 @@
 
     <!-- 任务列表 -->
     <div v-else class="task-list">
-      <div v-for="task in tasks" :key="task.id" class="task-item"
-        :class="{ active: task.status === 'downloading', error: task.status === 'failed' }">
+      <div
+        v-for="task in tasks"
+        :key="task.id"
+        class="task-item"
+        :class="{ active: task.status === 'downloading', error: task.status === 'failed' }"
+      >
         <!-- 文件名 -->
         <span class="task-name">{{ task.fileName }}</span>
 
         <!-- 进度 -->
         <div class="progress-wrap">
           <div class="progress-bar">
-            <div class="progress-fill" :class="{ animating: task.status === 'downloading' }"
-              :style="{ width: `${task.progress}%` }"></div>
+            <div
+              class="progress-fill"
+              :class="{ animating: task.status === 'downloading' }"
+              :style="{ width: `${task.progress}%` }"
+            ></div>
           </div>
           <span class="progress-text">{{ task.progress }}%</span>
         </div>
@@ -37,7 +53,12 @@
         <span v-else class="task-status" :class="task.status">{{ statusLabel(task.status) }}</span>
 
         <!-- 操作 -->
-        <button v-if="canCancel(task)" class="cancel-btn" @click="$emit('cancel', task.id)" :title="$t('common.cancel')">
+        <button
+          v-if="canCancel(task)"
+          class="cancel-btn"
+          @click="$emit('cancel', task.id)"
+          :title="$t('common.cancel')"
+        >
           ×
         </button>
       </div>

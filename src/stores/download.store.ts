@@ -178,10 +178,17 @@ export const useDownloadStore = defineStore('download', () => {
     const versionOnes = Array.from(versionTasks.value.values()).map(versionToUnified)
     const modOnes = activeDownloads.value.map(modToUnified)
     // 历史记录：仅取已终结状态（避免与进行中任务重复），并按 id 去重
-    const aliveIds = new Set<string>([...versionTasks.value.keys(), ...activeDownloads.value.map((t) => t.id)])
+    const aliveIds = new Set<string>([
+      ...versionTasks.value.keys(),
+      ...activeDownloads.value.map((t) => t.id)
+    ])
     const historyOnes = historyTasks.value
       .filter(
-        (t) => t.status === 'completed' || t.status === 'failed' || t.status === 'cancelled' || t.status === 'error'
+        (t) =>
+          t.status === 'completed' ||
+          t.status === 'failed' ||
+          t.status === 'cancelled' ||
+          t.status === 'error'
       )
       .filter((t) => !aliveIds.has(t.id))
       .map(modToUnified)
@@ -190,6 +197,36 @@ export const useDownloadStore = defineStore('download', () => {
 
   /** 是否有任何统一任务 */
   const hasAnyTask = computed(() => unifiedTasks.value.length > 0)
+
+  /** 下载通知节流记录（key -> 上次推送时间），避免进度刷新过快 */
+  const notifyThrottle = new Map<string, number>()
+
+  /**
+   * 推送/更新下载通知
+   * 同一个 key 在通知中心里原地刷新：进行中显示进度，结束后变成成功/失败
+   */
+  function sendDownloadNotification(
+    key: string,
+    payload: {
+      title: string
+      body: string
+      type?: 'info' | 'success' | 'error'
+      progress?: number
+      status: 'running' | 'success' | 'error'
+    }
+  ) {
+    if (payload.status === 'running') {
+      const last = notifyThrottle.get(key) ?? 0
+      if (Date.now() - last < 1200) return
+    }
+    notifyThrottle.set(key, Date.now())
+    window.electronAPI?.notification?.send({
+      ...payload,
+      source: 'download',
+      key,
+      route: '/download/manage'
+    })
+  }
 
   // * ====== 操作 ======
 
@@ -225,12 +262,32 @@ export const useDownloadStore = defineStore('download', () => {
     if (!suppressFloat.value) {
       showFloatPanel.value = true
     }
+    // * 下载开始：在通知中心创建一条带进度的下载通知
+    sendDownloadNotification(`dl:version:${versionId}`, {
+      title: task.name,
+      body: task.phaseLabel,
+      type: 'info',
+      progress: task.progress,
+      status: 'running'
+    })
 
-    const res = await api.versions.downloadStart(versionId, targetFolder, { loader, loaderVersion, optifine, optifineVersion, displayName })
+    const res = await api.versions.downloadStart(versionId, targetFolder, {
+      loader,
+      loaderVersion,
+      optifine,
+      optifineVersion,
+      displayName
+    })
     if (!res?.ok) {
       task.phase = 'failed'
       task.error = res?.error || $t('download.downloadUnknownError')
       task.phaseLabel = $t('download.downloadFailedWithError', { error: task.error })
+      sendDownloadNotification(`dl:version:${versionId}`, {
+        title: task.name,
+        body: task.phaseLabel,
+        type: 'error',
+        status: 'error'
+      })
     }
   }
 
@@ -254,16 +311,33 @@ export const useDownloadStore = defineStore('download', () => {
     task.downloadedSize = data.downloaded
     task.totalSize = data.total
     task.speed = data.speed
+    // * 进度写入通知中心（内部节流）
+    sendDownloadNotification(`dl:version:${data.versionId}`, {
+      title: task.name,
+      body: task.phaseLabel,
+      type: 'info',
+      progress: data.progress,
+      status: 'running'
+    })
   }
 
   /** 版本下载完成 */
   function onVersionComplete(data: { taskId: string; versionId: string; gameDir: string }) {
     const task = versionTasks.value.get(data.versionId)
+    // * 加载器安装失败的提示不要被"下载完成"覆盖，否则用户看不到失败原因
+    const installFailed = task?.phase === 'installing_failed'
     if (task) {
       task.phase = 'completed'
       task.progress = 100
-      task.phaseLabel = $t('download.downloadCompleted')
+      if (!installFailed) task.phaseLabel = $t('download.downloadCompleted')
     }
+    sendDownloadNotification(`dl:version:${data.versionId}`, {
+      title: task?.name || data.versionId,
+      body: installFailed && task ? task.phaseLabel : $t('download.downloadCompleted'),
+      type: installFailed ? 'error' : 'success',
+      progress: 100,
+      status: installFailed ? 'error' : 'success'
+    })
   }
 
   /** 版本下载失败 */
@@ -274,6 +348,12 @@ export const useDownloadStore = defineStore('download', () => {
       task.error = data.error
       task.phaseLabel = $t('download.downloadFailedWithError', { error: data.error })
     }
+    sendDownloadNotification(`dl:version:${data.versionId}`, {
+      title: task?.name || data.versionId,
+      body: data.error || $t('download.taskFailed'),
+      type: 'error',
+      status: 'error'
+    })
   }
 
   /** 移除版本下载任务 */
@@ -356,16 +436,19 @@ export const useDownloadStore = defineStore('download', () => {
         projectType: params?.projectType
       }
       const response = await window.electronAPI?.download.searchMods(queryParams)
-      if (response && (response as { data?: unknown[]; success?: boolean; error?: string }).success === false) {
-        searchError.value = (response as { data?: unknown[]; success?: boolean; error?: string }).error || $t('download.searchFailed')
+      if (
+        response &&
+        (response as { data?: unknown[]; success?: boolean; error?: string }).success === false
+      ) {
+        searchError.value =
+          (response as { data?: unknown[]; success?: boolean; error?: string }).error ||
+          $t('download.searchFailed')
         console.error('[searchMods] IPC 返回错误:', searchError.value)
       } else {
         searchError.value = ''
       }
       const data = (response as { data?: unknown[]; success?: boolean; error?: string })?.data || []
-      const mapped = data.map((raw) =>
-        mapRawToModResult(raw as unknown as Record<string, unknown>)
-      )
+      const mapped = data.map((raw) => mapRawToModResult(raw as unknown as Record<string, unknown>))
 
       if (offset === 0) {
         searchResults.value = mapped
@@ -526,6 +609,14 @@ export const useDownloadStore = defineStore('download', () => {
         task.speed = (d.speed as number) || task.speed
         task.phase = (d.status as DownloadStatus) || task.phase
         task.downloadedSize = (d.downloadedSize as number) || task.downloadedSize
+        // * Mod / 资源下载进度写入通知中心（内部节流）
+        sendDownloadNotification(`dl:mod:${id}`, {
+          title: task.fileName || id,
+          body: $t('download.downloading'),
+          type: 'info',
+          progress: typeof d.progress === 'number' ? (d.progress as number) : task.progress,
+          status: 'running'
+        })
       }
       // * 有活跃 mod 下载时显示浮动面板（下载管理页打开期间抑制自动弹出）
       if (!suppressFloat.value && !showFloatPanel.value && activeDownloads.value.length > 0) {
@@ -541,11 +632,13 @@ export const useDownloadStore = defineStore('download', () => {
       if (versionTasks.value.size === 0 && activeDownloads.value.length === 0) {
         showFloatPanel.value = false
       }
-      // 发送通知
-      window.electronAPI?.notification?.send({
-        title: $t('download.downloadCompleted'),
-        body: (d.fileName as string) || $t('download.taskCompleted'),
-        type: 'success'
+      // 更新通知中心里同一条下载通知
+      sendDownloadNotification(`dl:mod:${d.id as string}`, {
+        title: (d.fileName as string) || $t('download.taskCompleted'),
+        body: $t('download.downloadCompleted'),
+        type: 'success',
+        progress: 100,
+        status: 'success'
       })
     })
 
@@ -557,10 +650,11 @@ export const useDownloadStore = defineStore('download', () => {
       if (versionTasks.value.size === 0 && activeDownloads.value.length === 0) {
         showFloatPanel.value = false
       }
-      window.electronAPI?.notification?.send({
-        title: $t('download.downloadFailed'),
-        body: (d.fileName as string) || (d.error as string) || $t('download.taskFailed'),
-        type: 'error'
+      sendDownloadNotification(`dl:mod:${d.id as string}`, {
+        title: (d.fileName as string) || $t('download.taskFailed'),
+        body: (d.error as string) || $t('download.taskFailed'),
+        type: 'error',
+        status: 'error'
       })
     })
 
@@ -632,7 +726,10 @@ function mapRawToModResult(raw: Record<string, unknown>): ModSearchResult {
     author: (d.author as string) || '',
     description: (d.description as string) || '',
     iconUrl:
-      (d.iconUrl as string) || (d.icon_url as string) || ((d.logo as Record<string, unknown>)?.url as string) || '',
+      (d.iconUrl as string) ||
+      (d.icon_url as string) ||
+      ((d.logo as Record<string, unknown>)?.url as string) ||
+      '',
     downloads: (d.downloads as number) ?? 0,
     follows: (d.follows as number) ?? (d.likes as number) ?? 0,
     source: (d.platform as string) === 'curseforge' ? 'curseforge' : 'modrinth',

@@ -1,12 +1,20 @@
 <template>
   <div class="dm-page">
-    <div v-if="isKoring" class="kor-c9__back"><KorButton variant="ghost" size="sm" @click="goToDownloads">← {{ $t('download.backToDownloads') }}</KorButton></div>
+    <div v-if="isKoring" class="kor-c9__back">
+      <KorButton variant="ghost" size="sm" @click="goToDownloads"
+        >← {{ $t('download.backToDownloads') }}</KorButton
+      >
+    </div>
     <KorPageHeader v-if="isKoring" :title="$t('download.downloadManager')" />
     <!-- 顶部导航 -->
     <div v-if="!isKoring" class="dm-header">
       <h1 v-if="!isKoring" class="dm-title">{{ $t('download.downloadManager') }}</h1>
       <div class="header-actions">
-        <button v-if="completedCount > 0" class="btn-clear vox-btn vox-btn--destructive" @click="clearCompleted">
+        <button
+          v-if="completedCount > 0"
+          class="btn-clear vox-btn vox-btn--destructive"
+          @click="clearCompleted"
+        >
           <svg
             width="16"
             height="16"
@@ -26,235 +34,8 @@
 
     <!-- 搜索、统计、筛选 -->
     <template v-if="!isKoring">
-    <div class="dm-toolbar">
-      <div class="search-box">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <circle cx="11" cy="11" r="8" />
-          <line x1="21" y1="21" x2="16.65" y2="16.65" />
-        </svg>
-        <input v-model="searchQuery" type="text" :placeholder="$t('download.searchTask')" class="search-input" />
-      </div>
-
-      <!-- 下载统计（缩小居中） -->
-      <div class="dm-stats">
-        <div class="stat-item">
-          <span class="stat-value">{{ totalCount }}</span>
-          <span class="stat-label">{{ $t('download.totalTasks') }}</span>
-        </div>
-        <div class="stat-item downloading">
-          <span class="stat-value">{{ downloadingCount }}</span>
-          <span class="stat-label">{{ $t('download.downloading') }}</span>
-        </div>
-        <div class="stat-item completed">
-          <span class="stat-value">{{ completedCount }}</span>
-          <span class="stat-label">{{ $t('download.completed') }}</span>
-        </div>
-        <div class="stat-item failed">
-          <span class="stat-value">{{ failedCount }}</span>
-          <span class="stat-label">{{ $t('download.failed') }}</span>
-        </div>
-      </div>
-
-      <!-- 分类标签 -->
-      <div class="filter-tabs">
-        <button
-          v-for="tab in tabs"
-          :key="tab.value"
-          class="tab-btn"
-          :class="{ active: activeTab === tab.value }"
-          @click="activeTab = tab.value"
-        >
-          {{ tab.label }}
-          <span class="tab-count" v-if="getTabCount(tab.value) > 0">{{
-            getTabCount(tab.value)
-          }}</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- 活跃下载列表 -->
-    <div class="dm-content">
-      <template v-if="filteredTasks.length > 0">
-        <div class="task-list">
-          <div
-            v-for="task in filteredTasks"
-            :key="task.id"
-            class="task-item"
-            :class="{
-              completed: task.phase === 'completed',
-              failed: task.phase === 'failed',
-              downloading: isActivePhase(task.phase)
-            }"
-          >
-            <!-- 选择框 -->
-            <label class="task-checkbox">
-              <input type="checkbox" v-model="selectedTasks" :value="task.id" />
-              <span class="checkmark"></span>
-            </label>
-
-            <!-- 图标 -->
-            <div class="task-icon">
-              <div v-if="task.phase === 'completed'" class="icon-circle success">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-              </div>
-              <div v-else-if="task.phase === 'failed'" class="icon-circle error">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="15" y1="9" x2="9" y2="15" />
-                  <line x1="9" y1="9" x2="15" y2="15" />
-                </svg>
-              </div>
-              <div v-else class="icon-circle downloading">
-                <svg
-                  class="download-icon"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-              </div>
-            </div>
-
-            <!-- 中间：信息 -->
-            <div class="task-info">
-              <div class="task-header">
-                <h3 class="task-name">{{ task.name }}</h3>
-                <span class="task-size">{{ formatSize(task.totalSize) }}</span>
-              </div>
-              <div class="task-meta">
-                <span class="task-phase-tag" :class="task.phase">
-                  {{ task.phaseLabel }}
-                </span>
-                <span class="task-time">{{ formatTime(task._lastTime) }}</span>
-              </div>
-              <!-- 进度条 -->
-              <div class="task-bar-wrap">
-                <div class="task-bar" :style="{ width: task.progress + '%' }">
-                  <div class="task-bar-glow" :style="{ width: task.progress + '%' }"></div>
-                </div>
-                <span class="task-progress-text">{{ task.progress }}%</span>
-              </div>
-            </div>
-
-            <!-- 右侧：操作 -->
-            <div class="task-actions">
-              <div
-                v-if="isActivePhase(task.phase)"
-                class="speed-info"
-              >
-                <span class="speed-label">{{ formatSpeed(task.speed) }}</span>
-                <span class="speed-status"
-                  >{{ $t('download.remaining') }} {{ formatSize(task.totalSize - task.downloadedSize) }}</span
-                >
-              </div>
-              <div v-else class="action-buttons">
-                <button
-                  v-if="task.phase === 'failed'"
-                  class="btn-action retry"
-                  @click="retryTask(task)"
-                  :title="$t('download.retryDownload')"
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <polyline points="23 4 23 10 17 10" />
-                    <path d="M4 20v-6h6" />
-                    <path d="M20.49 15a9 9 0 10-2.12 9.36L23 10" />
-                  </svg>
-                </button>
-                <button
-                  v-else-if="task.phase === 'completed'"
-                  class="btn-action view"
-                  @click="viewInstance(task)"
-                  :title="$t('download.viewInstance')"
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                </button>
-                <button class="btn-action delete" @click="removeTask(task)" :title="$t('download.deleteTask')">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path d="M3 6h18" />
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </template>
-
-      <!-- 无下载任务 -->
-      <div v-else class="dm-empty">
-        <div class="empty-icon">
-          <svg
-            width="64"
-            height="64"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="var(--voxver-border-color)"
-            stroke-width="1.5"
-          >
-            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
-          </svg>
-        </div>
-        <h3>{{ $t('download.noDownloadTasks') }}</h3>
-        <p>{{ $t('download.goToDownloadHint') }}</p>
-        <button class="btn-go-download vox-btn vox-btn--primary" @click="goToDownloads">
+      <div class="dm-toolbar">
+        <div class="search-box">
           <svg
             width="16"
             height="16"
@@ -263,26 +44,261 @@
             stroke="currentColor"
             stroke-width="2"
           >
-            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
-          {{ $t('download.goToDownload') }}
-        </button>
-      </div>
-    </div>
+          <input
+            v-model="searchQuery"
+            type="text"
+            :placeholder="$t('download.searchTask')"
+            class="search-input"
+          />
+        </div>
 
-    <!-- 底部操作栏（选中时显示） -->
-    <div v-if="selectedTasks.length > 0" class="dm-selection-bar">
-      <div class="selection-info">
-        <span>{{ $t('download.selectedTasks', { count: selectedTasks.length }) }}</span>
-      </div>
-      <div class="selection-actions">
-        <button class="btn-selection" @click="cancelSelection">{{ $t('common.cancel') }}</button>
-        <button class="btn-selection danger" @click="deleteSelected">{{ $t('download.deleteSelected') }}</button>
-      </div>
-    </div>
+        <!-- 下载统计（缩小居中） -->
+        <div class="dm-stats">
+          <div class="stat-item">
+            <span class="stat-value">{{ totalCount }}</span>
+            <span class="stat-label">{{ $t('download.totalTasks') }}</span>
+          </div>
+          <div class="stat-item downloading">
+            <span class="stat-value">{{ downloadingCount }}</span>
+            <span class="stat-label">{{ $t('download.downloading') }}</span>
+          </div>
+          <div class="stat-item completed">
+            <span class="stat-value">{{ completedCount }}</span>
+            <span class="stat-label">{{ $t('download.completed') }}</span>
+          </div>
+          <div class="stat-item failed">
+            <span class="stat-value">{{ failedCount }}</span>
+            <span class="stat-label">{{ $t('download.failed') }}</span>
+          </div>
+        </div>
 
+        <!-- 分类标签 -->
+        <div class="filter-tabs">
+          <button
+            v-for="tab in tabs"
+            :key="tab.value"
+            class="tab-btn"
+            :class="{ active: activeTab === tab.value }"
+            @click="activeTab = tab.value"
+          >
+            {{ tab.label }}
+            <span class="tab-count" v-if="getTabCount(tab.value) > 0">{{
+              getTabCount(tab.value)
+            }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 活跃下载列表 -->
+      <div class="dm-content">
+        <template v-if="filteredTasks.length > 0">
+          <div class="task-list">
+            <div
+              v-for="task in filteredTasks"
+              :key="task.id"
+              class="task-item"
+              :class="{
+                completed: task.phase === 'completed',
+                failed: task.phase === 'failed',
+                downloading: isActivePhase(task.phase)
+              }"
+            >
+              <!-- 选择框 -->
+              <label class="task-checkbox">
+                <input type="checkbox" v-model="selectedTasks" :value="task.id" />
+                <span class="checkmark"></span>
+              </label>
+
+              <!-- 图标 -->
+              <div class="task-icon">
+                <div v-if="task.phase === 'completed'" class="icon-circle success">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <div v-else-if="task.phase === 'failed'" class="icon-circle error">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="15" y1="9" x2="9" y2="15" />
+                    <line x1="9" y1="9" x2="15" y2="15" />
+                  </svg>
+                </div>
+                <div v-else class="icon-circle downloading">
+                  <svg
+                    class="download-icon"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                </div>
+              </div>
+
+              <!-- 中间：信息 -->
+              <div class="task-info">
+                <div class="task-header">
+                  <h3 class="task-name">{{ task.name }}</h3>
+                  <span class="task-size">{{ formatSize(task.totalSize) }}</span>
+                </div>
+                <div class="task-meta">
+                  <span class="task-phase-tag" :class="task.phase">
+                    {{ task.phaseLabel }}
+                  </span>
+                  <span class="task-time">{{ formatTime(task._lastTime) }}</span>
+                </div>
+                <!-- 进度条 -->
+                <div class="task-bar-wrap">
+                  <div class="task-bar" :style="{ width: task.progress + '%' }">
+                    <div class="task-bar-glow" :style="{ width: task.progress + '%' }"></div>
+                  </div>
+                  <span class="task-progress-text">{{ task.progress }}%</span>
+                </div>
+              </div>
+
+              <!-- 右侧：操作 -->
+              <div class="task-actions">
+                <div v-if="isActivePhase(task.phase)" class="speed-info">
+                  <span class="speed-label">{{ formatSpeed(task.speed) }}</span>
+                  <span class="speed-status"
+                    >{{ $t('download.remaining') }}
+                    {{ formatSize(task.totalSize - task.downloadedSize) }}</span
+                  >
+                </div>
+                <div v-else class="action-buttons">
+                  <button
+                    v-if="task.phase === 'failed'"
+                    class="btn-action retry"
+                    @click="retryTask(task)"
+                    :title="$t('download.retryDownload')"
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <polyline points="23 4 23 10 17 10" />
+                      <path d="M4 20v-6h6" />
+                      <path d="M20.49 15a9 9 0 10-2.12 9.36L23 10" />
+                    </svg>
+                  </button>
+                  <button
+                    v-else-if="task.phase === 'completed'"
+                    class="btn-action view"
+                    @click="viewInstance(task)"
+                    :title="$t('download.viewInstance')"
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    class="btn-action delete"
+                    @click="removeTask(task)"
+                    :title="$t('download.deleteTask')"
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M3 6h18" />
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- 无下载任务 -->
+        <div v-else class="dm-empty">
+          <div class="empty-icon">
+            <svg
+              width="64"
+              height="64"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--voxver-border-color)"
+              stroke-width="1.5"
+            >
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </div>
+          <h3>{{ $t('download.noDownloadTasks') }}</h3>
+          <p>{{ $t('download.goToDownloadHint') }}</p>
+          <button class="btn-go-download vox-btn vox-btn--primary" @click="goToDownloads">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            {{ $t('download.goToDownload') }}
+          </button>
+        </div>
+      </div>
+
+      <!-- 底部操作栏（选中时显示） -->
+      <div v-if="selectedTasks.length > 0" class="dm-selection-bar">
+        <div class="selection-info">
+          <span>{{ $t('download.selectedTasks', { count: selectedTasks.length }) }}</span>
+        </div>
+        <div class="selection-actions">
+          <button class="btn-selection" @click="cancelSelection">{{ $t('common.cancel') }}</button>
+          <button class="btn-selection danger" @click="deleteSelected">
+            {{ $t('download.deleteSelected') }}
+          </button>
+        </div>
+      </div>
     </template>
     <template v-else>
       <div class="kor-c9">
@@ -322,7 +338,9 @@
               @click="activeTab = tab.value"
             >
               {{ tab.label }}
-              <span v-if="getTabCount(tab.value) > 0" class="kor-c9__tab-count">{{ getTabCount(tab.value) }}</span>
+              <span v-if="getTabCount(tab.value) > 0" class="kor-c9__tab-count">{{
+                getTabCount(tab.value)
+              }}</span>
             </KorButton>
             <KorButton v-if="completedCount > 0" size="sm" variant="ghost" @click="clearCompleted">
               {{ $t('download.clearCompleted') }}
@@ -396,7 +414,14 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useDownloadStore, type UnifiedTask } from '../stores/download.store'
 import { useAppStore } from '../stores'
-import { KorButton, KorEmpty, KorInput, KorPageHeader, KorSettingCard, KorSettingRow } from '../components/kor'
+import {
+  KorButton,
+  KorEmpty,
+  KorInput,
+  KorPageHeader,
+  KorSettingCard,
+  KorSettingRow
+} from '../components/kor'
 
 const router = useRouter()
 const { t } = useI18n()
@@ -444,9 +469,7 @@ const filteredTasks = computed(() => {
 })
 
 const totalCount = computed(() => tasks.value.length)
-const downloadingCount = computed(
-  () => tasks.value.filter((t) => isActivePhase(t.phase)).length
-)
+const downloadingCount = computed(() => tasks.value.filter((t) => isActivePhase(t.phase)).length)
 const completedCount = computed(() => tasks.value.filter((t) => t.phase === 'completed').length)
 const failedCount = computed(() => tasks.value.filter((t) => t.phase === 'failed').length)
 
@@ -755,8 +778,6 @@ onUnmounted(() => {
   animation: pulse 2s ease-in-out infinite;
 }
 
-
-
 .task-checkbox {
   position: relative;
   cursor: pointer;
@@ -817,7 +838,6 @@ onUnmounted(() => {
 .download-icon {
   animation: bounce 1.5s ease-in-out infinite;
 }
-
 
 .task-info {
   flex: 1;
@@ -903,10 +923,18 @@ onUnmounted(() => {
 }
 
 .task-item.completed .task-bar {
-  background: linear-gradient(90deg, var(--voxver-success), color-mix(in oklab, var(--voxver-success) 70%, var(--voxver-bg-primary)));
+  background: linear-gradient(
+    90deg,
+    var(--voxver-success),
+    color-mix(in oklab, var(--voxver-success) 70%, var(--voxver-bg-primary))
+  );
 }
 .task-item.failed .task-bar {
-  background: linear-gradient(90deg, var(--voxver-error), color-mix(in oklab, var(--voxver-error) 70%, var(--voxver-bg-primary)));
+  background: linear-gradient(
+    90deg,
+    var(--voxver-error),
+    color-mix(in oklab, var(--voxver-error) 70%, var(--voxver-bg-primary))
+  );
 }
 
 .task-progress-text {
@@ -1026,5 +1054,4 @@ onUnmounted(() => {
   display: flex;
   gap: 10px;
 }
-
 </style>

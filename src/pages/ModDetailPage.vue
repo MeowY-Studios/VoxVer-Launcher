@@ -210,11 +210,17 @@
         </div>
 
         <!-- 空 -->
-        <div v-else-if="!Object.keys(groupedFiles).length" class="files-empty">{{ $t('mod.noFilesAvailable') }}</div>
+        <div v-else-if="!Object.keys(groupedFiles).length" class="files-empty">
+          {{ $t('mod.noFilesAvailable') }}
+        </div>
 
         <!-- 分组版本列表 -->
         <div v-else class="versions-list">
-          <div v-for="(group, mcVersion) in groupedFiles" :key="mcVersion" class="version-group vox-card">
+          <div
+            v-for="(group, mcVersion) in groupedFiles"
+            :key="mcVersion"
+            class="version-group vox-card"
+          >
             <button
               class="group-header"
               :class="{ expanded: expandedVersions.includes(String(mcVersion)) }"
@@ -278,7 +284,9 @@
                   >
                     <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
                   </svg>
-                  {{ downloadingId === file.id ? $t('mod.downloadingStatus') : $t('common.download') }}
+                  {{
+                    downloadingId === file.id ? $t('mod.downloadingStatus') : $t('common.download')
+                  }}
                 </button>
               </div>
             </div>
@@ -306,7 +314,9 @@
             >
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
             </svg>
-            <span>{{ currentInstance ? $t('mod.confirmInstall') : $t('mod.confirmDownload') }}</span>
+            <span>{{
+              currentInstance ? $t('mod.confirmInstall') : $t('mod.confirmDownload')
+            }}</span>
           </div>
           <div class="confirm-body">
             <p class="confirm-mod-name">{{ pendingFile.displayName || pendingFile.filename }}</p>
@@ -320,7 +330,9 @@
             </p>
           </div>
           <div class="confirm-actions">
-            <button class="btn-cancel vox-btn" @click="cancelInstallConfirm">{{ $t('common.cancel') }}</button>
+            <button class="btn-cancel vox-btn" @click="cancelInstallConfirm">
+              {{ $t('common.cancel') }}
+            </button>
             <button class="btn-confirm vox-btn vox-btn--primary" @click="confirmDownload">
               {{ currentInstance ? $t('mod.confirmInstall') : $t('mod.confirmDownload') }}
             </button>
@@ -507,7 +519,11 @@ async function loadFiles() {
   if (!modId.value) return
   filesLoading.value = true
   try {
-    const res = await window.electronAPI?.download.getFiles(modId.value, modSource.value as ContentPlatform, {})
+    const res = await window.electronAPI?.download.getFiles(
+      modId.value,
+      modSource.value as ContentPlatform,
+      {}
+    )
     const data = (res as { data?: Array<Record<string, unknown>> })?.data || []
     files.value = data.map((f) => ({
       id: String(f.id ?? ''),
@@ -517,7 +533,10 @@ async function loadFiles() {
       downloadUrl: String(f.downloadUrl ?? f.url ?? ''),
       gameVersions: (f.gameVersions as string[]) || (f.gameVersion as string[]) || [],
       loaders: (f.loaders as string[]) || [],
-      releaseType: (String(f.releaseType || f.release_type || 'release') as 'release' | 'beta' | 'alpha'),
+      releaseType: String(f.releaseType || f.release_type || 'release') as
+        | 'release'
+        | 'beta'
+        | 'alpha',
       datePublished: String(f.datePublished ?? f.date_published ?? f.date ?? ''),
       downloads: Number(f.downloads ?? 0)
     })) as ProjectFile[]
@@ -592,7 +611,9 @@ async function confirmDownload() {
     } else {
       window.electronAPI?.notification?.send({
         title: t('common.error'),
-        body: t('mod.downloadFailedBody', { error: (res as { success?: boolean; error?: string })?.error || t('mod.unknownError') }),
+        body: t('mod.downloadFailedBody', {
+          error: (res as { success?: boolean; error?: string })?.error || t('mod.unknownError')
+        }),
         type: 'error'
       })
     }
@@ -1102,8 +1123,6 @@ onMounted(() => {
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;
 }
-
-
 
 /* ====== 安装确认弹窗 ====== */
 .confirm-overlay {

@@ -19,61 +19,69 @@ describe('router - 基础', () => {
 
 describe('router - 路由定义', () => {
   it('应有全部预期的路由名称', () => {
-    const names = router.getRoutes().map(r => r.name)
+    const names = router.getRoutes().map((r) => r.name)
     const expected = [
-      'home', 'instances', 'downloads', 'settings', 'account',
-      'versions', 'instance-detail', 'launch',
-      'version-detail', 'download-manage', 'mod-detail'
+      'home',
+      'instances',
+      'downloads',
+      'settings',
+      'account',
+      'versions',
+      'instance-detail',
+      'launch',
+      'version-detail',
+      'download-manage',
+      'mod-detail'
     ]
-    expected.forEach(name => expect(names).toContain(name))
+    expected.forEach((name) => expect(names).toContain(name))
   })
 
   it('home 路径为 /', () => {
-    const r = router.getRoutes().find(r => r.name === 'home')
+    const r = router.getRoutes().find((r) => r.name === 'home')
     expect(r?.path).toBe('/')
     expect(r?.meta.title).toBe('启动')
   })
 
   it('instances 路径为 /instances', () => {
-    const r = router.getRoutes().find(r => r.name === 'instances')
+    const r = router.getRoutes().find((r) => r.name === 'instances')
     expect(r?.path).toBe('/instances')
   })
 
   it('downloads 路径为 /downloads', () => {
-    const r = router.getRoutes().find(r => r.name === 'downloads')
+    const r = router.getRoutes().find((r) => r.name === 'downloads')
     expect(r?.path).toBe('/downloads')
   })
 
   it('settings 路径为 /settings 且无 title', () => {
-    const r = router.getRoutes().find(r => r.name === 'settings')
+    const r = router.getRoutes().find((r) => r.name === 'settings')
     expect(r?.path).toBe('/settings')
   })
 
   it('account 路径为 /account', () => {
-    const r = router.getRoutes().find(r => r.name === 'account')
+    const r = router.getRoutes().find((r) => r.name === 'account')
     expect(r?.path).toBe('/account')
     expect(r?.meta.title).toBe('账户管理')
   })
 
   it('versions 路径为 /versions', () => {
-    const r = router.getRoutes().find(r => r.name === 'versions')
+    const r = router.getRoutes().find((r) => r.name === 'versions')
     expect(r?.path).toBe('/versions')
   })
 })
 
 describe('router - 动态路由', () => {
   it('instance-detail 应有 :id 参数', () => {
-    const r = router.getRoutes().find(r => r.name === 'instance-detail')
+    const r = router.getRoutes().find((r) => r.name === 'instance-detail')
     expect(r?.path).toContain(':id')
   })
 
   it('version-detail 应有 :versionId 参数', () => {
-    const r = router.getRoutes().find(r => r.name === 'version-detail')
+    const r = router.getRoutes().find((r) => r.name === 'version-detail')
     expect(r?.path).toContain(':versionId')
   })
 
   it('mod-detail 应有 :id 参数', () => {
-    const r = router.getRoutes().find(r => r.name === 'mod-detail')
+    const r = router.getRoutes().find((r) => r.name === 'mod-detail')
     expect(r?.path).toContain(':id')
   })
 })

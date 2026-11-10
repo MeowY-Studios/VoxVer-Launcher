@@ -1,17 +1,29 @@
 <template>
   <!-- 色觉辅助 SVG 滤镜 -->
-  <svg style="display:none" aria-hidden="true">
+  <svg style="display: none" aria-hidden="true">
     <filter id="cvd-protanopia">
-      <feColorMatrix type="matrix" values="0.567 0.433 0 0 0  0.558 0.442 0 0 0  0 0.242 0.758 0 0  0 0 0 1 0" />
+      <feColorMatrix
+        type="matrix"
+        values="0.567 0.433 0 0 0  0.558 0.442 0 0 0  0 0.242 0.758 0 0  0 0 0 1 0"
+      />
     </filter>
     <filter id="cvd-deuteranopia">
-      <feColorMatrix type="matrix" values="0.625 0.375 0 0 0  0.7 0.3 0 0 0  0 0.3 0.7 0 0  0 0 0 1 0" />
+      <feColorMatrix
+        type="matrix"
+        values="0.625 0.375 0 0 0  0.7 0.3 0 0 0  0 0.3 0.7 0 0  0 0 0 1 0"
+      />
     </filter>
     <filter id="cvd-tritanopia">
-      <feColorMatrix type="matrix" values="0.95 0.05 0 0 0  0 0.433 0.567 0 0  0 0.475 0.525 0 0  0 0 0 1 0" />
+      <feColorMatrix
+        type="matrix"
+        values="0.95 0.05 0 0 0  0 0.433 0.567 0 0  0 0.475 0.525 0 0  0 0 0 1 0"
+      />
     </filter>
     <filter id="cvd-monochromat">
-      <feColorMatrix type="matrix" values="0.299 0.587 0.114 0 0  0.299 0.587 0.114 0 0  0.299 0.587 0.114 0 0  0 0 0 1 0" />
+      <feColorMatrix
+        type="matrix"
+        values="0.299 0.587 0.114 0 0  0.299 0.587 0.114 0 0  0.299 0.587 0.114 0 0  0 0 0 1 0"
+      />
     </filter>
   </svg>
 
@@ -22,7 +34,8 @@
       <span class="brand">VoxVer</span>
 
       <!-- 上导航栏（原左侧图标栏） -->
-      <nav class="top-nav">
+      <nav ref="topNavRef" class="top-nav">
+        <span class="top-nav__indicator" :style="indicatorStyle" aria-hidden="true" />
         <template v-for="tab in tabs" :key="tab.path">
           <!-- 联机：占位入口，功能后续实现 -->
           <button
@@ -34,8 +47,9 @@
             <span class="top-nav-label">{{ $t('tabs.online') }}</span>
           </button>
           <button
+            :ref="(el) => setTabRef(tab.path, el)"
             class="top-nav-item"
-            :class="{ active: currentRoute === tab.path }"
+            :class="{ active: activeTabPath === tab.path }"
             @click="$router.push(tab.path)"
           >
             <span class="top-nav-icon" v-html="tab.svg"></span>
@@ -44,49 +58,68 @@
         </template>
       </nav>
 
-      <!-- 窗口控制 — macOS: 关闭/最小化/最大化（从左到右），Windows: 最小化/最大化/关闭 -->
-      <div class="wc" v-if="isElectron">
-        <!-- macOS 顺序：关闭、最小化、最大化 -->
-        <template v-if="platform === 'macos'">
-          <button class="wc-btn wc-close" @click="closeWindow">
-            <svg width="10" height="10" viewBox="0 0 10 10">
-              <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.2" />
-            </svg>
-          </button>
-          <button class="wc-btn wc-minimize" @click="minimizeWindow">
-            <svg width="10" height="1" viewBox="0 0 10 1">
-              <rect width="10" height="1" fill="currentColor" />
-            </svg>
-          </button>
-          <button class="wc-btn wc-maximize" @click="maximizeWindow">
-            <svg width="10" height="10" viewBox="0 0 10 10">
-              <path d="M1 3V9H7V3H1M3 1H9V7H3V1" stroke="currentColor" stroke-width="1.2" fill="none" />
-            </svg>
-          </button>
-        </template>
-        <!-- Windows/Linux 顺序：最小化、最大化、关闭 -->
-        <template v-else>
-          <button class="wc-btn" @click="minimizeWindow">
-            <svg width="10" height="1" viewBox="0 0 10 1">
-              <rect width="10" height="1" fill="currentColor" />
-            </svg>
-          </button>
-          <button class="wc-btn" @click="maximizeWindow">
-            <svg width="10" height="10" viewBox="0 0 10 10">
-              <path d="M1 3V9H7V3H1M3 1H9V7H3V1" stroke="currentColor" stroke-width="1.2" fill="none" />
-            </svg>
-          </button>
-          <button class="wc-btn wc-close" @click="closeWindow">
-            <svg width="10" height="10" viewBox="0 0 10 10">
-              <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.2" />
-            </svg>
-          </button>
-        </template>
+      <!-- 通知中心 + 窗口控制 — 铃铛位于最小化按钮左侧 -->
+      <div class="titlebar-right" v-if="isElectron">
+        <PxNotification />
+        <!-- macOS: 关闭/最小化/最大化（从左到右），Windows: 最小化/最大化/关闭 -->
+        <div class="wc">
+          <!-- macOS 顺序：关闭、最小化、最大化 -->
+          <template v-if="platform === 'macos'">
+            <button class="wc-btn wc-close" @click="closeWindow">
+              <svg width="10" height="10" viewBox="0 0 10 10">
+                <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.2" />
+              </svg>
+            </button>
+            <button class="wc-btn wc-minimize" @click="minimizeWindow">
+              <svg width="10" height="1" viewBox="0 0 10 1">
+                <rect width="10" height="1" fill="currentColor" />
+              </svg>
+            </button>
+            <button class="wc-btn wc-maximize" @click="maximizeWindow">
+              <svg width="10" height="10" viewBox="0 0 10 10">
+                <path
+                  d="M1 3V9H7V3H1M3 1H9V7H3V1"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  fill="none"
+                />
+              </svg>
+            </button>
+          </template>
+          <!-- Windows/Linux 顺序：最小化、最大化、关闭 -->
+          <template v-else>
+            <button class="wc-btn" @click="minimizeWindow">
+              <svg width="10" height="1" viewBox="0 0 10 1">
+                <rect width="10" height="1" fill="currentColor" />
+              </svg>
+            </button>
+            <button class="wc-btn" @click="maximizeWindow">
+              <svg width="10" height="10" viewBox="0 0 10 10">
+                <path
+                  d="M1 3V9H7V3H1M3 1H9V7H3V1"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  fill="none"
+                />
+              </svg>
+            </button>
+            <button class="wc-btn wc-close" @click="closeWindow">
+              <svg width="10" height="10" viewBox="0 0 10 10">
+                <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" stroke-width="1.2" />
+              </svg>
+            </button>
+          </template>
+        </div>
       </div>
     </header>
 
     <!-- 主体区域 -->
-    <div class="app-body" :class="{ 'is-kor-home': appStore.skin === 'koring' && currentRoute === '/' }">
+    <div
+      class="app-body"
+      :class="{
+        'is-kor-bleed': appStore.skin === 'koring' && ['/', '/instances'].includes(currentRoute)
+      }"
+    >
       <!-- 背景图层（覆盖侧边栏 + 主内容区） -->
       <div class="app-body-bg" :style="bgStyle"></div>
       <div v-if="bgOverlayVisible" class="app-body-overlay" :style="overlayStyle"></div>
@@ -94,376 +127,425 @@
       <aside class="sidebar" :class="{ 'is-kor-hidden': isKorOwnNav }">
         <!-- 侧边栏内容区 -->
         <div class="sidebar-content">
-        <!-- ========== 首页侧栏：账户 + 启动（PCL2 风格）========== -->
-        <template v-if="currentRoute === '/'">
-          <div class="sb-home">
-            <!-- 正版/离线切换 -->
-            <div class="auth-switch">
-              <button
-                class="auth-btn"
-                :class="{ active: accountMode === 'online' }"
-                @click="switchAuthMode('online')"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg
-                >{{ $t('home.auth.online') }}
-              </button>
-              <button
-                class="auth-btn"
-                :class="{ active: accountMode === 'offline' }"
-                @click="switchAuthMode('offline')"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M9 17H7a5 5 0 010-10h2" />
-                  <path d="M15 7h2a5 5 0 010 10h-2" />
-                  <line x1="9" y1="12" x2="15" y2="12" />
-                  <line x1="3" y1="3" x2="21" y2="21" /></svg
-                >{{ $t('home.auth.offline') }}
-              </button>
-            </div>
-
-            <!-- ===== 正版模式 ===== -->
-            <div v-if="accountMode === 'online'" class="auth-online">
-              <!-- 头像 -->
-              <div class="avatar-default-icon">
-                <img v-if="avatarUrl" :src="avatarUrl" class="avatar-img" :alt="userName" />
-                <span v-else-if="userName" class="avatar-letter">{{
-                  userName[0]?.toUpperCase()
-                }}</span>
-                <svg
-                  v-else
-                  width="44"
-                  height="44"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-                </svg>
-              </div>
-
-              <!-- 账号选择（自定义下拉） -->
-              <div class="login-row">
-                <div class="account-select-wrapper" ref="onlineAccountDropdown">
-                  <button class="account-select" @click="toggleOnlineAccountDropdown">
-                    <span>{{ onlineAccountLabel }}</span>
-                    <svg width="10" height="6" viewBox="0 0 10 6" class="select-arrow">
-                      <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" />
-                    </svg>
-                  </button>
-                  <div v-show="showOnlineAccountDropdown" class="account-select-popup open">
-                    <div
-                      v-for="acc in filteredAccounts"
-                      :key="acc.id"
-                      class="account-select-option"
-                      :class="{ selected: acc.isActive === 1 }"
-                      @click="selectOnlineAccount(acc.id)"
-                    >
-                      {{ acc.name }} ({{ acc.type === 'microsoft' ? $t('home.auth.microsoft') : $t('home.auth.offline') }})
-                    </div>
-                    <div class="account-select-divider"></div>
-                    <div class="account-select-option add-option" @click="handleAccountSelectValue('add')">
-                       {{ $t('home.auth.addAccount') }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 外链入口 -->
-              <div class="auth-external-links">
-                <a
-                  class="auth-ext-btn"
-                  href="https://www.xbox.com/zh-cn/games/store/minecraft-java-bedrock-edition-for-pc/9nxp44l49shj"
-                  target="_blank"
-                  rel="noopener"
+          <!-- ========== 首页侧栏：账户 + 启动（PCL2 风格）========== -->
+          <template v-if="currentRoute === '/'">
+            <div class="sb-home">
+              <!-- 正版/离线切换 -->
+              <div class="auth-switch">
+                <button
+                  class="auth-btn"
+                  :class="{ active: accountMode === 'online' }"
+                  @click="switchAuthMode('online')"
                 >
                   <svg
-                    width="12"
-                    height="12"
+                    width="14"
+                    height="14"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     stroke-width="2"
                   >
-                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <path d="M16 10a4 4 0 01-8 0" />
-                  </svg>
-                  {{ $t('home.auth.buyOfficial') }}
-                </a>
-                <a
-                  class="auth-ext-btn"
-                  href="https://www.minecraft.net/zh-hans"
-                  target="_blank"
-                  rel="noopener"
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg
+                  >{{ $t('home.auth.online') }}
+                </button>
+                <button
+                  class="auth-btn"
+                  :class="{ active: accountMode === 'offline' }"
+                  @click="switchAuthMode('offline')"
                 >
                   <svg
-                    width="12"
-                    height="12"
+                    width="14"
+                    height="14"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
                   >
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="2" y1="12" x2="22" y2="12" />
-                    <path
-                      d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"
-                    />
+                    <path d="M9 17H7a5 5 0 010-10h2" />
+                    <path d="M15 7h2a5 5 0 010 10h-2" />
+                    <line x1="9" y1="12" x2="15" y2="12" />
+                    <line x1="3" y1="3" x2="21" y2="21" /></svg
+                  >{{ $t('home.auth.offline') }}
+                </button>
+              </div>
+
+              <!-- ===== 正版模式 ===== -->
+              <div v-if="accountMode === 'online'" class="auth-online">
+                <!-- 头像 -->
+                <div class="avatar-default-icon">
+                  <img v-if="avatarUrl" :src="avatarUrl" class="avatar-img" :alt="userName" />
+                  <span v-else-if="userName" class="avatar-letter">{{
+                    userName[0]?.toUpperCase()
+                  }}</span>
+                  <svg
+                    v-else
+                    width="44"
+                    height="44"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
                   </svg>
-                  {{ $t('home.auth.goOfficial') }}
-                </a>
-              </div>
-            </div>
+                </div>
 
-            <!-- ===== 离线模式 ===== -->
-            <div v-else class="auth-offline">
-              <!-- 像素风 Steve 头像 -->
-              <div class="avatar-steve">
-                <!-- CSS 绘制的像素 Steve 脸 -->
-                <svg width="48" height="48" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                  <!-- Steve face - pixel art style -->
-                  <rect x="0" y="0" width="16" height="16" rx="2" fill="#C69C6D" />
-                  <!-- Hair (orange) -->
-                  <rect x="2" y="1" width="12" height="5" fill="#E07A28" />
-                  <rect x="3" y="0" width="10" height="2" fill="#E07A28" />
-                  <!-- Skin tone -->
-                  <rect x="2" y="5" width="12" height="9" fill="#D4A574" />
-                  <!-- Eyes (green) -->
-                  <rect x="4" y="7" width="2" height="2" fill="#3A8B47" />
-                  <rect x="10" y="7" width="2" height="2" fill="#3A8B47" />
-                  <!-- Nose -->
-                  <rect x="7" y="9" width="2" height="2" fill="#C69C6D" />
-                  <!-- Mouth -->
-                  <rect x="5" y="12" width="6" height="1" fill="#8B5A3C" />
-                  <!-- Eyebrows -->
-                  <rect x="3" y="6" width="4" height="1" fill="#B86B18" />
-                  <rect x="9" y="6" width="4" height="1" fill="#B86B18" />
-                </svg>
-              </div>
-
-              <!-- 离线账号选择（自定义下拉） -->
-              <div class="login-row">
-                <div class="account-select-wrapper" ref="offlineAccountDropdown">
-                  <button class="account-select" @click="toggleOfflineAccountDropdown">
-                    <span>{{ offlineAccountLabel }}</span>
-                    <svg width="10" height="6" viewBox="0 0 10 6" class="select-arrow">
-                      <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" />
-                    </svg>
-                  </button>
-                  <div v-show="showOfflineAccountDropdown" class="account-select-popup open">
-                    <div
-                      v-for="acc in offlineAccounts"
-                      :key="acc.id"
-                      class="account-select-option"
-                      :class="{ selected: acc.isActive === 1 }"
-                      @click="selectOfflineAccount(acc.id)"
-                    >
-                      {{ acc.name }}
+                <!-- 账号选择（自定义下拉） -->
+                <div class="login-row">
+                  <div class="account-select-wrapper" ref="onlineAccountDropdown">
+                    <button class="account-select" @click="toggleOnlineAccountDropdown">
+                      <span>{{ onlineAccountLabel }}</span>
+                      <svg width="10" height="6" viewBox="0 0 10 6" class="select-arrow">
+                        <path
+                          d="M1 1l4 4 4-4"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          fill="none"
+                        />
+                      </svg>
+                    </button>
+                    <div v-show="showOnlineAccountDropdown" class="account-select-popup open">
+                      <div
+                        v-for="acc in filteredAccounts"
+                        :key="acc.id"
+                        class="account-select-option"
+                        :class="{ selected: acc.isActive === 1 }"
+                        @click="selectOnlineAccount(acc.id)"
+                      >
+                        {{ acc.name }} ({{
+                          acc.type === 'microsoft'
+                            ? $t('home.auth.microsoft')
+                            : $t('home.auth.offline')
+                        }})
+                      </div>
+                      <div class="account-select-divider"></div>
+                      <div
+                        class="account-select-option add-option"
+                        @click="handleAccountSelectValue('add')"
+                      >
+                        {{ $t('home.auth.addAccount') }}
+                      </div>
                     </div>
-                    <div class="account-select-divider"></div>
-                    <div class="account-select-option add-option" @click="handleAccountSelectValue('add')">
-                       {{ $t('home.auth.addOfflineAccount') }}
+                  </div>
+                </div>
+
+                <!-- 外链入口 -->
+                <div class="auth-external-links">
+                  <a
+                    class="auth-ext-btn"
+                    href="https://www.xbox.com/zh-cn/games/store/minecraft-java-bedrock-edition-for-pc/9nxp44l49shj"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                      <line x1="3" y1="6" x2="21" y2="6" />
+                      <path d="M16 10a4 4 0 01-8 0" />
+                    </svg>
+                    {{ $t('home.auth.buyOfficial') }}
+                  </a>
+                  <a
+                    class="auth-ext-btn"
+                    href="https://www.minecraft.net/zh-hans"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="2" y1="12" x2="22" y2="12" />
+                      <path
+                        d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"
+                      />
+                    </svg>
+                    {{ $t('home.auth.goOfficial') }}
+                  </a>
+                </div>
+              </div>
+
+              <!-- ===== 离线模式 ===== -->
+              <div v-else class="auth-offline">
+                <!-- 像素风 Steve 头像 -->
+                <div class="avatar-steve">
+                  <!-- CSS 绘制的像素 Steve 脸 -->
+                  <svg
+                    width="48"
+                    height="48"
+                    viewBox="0 0 16 16"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <!-- Steve face - pixel art style -->
+                    <rect x="0" y="0" width="16" height="16" rx="2" fill="#C69C6D" />
+                    <!-- Hair (orange) -->
+                    <rect x="2" y="1" width="12" height="5" fill="#E07A28" />
+                    <rect x="3" y="0" width="10" height="2" fill="#E07A28" />
+                    <!-- Skin tone -->
+                    <rect x="2" y="5" width="12" height="9" fill="#D4A574" />
+                    <!-- Eyes (green) -->
+                    <rect x="4" y="7" width="2" height="2" fill="#3A8B47" />
+                    <rect x="10" y="7" width="2" height="2" fill="#3A8B47" />
+                    <!-- Nose -->
+                    <rect x="7" y="9" width="2" height="2" fill="#C69C6D" />
+                    <!-- Mouth -->
+                    <rect x="5" y="12" width="6" height="1" fill="#8B5A3C" />
+                    <!-- Eyebrows -->
+                    <rect x="3" y="6" width="4" height="1" fill="#B86B18" />
+                    <rect x="9" y="6" width="4" height="1" fill="#B86B18" />
+                  </svg>
+                </div>
+
+                <!-- 离线账号选择（自定义下拉） -->
+                <div class="login-row">
+                  <div class="account-select-wrapper" ref="offlineAccountDropdown">
+                    <button class="account-select" @click="toggleOfflineAccountDropdown">
+                      <span>{{ offlineAccountLabel }}</span>
+                      <svg width="10" height="6" viewBox="0 0 10 6" class="select-arrow">
+                        <path
+                          d="M1 1l4 4 4-4"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          fill="none"
+                        />
+                      </svg>
+                    </button>
+                    <div v-show="showOfflineAccountDropdown" class="account-select-popup open">
+                      <div
+                        v-for="acc in offlineAccounts"
+                        :key="acc.id"
+                        class="account-select-option"
+                        :class="{ selected: acc.isActive === 1 }"
+                        @click="selectOfflineAccount(acc.id)"
+                      >
+                        {{ acc.name }}
+                      </div>
+                      <div class="account-select-divider"></div>
+                      <div
+                        class="account-select-option add-option"
+                        @click="handleAccountSelectValue('add')"
+                      >
+                        {{ $t('home.auth.addOfflineAccount') }}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- 账户管理 -->
-            <button class="btn-account-manage" @click="goToAccountSettings">{{ $t('home.auth.manageAccount') }}</button>
-
-            <!-- 启动区域 -->
-            <div class="sb-launch-area">
-              <!-- 启动按钮（PCL2 描边风格） -->
-              <button
-                class="btn-launch-pcl2"
-                @click="handleLaunch"
-                :disabled="isLaunching || !selectedVersionId"
-                :class="{ 'no-version': !selectedVersionId }"
-              >
-                <span class="launch-label">{{
-                  isLaunching ? $t('home.launching') : !selectedVersionId ? $t('home.downloadFirst') : $t('home.launchGame')
-                }}</span>
-                <span class="launch-version">{{ selectedVersion }}</span>
+              <!-- 账户管理 -->
+              <button class="btn-account-manage" @click="goToAccountSettings">
+                {{ $t('home.auth.manageAccount') }}
               </button>
 
-              <!-- 版本操作按钮 -->
-              <div class="version-actions" style="margin-bottom: 8px">
-                <button class="ver-btn" @click="showVersionSelectModal = true">{{ $t('home.selectVersion') }}</button>
-                <button class="ver-btn" @click="showVersionSettings = true">{{ $t('home.versionSettings') }}</button>
+              <!-- 启动区域 -->
+              <div class="sb-launch-area">
+                <!-- 启动按钮（PCL2 描边风格） -->
+                <button
+                  class="btn-launch-pcl2"
+                  @click="handleLaunch"
+                  :disabled="isLaunching || !selectedVersionId"
+                  :class="{ 'no-version': !selectedVersionId }"
+                >
+                  <span class="launch-label">{{
+                    isLaunching
+                      ? $t('home.launching')
+                      : !selectedVersionId
+                        ? $t('home.downloadFirst')
+                        : $t('home.launchGame')
+                  }}</span>
+                  <span class="launch-version">{{ selectedVersion }}</span>
+                </button>
+
+                <!-- 版本操作按钮 -->
+                <div class="version-actions" style="margin-bottom: 8px">
+                  <button class="ver-btn" @click="showVersionSelectModal = true">
+                    {{ $t('home.selectVersion') }}
+                  </button>
+                  <button class="ver-btn" @click="showVersionSettings = true">
+                    {{ $t('home.versionSettings') }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- 版本下拉列表 -->
+              <div class="ver-dropdown" v-if="showVersionSelect && versions.length">
+                <div
+                  v-for="ver in versions"
+                  :key="ver.id"
+                  class="ver-opt"
+                  :class="{ selected: ver.id === selectedVersionId }"
+                  @click="selectVersion(ver)"
+                >
+                  {{ ver.name }}
+                  <span class="ver-loader">{{ ver.loader || $t('home.vanilla') }}</span>
+                </div>
               </div>
             </div>
+          </template>
 
-            <!-- 版本下拉列表 -->
-            <div class="ver-dropdown" v-if="showVersionSelect && versions.length">
-              <div
-                v-for="ver in versions"
-                :key="ver.id"
-                class="ver-opt"
-                :class="{ selected: ver.id === selectedVersionId }"
-                @click="selectVersion(ver)"
-              >
-                {{ ver.name }} <span class="ver-loader">{{ ver.loader || $t('home.vanilla') }}</span>
-              </div>
-            </div>
-          </div>
-        </template>
-
-        <!-- ========== 下载页侧栏：分类导航 ========== -->
-        <template v-else-if="currentRoute === '/downloads' && !isKorDownloads">
-          <nav class="sb-nav">
-            <button
-              v-for="cat in dlCategories"
-              :key="cat.id"
-              class="nav-item"
-              :class="{ active: dlActiveCat === cat.id }"
-              @click="handleDlCategory(cat.id)"
-            >
-              <span v-html="cat.icon"></span>
-              {{ $t(cat.labelKey) }}
-            </button>
-            <div class="nav-divider">{{ $t('download.sidebar.community') }}</div>
-            <button
-              v-for="cat in communityCategories"
-              :key="cat.id"
-              class="nav-item sub"
-              :class="{ active: dlActiveCat === cat.id }"
-              @click="handleDlCategory(cat.id)"
-            >
-              <span v-html="cat.icon"></span>
-              {{ $t(cat.labelKey) }}
-            </button>
-            <div class="nav-divider">{{ $t('download.downloadManager') }}</div>
-            <button class="nav-item sub" @click="goDownloadManager">
-              <span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>
-              </span>
-              {{ $t('download.downloadManager') }}
-            </button>
-          </nav>
-        </template>
-
-        <!-- ========== 设置页侧栏：分类导航（分组结构） ========== -->
-        <template v-else-if="currentRoute === '/settings'">
-          <nav class="sb-nav">
-            <button
-              v-if="appStore.skin === 'koring'"
-              type="button"
-              class="kor-side-account"
-              @click="handleSettingsCategory('account')"
-            >
-              <span class="kor-side-account__avatar">V</span>
-              <span class="kor-side-account__meta">
-                <span class="kor-side-account__name">{{ $t('settings.home.accountTitle') }}</span>
-                <span class="kor-side-account__desc">{{ $t('settings.home.accountTitleDesc') }}</span>
-              </span>
-            </button>
-            <template v-for="group in visibleSettingsGroups" :key="group.name">
-              <div class="nav-group-header">{{ $t(group.name) }}</div>
+          <!-- ========== 下载页侧栏：分类导航 ========== -->
+          <template v-else-if="currentRoute === '/downloads' && !isKorDownloads">
+            <nav class="sb-nav">
               <button
-                v-for="item in group.items"
-                :key="item.id"
+                v-for="cat in dlCategories"
+                :key="cat.id"
                 class="nav-item"
-                :class="{ active: settingsActive === (item.category || item.id), disabled: item.disabled }"
-                :disabled="item.disabled"
-                @click="!item.disabled && handleSettingsCategory(item.category || item.id)"
+                :class="{ active: dlActiveCat === cat.id }"
+                @click="handleDlCategory(cat.id)"
               >
-                <span v-html="item.icon"></span>
-                {{ $t(item.labelKey) }}
+                <span v-html="cat.icon"></span>
+                {{ $t(cat.labelKey) }}
               </button>
-            </template>
-          </nav>
-        </template>
+              <div class="nav-divider">{{ $t('download.sidebar.community') }}</div>
+              <button
+                v-for="cat in communityCategories"
+                :key="cat.id"
+                class="nav-item sub"
+                :class="{ active: dlActiveCat === cat.id }"
+                @click="handleDlCategory(cat.id)"
+              >
+                <span v-html="cat.icon"></span>
+                {{ $t(cat.labelKey) }}
+              </button>
+              <div class="nav-divider">{{ $t('download.downloadManager') }}</div>
+              <button class="nav-item sub" @click="goDownloadManager">
+                <span>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                  >
+                    <path d="M3 12l9-9 9 9" />
+                    <path d="M5 10v10h14V10" />
+                  </svg>
+                </span>
+                {{ $t('download.downloadManager') }}
+              </button>
+            </nav>
+          </template>
 
-        <!-- ========== 实例页侧栏 ========== -->
-        <template v-else-if="currentRoute === '/instances'">
-          <nav class="sb-nav">
-            <button class="nav-item active">
-              <span
-                ><svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
+          <!-- ========== 设置页侧栏：分类导航（分组结构） ========== -->
+          <template v-else-if="currentRoute === '/settings'">
+            <nav class="sb-nav">
+              <button
+                v-if="appStore.skin === 'koring'"
+                type="button"
+                class="kor-side-account"
+                @click="handleSettingsCategory('account')"
+              >
+                <span class="kor-side-account__avatar">V</span>
+                <span class="kor-side-account__meta">
+                  <span class="kor-side-account__name">{{ $t('settings.home.accountTitle') }}</span>
+                  <span class="kor-side-account__desc">{{
+                    $t('settings.home.accountTitleDesc')
+                  }}</span>
+                </span>
+              </button>
+              <template v-for="group in visibleSettingsGroups" :key="group.name">
+                <div class="nav-group-header">{{ $t(group.name) }}</div>
+                <button
+                  v-for="item in group.items"
+                  :key="item.id"
+                  class="nav-item"
+                  :class="{
+                    active: settingsActive === (item.category || item.id),
+                    disabled: item.disabled
+                  }"
+                  :disabled="item.disabled"
+                  @click="!item.disabled && handleSettingsCategory(item.category || item.id)"
                 >
-                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg
-              ></span>
-              {{ $t('app.allInstances') }}
-            </button>
-          </nav>
-        </template>
+                  <span v-html="item.icon"></span>
+                  {{ $t(item.labelKey) }}
+                </button>
+              </template>
+            </nav>
+          </template>
 
-        <!-- ========== 账户页侧栏 ========== -->
-        <template v-else-if="currentRoute === '/account'">
-          <nav class="sb-nav">
-            <button class="nav-item" @click="$router.push('/')">
-              <span
-                ><svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M15 18l-6-6 6-6" /></svg
-              ></span>
-              {{ $t('app.backToHome') }}
-            </button>
-          </nav>
-        </template>
+          <!-- ========== 实例页侧栏 ========== -->
+          <template v-else-if="currentRoute === '/instances'">
+            <nav class="sb-nav">
+              <button class="nav-item active">
+                <span
+                  ><svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg
+                ></span>
+                {{ $t('app.allInstances') }}
+              </button>
+            </nav>
+          </template>
 
-        <!-- ========== 版本详情/下载管理侧栏 ========== -->
-        <template v-else-if="currentRoute.startsWith('/download')">
-          <nav class="sb-nav">
-            <button class="nav-item" @click="$router.push('/downloads')">
-              <span
-                ><svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M15 18l-6-6 6-6" /></svg
-              ></span>
-              {{ $t('app.backToDownloads') }}
-            </button>
-          </nav>
-        </template>
+          <!-- ========== 账户页侧栏 ========== -->
+          <template v-else-if="currentRoute === '/account'">
+            <nav class="sb-nav">
+              <button class="nav-item" @click="$router.push('/')">
+                <span
+                  ><svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M15 18l-6-6 6-6" /></svg
+                ></span>
+                {{ $t('app.backToHome') }}
+              </button>
+            </nav>
+          </template>
+
+          <!-- ========== 版本详情/下载管理侧栏 ========== -->
+          <template v-else-if="currentRoute.startsWith('/download')">
+            <nav class="sb-nav">
+              <button class="nav-item" @click="$router.push('/downloads')">
+                <span
+                  ><svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M15 18l-6-6 6-6" /></svg
+                ></span>
+                {{ $t('app.backToDownloads') }}
+              </button>
+            </nav>
+          </template>
         </div>
       </aside>
 
       <!-- 主内容区 -->
       <main class="main-content">
         <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
-            <component :is="Component" />
-          </transition>
+          <component :is="Component" />
         </router-view>
       </main>
     </div>
@@ -497,10 +579,21 @@
     >
       <div class="missing-files-modal">
         <div class="missing-files-modal__icon">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+            />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
           </svg>
         </div>
         <p class="missing-files-modal__message">
@@ -549,15 +642,22 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { ref, computed, onMounted, onUnmounted, provide, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, provide, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import VersionSettings from './components/VersionSettings.vue'
 import VersionSelect from './components/VersionSelect.vue'
 import DownloadFloat from './components/DownloadFloat.vue'
 import MicrosoftLoginModal from './components/auth/MicrosoftLoginModal.vue'
 import PxModal from './components/common/PxModal.vue'
+import PxNotification from './components/common/PxNotification.vue'
 import PxLaunchProgress from './components/common/PxLaunchProgress.vue'
-import { useVersionsStore, useAccountsStore, useInstancesStore, useDownloadStore, useAppStore } from './stores'
+import {
+  useVersionsStore,
+  useAccountsStore,
+  useInstancesStore,
+  useDownloadStore,
+  useAppStore
+} from './stores'
 import { useConfirm } from './composables/useConfirm'
 import { downloadCategories as dlCategories, communityCategories } from './config/download-nav'
 import { settingsNavGroups as settingsGroups } from './config/settings-nav'
@@ -596,13 +696,91 @@ onUnmounted(() => {
   offHotkeyListener = null
 })
 const currentRoute = computed(() => route.path)
+
+/* ---------------- 顶部导航滑动指示器（对标 Koring 的胶囊切换动画） ---------------- */
+const topNavRef = ref<HTMLElement | null>(null)
+const tabEls = new Map<string, HTMLElement>()
+const indLeft = ref(0)
+const indWidth = ref(0)
+const indVisible = ref(false)
+
+const indicatorStyle = computed(() => ({
+  // 位置交给 transform（合成层动画，主线程卡顿也不会抖），宽度单独过渡
+  '--ind-x': `${indLeft.value}px`,
+  width: `${indWidth.value}px`,
+  opacity: indVisible.value ? '1' : '0'
+}))
+
+/** 子路由归一到一个主标签，保证 /download/manage、/instance/:id 也高亮父级 */
+const activeTabPath = computed(() => {
+  const p = currentRoute.value
+  if (p.startsWith('/instance')) return '/instances'
+  if (p.startsWith('/download')) return '/downloads'
+  if (p.startsWith('/settings')) return '/settings'
+  // 版本更新页从设置进入，归到「设置」标签，避免误高亮「启动」
+  if (p.startsWith('/update')) return '/settings'
+  return '/'
+})
+
+function setTabRef(path: string, el: Element | { $el?: Element } | null) {
+  const node = (el as HTMLElement)?.nodeType === 1 ? (el as HTMLElement) : null
+  if (node) tabEls.set(path, node)
+  else tabEls.delete(path)
+}
+
+function updateNavIndicator() {
+  const el = tabEls.get(activeTabPath.value)
+  if (!el || !topNavRef.value) {
+    indVisible.value = false
+    return
+  }
+  indLeft.value = el.offsetLeft
+  indWidth.value = el.offsetWidth
+  indVisible.value = true
+}
+
+/** rAF 节流：切换路由时整页重排会触发多次 ResizeObserver 回调，避免重复测量 */
+let navRaf = 0
+function scheduleNavIndicator() {
+  if (navRaf) return
+  navRaf = window.requestAnimationFrame(() => {
+    navRaf = 0
+    updateNavIndicator()
+  })
+}
+
+let navResizeObserver: ResizeObserver | null = null
+watch(activeTabPath, () => nextTick(() => updateNavIndicator()))
+
+onMounted(() => {
+  nextTick(() => {
+    updateNavIndicator()
+    if (topNavRef.value && typeof ResizeObserver !== 'undefined') {
+      navResizeObserver = new ResizeObserver(() => scheduleNavIndicator())
+      navResizeObserver.observe(topNavRef.value)
+    }
+    window.addEventListener('resize', scheduleNavIndicator)
+  })
+})
+
+onUnmounted(() => {
+  if (navRaf) window.cancelAnimationFrame(navRaf)
+  navRaf = 0
+  navResizeObserver?.disconnect()
+  navResizeObserver = null
+  window.removeEventListener('resize', scheduleNavIndicator)
+})
 const isElectron = ref(false)
 const appVersion = ref('0.6.0')
 const platform = ref<'windows' | 'macos' | 'linux' | 'unknown'>('unknown')
 const appStore = useAppStore()
 /** Koring 皮肤在下载页使用页面内导航，隐藏全局侧栏与侧栏分类 */
 const isKorOwnNav = computed(
-  () => appStore.skin === 'koring' && ['/settings', '/downloads', '/download/manage', '/'].includes(currentRoute.value)
+  () =>
+    appStore.skin === 'koring' &&
+    ['/settings', '/downloads', '/download/manage', '/', '/instances', '/launch'].includes(
+      currentRoute.value
+    )
 )
 const isKorDownloads = computed(
   () => appStore.skin === 'koring' && currentRoute.value === '/downloads'
@@ -661,7 +839,9 @@ const bgStyle = computed(() => {
     filter: blur
   }
 })
-const bgOverlayVisible = computed(() => appStore.bgColorOverlay && appStore.bgImageMode === 'custom' && !!appStore.bgImagePath)
+const bgOverlayVisible = computed(
+  () => appStore.bgColorOverlay && appStore.bgImageMode === 'custom' && !!appStore.bgImagePath
+)
 const overlayStyle = computed(() => ({
   backgroundColor: appStore.bgOverlayColor,
   opacity: appStore.bgDimAmount > 0 ? appStore.bgDimAmount / 100 : 0.35
@@ -877,7 +1057,13 @@ function addOfflineAccount() {
 const isLaunching = ref(false)
 
 // * 性能监控
-const perfSnapshot = ref<{ pid: number; alive: boolean; cpu: number; memoryMB: number; uptimeMs: number } | null>(null)
+const perfSnapshot = ref<{
+  pid: number
+  alive: boolean
+  cpu: number
+  memoryMB: number
+  uptimeMs: number
+} | null>(null)
 const showPerfPanel = ref(false)
 let perfCleanup: (() => void) | null = null
 
@@ -887,13 +1073,14 @@ function startPerfMonitor(pid: number) {
 
   // * 清理旧监听
   perfCleanup?.()
-  perfCleanup = window.electronAPI?.perfMonitor?.onSnapshot((snap) => {
-    perfSnapshot.value = snap
-    if (!snap.alive) {
-      showPerfPanel.value = false
-      perfCleanup?.()
-    }
-  }) ?? null
+  perfCleanup =
+    window.electronAPI?.perfMonitor?.onSnapshot((snap) => {
+      perfSnapshot.value = snap
+      if (!snap.alive) {
+        showPerfPanel.value = false
+        perfCleanup?.()
+      }
+    }) ?? null
 }
 
 function stopPerfMonitor() {
@@ -975,7 +1162,9 @@ async function loadLocalInstalledVersions() {
     try {
       const result = await window.electronAPI.versions.scanFolder(minecraftPath.value)
       if (result?.ok && result.data?.length) {
-        versions.value = (result.data as { id: string; baseVersion?: string; loaderInfo?: string }[]).map((v) => ({
+        versions.value = (
+          result.data as { id: string; baseVersion?: string; loaderInfo?: string }[]
+        ).map((v) => ({
           id: v.id,
           name: v.id,
           loader: v.loaderInfo || ''
@@ -996,11 +1185,14 @@ const dlActiveCat = ref('vanilla')
 const settingsActive = ref('home')
 
 // * 每次进入设置页时重置侧栏选中到主页
-watch(() => route.path, (path) => {
-  if (path === '/settings') {
-    settingsActive.value = 'home'
+watch(
+  () => route.path,
+  (path) => {
+    if (path === '/settings') {
+      settingsActive.value = 'home'
+    }
   }
-})
+)
 
 provide('settingsActive', settingsActive)
 provide('dlActiveCat', dlActiveCat)
@@ -1053,13 +1245,18 @@ onMounted(async () => {
 
   // * 获取应用版本号
   if (window.electronAPI?.app?.getVersion) {
-    window.electronAPI.app.getVersion().then((v: string) => {
-      if (v) appVersion.value = v
-    }).catch(() => {})
+    window.electronAPI.app
+      .getVersion()
+      .then((v: string) => {
+        if (v) appVersion.value = v
+      })
+      .catch(() => {})
   }
 
   // * 初始化主题
   appStore.init()
+  // * 同步 F12 开发者工具开关给主进程（主进程默认关闭，重启后需重新同步）
+  void window.electronAPI?.devTools?.setF12Enabled?.(appStore.enableF12)
 
   // * 获取 .minecraft 路径（优先 last_selected_folder，其次自定义路径，最后默认）
   if (window.electronAPI?.path) {
@@ -1115,6 +1312,7 @@ onMounted(async () => {
         selectedVersionId.value = lastId
         selectedVersion.value = savedDisplayName
         userHasSelectedVersion.value = true
+        versionsStore.setCurrentVersion(lastId)
       }
     } else if (!userHasSelectedVersion.value && versions.value.length) {
       // * 从未选择过版本 → 选第一个
@@ -1140,7 +1338,11 @@ onMounted(async () => {
   }
 
   // * 全局注册下载事件监听器（确保任何页面触发下载都能收到进度）
-  try { downloadStore.attachDownloadListeners() } catch { /* 忽略注册失败 */ }
+  try {
+    downloadStore.attachDownloadListeners()
+  } catch {
+    /* 忽略注册失败 */
+  }
 
   // * 监听版本下载进度事件（始终注册）
   const api = window.electronAPI
@@ -1228,13 +1430,27 @@ async function onVersionSelect(version: { id: string; name: string; loader?: str
 async function handleLaunch() {
   // * 前置检查
   if (!selectedVersionId.value) {
-    if (await pxConfirm({ title: t('common.tip'), message: t('launch.noVersionConfirm'), type: 'warning', confirmText: t('common.confirm') })) {
+    if (
+      await pxConfirm({
+        title: t('common.tip'),
+        message: t('launch.noVersionConfirm'),
+        type: 'warning',
+        confirmText: t('common.confirm')
+      })
+    ) {
       router.push('/downloads')
     }
     return
   }
   if (!accountsStore.activeAccount) {
-    if (await pxConfirm({ title: t('common.tip'), message: t('auth.pleaseAddAccount'), type: 'warning', confirmText: t('common.confirm') })) {
+    if (
+      await pxConfirm({
+        title: t('common.tip'),
+        message: t('auth.pleaseAddAccount'),
+        type: 'warning',
+        confirmText: t('common.confirm')
+      })
+    ) {
       // * 跳转到设置页的「游戏账户与档案」区块
       settingsActive.value = 'profile'
       router.push('/settings')
@@ -1251,7 +1467,11 @@ async function handleLaunch() {
       : selectedVersionId.value
 
   try {
-    const result = await window.electronAPI?.game.launch(currentInstanceId.value, accountId, versionId)
+    const result = await window.electronAPI?.game.launch(
+      currentInstanceId.value,
+      accountId,
+      versionId
+    )
     if (result?.needsFileDownload) {
       const count = result.missingFiles?.length || 0
       const confirmed = await confirmMissingFilesDownload(count)
@@ -1330,9 +1550,8 @@ const tabs = [
     path: '/settings',
     labelKey: 'tabs.settings',
     svg: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>'
-  },
+  }
 ]
-
 
 function minimizeWindow() {
   window.electronAPI?.window?.minimize?.()

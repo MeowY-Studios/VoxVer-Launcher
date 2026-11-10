@@ -75,6 +75,15 @@
 /* ================================================================
    Window Controls
    ================================================================ */
+.titlebar-right {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  -webkit-app-region: no-drag;
+  z-index: var(--voxver-z-raised);
+  flex-shrink: 0;
+}
+
 .wc {
   display: flex;
   align-items: center;
@@ -1009,7 +1018,28 @@
   margin-left: auto;
 }
 
+/* 滑动胶囊指示器（两个皮肤共用，颜色由各皮肤覆盖） */
+.top-nav__indicator {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 30px;
+    /* 用 transform 移动（避免 left 布局抖动）；不要加 will-change，会让 Electron 拖拽区吞掉导航点击 */
+    transform: translate3d(var(--ind-x, 0px), -50%, 0);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--voxver-primary) 18%, transparent);
+    pointer-events: none;
+    z-index: 0;
+    transition:
+        transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+        width 240ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 140ms ease,
+        background 200ms ease;
+}
+
 .top-nav-item {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1044,7 +1074,7 @@
   }
 
   &.active {
-    background: color-mix(in oklab, var(--voxver-primary) 18%, transparent);
+    background: transparent;
     color: var(--voxver-primary);
   }
 }

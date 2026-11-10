@@ -91,7 +91,7 @@ export type LaunchPhase =
   | 'building-config'
   | 'validating-java'
   | 'checking-files'
-  | 'waiting-confirm'  // 等待用户确认下载
+  | 'waiting-confirm' // 等待用户确认下载
   | 'downloading-files' // 正在下载缺失文件
   | 'launching-process'
   | 'running'
@@ -152,10 +152,7 @@ interface AccountRow {
 // ===== 常量 =====
 
 const BMCLAPI = 'https://bmclapi2.bangbang93.com'
-const BMCLAPI_FALLBACKS = [
-  'https://bmclapi.bangbang93.com',
-  'https://mcplayer.cn'
-]
+const BMCLAPI_FALLBACKS = ['https://bmclapi.bangbang93.com', 'https://mcplayer.cn']
 const PARALLEL_DOWNLOAD_CONCURRENCY = 5 // 并行下载并发数
 
 // ===== MinecraftLauncher 类 =====
@@ -453,7 +450,9 @@ class MinecraftLauncher {
       if (result.success) {
         this.setStatus('running')
         this.sendProgress('running', '游戏运行中')
-        log.info(`[GameLauncher] [launchDirect] 启动准备完成，总耗时 ${Date.now() - launchStartTime}ms`)
+        log.info(
+          `[GameLauncher] [launchDirect] 启动准备完成，总耗时 ${Date.now() - launchStartTime}ms`
+        )
       } else {
         log.error(`[GameLauncher] [launchDirect] 启动失败: ${result.error}`)
         this.sendProgress('error', '启动失败', result.error)
@@ -514,9 +513,7 @@ class MinecraftLauncher {
           selectedJava = javaInfo
           log.info(`[validateJava] 使用配置的 Java: ${javaInfo.vendor} ${javaInfo.version}`)
         } else {
-          log.warn(
-            `[validateJava] 配置的 Java ${javaInfo.majorVersion} 与版本不兼容，尝试自动选择`
-          )
+          log.warn(`[validateJava] 配置的 Java ${javaInfo.majorVersion} 与版本不兼容，尝试自动选择`)
         }
       } else {
         log.warn(`[validateJava] 配置的 Java 路径无效，尝试自动选择`)
@@ -642,8 +639,7 @@ class MinecraftLauncher {
       const fullPath = join(baseLibPath, dl.path)
       const fileSize = fs.existsSync(fullPath) ? fs.statSync(fullPath).size : 0
       if (fileSize === 0 || (dl.size > 0 && fileSize !== dl.size)) {
-        const reason =
-          fileSize === 0 ? '文件为空' : `大小不匹配(期望 ${dl.size}, 实际 ${fileSize})`
+        const reason = fileSize === 0 ? '文件为空' : `大小不匹配(期望 ${dl.size}, 实际 ${fileSize})`
         log.warn(`[checkMissingFiles] 库文件缺失或不完整: ${dl.path} (${reason})`)
         missingFiles.push({
           type: 'library',
@@ -761,7 +757,9 @@ class MinecraftLauncher {
           )
         }
       )
-      log.info(`[downloadMissingFiles] 库文件下载完成: 成功 ${result.success}, 失败 ${result.failed}`)
+      log.info(
+        `[downloadMissingFiles] 库文件下载完成: 成功 ${result.success}, 失败 ${result.failed}`
+      )
 
       if (result.failed > 0 && result.success === 0) {
         return { success: false, error: '库文件下载失败' }
@@ -779,7 +777,9 @@ class MinecraftLauncher {
     // 4. 下载版本核心 JAR 文件
     const versionJarPath = join(root, 'versions', versionId, `${versionId}.jar`)
     if (!fs.existsSync(versionJarPath)) {
-      const clientDownload = ((versionJson as unknown as Record<string, unknown>).downloads as Record<string, unknown>)?.client
+      const clientDownload = (
+        (versionJson as unknown as Record<string, unknown>).downloads as Record<string, unknown>
+      )?.client
       if (clientDownload) {
         this.sendProgress('downloading-files', `正在下载版本核心文件 ${versionId}.jar...`)
         const bmclUrl = `${BMCLAPI}/versions/${versionId}/${versionId}.jar`
@@ -924,7 +924,10 @@ class MinecraftLauncher {
         }
 
         if (missingAssets.length > 0) {
-          this.sendProgress('checking-files', `正在并行补全资源文件 (${missingAssets.length} 个, 并发数 ${PARALLEL_DOWNLOAD_CONCURRENCY})...`)
+          this.sendProgress(
+            'checking-files',
+            `正在并行补全资源文件 (${missingAssets.length} 个, 并发数 ${PARALLEL_DOWNLOAD_CONCURRENCY})...`
+          )
           const result = await this.parallelDownload(
             missingAssets,
             PARALLEL_DOWNLOAD_CONCURRENCY,
@@ -934,7 +937,9 @@ class MinecraftLauncher {
               }
             }
           )
-          log.info(`[downloadAssets] 资源文件下载完成: 成功 ${result.success}, 失败 ${result.failed}`)
+          log.info(
+            `[downloadAssets] 资源文件下载完成: 成功 ${result.success}, 失败 ${result.failed}`
+          )
         }
       } catch (e: unknown) {
         log.warn(`[downloadAssets] asset index 解析失败: ${(e as Error).message}`)
@@ -1147,11 +1152,7 @@ class MinecraftLauncher {
         log.info(`[buildJvmArguments] 已添加 G1 GC 优化参数 (现代版本 ${baseVersion})`)
       } else {
         // 1.17 及以下也使用 G1GC（CMS GC 在 Java 14+ 已被移除，现代 Java 环境均支持 G1GC）
-        args.push(
-          '-XX:+UseG1GC',
-          '-XX:MaxGCPauseMillis=100',
-          '-XX:+DisableExplicitGC'
-        )
+        args.push('-XX:+UseG1GC', '-XX:MaxGCPauseMillis=100', '-XX:+DisableExplicitGC')
         log.info(`[buildJvmArguments] 已添加 G1 GC 参数 (旧版本 ${baseVersion})`)
       }
     }
@@ -1262,8 +1263,8 @@ class MinecraftLauncher {
    * 确保游戏参数中包含窗口尺寸参数
    */
   private ensureWindowArgs(args: string[], windowConfig: GameWindowConfig): void {
-    const hasWidth = args.some((a, i) => a === '--width' || (a === '--fullscreen'))
-    const hasHeight = args.some((a, i) => a === '--height' || (a === '--fullscreen'))
+    const hasWidth = args.some((a, i) => a === '--width' || a === '--fullscreen')
+    const hasHeight = args.some((a, i) => a === '--height' || a === '--fullscreen')
     if (!hasWidth) {
       args.push('--width', String(windowConfig.width))
     }
@@ -1306,7 +1307,11 @@ class MinecraftLauncher {
       }
 
       // 修复 fullscreen 可能导致的显示问题，确保 fullscreen:false 时不会出问题
-      if (content.includes('fullscreen:true') && !content.includes('overrideWidth:') && !content.includes('overrideHeight:')) {
+      if (
+        content.includes('fullscreen:true') &&
+        !content.includes('overrideWidth:') &&
+        !content.includes('overrideHeight:')
+      ) {
         // 全屏但没有覆盖分辨率，添加默认值防止窗口丢失
         // 不强制改动，仅记录日志
         log.info(`[validateOptions] 全屏模式且无覆盖分辨率，由游戏自行处理`)
@@ -1340,7 +1345,11 @@ class MinecraftLauncher {
 
     const checkFeatureRules = (rules: unknown[]): boolean => {
       return rules.every((rule) => {
-        const r = rule as { action: string; os?: { name?: string; arch?: string }; features?: Record<string, boolean> }
+        const r = rule as {
+          action: string
+          os?: { name?: string; arch?: string }
+          features?: Record<string, boolean>
+        }
         if (r.action !== 'allow') return true
         if (r.os?.name && r.os.name !== process.platform) return false
         if (r.os?.arch && process.arch !== r.os.arch) return false
@@ -1459,7 +1468,7 @@ class MinecraftLauncher {
     if (process.platform === 'win32') {
       const baseVersion = extractBaseVersion(version)
       const isLwjgl3 = this.compareVersions(baseVersion, '1.18') >= 0
-      
+
       if (isLwjgl3 && javaPath.endsWith('java.exe')) {
         const javawPath = javaPath.replace(/java\.exe$/, 'javaw.exe')
         if (fs.existsSync(javawPath)) {
@@ -1685,10 +1694,7 @@ class MinecraftLauncher {
         const protocol = currentUrl.startsWith('https') ? https : http
         const req = protocol.get(currentUrl, { timeout }, (res) => {
           // 处理重定向
-          if (
-            [301, 302, 303, 307, 308].includes(res.statusCode || 0) &&
-            res.headers.location
-          ) {
+          if ([301, 302, 303, 307, 308].includes(res.statusCode || 0) && res.headers.location) {
             if (redirectsLeft <= 0) {
               req.destroy()
               return reject(new Error(`重定向次数超过限制: ${url}`))
@@ -1900,7 +1906,9 @@ export function createLaunchConfig(
   const availableMem = Math.floor(totalMem * 0.6)
   if (maxMem > availableMem) {
     maxMem = Math.max(512, availableMem)
-    log.warn(`[createLaunchConfig] 内存配置 ${options.maxMemory || memRow?.value}MB 超过系统可用，限制为 ${maxMem}MB`)
+    log.warn(
+      `[createLaunchConfig] 内存配置 ${options.maxMemory || memRow?.value}MB 超过系统可用，限制为 ${maxMem}MB`
+    )
   }
 
   // 获取 Java 路径（实例配置优先）
@@ -1996,16 +2004,18 @@ export async function launchGame(
     .prepare(
       'SELECT version_id, path, java_path, jvm_args, min_memory, max_memory, width, height FROM instances WHERE id = ?'
     )
-    .get(options.instanceId) as {
-      version_id: string
-      path: string
-      java_path: string
-      jvm_args: string
-      min_memory: number
-      max_memory: number
-      width: number
-      height: number
-    } | undefined
+    .get(options.instanceId) as
+    | {
+        version_id: string
+        path: string
+        java_path: string
+        jvm_args: string
+        min_memory: number
+        max_memory: number
+        width: number
+        height: number
+      }
+    | undefined
 
   if (!instance) {
     return { success: false, error: '实例不存在' }
@@ -2050,7 +2060,9 @@ export function isRunning(): boolean {
  * 获取当前日志
  */
 export function getCurrentLog(): string {
-  return launcherInstance ? (launcherInstance as unknown as { logBuffer?: string }).logBuffer || '' : ''
+  return launcherInstance
+    ? (launcherInstance as unknown as { logBuffer?: string }).logBuffer || ''
+    : ''
 }
 
 // ===== 工具函数 =====
@@ -2096,10 +2108,16 @@ export async function continueLaunchAfterDownload(
   }
 
   // 2. 处理继承版本
-  const finalVersionJson = await launcher.resolveInheritedVersion(config.gameCoreConfig, versionJson)
+  const finalVersionJson = await launcher.resolveInheritedVersion(
+    config.gameCoreConfig,
+    versionJson
+  )
 
   // 3. 下载缺失文件
-  const downloadResult = await launcher.downloadMissingFiles(config.gameCoreConfig, finalVersionJson)
+  const downloadResult = await launcher.downloadMissingFiles(
+    config.gameCoreConfig,
+    finalVersionJson
+  )
   if (!downloadResult.success) {
     return { success: false, error: downloadResult.error || '下载缺失文件失败' }
   }

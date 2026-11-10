@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /** Kor 分隔线（对应 Koring ui/separator.tsx）。 */
-withDefaults(
-  defineProps<{ orientation?: 'horizontal' | 'vertical'; inset?: boolean }>(),
-  { orientation: 'horizontal', inset: false }
-)
+withDefaults(defineProps<{ orientation?: 'horizontal' | 'vertical'; inset?: boolean }>(), {
+  orientation: 'horizontal',
+  inset: false
+})
 </script>
 
 <template>

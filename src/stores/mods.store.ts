@@ -58,10 +58,16 @@ export const useModsStore = defineStore('mods', () => {
     error.value = null
     try {
       const res = await window.electronAPI?.mod?.list(gameDir)
-      if (res && typeof res === 'object' && 'ok' in (res as object) && (res as { ok: boolean }).ok && Array.isArray((res as { data: LocalMod[] }).data)) {
+      if (
+        res &&
+        typeof res === 'object' &&
+        'ok' in (res as object) &&
+        (res as { ok: boolean }).ok &&
+        Array.isArray((res as { data: LocalMod[] }).data)
+      ) {
         mods.value = (res as { data: LocalMod[] }).data.map((m: LocalMod, idx: number) => ({
           id: m.filePath || `mod_${idx}`,
-            fileName: m.fileName || '',
+          fileName: m.fileName || '',
           displayName: m.displayName || m.fileName || 'Unknown',
           version: m.version || '',
           description: m.description || '',

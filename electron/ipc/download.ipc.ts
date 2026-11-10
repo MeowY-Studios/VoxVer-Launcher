@@ -24,16 +24,66 @@ interface ServiceCheckResult extends ServiceTarget {
 
 /** 启动器依赖的关键服务 */
 const SERVICE_TARGETS: ReadonlyArray<ServiceTarget> = [
-  { key: 'bmclapi', name: 'BMCLAPI', url: 'https://bmclapi2.bangbang93.com/mc/game/version_manifest.json', group: 'source' },
-  { key: 'mojang', name: 'Mojang', url: 'https://launchermeta.mojang.com/mc/game/version_manifest.json', group: 'source' },
-  { key: 'curseforge', name: 'CurseForge', url: 'https://api.curseforge.com/v1/games', group: 'mod' },
-  { key: 'modrinth', name: 'Modrinth', url: 'https://api.modrinth.com/v2/tag/game_version', group: 'mod' },
-  { key: 'forge', name: 'Forge', url: 'https://files.minecraftforge.net/net/minecraftforge/forge/', group: 'loader' },
-  { key: 'fabric', name: 'Fabric', url: 'https://meta.fabricmc.net/v2/versions/loader', group: 'loader' },
-  { key: 'neoforge', name: 'NeoForge', url: 'https://maven.neoforged.net/releases/', group: 'loader' },
-  { key: 'authlib', name: 'Authlib Injector', url: 'https://authlib-injector.yushi.moe/', group: 'account' },
-  { key: 'github', name: 'GitHub', url: 'https://api.github.com/repos/MeowY-Studios/VoxVer-Launcher/releases/latest', group: 'account' },
-  { key: 'microsoft', name: 'Microsoft', url: 'https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode', group: 'account' }
+  {
+    key: 'bmclapi',
+    name: 'BMCLAPI',
+    url: 'https://bmclapi2.bangbang93.com/mc/game/version_manifest.json',
+    group: 'source'
+  },
+  {
+    key: 'mojang',
+    name: 'Mojang',
+    url: 'https://launchermeta.mojang.com/mc/game/version_manifest.json',
+    group: 'source'
+  },
+  {
+    key: 'curseforge',
+    name: 'CurseForge',
+    url: 'https://api.curseforge.com/v1/games',
+    group: 'mod'
+  },
+  {
+    key: 'modrinth',
+    name: 'Modrinth',
+    url: 'https://api.modrinth.com/v2/tag/game_version',
+    group: 'mod'
+  },
+  {
+    key: 'forge',
+    name: 'Forge',
+    url: 'https://files.minecraftforge.net/net/minecraftforge/forge/',
+    group: 'loader'
+  },
+  {
+    key: 'fabric',
+    name: 'Fabric',
+    url: 'https://meta.fabricmc.net/v2/versions/loader',
+    group: 'loader'
+  },
+  {
+    key: 'neoforge',
+    name: 'NeoForge',
+    url: 'https://maven.neoforged.net/releases/',
+    group: 'loader'
+  },
+  {
+    key: 'authlib',
+    name: 'Authlib Injector',
+    url: 'https://authlib-injector.yushi.moe/',
+    group: 'account'
+  },
+  {
+    key: 'github',
+    name: 'GitHub',
+    url: 'https://api.github.com/repos/MeowY-Studios/VoxVer-Launcher/releases/latest',
+    group: 'account'
+  },
+  {
+    key: 'microsoft',
+    name: 'Microsoft',
+    url: 'https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode',
+    group: 'account'
+  }
 ]
 
 /** 检测单个服务是否可达，返回耗时（毫秒） */
@@ -53,10 +103,20 @@ async function checkService(target: ServiceTarget): Promise<ServiceCheckResult> 
     } catch {
       /* 忽略响应体释放失败 */
     }
-    return { ...target, online: res.status < 500, latency, error: res.status >= 500 ? `HTTP ${res.status}` : undefined }
+    return {
+      ...target,
+      online: res.status < 500,
+      latency,
+      error: res.status >= 500 ? `HTTP ${res.status}` : undefined
+    }
   } catch (e: unknown) {
     const err = e as Error
-    return { ...target, online: false, latency: -1, error: err?.name === 'AbortError' ? 'timeout' : err?.message || 'network error' }
+    return {
+      ...target,
+      online: false,
+      latency: -1,
+      error: err?.name === 'AbortError' ? 'timeout' : err?.message || 'network error'
+    }
   } finally {
     clearTimeout(timer)
   }

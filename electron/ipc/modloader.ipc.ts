@@ -86,7 +86,7 @@ export function registerModLoaderHandlers(
   // ── 获取指定 MC 版本支持的 ModLoader 列表 ──────────────────
   ipcMain.handle('modloader:get-loaders', async (_event, opts: { minecraftVersion: string }) => {
     try {
-      const loaders = service!.getModLoaders(opts.minecraftVersion)
+      const loaders = await service!.getModLoaders(opts.minecraftVersion)
       return { ok: true, data: loaders }
     } catch (err: unknown) {
       return { ok: false, error: (err as Error).message }

@@ -52,7 +52,15 @@ Object.defineProperty(window, 'electronAPI', {
       listMods: vi.fn().mockResolvedValue([]),
       toggleMod: vi.fn().mockResolvedValue(true),
       deleteMod: vi.fn().mockResolvedValue(true),
-      diskUsage: vi.fn().mockResolvedValue({ total: 0, mods: 0, saves: 0, resourcepacks: 0, shaderpacks: 0, config: 0, others: 0 }),
+      diskUsage: vi.fn().mockResolvedValue({
+        total: 0,
+        mods: 0,
+        saves: 0,
+        resourcepacks: 0,
+        shaderpacks: 0,
+        config: 0,
+        others: 0
+      }),
       listResourcePacks: vi.fn().mockResolvedValue([]),
       toggleResourcePack: vi.fn().mockResolvedValue(true),
       deleteResourcePack: vi.fn().mockResolvedValue(true),
@@ -69,9 +77,7 @@ Object.defineProperty(window, 'electronAPI', {
       exportPreview: vi.fn().mockResolvedValue({ ok: true, data: { totalSize: 0, files: [] } })
     },
     path: {
-      getMinecraft: vi
-        .fn()
-        .mockResolvedValue('C:\\Users\\Test\\AppData\\Roaming\\.minecraft'),
+      getMinecraft: vi.fn().mockResolvedValue('C:\\Users\\Test\\AppData\\Roaming\\.minecraft'),
       getCustom: vi.fn().mockResolvedValue(null)
     },
     folders: {
@@ -114,7 +120,7 @@ Object.defineProperty(window, 'electronAPI', {
     dialog: {
       selectFolder: vi.fn().mockResolvedValue(null),
       selectFile: vi.fn().mockResolvedValue(null)
-    },
+    }
   },
   writable: true
 })
@@ -124,9 +130,15 @@ const localStorageMock = (() => {
   let store: Record<string, string> = {}
   return {
     getItem: vi.fn((key: string) => store[key] ?? null),
-    setItem: vi.fn((key: string, value: string) => { store[key] = value }),
-    removeItem: vi.fn((key: string) => { delete store[key] }),
-    clear: vi.fn(() => { store = {} }),
+    setItem: vi.fn((key: string, value: string) => {
+      store[key] = value
+    }),
+    removeItem: vi.fn((key: string) => {
+      delete store[key]
+    }),
+    clear: vi.fn(() => {
+      store = {}
+    }),
     get length() {
       return Object.keys(store).length
     },
@@ -169,7 +181,9 @@ HTMLImageElement.prototype.setAttribute = function (name: string, value: string)
 
 // Also override property access
 Object.defineProperty(HTMLImageElement.prototype, 'src', {
-  get() { return origSetAttribute.call(this, 'src', '') as any || '' },
+  get() {
+    return (origSetAttribute.call(this, 'src', '') as any) || ''
+  },
   set(value: string) {
     if (value && !value.startsWith('data:') && !value.startsWith('http')) {
       origSetAttribute.call(this, 'src', 'data:image/png;base64,')

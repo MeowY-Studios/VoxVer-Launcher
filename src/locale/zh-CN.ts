@@ -7,6 +7,8 @@ export default {
     save: '保存',
     delete: '删除',
     edit: '编辑',
+    rename: '重命名',
+    unknown: '未知',
     add: '添加',
     close: '关闭',
     open: '打开',
@@ -109,6 +111,8 @@ export default {
     koringStart: '启动游戏',
     koringBrowse: '下载版本',
     koringPickVersion: '选择版本',
+    koringPickVersionHint: '先选择一个游戏版本',
+    koringLaunchGame: '启动游戏',
     koringLaunchHint: '点击启动游戏',
     koringNotSignedIn: '未登录账户',
     koringAccountHint: '点击管理账户',
@@ -147,6 +151,7 @@ export default {
   },
   tabs: {
     home: '启动',
+    launch: '启动',
     instances: '实例',
     downloads: '下载',
     online: '联机',
@@ -344,16 +349,17 @@ export default {
   },
 
   launch: {
+    currentVersion: '当前版本',
 
-     currentVersion: '当前版本',
+    currentAccount: '当前账户',
 
-     currentAccount: '当前账户',
+    noAccount: '未登录',
 
-     noAccount: '未登录',
+    changeVersion: '更换版本',
 
-     changeVersion: '更换版本',
+    gameDir: '游戏目录',
 
-     noVersionSelected: '尚未选择版本',
+    noVersionSelected: '尚未选择版本',
     manageAccounts: '账户管理',
     gameLog: '游戏日志',
     clearLog: '清空日志',
@@ -800,6 +806,10 @@ export default {
     fileSize: '文件大小',
     deleteConfirm: '确定要删除 Mod「{name}」吗？',
     deleteFailed: '删除 Mod 失败',
+    deleteModFailed: '删除 Mod 失败',
+    toggleModFailed: '切换 Mod 启用状态失败',
+    dependencyCheckFailed: '检查 Mod 依赖失败',
+    updateCheckFailed: '检查 Mod 更新失败',
     fileHash: '文件哈希',
     downloadUrl: '下载链接',
     downloadCount: '下载次数',
@@ -974,6 +984,7 @@ export default {
     duplicate: '复制',
     rename: '重命名',
     delete: '删除',
+    deleteFailed: '删除实例失败',
     edit: '编辑',
     launch: '启动',
     launching: '正在启动「{name}」...',
@@ -1215,9 +1226,14 @@ export default {
     addAndImport: '添加与导入',
     importFolder: '导入已有文件夹',
     importing: '正在扫描…',
+    removeFolder: '从启动器中移除',
+    removeFolderTitle: '是否从启动器里移除该目录「{name}」？',
+    removeFolderDesc: '仅从启动器的目录列表中移除该路径，不会删除磁盘上的任何文件。',
     vanilla: '原版',
     emptyTitle: '还没有实例',
-    emptyDesc: '从左侧导入已有的 .minecraft 文件夹，或去下载页新建一个实例。'
+    emptyDesc: '从左侧导入已有的 .minecraft 文件夹，或去下载页新建一个实例。',
+    noVersionsTitle: '这个目录里还没有已安装的版本',
+    noVersionsDesc: '去「下载」页安装一个版本，装好后会自动出现在这里。'
   },
 
   p2p: {
@@ -1278,6 +1294,7 @@ export default {
     },
     searchVersion: '搜索版本号...',
     refresh: '刷新',
+    backToDownloads: '返回下载页',
     release: '正式版',
     latestRelease: '最新正式版',
     latestVersion: '最新版本',
@@ -1453,6 +1470,8 @@ export default {
 
   settings: {
     settings: '设置',
+    custom: '自定义',
+    createMinecraftFolderFailed: '创建 .minecraft 文件夹失败',
     general: '通用',
     appearance: '外观',
     game: '游戏',
@@ -1547,7 +1566,6 @@ export default {
     enableF12Desc: '允许按 F12 打开 DevTools，默认关闭',
 
     sidebar: {
-
       home: '主页',
       account: '账户',
       about: '关于',
@@ -1568,7 +1586,7 @@ export default {
       authService: '安全识别服务',
       service: '服务与反馈',
       sponsor: '赞助我们',
-    developer: '开发者选项',
+      developer: '开发者选项',
       other: '其他'
     },
     accessibilityScreenReader: '屏幕阅读器模式',
@@ -1607,10 +1625,12 @@ export default {
     koringAccountGuest: '尚未登录 VoxVer 账户',
     koringAccountGuestDesc: 'VoxVer 账户用于同步启动器设置、版本列表与云端数据（开发中）',
     koringAccountSoon: 'VoxVer 账户还没开放',
-    koringAccountSoonDesc: '账户体系正在开发中；现在登录游戏请到「游戏账户与档案」使用 Microsoft 账户',
+    koringAccountSoonDesc:
+      '账户体系正在开发中；现在登录游戏请到「游戏账户与档案」使用 Microsoft 账户',
     koringAccountSignIn: '登录 VoxVer 账户',
     koringAccountAdd: '添加其他账户',
-    koringAccountSignedIn: '已登录，可添加其他 Microsoft 账户或在「游戏账户与档案」中管理',    themePresetsDesc: '选择一套主题颜色，或自定义主色',
+    koringAccountSignedIn: '已登录，可添加其他 Microsoft 账户或在「游戏账户与档案」中管理',
+    themePresetsDesc: '选择一套主题颜色，或自定义主色',
     customPreset: '自定义',
     themeModeDesc: '切换启动器的深色 / 浅色 / 跟随系统外观',
     themeBg: '主题与背景',
@@ -2378,6 +2398,8 @@ export default {
       updateFailed: '更新失败：{error}',
       checkFailed: '检查更新失败：{error}',
       checkUpdate: '检查更新',
+      checkingButton: '检查中…',
+      upToDateButton: '已经是最新版',
       downloadUpdate: '下载更新',
       cancelDownload: '取消下载',
       installUpdate: '安装更新',
@@ -2491,6 +2513,12 @@ export default {
     deleteVersion: '删除版本',
     deleteVersionConfirm: '确认删除版本 {id}？此操作仅从列表中移除，不会删除游戏文件。',
     detecting: '检测中...',
+    scanningVersions: '正在扫描版本...',
+    loadVersionsFailed: '加载版本列表失败',
+    addFolderFailed: '添加文件夹失败',
+    createFolderFailed: '创建 .minecraft 文件夹失败',
+    importModpackFailed: '导入整合包失败',
+    detectMinecraftFailed: '检测 Minecraft 文件夹失败',
     noElectronEnv: '未检测到 Electron 环境',
     notFoundFolder: '未找到 .minecraft 文件夹',
     remove: '移除',
@@ -2594,12 +2622,15 @@ export default {
     downloadStatusError: '错误',
     // PxNotification
     notificationCenter: '通知中心',
+    notificationGroup: '通知',
     markAllRead: '全部标为已读',
     clearAll: '清除全部',
+    officialPinned: '官方置顶',
     noNotifications: '暂无通知',
     notificationCount: '通知 ({n})',
     markRead: '标记已读',
     loadHistoryFailed: '加载通知历史失败',
+    gameRunningReturn: '游戏运行中，返回日志页面',
     // ShareModal / ReceiveModal
     packFailed: '打包失败！',
     connectionFailed: '连接失败',

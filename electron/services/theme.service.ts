@@ -154,18 +154,26 @@ export function deleteBackground(localPath: string): boolean {
  * 将主题设置导出为可分享的 JSON 字符串
  */
 export function exportThemeAsJson(settings: ThemeSettings): string {
-  return JSON.stringify({
-    version: 1,
-    type: 'voxver_theme',
-    settings,
-    exportedAt: new Date().toISOString()
-  }, null, 2)
+  return JSON.stringify(
+    {
+      version: 1,
+      type: 'voxver_theme',
+      settings,
+      exportedAt: new Date().toISOString()
+    },
+    null,
+    2
+  )
 }
 
 /**
  * 从 JSON 字符串导入主题设置
  */
-export function importThemeFromJson(jsonStr: string): { ok: boolean; settings?: ThemeSettings; error?: string } {
+export function importThemeFromJson(jsonStr: string): {
+  ok: boolean
+  settings?: ThemeSettings
+  error?: string
+} {
   try {
     const data = JSON.parse(jsonStr)
     if (data.type !== 'voxver_theme') {

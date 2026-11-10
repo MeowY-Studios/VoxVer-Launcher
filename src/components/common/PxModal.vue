@@ -20,7 +20,12 @@
             <slot name="header">
               <h3 :id="titleId" class="px-modal__title">{{ title }}</h3>
             </slot>
-            <button v-if="closable" class="px-modal__close" @click="close" :aria-label="$t('component.closeBtn')">
+            <button
+              v-if="closable"
+              class="px-modal__close"
+              @click="close"
+              :aria-label="$t('component.closeBtn')"
+            >
               <svg
                 width="16"
                 height="16"

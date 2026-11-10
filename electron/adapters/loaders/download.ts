@@ -10,11 +10,13 @@ const log = logger.child('LoaderDownload')
 /**
  * 下载文件（带进度回调）
  * @param onProgress 进度回调，参数为 0~1；仅当响应头含 content-length 时触发
+ * @param headers 额外请求头（部分站点校验 UA / Referer）
  */
 export async function downloadFile(
   url: string,
   destPath: string,
-  onProgress: (progress: number) => void
+  onProgress: (progress: number) => void,
+  headers?: Record<string, string>
 ): Promise<void> {
   log.info(`[Download] 开始下载: ${url} -> ${destPath}`)
 
@@ -22,6 +24,7 @@ export async function downloadFile(
     method: 'get',
     url,
     responseType: 'stream',
+    headers,
     timeout: 600000 // 10分钟超时
   })
 

@@ -40,7 +40,11 @@ export function getConfig<T = string>(key: string): T | null {
 }
 
 // 设置配置项
-export function setConfig(key: string, value: string | number | boolean | Record<string, unknown> | unknown[], type?: ConfigEntry['type']): void {
+export function setConfig(
+  key: string,
+  value: string | number | boolean | Record<string, unknown> | unknown[],
+  type?: ConfigEntry['type']
+): void {
   const db = getDatabase()
   log.info('[config.setConfig] key:', key, 'value:', value, 'db is null?', !db)
   const now = new Date().toISOString()

@@ -7,19 +7,22 @@
       type="button"
     >
       <span class="px-select__value">{{ selectedLabel }}</span>
-      <svg class="px-select__arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <svg
+        class="px-select__arrow"
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
         <polyline points="6 9 12 15 18 9" />
       </svg>
     </button>
     <!-- 下拉面板传送到 body，避免被 overflow/滚动容器裁剪 -->
     <Teleport to="body">
       <Transition name="px-select">
-        <div
-          v-if="isOpen"
-          ref="dropdownRef"
-          class="px-select__dropdown"
-          :style="dropdownStyle"
-        >
+        <div v-if="isOpen" ref="dropdownRef" class="px-select__dropdown" :style="dropdownStyle">
           <button
             v-for="opt in options"
             :key="opt.value"
@@ -119,9 +122,13 @@ onUnmounted(() => {
 })
 
 // 选项或选中值变化时保持面板位置准确
-watch(() => props.options, () => {
-  if (isOpen.value) void nextTick(updateDropdownPos)
-}, { deep: true })
+watch(
+  () => props.options,
+  () => {
+    if (isOpen.value) void nextTick(updateDropdownPos)
+  },
+  { deep: true }
+)
 </script>
 
 <style scoped>
@@ -188,7 +195,9 @@ watch(() => props.options, () => {
   font-family: inherit;
   text-align: left;
   cursor: pointer;
-  transition: background var(--voxver-transition-fast), color var(--voxver-transition-fast);
+  transition:
+    background var(--voxver-transition-fast),
+    color var(--voxver-transition-fast);
 }
 .px-select__option:hover {
   background: var(--voxver-bg-hover);
@@ -209,12 +218,14 @@ watch(() => props.options, () => {
 
 /* Transition */
 .px-select-enter-active {
-  transition: opacity var(--voxver-transition-fast) var(--voxver-ease-out-quart),
-              transform var(--voxver-transition-fast) var(--voxver-ease-out-quart);
+  transition:
+    opacity var(--voxver-transition-fast) var(--voxver-ease-out-quart),
+    transform var(--voxver-transition-fast) var(--voxver-ease-out-quart);
 }
 .px-select-leave-active {
-  transition: opacity var(--voxver-transition-fast) ease-in,
-              transform var(--voxver-transition-fast) ease-in;
+  transition:
+    opacity var(--voxver-transition-fast) ease-in,
+    transform var(--voxver-transition-fast) ease-in;
 }
 .px-select-enter-from,
 .px-select-leave-to {

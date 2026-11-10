@@ -44,7 +44,12 @@
         <div class="receive-stage-subtitle">
           {{ instanceName || $t('instance.instance') }}
           <br />
-          {{ transferredChunks }} / {{ totalChunks }} {{ $t('component.chunksProgress', { transferred: transferredChunks, total: totalChunks }) }} ({{ formatSpeed(bytesPerSecond) }} - {{ $t('component.remainingTime', { time: formatTime(estimatedRemaining) }) }})
+          {{ transferredChunks }} / {{ totalChunks }}
+          {{
+            $t('component.chunksProgress', { transferred: transferredChunks, total: totalChunks })
+          }}
+          ({{ formatSpeed(bytesPerSecond) }} -
+          {{ $t('component.remainingTime', { time: formatTime(estimatedRemaining) }) }})
         </div>
         <PxProgress
           :value="transferProgress"
@@ -56,7 +61,9 @@
       <!-- 完成 -->
       <div v-else-if="stage === 'completed'" class="receive-stage">
         <div class="receive-stage-title">{{ $t('component.receiveComplete') }}</div>
-        <div class="receive-stage-subtitle">{{ $t('component.instanceReceived', { name: instanceName || $t('instance.instance') }) }}</div>
+        <div class="receive-stage-subtitle">
+          {{ $t('component.instanceReceived', { name: instanceName || $t('instance.instance') }) }}
+        </div>
         <div class="receive-info">
           <div class="receive-info-item">
             <span class="receive-info-label">{{ $t('component.mcVersion') }}</span>
@@ -79,7 +86,9 @@
     </div>
 
     <template #footer>
-      <button v-if="stage === 'input'" class="px-btn px-btn--secondary" @click="close">{{ $t('common.cancel') }}</button>
+      <button v-if="stage === 'input'" class="px-btn px-btn--secondary" @click="close">
+        {{ $t('common.cancel') }}
+      </button>
       <button
         v-if="stage === 'input'"
         class="px-btn px-btn--primary"
@@ -93,7 +102,11 @@
         {{ $t('common.cancel') }}
       </button>
 
-      <button v-if="stage === 'transferring'" class="px-btn px-btn--secondary" @click="cancelReceive">
+      <button
+        v-if="stage === 'transferring'"
+        class="px-btn px-btn--secondary"
+        @click="cancelReceive"
+      >
         {{ $t('common.cancel') }}
       </button>
 
@@ -112,7 +125,9 @@
       <button v-if="stage === 'error'" class="px-btn px-btn--secondary" @click="resetToInput">
         {{ $t('component.retry') }}
       </button>
-      <button v-if="stage === 'error'" class="px-btn px-btn--primary" @click="close">{{ $t('common.close') }}</button>
+      <button v-if="stage === 'error'" class="px-btn px-btn--primary" @click="close">
+        {{ $t('common.close') }}
+      </button>
     </template>
   </PxModal>
 </template>

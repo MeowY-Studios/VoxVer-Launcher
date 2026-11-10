@@ -59,7 +59,11 @@
       >
         {{ $t('component.switchAccount') }}
       </button>
-      <button class="action-btn danger" @click="$emit('delete', account.id)" :title="$t('common.delete')">
+      <button
+        class="action-btn danger"
+        @click="$emit('delete', account.id)"
+        :title="$t('common.delete')"
+      >
         {{ $t('component.deleteAccount') }}
       </button>
     </div>
@@ -104,7 +108,11 @@ const shortUuid = computed(() => {
 
   &.active {
     border-color: var(--voxver-primary-400);
-    background: linear-gradient(to right, color-mix(in oklab, var(--voxver-primary) 4%, transparent), transparent);
+    background: linear-gradient(
+      to right,
+      color-mix(in oklab, var(--voxver-primary) 4%, transparent),
+      transparent
+    );
   }
 }
 

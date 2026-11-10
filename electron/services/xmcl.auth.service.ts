@@ -32,9 +32,7 @@ const mojangClient = new MojangClient({})
  * @param msAccessToken 微软 OAuth Access Token
  * @returns Minecraft 档案信息 + MC Access Token
  */
-export async function authenticateWithXmcl(
-  msAccessToken: string
-): Promise<XmclAuthResult> {
+export async function authenticateWithXmcl(msAccessToken: string): Promise<XmclAuthResult> {
   // Step 1: Xbox Live 认证
   log.info('[XmclAuth] Step 1: authenticateXboxLive...')
   const xblRes = await authenticator.authenticateXboxLive(msAccessToken)
@@ -47,10 +45,7 @@ export async function authenticateWithXmcl(
 
   // Step 2: XSTS 认证
   log.info('[XmclAuth] Step 2: authorizeXboxLive...')
-  const xstsRes = await authenticator.authorizeXboxLive(
-    xblToken,
-    'rp://api.minecraftservices.com/'
-  )
+  const xstsRes = await authenticator.authorizeXboxLive(xblToken, 'rp://api.minecraftservices.com/')
   const xstsToken = xstsRes.Token
 
   log.info('[XmclAuth] XSTS response received')
@@ -84,9 +79,7 @@ export async function authenticateWithXmcl(
  * @param accessToken Minecraft Access Token
  * @returns 档案信息（name, uuid, skinUrl）
  */
-export async function fetchProfileWithXmcl(
-  accessToken: string
-): Promise<XmclMinecraftProfile> {
+export async function fetchProfileWithXmcl(accessToken: string): Promise<XmclMinecraftProfile> {
   const profile = await mojangClient.getProfile(accessToken)
 
   // id 格式为不带横杠的 UUID，转成标准格式

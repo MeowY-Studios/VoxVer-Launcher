@@ -51,9 +51,13 @@ export function scanScreenshots(gameDir: string): ScreenshotInfo[] {
           size: stat.size,
           createdAt: stat.mtimeMs
         })
-      } catch { /* skip inaccessible files */ }
+      } catch {
+        /* skip inaccessible files */
+      }
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   return result.sort((a, b) => b.createdAt - a.createdAt)
 }

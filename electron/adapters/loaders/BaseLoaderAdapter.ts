@@ -24,6 +24,21 @@ export abstract class BaseLoaderAdapter implements ILoaderAdapter {
     return this.supportedVersions.includes(mcVersion)
   }
 
+  /**
+   * 是否支持指定 MC 版本
+   * 先看静态白名单（已知版本直接放行），未命中时再去加载器官方元数据里查，
+   * 这样 Minecraft 出新版本后不需要改代码，也不会把真正可用的版本误判为不支持
+   */
+  async isSupported(mcVersion: string): Promise<boolean> {
+    if (this.supportsVersion(mcVersion)) return true
+    try {
+      const versions = await this.getVersions(mcVersion)
+      return versions.length > 0
+    } catch {
+      return false
+    }
+  }
+
   /** 上报进度 */
   protected report(
     ctx: LoaderInstallContext,

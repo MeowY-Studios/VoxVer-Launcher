@@ -7,6 +7,8 @@ export default {
     save: 'Save',
     delete: 'Delete',
     edit: 'Edit',
+    rename: 'Rename',
+    unknown: 'Unknown',
     add: 'Add',
     close: 'Close',
     open: 'Open',
@@ -100,6 +102,8 @@ export default {
     koringStart: 'Launch game',
     koringBrowse: 'Download versions',
     koringPickVersion: 'Select a version',
+    koringPickVersionHint: 'Pick a version first',
+    koringLaunchGame: 'Launch game',
     koringLaunchHint: 'Click to launch the game',
     koringNotSignedIn: 'Not signed in',
     koringAccountHint: 'Click to manage accounts',
@@ -138,6 +142,7 @@ export default {
   },
   tabs: {
     home: 'Launch',
+    launch: 'Launch',
     instances: 'Instances',
     downloads: 'Downloads',
     online: 'Multiplayer',
@@ -338,16 +343,17 @@ export default {
   },
 
   launch: {
+    currentVersion: 'Current version',
 
-     currentVersion: 'Current version',
+    currentAccount: 'Current account',
 
-     currentAccount: 'Current account',
+    noAccount: 'Not signed in',
 
-     noAccount: 'Not signed in',
+    changeVersion: 'Change version',
 
-     changeVersion: 'Change version',
+    gameDir: 'Game Directory',
 
-     noVersionSelected: 'No version selected',
+    noVersionSelected: 'No version selected',
     manageAccounts: 'Manage Accounts',
     gameLog: 'Game Log',
     clearLog: 'Clear Log',
@@ -802,6 +808,10 @@ export default {
     fileSize: 'File Size',
     deleteConfirm: 'Are you sure you want to delete mod "{name}"?',
     deleteFailed: 'Failed to delete mod',
+    deleteModFailed: 'Failed to delete mod',
+    toggleModFailed: 'Failed to toggle mod',
+    dependencyCheckFailed: 'Failed to check mod dependencies',
+    updateCheckFailed: 'Failed to check mod updates',
     fileHash: 'File Hash',
     downloadUrl: 'Download URL',
     downloadCount: 'Download Count',
@@ -976,6 +986,7 @@ export default {
     duplicate: 'Duplicate',
     rename: 'Rename',
     delete: 'Delete',
+    deleteFailed: 'Failed to delete instance',
     edit: 'Edit',
     launch: 'Launch',
     launching: 'Launching "{name}"...',
@@ -1220,9 +1231,16 @@ export default {
     addAndImport: 'Add & import',
     importFolder: 'Import existing folder',
     importing: 'Scanning…',
+    removeFolder: 'Remove from launcher',
+    removeFolderTitle: 'Remove the folder "{name}" from the launcher?',
+    removeFolderDesc:
+      'Only the path is removed from the launcher list. No files on disk will be deleted.',
     vanilla: 'Vanilla',
     emptyTitle: 'No instances yet',
-    emptyDesc: 'Import an existing .minecraft folder from the left, or create one from the Downloads page.'
+    emptyDesc:
+      'Import an existing .minecraft folder from the left, or create one from the Downloads page.',
+    noVersionsTitle: 'No installed version in this folder',
+    noVersionsDesc: 'Install a version from Downloads and it will show up here.'
   },
 
   p2p: {
@@ -1283,6 +1301,7 @@ export default {
     },
     searchVersion: 'Search version...',
     refresh: 'Refresh',
+    backToDownloads: 'Back to Downloads',
     release: 'Release',
     latestRelease: 'Latest Release',
     latestVersion: 'Latest Version',
@@ -1458,6 +1477,8 @@ export default {
 
   settings: {
     settings: 'Settings',
+    custom: 'Custom',
+    createMinecraftFolderFailed: 'Failed to create .minecraft folder',
     general: 'General',
     appearance: 'Appearance',
     game: 'Game',
@@ -1510,7 +1531,8 @@ export default {
     mirrorStrategyOfficial: 'Official first',
     mirrorStrategyPrefer: 'Mirror first',
     serviceConnectivity: 'Service Connectivity Test',
-    serviceConnectivityDesc: 'Check whether download sources, mod platforms and account services are reachable',
+    serviceConnectivityDesc:
+      'Check whether download sources, mod platforms and account services are reachable',
     serviceConnectivityEnter: 'Open',
     serviceGroupSource: 'Game sources',
     serviceGroupMod: 'Mod sources',
@@ -1523,7 +1545,8 @@ export default {
     serviceTestEmpty: 'No service list available',
     serviceUntested: 'Untested',
     serviceTestFailed: 'Service test failed',
-    serviceTestUnavailable: 'Service test module not loaded. Fully quit and restart the launcher, then try again.',
+    serviceTestUnavailable:
+      'Service test module not loaded. Fully quit and restart the launcher, then try again.',
     serviceOffline: 'Offline',
     downloadConcurrent: 'Concurrent Downloads',
     downloadMaxRetries: 'Max Retries',
@@ -1573,7 +1596,7 @@ export default {
       authService: 'Auth Service',
       service: 'Service & Feedback',
       sponsor: 'Sponsor Us',
-    developer: 'Developer Options',
+      developer: 'Developer Options',
       other: 'Other'
     },
     accessibilityScreenReader: 'Screen Reader',
@@ -1604,23 +1627,29 @@ export default {
     themeAuto: 'Follow System',
     themeKoring: 'Koring',
     skinSection: 'Theme presets',
-    skinSectionDesc: 'Choose the overall layout: the original VoxVer UI or the Koring style. A restart is required after switching.',
+    skinSectionDesc:
+      'Choose the overall layout: the original VoxVer UI or the Koring style. A restart is required after switching.',
     skinVoxver: 'VoxVer',
     skinVoxverDesc: 'Original UI and layout',
     skinKoring: 'Koring',
     skinKoringDesc: 'Koring card-based layout',
     koringAccountGuest: 'Not signed in to a VoxVer account',
-    koringAccountGuestDesc: 'A VoxVer account syncs launcher settings, version lists and cloud data (in development)',
+    koringAccountGuestDesc:
+      'A VoxVer account syncs launcher settings, version lists and cloud data (in development)',
     koringAccountSoon: 'VoxVer accounts are not available yet',
-    koringAccountSoonDesc: 'The account system is in development; for now sign in to Minecraft under Game accounts & profiles',
+    koringAccountSoonDesc:
+      'The account system is in development; for now sign in to Minecraft under Game accounts & profiles',
     koringAccountSignIn: 'Sign in to VoxVer',
     koringAccountAdd: 'Add another account',
-    koringAccountSignedIn: 'Signed in. Add another Microsoft account or manage them under Game profiles',    themePresetsDesc: 'Pick a theme color, or customize the primary color',
+    koringAccountSignedIn:
+      'Signed in. Add another Microsoft account or manage them under Game profiles',
+    themePresetsDesc: 'Pick a theme color, or customize the primary color',
     customPreset: 'Custom',
     themeModeDesc: 'Switch launcher between dark / light / system appearance',
     themeBg: 'Theme & Background',
     themeConfig: 'Theme Config',
-    themeConfigDesc: 'New card-based theme settings: dark mode, accent color, background and interface effects',
+    themeConfigDesc:
+      'New card-based theme settings: dark mode, accent color, background and interface effects',
     themeBgDesc: 'Switch dark mode, choose a background mode and tune the visuals',
     koringRestartConfirm: 'Switching themes requires a restart of the launcher. Restart now?',
     darkMode: 'Dark mode',
@@ -2399,6 +2428,8 @@ export default {
       updateFailed: 'Update failed: {error}',
       checkFailed: 'Check failed: {error}',
       checkUpdate: 'Check for Updates',
+      checkingButton: 'Checking…',
+      upToDateButton: 'You are up to date',
       downloadUpdate: 'Download Update',
       cancelDownload: 'Cancel Download',
       installUpdate: 'Install Update',
@@ -2515,6 +2546,12 @@ export default {
     deleteVersionConfirm:
       'Confirm delete version {id}? This only removes it from the list and will not delete game files.',
     detecting: 'Detecting...',
+    scanningVersions: 'Scanning versions...',
+    loadVersionsFailed: 'Failed to load version list',
+    addFolderFailed: 'Failed to add folder',
+    createFolderFailed: 'Failed to create .minecraft folder',
+    importModpackFailed: 'Failed to import modpack',
+    detectMinecraftFailed: 'Failed to detect Minecraft folder',
     noElectronEnv: 'Electron environment not detected',
     notFoundFolder: '.minecraft folder not found',
     remove: 'Remove',
@@ -2579,7 +2616,8 @@ export default {
     launchProgressInProgress: 'In Progress',
     launchProgressViewFullLog: 'View Full Log',
     launchProgressViewError: 'View Error Details',
-    javaMissingPrompt: 'Java {major} is required but not found on your system. Would you like to auto-download and install it?',
+    javaMissingPrompt:
+      'Java {major} is required but not found on your system. Would you like to auto-download and install it?',
     javaMissingAutoInstall: 'Auto Install Java',
     launchProgressCollapseLog: 'Collapse Log',
     launchProgressExpandLog: 'Expand Log',
@@ -2600,7 +2638,8 @@ export default {
     launchProgressLaunchProcess: 'Launch Process',
     launchProgressLaunchingProcess: 'Starting game process...',
     launchProgressWaitWindow: 'Wait for Game Window',
-    launchProgressWaitingWindow: 'Loading game, will enter running state once the window appears...',
+    launchProgressWaitingWindow:
+      'Loading game, will enter running state once the window appears...',
     launchProgressGameRunning: 'Game Running',
     launchProgressGameLaunched: 'Game Launched',
     launchProgressLaunchFailed: 'Launch Failed',
@@ -2618,12 +2657,15 @@ export default {
     downloadStatusError: 'Error',
     // PxNotification
     notificationCenter: 'Notifications',
+    notificationGroup: 'Notifications',
     markAllRead: 'Mark All Read',
     clearAll: 'Clear All',
+    officialPinned: 'Pinned',
     noNotifications: 'No notifications',
     notificationCount: 'Notifications ({n})',
     markRead: 'Mark Read',
     loadHistoryFailed: 'Failed to load notification history',
+    gameRunningReturn: 'Game running — back to log view',
     // ShareModal / ReceiveModal
     packFailed: 'Pack failed!',
     connectionFailed: 'Connection failed',

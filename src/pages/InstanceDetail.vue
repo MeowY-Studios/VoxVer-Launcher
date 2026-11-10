@@ -97,46 +97,116 @@
     <!-- 错误状态 -->
     <div v-if="error" class="detail-error">
       <p>{{ error }}</p>
-      <button class="vox-btn vox-btn--primary" @click="fetchDetail">{{ $t('common.retry') }}</button>
+      <button class="vox-btn vox-btn--primary" @click="fetchDetail">
+        {{ $t('common.retry') }}
+      </button>
     </div>
 
     <!-- 实例详情内容 -->
     <div v-if="instance" class="detail-content">
       <!-- Tab 导航 -->
       <nav class="tab-nav">
-        <button class="tab-btn" :class="{ active: detailTab === 'overview' }" @click="detailTab = 'overview'">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button
+          class="tab-btn"
+          :class="{ active: detailTab === 'overview' }"
+          @click="detailTab = 'overview'"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <circle cx="12" cy="12" r="10" />
             <circle cx="12" cy="12" r="4" />
           </svg>
           {{ t('instance.tabOverview') }}
         </button>
-        <button class="tab-btn" :class="{ active: detailTab === 'mods' }" @click="detailTab = 'mods'">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button
+          class="tab-btn"
+          :class="{ active: detailTab === 'mods' }"
+          @click="detailTab = 'mods'"
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <rect x="2" y="7" width="20" height="14" rx="2" />
             <path d="M16 7V5a2 2 0 00-4 0v2M8 7V5a2 2 0 00-4 0v2" />
           </svg>
           {{ t('instance.tabMods') }}
-          <span v-if="modUpdatesAvailable > 0" class="tab-badge update">{{ modUpdatesAvailable }}</span>
+          <span v-if="modUpdatesAvailable > 0" class="tab-badge update">{{
+            modUpdatesAvailable
+          }}</span>
           <span v-else-if="localMods.length > 0" class="tab-count">{{ localMods.length }}</span>
         </button>
-        <button class="tab-btn" :class="{ active: detailTab === 'resourcepacks' }" @click="detailTab = 'resourcepacks'; loadResourcePacks()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button
+          class="tab-btn"
+          :class="{ active: detailTab === 'resourcepacks' }"
+          @click="
+            detailTab = 'resourcepacks';
+            loadResourcePacks();
+          "
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <polygon points="12 2 2 7 12 12 22 7 12 2" />
             <polyline points="2 17 12 22 22 17" />
             <polyline points="2 12 12 17 22 12" />
           </svg>
           {{ t('instance.tabResourcePacks') }}
         </button>
-        <button class="tab-btn" :class="{ active: detailTab === 'shaderpacks' }" @click="detailTab = 'shaderpacks'; loadShaderPacks()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button
+          class="tab-btn"
+          :class="{ active: detailTab === 'shaderpacks' }"
+          @click="
+            detailTab = 'shaderpacks';
+            loadShaderPacks();
+          "
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <circle cx="12" cy="12" r="5" />
-            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+            <path
+              d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+            />
           </svg>
           {{ t('instance.tabShaderPacks') }}
         </button>
-        <button class="tab-btn" :class="{ active: detailTab === 'saves' }" @click="detailTab = 'saves'; loadSaves()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button
+          class="tab-btn"
+          :class="{ active: detailTab === 'saves' }"
+          @click="
+            detailTab = 'saves';
+            loadSaves();
+          "
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
@@ -148,169 +218,144 @@
       <!-- 概览 Tab：基本信息 + Java/内存 + 磁盘占用      -->
       <!-- ============================================== -->
       <template v-if="detailTab === 'overview'">
-      <!-- 基本信息卡片 -->
-      <section class="info-section vox-card">
-        <div class="section-header">
-          <h3 class="section-title">{{ $t('instance.basicInfo') }}</h3>
-          <button class="save-btn vox-btn vox-btn--primary" @click="saveBasicInfo" :disabled="savingBasic">
-            {{ savingBasic ? $t('common.saving') : $t('common.save') }}
+        <!-- 基本信息卡片 -->
+        <section class="info-section vox-card">
+          <div class="section-header">
+            <h3 class="section-title">{{ $t('instance.basicInfo') }}</h3>
+            <button
+              class="save-btn vox-btn vox-btn--primary"
+              @click="saveBasicInfo"
+              :disabled="savingBasic"
+            >
+              {{ savingBasic ? $t('common.saving') : $t('common.save') }}
+            </button>
+          </div>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>{{ $t('instance.instanceNameLabel') }}</label>
+              <input v-model="editForm.name" class="edit-input vox-input" />
+            </div>
+            <div class="info-item">
+              <label>{{ $t('instance.mcVersionLabel') }}</label>
+              <input
+                v-model="editForm.mcVersion"
+                class="edit-input vox-input"
+                placeholder="1.20.4"
+              />
+            </div>
+            <div class="info-item">
+              <label>{{ $t('instance.loaderLabel') }}</label>
+              <select class="vox-input" v-model="editForm.loaderType">
+                <option value="vanilla">{{ $t('instance.vanillaOption') }}</option>
+                <option value="fabric">Fabric</option>
+                <option value="forge">Forge</option>
+                <option value="neoforge">NeoForge</option>
+                <option value="quilt">Quilt</option>
+              </select>
+            </div>
+            <div class="info-item">
+              <label>{{ $t('instance.loaderVersionLabel') }}</label>
+              <input
+                v-model="editForm.loaderVersion"
+                class="edit-input vox-input"
+                placeholder="0.15.11"
+              />
+            </div>
+            <div class="info-item">
+              <label>{{ $t('instance.gameDirectory') }}</label>
+              <span class="value path-value" :title="instance.path">{{
+                instance.path || $t('common.noData')
+              }}</span>
+            </div>
+            <div class="info-item">
+              <label>{{ $t('game.resolution') }}</label>
+              <div class="resolution-inputs">
+                <input
+                  v-model.number="editForm.width"
+                  type="number"
+                  min="640"
+                  class="edit-input number-input vox-input"
+                />
+                <span class="resolution-x">x</span>
+                <input
+                  v-model.number="editForm.height"
+                  type="number"
+                  min="480"
+                  class="edit-input number-input vox-input"
+                />
+              </div>
+            </div>
+            <div class="info-item">
+              <label>{{ $t('game.fullscreen') }}</label>
+              <label class="checkbox-label">
+                <input type="checkbox" v-model="editForm.fullscreen" />
+                {{ $t('game.fullscreenEnable') }}
+              </label>
+            </div>
+            <div class="info-item">
+              <label>{{ $t('instance.lastPlayed') }}</label>
+              <span class="value">{{ formatLastPlayed }}</span>
+            </div>
+            <div class="info-item">
+              <label>{{ $t('instance.playDuration') }}</label>
+              <span class="value">{{ playTimeStr }}</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Java / 内存设置 -->
+        <section class="info-section vox-card">
+          <h3 class="section-title">{{ $t('settings.gameJava') }} & {{ $t('settings.memory') }}</h3>
+          <div class="info-grid">
+            <div class="info-item full-width">
+              <label>{{ $t('game.javaPath') }}</label>
+              <input
+                type="text"
+                v-model="editForm.javaPath"
+                :placeholder="$t('settings.autoSelect')"
+                class="edit-input vox-input"
+              />
+            </div>
+            <div class="info-item">
+              <label>{{ $t('game.minMemory') }} (MB)</label>
+              <input
+                type="number"
+                v-model.number="editForm.minMemory"
+                min="256"
+                step="256"
+                class="edit-input number-input vox-input"
+              />
+            </div>
+            <div class="info-item">
+              <label>{{ $t('game.maxMemory') }} (MB)</label>
+              <input
+                type="number"
+                v-model.number="editForm.maxMemory"
+                min="512"
+                step="512"
+                class="edit-input number-input"
+              />
+            </div>
+            <div class="info-item full-width">
+              <label>{{ $t('settings.jvmArgs') }}</label>
+              <input
+                type="text"
+                v-model="editForm.jvmArgs"
+                placeholder="-Xmn128m ..."
+                class="edit-input"
+              />
+            </div>
+          </div>
+          <button class="save-btn" @click="saveSettings" :disabled="saving">
+            {{ saving ? $t('common.saving') : $t('instance.saveSettingsBtn') }}
           </button>
-        </div>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>{{ $t('instance.instanceNameLabel') }}</label>
-            <input v-model="editForm.name" class="edit-input vox-input" />
-          </div>
-          <div class="info-item">
-            <label>{{ $t('instance.mcVersionLabel') }}</label>
-            <input v-model="editForm.mcVersion" class="edit-input vox-input" placeholder="1.20.4" />
-          </div>
-          <div class="info-item">
-            <label>{{ $t('instance.loaderLabel') }}</label>
-            <select class="vox-input" v-model="editForm.loaderType">
-              <option value="vanilla">{{ $t('instance.vanillaOption') }}</option>
-              <option value="fabric">Fabric</option>
-              <option value="forge">Forge</option>
-              <option value="neoforge">NeoForge</option>
-              <option value="quilt">Quilt</option>
-            </select>
-          </div>
-          <div class="info-item">
-            <label>{{ $t('instance.loaderVersionLabel') }}</label>
-            <input v-model="editForm.loaderVersion" class="edit-input vox-input" placeholder="0.15.11" />
-          </div>
-          <div class="info-item">
-            <label>{{ $t('instance.gameDirectory') }}</label>
-            <span class="value path-value" :title="instance.path">{{ instance.path || $t('common.noData') }}</span>
-          </div>
-          <div class="info-item">
-            <label>{{ $t('game.resolution') }}</label>
-            <div class="resolution-inputs">
-              <input v-model.number="editForm.width" type="number" min="640" class="edit-input number-input vox-input" />
-              <span class="resolution-x">x</span>
-              <input v-model.number="editForm.height" type="number" min="480" class="edit-input number-input vox-input" />
-            </div>
-          </div>
-          <div class="info-item">
-            <label>{{ $t('game.fullscreen') }}</label>
-            <label class="checkbox-label">
-              <input type="checkbox" v-model="editForm.fullscreen" />
-              {{ $t('game.fullscreenEnable') }}
-            </label>
-          </div>
-          <div class="info-item">
-            <label>{{ $t('instance.lastPlayed') }}</label>
-            <span class="value">{{ formatLastPlayed }}</span>
-          </div>
-          <div class="info-item">
-            <label>{{ $t('instance.playDuration') }}</label>
-            <span class="value">{{ playTimeStr }}</span>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Java / 内存设置 -->
-      <section class="info-section vox-card">
-        <h3 class="section-title">{{ $t('settings.gameJava') }} & {{ $t('settings.memory') }}</h3>
-        <div class="info-grid">
-          <div class="info-item full-width">
-            <label>{{ $t('game.javaPath') }}</label>
-            <input
-              type="text"
-              v-model="editForm.javaPath"
-              :placeholder="$t('settings.autoSelect')"
-              class="edit-input vox-input"
-            />
-          </div>
-          <div class="info-item">
-            <label>{{ $t('game.minMemory') }} (MB)</label>
-            <input
-              type="number"
-              v-model.number="editForm.minMemory"
-              min="256"
-              step="256"
-              class="edit-input number-input vox-input"
-            />
-          </div>
-          <div class="info-item">
-            <label>{{ $t('game.maxMemory') }} (MB)</label>
-            <input
-              type="number"
-              v-model.number="editForm.maxMemory"
-              min="512"
-              step="512"
-              class="edit-input number-input"
-            />
-          </div>
-          <div class="info-item full-width">
-            <label>{{ $t('settings.jvmArgs') }}</label>
-            <input
-              type="text"
-              v-model="editForm.jvmArgs"
-              placeholder="-Xmn128m ..."
-              class="edit-input"
-            />
-          </div>
-        </div>
-        <button class="save-btn" @click="saveSettings" :disabled="saving">
-          {{ saving ? $t('common.saving') : $t('instance.saveSettingsBtn') }}
-        </button>
-      </section>
-
-      <!-- 磁盘占用 + 配置文件 -->
-      <section class="info-section vox-card">
-        <div class="section-header">
-          <h3 class="section-title">{{ t('instance.diskUsage') }}</h3>
-          <button class="icon-btn" @click="loadDiskUsage" :title="t('common.refresh')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <polyline points="23 4 23 10 17 10" />
-              <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
-            </svg>
-          </button>
-        </div>
-        <div v-if="diskUsageLoading" class="mod-loading">
-          <div class="spinner-sm"></div>
-          <span>{{ t('common.loading') }}</span>
-        </div>
-        <div v-else class="disk-grid">
-          <div class="disk-total">
-            <span class="disk-label">{{ t('instance.totalSize') }}</span>
-            <span class="disk-big">{{ formatFileSize(diskUsage.total || 0) }}</span>
-          </div>
-          <div class="disk-bar">
-            <div class="disk-bar-fill" :style="{ width: diskPercent.toFixed(1) + '%' }"></div>
-          </div>
-          <div class="disk-parts">
-            <div class="disk-part">
-              <span class="dot" style="background: var(--voxver-primary-500)"></span>
-              {{ t('instance.modsDir') }}：{{ formatFileSize(diskUsage.mods || 0) }}
-            </div>
-            <div class="disk-part">
-              <span class="dot" style="background: var(--voxver-accent)"></span>
-              {{ t('instance.savesDir') }}：{{ formatFileSize(diskUsage.saves || 0) }}
-            </div>
-            <div class="disk-part">
-              <span class="dot" style="background: var(--voxver-warning)"></span>
-              {{ t('instance.resourcePacks') }}：{{ formatFileSize(diskUsage.resourcepacks || 0) }}
-            </div>
-            <div class="disk-part">
-              <span class="dot" style="background: var(--voxver-info)"></span>
-              {{ t('instance.shaderPacks') }}：{{ formatFileSize(diskUsage.shaderpacks || 0) }}
-            </div>
-            <div class="disk-part">
-              <span class="dot" style="background: var(--voxver-text-muted)"></span>
-              {{ t('instance.otherDir') }}：{{ formatFileSize(diskUsage.others || 0) }}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 配置文件列表（概览 Tab 内快速入口） -->
-      <section class="info-section vox-card">
-        <div class="section-header">
-          <h3 class="section-title">{{ $t('instance.configFiles') }}</h3>
-          <div class="section-actions">
-            <button class="icon-btn" @click="loadConfigFiles" :title="$t('common.refresh')">
+        <!-- 磁盘占用 + 配置文件 -->
+        <section class="info-section vox-card">
+          <div class="section-header">
+            <h3 class="section-title">{{ t('instance.diskUsage') }}</h3>
+            <button class="icon-btn" @click="loadDiskUsage" :title="t('common.refresh')">
               <svg
                 width="14"
                 height="14"
@@ -323,246 +368,351 @@
                 <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
               </svg>
             </button>
-            <button class="icon-btn" @click="openConfigDir" :title="$t('game.configs') + ' ' + $t('game.gameDir')">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
-              </svg>
-            </button>
           </div>
-        </div>
+          <div v-if="diskUsageLoading" class="mod-loading">
+            <div class="spinner-sm"></div>
+            <span>{{ t('common.loading') }}</span>
+          </div>
+          <div v-else class="disk-grid">
+            <div class="disk-total">
+              <span class="disk-label">{{ t('instance.totalSize') }}</span>
+              <span class="disk-big">{{ formatFileSize(diskUsage.total || 0) }}</span>
+            </div>
+            <div class="disk-bar">
+              <div class="disk-bar-fill" :style="{ width: diskPercent.toFixed(1) + '%' }"></div>
+            </div>
+            <div class="disk-parts">
+              <div class="disk-part">
+                <span class="dot" style="background: var(--voxver-primary-500)"></span>
+                {{ t('instance.modsDir') }}：{{ formatFileSize(diskUsage.mods || 0) }}
+              </div>
+              <div class="disk-part">
+                <span class="dot" style="background: var(--voxver-accent)"></span>
+                {{ t('instance.savesDir') }}：{{ formatFileSize(diskUsage.saves || 0) }}
+              </div>
+              <div class="disk-part">
+                <span class="dot" style="background: var(--voxver-warning)"></span>
+                {{ t('instance.resourcePacks') }}：{{
+                  formatFileSize(diskUsage.resourcepacks || 0)
+                }}
+              </div>
+              <div class="disk-part">
+                <span class="dot" style="background: var(--voxver-info)"></span>
+                {{ t('instance.shaderPacks') }}：{{ formatFileSize(diskUsage.shaderpacks || 0) }}
+              </div>
+              <div class="disk-part">
+                <span class="dot" style="background: var(--voxver-text-muted)"></span>
+                {{ t('instance.otherDir') }}：{{ formatFileSize(diskUsage.others || 0) }}
+              </div>
+            </div>
+          </div>
+        </section>
 
-        <div v-if="configFilesLoading" class="mod-loading">
-          <div class="spinner-sm"></div>
-          <span>{{ $t('common.loading') }}</span>
-        </div>
-        <div v-else-if="configFiles.length === 0" class="empty-state small">
-          <p>{{ $t('instance.noConfigFiles') }}</p>
-        </div>
-        <div v-else class="config-list">
-          <div
-            v-for="cfg in configFiles"
-            :key="cfg.path"
-            class="config-item"
-            @click="openConfigEditor(cfg)"
-          >
-            <div class="config-icon">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
+        <!-- 配置文件列表（概览 Tab 内快速入口） -->
+        <section class="info-section vox-card">
+          <div class="section-header">
+            <h3 class="section-title">{{ $t('instance.configFiles') }}</h3>
+            <div class="section-actions">
+              <button class="icon-btn" @click="loadConfigFiles" :title="$t('common.refresh')">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <polyline points="23 4 23 10 17 10" />
+                  <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
+                </svg>
+              </button>
+              <button
+                class="icon-btn"
+                @click="openConfigDir"
+                :title="$t('game.configs') + ' ' + $t('game.gameDir')"
               >
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-              </svg>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                </svg>
+              </button>
             </div>
-            <div class="config-info">
-              <span class="config-name">{{ cfg.name }}</span>
-              <span class="config-meta"
-                >{{ formatFileSize(cfg.size) }} · {{ formatDate(cfg.modified) }}</span
-              >
-            </div>
-            <button class="edit-icon-btn" @click.stop="openConfigEditor(cfg)" :title="$t('instance.editConfig')">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-              </svg>
-            </button>
           </div>
-        </div>
-      </section>
+
+          <div v-if="configFilesLoading" class="mod-loading">
+            <div class="spinner-sm"></div>
+            <span>{{ $t('common.loading') }}</span>
+          </div>
+          <div v-else-if="configFiles.length === 0" class="empty-state small">
+            <p>{{ $t('instance.noConfigFiles') }}</p>
+          </div>
+          <div v-else class="config-list">
+            <div
+              v-for="cfg in configFiles"
+              :key="cfg.path"
+              class="config-item"
+              @click="openConfigEditor(cfg)"
+            >
+              <div class="config-icon">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
+              </div>
+              <div class="config-info">
+                <span class="config-name">{{ cfg.name }}</span>
+                <span class="config-meta"
+                  >{{ formatFileSize(cfg.size) }} · {{ formatDate(cfg.modified) }}</span
+                >
+              </div>
+              <button
+                class="edit-icon-btn"
+                @click.stop="openConfigEditor(cfg)"
+                :title="$t('instance.editConfig')"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </section>
       </template>
 
       <!-- ============================================== -->
       <!-- Mod Tab：Mod 列表 + Mod 更新检测               -->
       <!-- ============================================== -->
       <template v-if="detailTab === 'mods'">
-      <section class="info-section vox-card">
-        <div class="section-header">
-          <h3 class="section-title">
-            {{ $t('instance.installedMods') }}
-            <span class="mod-count" v-if="localMods.length > 0"
-              >({{ activeModCount }}/{{ localMods.length }})</span
-            >
-          </h3>
-          <div class="section-actions">
-            <button
-              class="check-update-btn vox-btn vox-btn--ghost"
-              :disabled="modsUpdateLoading || localMods.length === 0"
-              @click="checkModUpdates"
-            >
-              <svg v-if="!modsUpdateLoading" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="23 4 23 10 17 10" />
-                <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
-              </svg>
-              <svg v-else width="14" height="14" class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <circle cx="12" cy="12" r="9" stroke-opacity="0.25" />
-                <path d="M21 12a9 9 0 0 0-9-9" />
-              </svg>
-              {{ modsUpdateLoading ? t('instance.checkingUpdates') : t('instance.checkUpdates') }}
-            </button>
-            <button class="icon-btn" @click="refreshMods" :title="$t('common.refresh')">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
+        <section class="info-section vox-card">
+          <div class="section-header">
+            <h3 class="section-title">
+              {{ $t('instance.installedMods') }}
+              <span class="mod-count" v-if="localMods.length > 0"
+                >({{ activeModCount }}/{{ localMods.length }})</span
               >
-                <polyline points="23 4 23 10 17 10" />
-                <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
-              </svg>
-            </button>
-            <button class="icon-btn" @click="openModsFolder" :title="$t('mod.mods') + ' ' + $t('game.gameDir')">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
-              </svg>
-            </button>
-            <button class="icon-btn" @click="openConfigDir" :title="$t('game.configs') + ' ' + $t('game.gameDir')">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="12" cy="12" r="3" />
-                <path
-                  d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- 加载中 -->
-        <div v-if="modsLoading" class="mod-loading">
-          <div class="spinner-sm"></div>
-          <span>{{ $t('common.loading') }}</span>
-        </div>
-
-        <!-- 空状态 -->
-        <div v-else-if="localMods.length === 0" class="empty-state">
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="var(--voxver-text-muted)"
-            stroke-width="1.5"
-          >
-            <path
-              d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"
-            />
-          </svg>
-          <p>{{ $t('instance.noModsInstalled') }}</p>
-          <router-link to="/downloads" class="link-btn">{{ $t('instance.goDownloadMods') }}</router-link>
-        </div>
-
-        <!-- Mod 列表 -->
-        <div v-else class="mod-list">
-          <div
-            v-for="mod in localMods"
-            :key="mod.filePath"
-            class="mod-item"
-            :class="{ 'mod-disabled': mod.status === 'disabled', 'mod-outdated': mod.latestVersion && mod.latestVersion !== mod.version }"
-          >
-            <div class="mod-icon">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-              >
-                <rect x="2" y="7" width="20" height="14" rx="2" />
-                <path d="M16 7V5a2 2 0 00-4 0v2M8 7V5a2 2 0 00-4 0v2" />
-              </svg>
-            </div>
-            <div class="mod-info">
-              <span class="mod-name">{{ mod.displayName || mod.fileName }}</span>
-              <span class="mod-meta">
-                <span v-if="mod.version" class="mod-version">v{{ mod.version }}</span>
-                <span v-if="mod.latestVersion" class="mod-version mod-version-new">→ v{{ mod.latestVersion }}</span>
-                <span v-if="mod.author" class="mod-author">{{ mod.author }}</span>
-                <span class="mod-size">{{ formatFileSize(mod.fileSize) }}</span>
-              </span>
-            </div>
-            <div class="mod-actions">
-              <span class="status-badge" :class="'status-' + mod.status">
-                {{ statusLabel(mod.status) }}
-              </span>
+            </h3>
+            <div class="section-actions">
               <button
-                class="toggle-btn"
-                @click="toggleMod(mod)"
-                :title="mod.status === 'active' ? $t('mod.disable') : $t('mod.enable')"
+                class="check-update-btn vox-btn vox-btn--ghost"
+                :disabled="modsUpdateLoading || localMods.length === 0"
+                @click="checkModUpdates"
               >
                 <svg
-                  v-if="mod.status === 'active'"
+                  v-if="!modsUpdateLoading"
                   width="14"
                   height="14"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="2.5"
+                  stroke-width="2"
                 >
-                  <path
-                    d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
-                  />
-                  <line x1="1" y1="1" x2="23" y2="23" />
+                  <polyline points="23 4 23 10 17 10" />
+                  <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
                 </svg>
                 <svg
                   v-else
                   width="14"
                   height="14"
+                  class="spin"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   stroke-width="2.5"
                 >
-                  <polyline points="20 6 9 17 4 12" />
+                  <circle cx="12" cy="12" r="9" stroke-opacity="0.25" />
+                  <path d="M21 12a9 9 0 0 0-9-9" />
+                </svg>
+                {{ modsUpdateLoading ? t('instance.checkingUpdates') : t('instance.checkUpdates') }}
+              </button>
+              <button class="icon-btn" @click="refreshMods" :title="$t('common.refresh')">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <polyline points="23 4 23 10 17 10" />
+                  <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
                 </svg>
               </button>
               <button
-                class="toggle-btn delete-btn"
-                @click="deleteModItem(mod)"
-                :title="$t('instance.delete')"
+                class="icon-btn"
+                @click="openModsFolder"
+                :title="$t('mod.mods') + ' ' + $t('game.gameDir')"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                </svg>
+              </button>
+              <button
+                class="icon-btn"
+                @click="openConfigDir"
+                :title="$t('game.configs') + ' ' + $t('game.gameDir')"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="3" />
+                  <path
+                    d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"
+                  />
                 </svg>
               </button>
             </div>
           </div>
-        </div>
-      </section>
+
+          <!-- 加载中 -->
+          <div v-if="modsLoading" class="mod-loading">
+            <div class="spinner-sm"></div>
+            <span>{{ $t('common.loading') }}</span>
+          </div>
+
+          <!-- 空状态 -->
+          <div v-else-if="localMods.length === 0" class="empty-state">
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--voxver-text-muted)"
+              stroke-width="1.5"
+            >
+              <path
+                d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"
+              />
+            </svg>
+            <p>{{ $t('instance.noModsInstalled') }}</p>
+            <router-link to="/downloads" class="link-btn">{{
+              $t('instance.goDownloadMods')
+            }}</router-link>
+          </div>
+
+          <!-- Mod 列表 -->
+          <div v-else class="mod-list">
+            <div
+              v-for="mod in localMods"
+              :key="mod.filePath"
+              class="mod-item"
+              :class="{
+                'mod-disabled': mod.status === 'disabled',
+                'mod-outdated': mod.latestVersion && mod.latestVersion !== mod.version
+              }"
+            >
+              <div class="mod-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <rect x="2" y="7" width="20" height="14" rx="2" />
+                  <path d="M16 7V5a2 2 0 00-4 0v2M8 7V5a2 2 0 00-4 0v2" />
+                </svg>
+              </div>
+              <div class="mod-info">
+                <span class="mod-name">{{ mod.displayName || mod.fileName }}</span>
+                <span class="mod-meta">
+                  <span v-if="mod.version" class="mod-version">v{{ mod.version }}</span>
+                  <span v-if="mod.latestVersion" class="mod-version mod-version-new"
+                    >→ v{{ mod.latestVersion }}</span
+                  >
+                  <span v-if="mod.author" class="mod-author">{{ mod.author }}</span>
+                  <span class="mod-size">{{ formatFileSize(mod.fileSize) }}</span>
+                </span>
+              </div>
+              <div class="mod-actions">
+                <span class="status-badge" :class="'status-' + mod.status">
+                  {{ statusLabel(mod.status) }}
+                </span>
+                <button
+                  class="toggle-btn"
+                  @click="toggleMod(mod)"
+                  :title="mod.status === 'active' ? $t('mod.disable') : $t('mod.enable')"
+                >
+                  <svg
+                    v-if="mod.status === 'active'"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path
+                      d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
+                    />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                  <svg
+                    v-else
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </button>
+                <button
+                  class="toggle-btn delete-btn"
+                  @click="deleteModItem(mod)"
+                  :title="$t('instance.delete')"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
       </template>
 
       <!-- ============================================== -->
@@ -571,57 +721,140 @@
       <template v-if="detailTab === 'resourcepacks'">
         <section class="info-section vox-card pack-section">
           <div class="section-header">
-            <h3 class="section-title">{{ t('instance.tabResourcePacks') }} <span class="mod-count" v-if="resourcePacks.length">({{ resourcePacks.length }})</span></h3>
+            <h3 class="section-title">
+              {{ t('instance.tabResourcePacks') }}
+              <span class="mod-count" v-if="resourcePacks.length"
+                >({{ resourcePacks.length }})</span
+              >
+            </h3>
             <div class="section-actions">
               <button class="icon-btn" @click="loadResourcePacks" :title="t('common.refresh')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <polyline points="23 4 23 10 17 10" />
+                  <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
                 </svg>
               </button>
-              <button class="icon-btn" @click="openInstanceSubdir('resourcepacks')" :title="t('instance.openFolder')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <button
+                class="icon-btn"
+                @click="openInstanceSubdir('resourcepacks')"
+                :title="t('instance.openFolder')"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
                 </svg>
               </button>
             </div>
           </div>
           <div v-if="resourcePacksLoading" class="mod-loading">
-            <div class="spinner-sm"></div><span>{{ t('common.loading') }}</span>
+            <div class="spinner-sm"></div>
+            <span>{{ t('common.loading') }}</span>
           </div>
           <div v-else-if="resourcePacks.length === 0" class="empty-state small">
             <p>{{ t('instance.noPacks') }}</p>
           </div>
           <div v-else class="pack-list">
-            <div v-for="p in resourcePacks" :key="p.filename" class="pack-item" :class="{ disabled: !p.enabled }">
+            <div
+              v-for="p in resourcePacks"
+              :key="p.filename"
+              class="pack-item"
+              :class="{ disabled: !p.enabled }"
+            >
               <div class="pack-icon" :class="{ dir: p.isDir }">
-                <svg v-if="p.isDir" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg
+                  v-if="p.isDir"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
                 </svg>
-                <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" />
+                <svg
+                  v-else
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
                 </svg>
               </div>
               <div class="pack-info">
                 <span class="pack-name">{{ p.filename }}</span>
-                <span class="pack-meta">{{ formatFileSize(p.size) }} · {{ formatDate(p.modifiedAt) }} · {{ p.isDir ? t('instance.dirPack') : t('instance.zipPack') }}</span>
+                <span class="pack-meta"
+                  >{{ formatFileSize(p.size) }} · {{ formatDate(p.modifiedAt) }} ·
+                  {{ p.isDir ? t('instance.dirPack') : t('instance.zipPack') }}</span
+                >
               </div>
               <div class="pack-actions">
                 <span class="status-badge" :class="p.enabled ? 'status-active' : 'status-disabled'">
                   {{ p.enabled ? t('instance.statusActive') : t('instance.statusDisabled') }}
                 </span>
-                <button class="toggle-btn" @click="togglePack('resourcepacks', p.filename, !p.enabled)"
-                  :title="p.enabled ? t('mod.disable') : t('mod.enable')">
-                  <svg v-if="p.enabled" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+                <button
+                  class="toggle-btn"
+                  @click="togglePack('resourcepacks', p.filename, !p.enabled)"
+                  :title="p.enabled ? t('mod.disable') : t('mod.enable')"
+                >
+                  <svg
+                    v-if="p.enabled"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path
+                      d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
+                    />
                     <line x1="1" y1="1" x2="23" y2="23" />
                   </svg>
-                  <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <svg
+                    v-else
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </button>
-                <button class="toggle-btn delete-btn" @click="deletePack('resourcepacks', p.filename)" :title="t('instance.delete')">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                <button
+                  class="toggle-btn delete-btn"
+                  @click="deletePack('resourcepacks', p.filename)"
+                  :title="t('instance.delete')"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
                   </svg>
                 </button>
               </div>
@@ -636,57 +869,138 @@
       <template v-if="detailTab === 'shaderpacks'">
         <section class="info-section vox-card pack-section">
           <div class="section-header">
-            <h3 class="section-title">{{ t('instance.tabShaderPacks') }} <span class="mod-count" v-if="shaderPacks.length">({{ shaderPacks.length }})</span></h3>
+            <h3 class="section-title">
+              {{ t('instance.tabShaderPacks') }}
+              <span class="mod-count" v-if="shaderPacks.length">({{ shaderPacks.length }})</span>
+            </h3>
             <div class="section-actions">
               <button class="icon-btn" @click="loadShaderPacks" :title="t('common.refresh')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <polyline points="23 4 23 10 17 10" />
+                  <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
                 </svg>
               </button>
-              <button class="icon-btn" @click="openInstanceSubdir('shaderpacks')" :title="t('instance.openFolder')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <button
+                class="icon-btn"
+                @click="openInstanceSubdir('shaderpacks')"
+                :title="t('instance.openFolder')"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
                 </svg>
               </button>
             </div>
           </div>
           <div v-if="shaderPacksLoading" class="mod-loading">
-            <div class="spinner-sm"></div><span>{{ t('common.loading') }}</span>
+            <div class="spinner-sm"></div>
+            <span>{{ t('common.loading') }}</span>
           </div>
           <div v-else-if="shaderPacks.length === 0" class="empty-state small">
             <p>{{ t('instance.noShaders') }}</p>
           </div>
           <div v-else class="pack-list">
-            <div v-for="p in shaderPacks" :key="p.filename" class="pack-item" :class="{ disabled: !p.enabled }">
+            <div
+              v-for="p in shaderPacks"
+              :key="p.filename"
+              class="pack-item"
+              :class="{ disabled: !p.enabled }"
+            >
               <div class="pack-icon" :class="{ dir: p.isDir }">
-                <svg v-if="p.isDir" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg
+                  v-if="p.isDir"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
                 </svg>
-                <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" />
+                <svg
+                  v-else
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
                 </svg>
               </div>
               <div class="pack-info">
                 <span class="pack-name">{{ p.filename }}</span>
-                <span class="pack-meta">{{ formatFileSize(p.size) }} · {{ formatDate(p.modifiedAt) }} · {{ p.isDir ? t('instance.dirPack') : t('instance.zipPack') }}</span>
+                <span class="pack-meta"
+                  >{{ formatFileSize(p.size) }} · {{ formatDate(p.modifiedAt) }} ·
+                  {{ p.isDir ? t('instance.dirPack') : t('instance.zipPack') }}</span
+                >
               </div>
               <div class="pack-actions">
                 <span class="status-badge" :class="p.enabled ? 'status-active' : 'status-disabled'">
                   {{ p.enabled ? t('instance.statusActive') : t('instance.statusDisabled') }}
                 </span>
-                <button class="toggle-btn" @click="togglePack('shaderpacks', p.filename, !p.enabled)"
-                  :title="p.enabled ? t('mod.disable') : t('mod.enable')">
-                  <svg v-if="p.enabled" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+                <button
+                  class="toggle-btn"
+                  @click="togglePack('shaderpacks', p.filename, !p.enabled)"
+                  :title="p.enabled ? t('mod.disable') : t('mod.enable')"
+                >
+                  <svg
+                    v-if="p.enabled"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path
+                      d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"
+                    />
                     <line x1="1" y1="1" x2="23" y2="23" />
                   </svg>
-                  <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <svg
+                    v-else
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </button>
-                <button class="toggle-btn delete-btn" @click="deletePack('shaderpacks', p.filename)" :title="t('instance.delete')">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                <button
+                  class="toggle-btn delete-btn"
+                  @click="deletePack('shaderpacks', p.filename)"
+                  :title="t('instance.delete')"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
                   </svg>
                 </button>
               </div>
@@ -701,22 +1015,45 @@
       <template v-if="detailTab === 'saves'">
         <section class="info-section vox-card pack-section">
           <div class="section-header">
-            <h3 class="section-title">{{ t('instance.tabSaves') }} <span class="mod-count" v-if="saves.length">({{ saves.length }})</span></h3>
+            <h3 class="section-title">
+              {{ t('instance.tabSaves') }}
+              <span class="mod-count" v-if="saves.length">({{ saves.length }})</span>
+            </h3>
             <div class="section-actions">
               <button class="icon-btn" @click="loadSaves" :title="t('common.refresh')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <polyline points="23 4 23 10 17 10" />
+                  <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
                 </svg>
               </button>
-              <button class="icon-btn" @click="openInstanceSubdir('saves')" :title="t('instance.openFolder')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <button
+                class="icon-btn"
+                @click="openInstanceSubdir('saves')"
+                :title="t('instance.openFolder')"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
                 </svg>
               </button>
             </div>
           </div>
           <div v-if="savesLoading" class="mod-loading">
-            <div class="spinner-sm"></div><span>{{ t('common.loading') }}</span>
+            <div class="spinner-sm"></div>
+            <span>{{ t('common.loading') }}</span>
           </div>
           <div v-else-if="saves.length === 0" class="empty-state small">
             <p>{{ t('instance.noSaves') }}</p>
@@ -724,36 +1061,86 @@
           <div v-else class="pack-list">
             <div v-for="s in saves" :key="s.filename" class="pack-item save-item">
               <div class="pack-icon save-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
                 </svg>
               </div>
               <div class="pack-info">
                 <span v-if="s.renaming" class="save-rename-row">
-                  <input v-model="s.renameValue" class="vox-input save-rename-input" @keyup.enter="confirmRenameSave(s)" @keyup.esc="s.renaming = false" />
-                  <button class="vox-btn vox-btn--primary vox-btn--sm" @click="confirmRenameSave(s)">{{ t('common.confirm') }}</button>
+                  <input
+                    v-model="s.renameValue"
+                    class="vox-input save-rename-input"
+                    @keyup.enter="confirmRenameSave(s)"
+                    @keyup.esc="s.renaming = false"
+                  />
+                  <button
+                    class="vox-btn vox-btn--primary vox-btn--sm"
+                    @click="confirmRenameSave(s)"
+                  >
+                    {{ t('common.confirm') }}
+                  </button>
                 </span>
                 <span v-else class="pack-name">{{ s.filename }}</span>
-                <span class="pack-meta">{{ formatFileSize(s.size) }} · {{ formatDate(s.modifiedAt) }}</span>
+                <span class="pack-meta"
+                  >{{ formatFileSize(s.size) }} · {{ formatDate(s.modifiedAt) }}</span
+                >
               </div>
               <div class="pack-actions">
-                <button v-if="!s.renaming" class="toggle-btn" @click="startRenameSave(s)" :title="t('common.rename')">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button
+                  v-if="!s.renaming"
+                  class="toggle-btn"
+                  @click="startRenameSave(s)"
+                  :title="t('common.rename')"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
                     <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
                     <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                   </svg>
                 </button>
                 <button class="toggle-btn" @click="backupSave(s)" :title="t('instance.backupSave')">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
                     <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
                     <polyline points="7 10 12 15 17 10" />
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                 </button>
-                <button class="toggle-btn delete-btn" @click="deleteSave(s)" :title="t('instance.delete')">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                <button
+                  class="toggle-btn delete-btn"
+                  @click="deleteSave(s)"
+                  :title="t('instance.delete')"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
                   </svg>
                 </button>
               </div>
@@ -783,8 +1170,14 @@
         <div class="editor-toolbar">
           <span class="editor-hint">{{ $t('instance.configEditorHint') }}</span>
           <div class="toolbar-actions">
-            <button v-if="configDirty" class="reset-btn vox-btn" @click="resetConfig">{{ $t('instance.resetConfigBtn') }}</button>
-            <button class="save-config-btn vox-btn vox-btn--primary" @click="saveConfig" :disabled="savingConfig">
+            <button v-if="configDirty" class="reset-btn vox-btn" @click="resetConfig">
+              {{ $t('instance.resetConfigBtn') }}
+            </button>
+            <button
+              class="save-config-btn vox-btn vox-btn--primary"
+              @click="saveConfig"
+              :disabled="savingConfig"
+            >
               {{ savingConfig ? $t('instance.savingConfig') : $t('common.save') }}
             </button>
           </div>
@@ -870,7 +1263,9 @@ const localMods = ref<
 >([])
 const modsLoading = ref(false)
 const modsUpdateLoading = ref(false)
-const modUpdatesAvailable = computed(() => localMods.value.filter((m) => m.latestVersion && m.latestVersion !== m.version).length)
+const modUpdatesAvailable = computed(
+  () => localMods.value.filter((m) => m.latestVersion && m.latestVersion !== m.version).length
+)
 
 // 配置文件列表
 interface ConfigFile {
@@ -912,7 +1307,15 @@ interface DiskUsage {
   config: number
   others: number
 }
-const diskUsage = ref<DiskUsage>({ total: 0, mods: 0, saves: 0, resourcepacks: 0, shaderpacks: 0, config: 0, others: 0 })
+const diskUsage = ref<DiskUsage>({
+  total: 0,
+  mods: 0,
+  saves: 0,
+  resourcepacks: 0,
+  shaderpacks: 0,
+  config: 0,
+  others: 0
+})
 const diskUsageLoading = ref(false)
 const diskPercent = computed(() => {
   if (!diskUsage.value.total) return 0
@@ -959,7 +1362,9 @@ async function fetchDetail() {
   error.value = null
   try {
     // 优先直接从 IPC 拿最新数据（不走 store，避免路径字段不一致）
-    const raw = await window.electronAPI?.instance.getById(instanceId.value) as RawGameInstance | null
+    const raw = (await window.electronAPI?.instance.getById(
+      instanceId.value
+    )) as RawGameInstance | null
     if (raw) {
       instance.value = {
         id: raw.id,
@@ -998,7 +1403,7 @@ async function fetchDetail() {
     // 并行加载：Mod 列表 + 配置列表 + 磁盘占用
     await Promise.all([loadMods(), loadConfigFiles(), loadDiskUsage()])
   } catch (e: unknown) {
-    error.value = (e as Error).message || t('instance.loadFailed') as string
+    error.value = (e as Error).message || (t('instance.loadFailed') as string)
   }
 }
 
@@ -1008,7 +1413,7 @@ async function loadMods() {
   try {
     const res = await window.electronAPI?.mod.list(instance.value.path)
     if (res?.ok) {
-      localMods.value = (res.data as IpcModInfo[] || []).map((m) => ({
+      localMods.value = ((res.data as IpcModInfo[]) || []).map((m) => ({
         filePath: m.filePath,
         fileName: m.fileName,
         displayName: m.name || m.fileName.replace('.jar', ''),
@@ -1058,7 +1463,9 @@ async function loadDiskUsage() {
   }
 }
 
-async function openInstanceSubdir(sub: 'resourcepacks' | 'shaderpacks' | 'saves' | 'mods' | 'config') {
+async function openInstanceSubdir(
+  sub: 'resourcepacks' | 'shaderpacks' | 'saves' | 'mods' | 'config'
+) {
   if (!instance.value?.path) return
   window.electronAPI?.shell.openPath(instance.value.path + '/' + sub)
 }
@@ -1107,9 +1514,10 @@ type PackKind = 'resourcepacks' | 'shaderpacks'
 async function togglePack(kind: PackKind, filename: string, enabled: boolean) {
   if (!instance.value?.id) return
   try {
-    const fn = kind === 'resourcepacks'
-      ? window.electronAPI?.instance?.toggleResourcePack
-      : window.electronAPI?.instance?.toggleShaderPack
+    const fn =
+      kind === 'resourcepacks'
+        ? window.electronAPI?.instance?.toggleResourcePack
+        : window.electronAPI?.instance?.toggleShaderPack
     const ok = await fn?.(instance.value.id, filename, enabled)
     if (ok) {
       if (kind === 'resourcepacks') {
@@ -1121,25 +1529,43 @@ async function togglePack(kind: PackKind, filename: string, enabled: boolean) {
       }
     }
   } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: (e as Error).message, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: (e as Error).message,
+      type: 'error'
+    })
   }
 }
 
 async function deletePack(kind: PackKind, filename: string) {
   if (!instance.value?.id) return
-  if (!await pxConfirm({ title: t('common.warning'), message: t('instance.deletePackConfirm', { name: filename }), type: 'danger', confirmText: t('common.confirm') })) return
+  if (
+    !(await pxConfirm({
+      title: t('common.warning'),
+      message: t('instance.deletePackConfirm', { name: filename }),
+      type: 'danger',
+      confirmText: t('common.confirm')
+    }))
+  )
+    return
   try {
-    const fn = kind === 'resourcepacks'
-      ? window.electronAPI?.instance?.deleteResourcePack
-      : window.electronAPI?.instance?.deleteShaderPack
+    const fn =
+      kind === 'resourcepacks'
+        ? window.electronAPI?.instance?.deleteResourcePack
+        : window.electronAPI?.instance?.deleteShaderPack
     const ok = await fn?.(instance.value.id, filename)
     if (ok) {
-      if (kind === 'resourcepacks') resourcePacks.value = resourcePacks.value.filter((p) => p.filename !== filename)
+      if (kind === 'resourcepacks')
+        resourcePacks.value = resourcePacks.value.filter((p) => p.filename !== filename)
       else shaderPacks.value = shaderPacks.value.filter((p) => p.filename !== filename)
       loadDiskUsage()
     }
   } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: (e as Error).message, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: (e as Error).message,
+      type: 'error'
+    })
   }
 }
 
@@ -1154,12 +1580,20 @@ async function confirmRenameSave(s: SaveInfo) {
     return
   }
   try {
-    const ok = await window.electronAPI?.instance?.renameSave?.(instance.value.id, s.filename, s.renameValue)
+    const ok = await window.electronAPI?.instance?.renameSave?.(
+      instance.value.id,
+      s.filename,
+      s.renameValue
+    )
     if (ok) {
       s.filename = s.renameValue
     }
   } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: (e as Error).message, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: (e as Error).message,
+      type: 'error'
+    })
   } finally {
     s.renaming = false
     s.renameValue = undefined
@@ -1171,16 +1605,32 @@ async function backupSave(s: SaveInfo) {
   try {
     const out = await window.electronAPI?.instance?.backupSave?.(instance.value.id, s.filename)
     if (out) {
-      window.electronAPI?.notification?.send({ title: t('instance.backupSave'), body: t('instance.backupSaveSuccess', { file: out }), type: 'success' })
+      window.electronAPI?.notification?.send({
+        title: t('instance.backupSave'),
+        body: t('instance.backupSaveSuccess', { file: out }),
+        type: 'success'
+      })
     }
   } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: (e as Error).message, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: (e as Error).message,
+      type: 'error'
+    })
   }
 }
 
 async function deleteSave(s: SaveInfo) {
   if (!instance.value?.id) return
-  if (!await pxConfirm({ title: t('common.warning'), message: t('instance.deleteSaveConfirm', { name: s.filename }), type: 'danger', confirmText: t('common.confirm') })) return
+  if (
+    !(await pxConfirm({
+      title: t('common.warning'),
+      message: t('instance.deleteSaveConfirm', { name: s.filename }),
+      type: 'danger',
+      confirmText: t('common.confirm')
+    }))
+  )
+    return
   try {
     const ok = await window.electronAPI?.instance?.deleteSave?.(instance.value.id, s.filename)
     if (ok) {
@@ -1188,12 +1638,18 @@ async function deleteSave(s: SaveInfo) {
       loadDiskUsage()
     }
   } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: (e as Error).message, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: (e as Error).message,
+      type: 'error'
+    })
   }
 }
 
 // ===== Mod 更新检测（走 Modrinth 版本搜索 / fingerprint 匹配，这里走文件名 + 版本启发式）=====
-interface ModrinthVersion { version_number: string }
+interface ModrinthVersion {
+  version_number: string
+}
 async function checkModUpdates() {
   if (!instance.value || localMods.value.length === 0) return
   modsUpdateLoading.value = true
@@ -1207,13 +1663,22 @@ async function checkModUpdates() {
         const mod = queue.shift()!
         try {
           // 以 displayName 作为 slug 搜索项目
-          const slug = (mod.displayName || mod.fileName.replace(/\.jar$/i, '')).toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '')
+          const slug = (mod.displayName || mod.fileName.replace(/\.jar$/i, ''))
+            .toLowerCase()
+            .replace(/[^a-z0-9-]+/g, '-')
+            .replace(/^-+|-+$/g, '')
           if (!slug) continue
-          const project = await fetch(`https://api.modrinth.com/v2/project/${encodeURIComponent(slug)}`).then((r) => (r.ok ? r.json() : null)).catch(() => null)
+          const project = await fetch(
+            `https://api.modrinth.com/v2/project/${encodeURIComponent(slug)}`
+          )
+            .then((r) => (r.ok ? r.json() : null))
+            .catch(() => null)
           if (!project?.id) continue
           const versions: ModrinthVersion[] = await fetch(
             `https://api.modrinth.com/v2/project/${project.id}/version?game_versions=["${mc}"]&loaders=["${loader}"]`
-          ).then((r) => (r.ok ? r.json() : [])).catch(() => [])
+          )
+            .then((r) => (r.ok ? r.json() : []))
+            .catch(() => [])
           if (!versions || !versions.length) continue
           const latest = versions[0]?.version_number
           if (latest && latest !== mod.version) {
@@ -1239,7 +1704,11 @@ async function checkModUpdates() {
       })
     }
   } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: (e as Error).message, type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: (e as Error).message,
+      type: 'error'
+    })
   } finally {
     modsUpdateLoading.value = false
   }
@@ -1278,7 +1747,7 @@ async function openConfigEditor(cfg: ConfigFile) {
     await nextTick()
     configTextarea.value?.focus()
   } else {
-    configError.value = res?.error || t('instance.readFailed') as string
+    configError.value = res?.error || (t('instance.readFailed') as string)
   }
 }
 
@@ -1305,7 +1774,7 @@ async function saveConfig() {
       configDirty.value = false
       editingConfig.value = null
     } else {
-      configError.value = res?.error || t('instance.saveFailed') as string
+      configError.value = res?.error || (t('instance.saveFailed') as string)
     }
   } finally {
     savingConfig.value = false
@@ -1314,7 +1783,15 @@ async function saveConfig() {
 
 async function closeConfigEditor() {
   if (configDirty.value) {
-    if (!await pxConfirm({ title: t('common.warning'), message: t('instance.unsavedChangesWarning'), type: 'warning', confirmText: t('common.confirm') })) return
+    if (
+      !(await pxConfirm({
+        title: t('common.warning'),
+        message: t('instance.unsavedChangesWarning'),
+        type: 'warning',
+        confirmText: t('common.confirm')
+      }))
+    )
+      return
   }
   editingConfig.value = null
   configDirty.value = false
@@ -1375,7 +1852,11 @@ async function saveBasicInfo() {
     instance.value.height = editForm.value.height
     instance.value.fullscreen = editForm.value.fullscreen ? 1 : 0
   } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('instance.saveFailed'), type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: t('instance.saveFailed'),
+      type: 'error'
+    })
   } finally {
     savingBasic.value = false
   }
@@ -1396,8 +1877,21 @@ function launchGame() {
 async function deleteInstance() {
   if (!instance.value) return
   const inst = instance.value
-  if (!await pxConfirm({ title: t('instance.delete'), message: t('instance.deleteConfirm') + `「${inst.name}」？`, type: 'danger', confirmText: t('common.confirm') })) return
-  const deleteFiles = await pxConfirm({ title: t('instance.delete'), message: t('instance.deleteFilesHint') + '\n\n' + t('instance.deleteFilesAlso') + '？', type: 'warning', confirmText: t('common.confirm') })
+  if (
+    !(await pxConfirm({
+      title: t('instance.delete'),
+      message: t('instance.deleteConfirm') + `「${inst.name}」？`,
+      type: 'danger',
+      confirmText: t('common.confirm')
+    }))
+  )
+    return
+  const deleteFiles = await pxConfirm({
+    title: t('instance.delete'),
+    message: t('instance.deleteFilesHint') + '\n\n' + t('instance.deleteFilesAlso') + '？',
+    type: 'warning',
+    confirmText: t('common.confirm')
+  })
   try {
     await window.electronAPI?.instance?.delete(inst.id, deleteFiles)
     window.electronAPI?.notification?.send({
@@ -1407,18 +1901,34 @@ async function deleteInstance() {
     })
     router.push('/instances')
   } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('instance.deleteFailed'), type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: t('instance.deleteFailed'),
+      type: 'error'
+    })
   }
 }
 
 // 删除 Mod
 async function deleteModItem(mod: { filePath: string; fileName: string }) {
-  if (!await pxConfirm({ title: t('common.warning'), message: t('mod.deleteConfirm', { name: mod.fileName }), type: 'danger', confirmText: t('common.confirm') })) return
+  if (
+    !(await pxConfirm({
+      title: t('common.warning'),
+      message: t('mod.deleteConfirm', { name: mod.fileName }),
+      type: 'danger',
+      confirmText: t('common.confirm')
+    }))
+  )
+    return
   try {
     await window.electronAPI?.mod?.uninstall?.(mod.filePath)
     await loadMods()
   } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.deleteFailed'), type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: t('mod.deleteFailed'),
+      type: 'error'
+    })
   }
 }
 
@@ -1541,7 +2051,6 @@ watch(instanceId, () => {
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
-
 
 .info-section {
   padding: 20px 24px;

@@ -4,6 +4,7 @@
  */
 
 import { spawnSync } from 'child_process'
+import { app } from 'electron'
 import * as fs from 'fs'
 import * as path from 'path'
 import { getDatabase } from './database'
@@ -116,6 +117,13 @@ export async function detectAllJava(
       candidates.push(...(await getMacCandidates()))
     } else {
       candidates.push(...(await getLinuxCandidates()))
+    }
+
+    // 自动安装到 userData/java-runtime 的 Java（与 downloadAndInstallJava 落盘位置一致）
+    const runtimeCandidates = getAppRuntimeCandidates()
+    if (runtimeCandidates.length > 0) {
+      candidates.push(...runtimeCandidates)
+      log.info(`[JavaService] 从应用运行时目录找到 ${runtimeCandidates.length} 个Java候选`)
     }
 
     log.info(`[JavaService] 共收集到 ${candidates.length} 个Java候选路径`)
@@ -365,6 +373,39 @@ async function findInPath(): Promise<string[]> {
     log.warn('[JavaService] 从PATH查找Java失败:', error)
   }
 
+  return candidates
+}
+
+/**
+ * 收集应用自动安装的 Java（userData/java-runtime/jdk-<major>/<解压目录>/bin/java）
+ * 与 xmcl.launcher.service 里 downloadAndInstallJava 的落盘位置保持一致，
+ * 否则每次启动都会因为扫描不到已安装的 Java 而重复提示下载。
+ */
+function getAppRuntimeCandidates(): string[] {
+  const candidates: string[] = []
+  const javaName = process.platform === 'win32' ? 'java.exe' : 'java'
+  try {
+    const runtimeRoot = path.join(app.getPath('userData'), 'java-runtime')
+    if (!fs.existsSync(runtimeRoot)) return candidates
+
+    for (const majorDir of fs.readdirSync(runtimeRoot)) {
+      const majorPath = path.join(runtimeRoot, majorDir)
+      if (!fs.statSync(majorPath).isDirectory()) continue
+
+      // 兼容两种解压结构：直接 bin/ 或 多一层 jdk8uXXX/bin/
+      const direct = path.join(majorPath, 'bin', javaName)
+      if (fs.existsSync(direct)) candidates.push(direct)
+
+      for (const sub of fs.readdirSync(majorPath)) {
+        const javaPath = path.join(majorPath, sub, 'bin', javaName)
+        if (fs.existsSync(javaPath) && !candidates.includes(javaPath)) {
+          candidates.push(javaPath)
+        }
+      }
+    }
+  } catch (error) {
+    log.warn('[JavaService] 扫描应用内 Java 目录失败:', error)
+  }
   return candidates
 }
 

@@ -12,9 +12,7 @@ import zhCN from '../../src/locale/zh-CN'
 
 const router = createRouter({
   history: createWebHashHistory(),
-  routes: [
-    { path: '/instances', component: { template: '<div />' } }
-  ]
+  routes: [{ path: '/instances', component: { template: '<div />' } }]
 })
 
 const i18n = createI18n({

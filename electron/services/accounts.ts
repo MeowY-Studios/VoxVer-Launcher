@@ -175,4 +175,3 @@ export function backfillXuid(id: string, xuid: string): void {
   const db = getDatabase()
   db.prepare('UPDATE accounts SET xuid = ? WHERE id = ?').run(xuid, id)
 }
-

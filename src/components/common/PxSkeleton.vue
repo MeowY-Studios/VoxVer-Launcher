@@ -1,10 +1,6 @@
 <template>
   <div
-    :class="[
-      'px-skeleton',
-      `px-skeleton--${variant}`,
-      { 'px-skeleton--animate': animate }
-    ]"
+    :class="['px-skeleton', `px-skeleton--${variant}`, { 'px-skeleton--animate': animate }]"
     :style="variant === 'rectangle' ? { width, height, borderRadius } : {}"
     role="status"
     :aria-label="ariaLabel"

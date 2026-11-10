@@ -4,7 +4,12 @@
 import { ipcMain } from 'electron'
 import * as gameLauncher from '../services/game.launcher.service'
 import { defaultMcDir, getLauncherInstance } from '../services/game.launcher.service'
-import { launchByVersionWithXMCL, getXMCLStatus, terminateXMCLGame, getXMCLProcess } from '../services/xmcl.launcher.service'
+import {
+  launchByVersionWithXMCL,
+  getXMCLStatus,
+  terminateXMCLGame,
+  getXMCLProcess
+} from '../services/xmcl.launcher.service'
 import { getInstanceById } from '../services/instances'
 import { getDatabase } from '../services/database'
 import type { BrowserWindow } from 'electron'
@@ -14,12 +19,9 @@ import {
   readdirSync,
   readFileSync,
   mkdirSync,
-  renameSync,
   rmSync,
-  statSync,
   createWriteStream,
-  unlinkSync,
-  writeFileSync
+  unlinkSync
 } from 'fs'
 import { join } from 'path'
 import * as os from 'os'
@@ -35,12 +37,21 @@ interface VersionManifest {
   versions: Array<{ id: string; url: string }>
 }
 
+/** 等待写入流真正落盘（end() 只是提交，finish 事件后文件才完整可读） */
+function waitForFinish(writer: ReturnType<typeof createWriteStream>): Promise<void> {
+  return new Promise((resolve, reject) => {
+    writer.once('finish', () => resolve())
+    writer.once('error', reject)
+  })
+}
+
 /** 简单流式下载（用于下载 MC 版本文件到本地） */
 async function downloadFile(url: string, destPath: string): Promise<void> {
   const response = await fetch(url)
   if (!response.ok) throw new Error(`下载失败 HTTP ${response.status} (${url})`)
   if (!response.body) throw new Error(`响应体为空 (${url})`)
   const writer = createWriteStream(destPath)
+  const finished = waitForFinish(writer)
   const reader = response.body.getReader()
   while (true) {
     const { done, value } = await reader.read()
@@ -48,6 +59,7 @@ async function downloadFile(url: string, destPath: string): Promise<void> {
     writer.write(value)
   }
   writer.end()
+  await finished
 }
 
 /** 带进度回调的流式下载 */
@@ -64,6 +76,7 @@ async function downloadFileWithProgress(
   const totalSize = contentLength ? parseInt(contentLength, 10) : 0
 
   const writer = createWriteStream(destPath)
+  const finished = waitForFinish(writer)
   const reader = response.body.getReader()
   let downloaded = 0
   const startTime = Date.now()
@@ -78,6 +91,7 @@ async function downloadFileWithProgress(
     onProgress(downloaded, totalSize, speed)
   }
   writer.end()
+  await finished
 }
 
 let versionsService: VersionsService | null = null
@@ -115,7 +129,8 @@ async function scanInstalledVersions(gameDir: string): Promise<ScannedVersion[]>
     let jarFile: string
     try {
       const files = readdirSync(versionDir)
-      jarFile = files.find((f) => f === `${versionName}.jar`) || files.find((f) => f.endsWith('.jar')) || ''
+      jarFile =
+        files.find((f) => f === `${versionName}.jar`) || files.find((f) => f.endsWith('.jar')) || ''
     } catch {
       continue
     }
@@ -256,10 +271,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
 
   ipcMain.handle(
     'game:confirm-download-and-launch',
-    async (
-      _event,
-      { versionId, accountId }: { versionId: string; accountId?: string }
-    ) => {
+    async (_event, { versionId, accountId }: { versionId: string; accountId?: string }) => {
       try {
         validateVersionId(versionId)
         return gameLauncher.continueLaunchAfterDownload(mainWindow, {
@@ -371,8 +383,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
         loader,
         loaderVersion,
         optifine,
-        optifineVersion,
-        displayName
+        optifineVersion
       }: {
         versionId: string
         gameDir: string
@@ -471,51 +482,26 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
             )
           })
 
-          // 阶段6：合并版本目录到统一命名（所有文件在一个集中目录下）
-          if ((loader || optifine) && displayName && displayName !== versionId) {
-            try {
-              const versionsDir = join(gameDir, 'versions')
-              if (existsSync(versionsDir)) {
-                const entries = readdirSync(versionsDir, { withFileTypes: true })
-                  .filter((e) => e.isDirectory() && e.name !== versionId)
-                  .map((e) => ({ name: e.name, mtime: statSync(join(versionsDir, e.name)).mtimeMs }))
-                  .sort((a, b) => b.mtime - a.mtime)
-                if (entries.length > 0 && entries[0].name !== displayName) {
-                  const srcDir = entries[0].name
-                  const src = join(versionsDir, srcDir)
-                  const dst = join(versionsDir, displayName)
-                  if (!existsSync(dst)) {
-                    const jsonFile = join(src, `${srcDir}.json`)
-                    if (existsSync(jsonFile)) {
-                      const vjson2 = JSON.parse(readFileSync(jsonFile, 'utf-8'))
-                      vjson2.id = displayName
-                      writeFileSync(jsonFile, JSON.stringify(vjson2, null, 2), 'utf-8')
-                      log.info(`[versions:download-start] 已修改版本 JSON id 为 ${displayName}`)
-                    }
-                    renameSync(src, dst)
-                    const oldJson = join(dst, `${srcDir}.json`)
-                    const newJson = join(dst, `${displayName}.json`)
-                    if (existsSync(oldJson) && !existsSync(newJson)) {
-                      renameSync(oldJson, newJson)
-                    }
-                    log.info(`[versions:download-start] 已合并版本目录 ${srcDir} → ${displayName}`)
-                  }
-                }
-              }
-            } catch (e: unknown) {
-              log.warn('[versions:download-start] 合并版本目录失败:', (e as Error).message)
-            }
-          }
-
           sendProgress('completed', '下载完成', 100, 0, 1, 0)
 
           // 阶段5：若下载时勾选了加载器/扩展，下载完成后自动安装
           if (loader || optifine) {
             try {
               // 设置安装进度回调，将 ModLoaderService 进度映射到版本下载进度通道
-              const reportInstallProgress = (p: { stage: string; progress: number; message?: string }) => {
+              const reportInstallProgress = (p: {
+                stage: string
+                progress: number
+                message?: string
+              }) => {
                 const mapped = 95 + p.progress * 0.05 // 0–100 → 95–100
-                sendProgress(`installing_${p.stage || 'installing'}`, p.message || '安装加载器...', mapped, 0, 1, 0)
+                sendProgress(
+                  `installing_${p.stage || 'installing'}`,
+                  p.message || '安装加载器...',
+                  mapped,
+                  0,
+                  1,
+                  0
+                )
               }
               if (loader && modLoaderService) {
                 modLoaderService.setProgressCallback(reportInstallProgress)
@@ -523,13 +509,21 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
               }
               if (optifine && modLoaderService) {
                 modLoaderService.setProgressCallback(reportInstallProgress)
-                await modLoaderService.installForVersion(versionId, gameDir, 'optifine', undefined, optifine)
+                await modLoaderService.installForVersion(
+                  versionId,
+                  gameDir,
+                  'optifine',
+                  undefined,
+                  optifineVersion
+                )
               }
               modLoaderService?.setProgressCallback(undefined)
             } catch (e: unknown) {
-              log.error('[versions:download-start] 安装加载器/扩展失败:', (e as Error).message)
+              const message = (e as Error).message
+              log.error('[versions:download-start] 安装加载器/扩展失败:', message)
               modLoaderService?.setProgressCallback(undefined)
-              // 安装失败不阻塞完成，仅记录错误
+              // 安装失败不阻塞原版下载，但必须在下载卡片上暴露原因，避免"假成功"
+              sendProgress('installing_failed', `加载器安装失败: ${message}`, 100, 0, 1, 0)
             }
           }
 
@@ -554,7 +548,6 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
   ipcMain.handle(
     'versions:download-server',
     async (_event, { versionId, savePath }: { versionId: string; savePath: string }) => {
-
       try {
         // 1. 获取版本清单（多线路切换），找到该版本的 URL
         let manifest: VersionManifest | null = null
@@ -743,7 +736,9 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
       } catch (e: unknown) {
         log.warn(`[补全] ${description} 失败 [${i + 1}/${MIRRORS.length}]:`, (e as Error).message)
         if (i === MIRRORS.length - 1) {
-          throw new Error(`${description} 失败，所有镜像都无法下载: ${(e as Error).message}`, { cause: e })
+          throw new Error(`${description} 失败，所有镜像都无法下载: ${(e as Error).message}`, {
+            cause: e
+          })
         }
       }
     }

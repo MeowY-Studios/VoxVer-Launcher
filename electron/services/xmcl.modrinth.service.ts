@@ -50,7 +50,9 @@ export async function searchProjects(
 }
 
 /** 批量获取项目信息 */
-export async function getProjects(projectIds: string[]): Promise<import('@xmcl/modrinth').Project[]> {
+export async function getProjects(
+  projectIds: string[]
+): Promise<import('@xmcl/modrinth').Project[]> {
   return client.getProjects(projectIds)
 }
 

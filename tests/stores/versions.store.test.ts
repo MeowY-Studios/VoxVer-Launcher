@@ -113,9 +113,7 @@ describe('versions store - fetchVersions', () => {
     vi.clearAllMocks()
     const store = freshStore()
     const cached = {
-      data: [
-        { id: '1.20.1', name: '1.20.1', type: 'release', releaseTime: '' }
-      ],
+      data: [{ id: '1.20.1', name: '1.20.1', type: 'release', releaseTime: '' }],
       timestamp: Date.now()
     }
     localStorage.setItem('voxver_versions_cache', JSON.stringify(cached))
@@ -224,9 +222,7 @@ describe('versions store - getVersionById', () => {
 describe('versions store - clearCache', () => {
   it('应清除版本列表和 localStorage 缓存', () => {
     const store = freshStore()
-    store.versions = [
-      { id: '1.20.1', name: '1.20.1', type: 'release', releaseTime: '' }
-    ]
+    store.versions = [{ id: '1.20.1', name: '1.20.1', type: 'release', releaseTime: '' }]
     localStorage.setItem('voxver_versions_cache', JSON.stringify({ data: [], timestamp: 1 }))
 
     store.clearCache()

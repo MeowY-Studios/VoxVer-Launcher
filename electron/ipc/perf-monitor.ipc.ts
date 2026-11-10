@@ -2,7 +2,12 @@
  * 性能监控 IPC 通道
  */
 import { ipcMain, BrowserWindow } from 'electron'
-import { startMonitor, stopMonitor, getMonitorStatus, type PerfSnapshot } from '../services/perf-monitor.service'
+import {
+  startMonitor,
+  stopMonitor,
+  getMonitorStatus,
+  type PerfSnapshot
+} from '../services/perf-monitor.service'
 import { logger } from '../utils/logger'
 
 const log = logger.child('PerfMonitorIPC')
@@ -23,26 +28,20 @@ function pushSnapshot(snap: PerfSnapshot): void {
 }
 
 export function registerPerfMonitorHandlers(): void {
-  ipcMain.handle(
-    'perf-monitor:start',
-    async (_event, pid: number): Promise<{ ok: boolean }> => {
-      try {
-        startMonitor(pid, pushSnapshot)
-        return { ok: true }
-      } catch (e: unknown) {
-        log.error('start error:', (e as Error).message)
-        return { ok: false }
-      }
-    }
-  )
-
-  ipcMain.handle(
-    'perf-monitor:stop',
-    async (): Promise<{ ok: boolean }> => {
-      stopMonitor()
+  ipcMain.handle('perf-monitor:start', async (_event, pid: number): Promise<{ ok: boolean }> => {
+    try {
+      startMonitor(pid, pushSnapshot)
       return { ok: true }
+    } catch (e: unknown) {
+      log.error('start error:', (e as Error).message)
+      return { ok: false }
     }
-  )
+  })
+
+  ipcMain.handle('perf-monitor:stop', async (): Promise<{ ok: boolean }> => {
+    stopMonitor()
+    return { ok: true }
+  })
 
   ipcMain.handle(
     'perf-monitor:status',

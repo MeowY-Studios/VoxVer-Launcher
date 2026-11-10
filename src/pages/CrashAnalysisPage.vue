@@ -7,131 +7,170 @@
       <p class="page-desc">{{ $t('crashAnalysis.description') }}</p>
     </div>
     <template v-if="!isKoring">
-
-    <!-- 工具栏 -->
-    <div class="toolbar">
-      <button class="vox-btn" @click="refreshList" :disabled="loading">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M23 4v6h-6M1 20v-6h6" />
-          <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
-        </svg>
-        {{ $t('common.refresh') }}
-      </button>
-      <span class="crash-count" v-if="crashList.length">
-        {{ $t('crashAnalysis.totalCrashes', { count: crashList.length }) }}
-      </span>
-    </div>
-
-    <!-- 加载状态 -->
-    <div v-if="loading" class="loading-state">
-      <div class="vox-skeleton" style="height: 60px; margin-bottom: 12px" v-for="i in 3" :key="i" />
-    </div>
-
-    <!-- 空状态 -->
-    <div v-else-if="crashList.length === 0" class="empty-state">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-text-muted)" stroke-width="1.5">
-        <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
-        <polyline points="22 4 12 14.01 9 11.01" />
-      </svg>
-      <p>{{ $t('crashAnalysis.noCrashes') }}</p>
-      <span>{{ $t('crashAnalysis.noCrashesHint') }}</span>
-    </div>
-
-    <!-- 崩溃列表 -->
-    <div v-else class="crash-list">
-      <div
-        v-for="crash in crashList"
-        :key="crash.id"
-        class="crash-item vox-card"
-        :class="{ selected: selectedCrash?.id === crash.id }"
-        @click="selectCrash(crash)"
-      >
-        <div class="crash-item-header">
-          <span class="crash-severity" :class="crash.severity">
-            {{ getSeverityLabel(crash.severity) }}
-          </span>
-          <span class="crash-version">MC {{ crash.minecraftVersion }}</span>
-        </div>
-        <p class="crash-item-cause">{{ crash.cause }}</p>
-        <div class="crash-item-meta">
-          <span class="crash-time">{{ formatTime(crash.time) }}</span>
-          <span v-if="crash.instanceId" class="crash-instance">{{ crash.instanceId }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- 详情面板 -->
-    <div v-if="selectedCrash" class="crash-detail-panel">
-      <div class="detail-header">
-        <h3>{{ $t('crashAnalysis.crashDetail') }}</h3>
-        <button class="crash-close" @click="selectedCrash = null">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
+      <!-- 工具栏 -->
+      <div class="toolbar">
+        <button class="vox-btn" @click="refreshList" :disabled="loading">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M23 4v6h-6M1 20v-6h6" />
+            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
           </svg>
+          {{ $t('common.refresh') }}
         </button>
+        <span class="crash-count" v-if="crashList.length">
+          {{ $t('crashAnalysis.totalCrashes', { count: crashList.length }) }}
+        </span>
       </div>
-      <div class="detail-body">
-        <!-- 基本信息 -->
-        <div class="detail-section">
-          <h4>{{ $t('crashAnalysis.basicInfo') }}</h4>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">{{ $t('crashAnalysis.exception') }}</span>
-              <span class="info-value error">{{ selectedCrash.crashCause.exception }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">{{ $t('crashAnalysis.version') }}</span>
-              <span class="info-value">{{ selectedCrash.minecraftVersion }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">{{ $t('crashAnalysis.javaVersion') }}</span>
-              <span class="info-value">{{ selectedCrash.javaVersion || $t('common.unknown') }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">{{ $t('crashAnalysis.os') }}</span>
-              <span class="info-value">{{ selectedCrash.operatingSystem || $t('common.unknown') }}</span>
-            </div>
+
+      <!-- 加载状态 -->
+      <div v-if="loading" class="loading-state">
+        <div
+          class="vox-skeleton"
+          style="height: 60px; margin-bottom: 12px"
+          v-for="i in 3"
+          :key="i"
+        />
+      </div>
+
+      <!-- 空状态 -->
+      <div v-else-if="crashList.length === 0" class="empty-state">
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="var(--voxver-text-muted)"
+          stroke-width="1.5"
+        >
+          <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+        <p>{{ $t('crashAnalysis.noCrashes') }}</p>
+        <span>{{ $t('crashAnalysis.noCrashesHint') }}</span>
+      </div>
+
+      <!-- 崩溃列表 -->
+      <div v-else class="crash-list">
+        <div
+          v-for="crash in crashList"
+          :key="crash.id"
+          class="crash-item vox-card"
+          :class="{ selected: selectedCrash?.id === crash.id }"
+          @click="selectCrash(crash)"
+        >
+          <div class="crash-item-header">
+            <span class="crash-severity" :class="crash.severity">
+              {{ getSeverityLabel(crash.severity) }}
+            </span>
+            <span class="crash-version">MC {{ crash.minecraftVersion }}</span>
+          </div>
+          <p class="crash-item-cause">{{ crash.cause }}</p>
+          <div class="crash-item-meta">
+            <span class="crash-time">{{ formatTime(crash.time) }}</span>
+            <span v-if="crash.instanceId" class="crash-instance">{{ crash.instanceId }}</span>
           </div>
         </div>
+      </div>
 
-        <!-- 错误信息 -->
-        <div class="detail-section">
-          <h4>{{ $t('crashAnalysis.errorMessage') }}</h4>
-          <p class="error-message">{{ selectedCrash.crashCause.message }}</p>
-          <p v-if="selectedCrash.description" class="error-desc">{{ selectedCrash.description }}</p>
+      <!-- 详情面板 -->
+      <div v-if="selectedCrash" class="crash-detail-panel">
+        <div class="detail-header">
+          <h3>{{ $t('crashAnalysis.crashDetail') }}</h3>
+          <button class="crash-close" @click="selectedCrash = null">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
+        <div class="detail-body">
+          <!-- 基本信息 -->
+          <div class="detail-section">
+            <h4>{{ $t('crashAnalysis.basicInfo') }}</h4>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">{{ $t('crashAnalysis.exception') }}</span>
+                <span class="info-value error">{{ selectedCrash.crashCause.exception }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">{{ $t('crashAnalysis.version') }}</span>
+                <span class="info-value">{{ selectedCrash.minecraftVersion }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">{{ $t('crashAnalysis.javaVersion') }}</span>
+                <span class="info-value">{{
+                  selectedCrash.javaVersion || $t('common.unknown')
+                }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">{{ $t('crashAnalysis.os') }}</span>
+                <span class="info-value">{{
+                  selectedCrash.operatingSystem || $t('common.unknown')
+                }}</span>
+              </div>
+            </div>
+          </div>
 
-        <!-- 可能原因 -->
-        <div v-if="selectedCrash.possibleCauses?.length" class="detail-section">
-          <h4>{{ $t('crashAnalysis.possibleCauses') }}</h4>
-          <ul class="cause-list">
-            <li v-for="(cause, i) in selectedCrash.possibleCauses" :key="i">{{ cause }}</li>
-          </ul>
-        </div>
+          <!-- 错误信息 -->
+          <div class="detail-section">
+            <h4>{{ $t('crashAnalysis.errorMessage') }}</h4>
+            <p class="error-message">{{ selectedCrash.crashCause.message }}</p>
+            <p v-if="selectedCrash.description" class="error-desc">
+              {{ selectedCrash.description }}
+            </p>
+          </div>
 
-        <!-- 建议解决方案 -->
-        <div v-if="selectedCrash.suggestedSolutions?.length" class="detail-section">
-          <h4>{{ $t('crashAnalysis.suggestedSolutions') }}</h4>
-          <ul class="solution-list">
-            <li v-for="(solution, i) in selectedCrash.suggestedSolutions" :key="i">{{ solution }}</li>
-          </ul>
-        </div>
+          <!-- 可能原因 -->
+          <div v-if="selectedCrash.possibleCauses?.length" class="detail-section">
+            <h4>{{ $t('crashAnalysis.possibleCauses') }}</h4>
+            <ul class="cause-list">
+              <li v-for="(cause, i) in selectedCrash.possibleCauses" :key="i">{{ cause }}</li>
+            </ul>
+          </div>
 
-        <!-- 堆栈信息 -->
-        <div class="detail-section">
-          <h4>{{ $t('crashAnalysis.stackTrace') }}</h4>
-          <pre class="stack-trace">{{ selectedCrash.crashCause.stackTrace?.join('\n') || selectedCrash.rawContent || $t('crashAnalysis.noStackTrace') }}</pre>
+          <!-- 建议解决方案 -->
+          <div v-if="selectedCrash.suggestedSolutions?.length" class="detail-section">
+            <h4>{{ $t('crashAnalysis.suggestedSolutions') }}</h4>
+            <ul class="solution-list">
+              <li v-for="(solution, i) in selectedCrash.suggestedSolutions" :key="i">
+                {{ solution }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- 堆栈信息 -->
+          <div class="detail-section">
+            <h4>{{ $t('crashAnalysis.stackTrace') }}</h4>
+            <pre class="stack-trace">{{
+              selectedCrash.crashCause.stackTrace?.join('\n') ||
+              selectedCrash.rawContent ||
+              $t('crashAnalysis.noStackTrace')
+            }}</pre>
+          </div>
         </div>
       </div>
-    </div>
     </template>
     <template v-else>
       <div class="kor-c10">
         <KorSettingCard>
           <KorSettingRow :label="$t('common.refresh')" :desc="$t('crashAnalysis.description')">
             <div class="kor-c10__actions">
-              <span v-if="crashList.length" class="kor-copy">{{ $t('crashAnalysis.totalCrashes', { count: crashList.length }) }}</span>
+              <span v-if="crashList.length" class="kor-copy">{{
+                $t('crashAnalysis.totalCrashes', { count: crashList.length })
+              }}</span>
               <KorButton variant="outline" size="sm" :loading="loading" @click="refreshList">
                 {{ $t('common.refresh') }}
               </KorButton>
@@ -146,7 +185,10 @@
         </div>
 
         <KorSettingCard v-else-if="crashList.length === 0">
-          <KorEmpty :title="$t('crashAnalysis.noCrashes')" :desc="$t('crashAnalysis.noCrashesHint')" />
+          <KorEmpty
+            :title="$t('crashAnalysis.noCrashes')"
+            :desc="$t('crashAnalysis.noCrashesHint')"
+          />
         </KorSettingCard>
 
         <KorSettingCard v-else>
@@ -184,7 +226,9 @@
               <span class="kor-value">{{ selectedCrash.javaVersion || $t('common.unknown') }}</span>
             </KorSettingRow>
             <KorSettingRow :label="$t('crashAnalysis.os')">
-              <span class="kor-value">{{ selectedCrash.operatingSystem || $t('common.unknown') }}</span>
+              <span class="kor-value">{{
+                selectedCrash.operatingSystem || $t('common.unknown')
+              }}</span>
             </KorSettingRow>
           </KorSettingCard>
 
@@ -192,7 +236,9 @@
             <div class="kor-c10__detail">
               <span class="kor-c10__label">{{ $t('crashAnalysis.errorMessage') }}</span>
               <p class="kor-copy is-error">{{ selectedCrash.crashCause.message }}</p>
-              <p v-if="selectedCrash.description" class="kor-copy">{{ selectedCrash.description }}</p>
+              <p v-if="selectedCrash.description" class="kor-copy">
+                {{ selectedCrash.description }}
+              </p>
 
               <template v-if="selectedCrash.possibleCauses?.length">
                 <span class="kor-c10__label">{{ $t('crashAnalysis.possibleCauses') }}</span>
@@ -204,12 +250,18 @@
               <template v-if="selectedCrash.suggestedSolutions?.length">
                 <span class="kor-c10__label">{{ $t('crashAnalysis.suggestedSolutions') }}</span>
                 <ul class="kor-c10__list">
-                  <li v-for="(solution, i) in selectedCrash.suggestedSolutions" :key="i">{{ solution }}</li>
+                  <li v-for="(solution, i) in selectedCrash.suggestedSolutions" :key="i">
+                    {{ solution }}
+                  </li>
                 </ul>
               </template>
 
               <span class="kor-c10__label">{{ $t('crashAnalysis.stackTrace') }}</span>
-              <pre class="kor-c10__stack">{{ selectedCrash.crashCause.stackTrace?.join('\n') || selectedCrash.rawContent || $t('crashAnalysis.noStackTrace') }}</pre>
+              <pre class="kor-c10__stack">{{
+                selectedCrash.crashCause.stackTrace?.join('\n') ||
+                selectedCrash.rawContent ||
+                $t('crashAnalysis.noStackTrace')
+              }}</pre>
 
               <div class="kor-c10__detail-actions">
                 <KorButton variant="ghost" size="sm" @click="selectedCrash = null">
@@ -228,7 +280,15 @@
 import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { CrashReport } from '../types/crash'
-import { KorButton, KorEmpty, KorPageHeader, KorSectionTitle, KorSettingCard, KorSettingRow, KorSkeleton } from '../components/kor'
+import {
+  KorButton,
+  KorEmpty,
+  KorPageHeader,
+  KorSectionTitle,
+  KorSettingCard,
+  KorSettingRow,
+  KorSkeleton
+} from '../components/kor'
 import { useAppStore } from '../stores'
 import { getCurrentMcPath } from '../utils/mcPath'
 

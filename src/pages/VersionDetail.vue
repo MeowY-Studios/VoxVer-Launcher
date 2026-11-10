@@ -20,112 +20,118 @@
       <h1 class="vd-title">{{ $t('version.detail') }}</h1>
     </div>
     <template v-if="!isKoring">
+      <!-- 加载中 -->
+      <div v-if="loading" class="vd-loading">
+        <div class="spinner"></div>
+        <span>{{ $t('download.loading') }}</span>
+      </div>
 
-    <!-- 加载中 -->
-    <div v-if="loading" class="vd-loading">
-      <div class="spinner"></div>
-      <span>{{ $t('download.loading') }}</span>
-    </div>
-
-    <!-- 版本信息 -->
-    <template v-else-if="versionInfo">
-      <div class="vd-hero">
-        <div class="vd-icon">
-          <svg
-            width="48"
-            height="48"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#fff"
-            stroke-width="1.5"
-          >
-            <path
-              d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"
-            />
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-            <line x1="12" y1="22.08" x2="12" y2="12" />
-          </svg>
-        </div>
-        <div class="vd-info">
-          <h2 class="vd-name">{{ versionDisplayName }}</h2>
-          <div class="vd-meta">
-            <span class="vd-type-badge" :class="versionInfo.type">
-              {{ typeLabel }}
-            </span>
-            <span class="vd-date">{{
-              versionInfo.releaseTime ? formatDate(versionInfo.releaseTime) : ''
-            }}</span>
+      <!-- 版本信息 -->
+      <template v-else-if="versionInfo">
+        <div class="vd-hero">
+          <div class="vd-icon">
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#fff"
+              stroke-width="1.5"
+            >
+              <path
+                d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"
+              />
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+              <line x1="12" y1="22.08" x2="12" y2="12" />
+            </svg>
           </div>
-          <p class="vd-desc">{{ versionInfo.id }}</p>
+          <div class="vd-info">
+            <h2 class="vd-name">{{ versionDisplayName }}</h2>
+            <div class="vd-meta">
+              <span class="vd-type-badge" :class="versionInfo.type">
+                {{ typeLabel }}
+              </span>
+              <span class="vd-date">{{
+                versionInfo.releaseTime ? formatDate(versionInfo.releaseTime) : ''
+              }}</span>
+            </div>
+            <p class="vd-desc">{{ versionInfo.id }}</p>
+          </div>
         </div>
-      </div>
 
-      <!-- ModLoader 选择 -->
-      <div class="vd-section">
-        <h3 class="section-title">{{ $t('version.addons') }}</h3>
-        <p class="section-hint">{{ $t('version.selectLoaderHint') }}</p>
+        <!-- ModLoader 选择 -->
+        <div class="vd-section">
+          <h3 class="section-title">{{ $t('version.addons') }}</h3>
+          <p class="section-hint">{{ $t('version.selectLoaderHint') }}</p>
 
-        <div class="loader-grid">
-          <button
-            v-for="loader in modLoaders"
-            :key="loader.type"
-            class="loader-card"
-            :class="{
-              selected: selectedLoader === loader.type,
-              disabled: !isLoaderCompatible(loader.type)
-            }"
-            :disabled="!isLoaderCompatible(loader.type)"
-            @click="selectLoader(loader.type)"
-          >
-            <span class="loader-icon">{{ loader.icon }}</span>
-            <span class="loader-name">{{ loader.name }}</span>
-            <span class="loader-desc">{{ $t(loader.descKey) }}</span>
-            <div v-if="selectedLoader === loader.type" class="loader-check">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="3"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            </div>
-            <div v-if="!isLoaderCompatible(loader.type)" class="loader-incompatible">
-              <span>{{ $t('version.incompatible') }}</span>
-            </div>
-          </button>
+          <div class="loader-grid">
+            <button
+              v-for="loader in modLoaders"
+              :key="loader.type"
+              class="loader-card"
+              :class="{
+                selected: selectedLoader === loader.type,
+                disabled: !isLoaderCompatible(loader.type)
+              }"
+              :disabled="!isLoaderCompatible(loader.type)"
+              @click="selectLoader(loader.type)"
+            >
+              <span class="loader-icon">{{ loader.icon }}</span>
+              <span class="loader-name">{{ loader.name }}</span>
+              <span class="loader-desc">{{ $t(loader.descKey) }}</span>
+              <div v-if="selectedLoader === loader.type" class="loader-check">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
+              <div v-if="!isLoaderCompatible(loader.type)" class="loader-incompatible">
+                <span>{{ $t('version.incompatible') }}</span>
+              </div>
+            </button>
 
-          <!-- Vanilla（无 ModLoader） -->
-          <button
-            class="loader-card"
-            :class="{ selected: selectedLoader === '' }"
-            @click="selectLoader('')"
-          >
-            <span class="loader-icon">V</span>
-            <span class="loader-name">{{ $t('game.vanilla') }}</span>
-            <span class="loader-desc">{{ $t('version.noModLoader') }}</span>
-            <div v-if="selectedLoader === ''" class="loader-check">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="3"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            </div>
-          </button>
+            <!-- Vanilla（无 ModLoader） -->
+            <button
+              class="loader-card"
+              :class="{ selected: selectedLoader === '' }"
+              @click="selectLoader('')"
+            >
+              <span class="loader-icon">V</span>
+              <span class="loader-name">{{ $t('game.vanilla') }}</span>
+              <span class="loader-desc">{{ $t('version.noModLoader') }}</span>
+              <div v-if="selectedLoader === ''" class="loader-check">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
+            </button>
+          </div>
         </div>
-      </div>
 
-      <!-- 加载器附加内容（选择加载器后立即显示） -->
-      <div v-if="selectedLoader" class="vd-section addons-section">
-        <h3 class="section-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <!-- 加载器附加内容（选择加载器后立即显示） -->
+        <div v-if="selectedLoader" class="vd-section addons-section">
+          <h3 class="section-title">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path d="M12 2L2 7l10 5 10-5-10-5z" />
               <path d="M2 17l10 5 10-5" />
               <path d="M2 12l10 5 10-5" />
@@ -134,7 +140,11 @@
           </h3>
 
           <!-- ====== Forge / NeoForge：OptiFine ====== -->
-          <template v-if="selectedLoader === 'forge' || selectedLoader === 'neoforge'">
+          <template
+            v-if="
+              (selectedLoader === 'forge' || selectedLoader === 'neoforge') && optifineSupported
+            "
+          >
             <div class="addon-card">
               <div class="addon-header">
                 <div class="addon-info">
@@ -155,14 +165,20 @@
                       class="optifine-chip"
                       :class="{ active: selectedOptiFineVersion === ver }"
                       @click="selectedOptiFineVersion = ver"
-                    >{{ ver }}</div>
+                    >
+                      {{ ver }}
+                    </div>
                   </div>
                 </template>
                 <div class="optifine-custom">
                   <input
                     type="text"
                     class="optifine-input"
-                    :value="availableOptiFineVersions.includes(selectedOptiFineVersion) ? '' : selectedOptiFineVersion"
+                    :value="
+                      availableOptiFineVersions.includes(selectedOptiFineVersion)
+                        ? ''
+                        : selectedOptiFineVersion
+                    "
                     :placeholder="$t('version.optifineCustom')"
                     @input="selectedOptiFineVersion = ($event.target as HTMLInputElement).value"
                   />
@@ -197,7 +213,9 @@
                       class="optifine-chip"
                       :class="{ active: selectedFabricApiVersion === ver }"
                       @click="selectedFabricApiVersion = ver"
-                    >{{ ver }}</div>
+                    >
+                      {{ ver }}
+                    </div>
                   </div>
                   <p class="fabric-api-auto" v-if="selectedFabricApiVersion">
                     {{ $t('version.fabricApiAutoSelected') }}
@@ -224,138 +242,148 @@
           </template>
         </div>
 
-      <!-- 加载器版本选择弹窗 -->
-      <div
-        v-if="showLoaderVersions"
-        class="loader-version-modal"
-        @click.self="showLoaderVersions = false"
-      >
-        <div class="modal-content vox-card">
-          <div class="modal-header">
-            <h3>{{ $t('version.loaderVersionSelect', { name: currentLoaderName }) }}</h3>
-            <button class="modal-close" @click="showLoaderVersions = false">
+        <!-- 加载器版本选择弹窗 -->
+        <div
+          v-if="showLoaderVersions"
+          class="loader-version-modal"
+          @click.self="showLoaderVersions = false"
+        >
+          <div class="modal-content vox-card">
+            <div class="modal-header">
+              <h3>{{ $t('version.loaderVersionSelect', { name: currentLoaderName }) }}</h3>
+              <button class="modal-close" @click="showLoaderVersions = false">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div v-if="loaderVersionsLoading" class="versions-loading">
+                <div class="spinner"></div>
+                <span>{{ $t('modloader.loading') }}</span>
+              </div>
+              <div v-else-if="loaderVersions.length > 0" class="versions-list">
+                <div
+                  v-for="ver in loaderVersions"
+                  :key="ver.id"
+                  class="version-item"
+                  :class="{ selected: selectedLoaderVersion === ver.id }"
+                  @click="selectLoaderVersion(ver)"
+                >
+                  <div class="version-info">
+                    <span class="version-name">{{ ver.id }}</span>
+                    <span class="version-date">{{ formatDate(ver.releaseTime) }}</span>
+                  </div>
+                  <div v-if="ver.recommended" class="version-badge recommended">
+                    {{ $t('version.recommended') }}
+                  </div>
+                  <div v-else-if="ver.latest" class="version-badge latest">
+                    {{ $t('version.latest') }}
+                  </div>
+                </div>
+              </div>
+              <div v-else class="no-versions">
+                <p>{{ $t('modloader.noAvailable') }}</p>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn-cancel" @click="showLoaderVersions = false">
+                {{ $t('common.cancel') }}
+              </button>
+              <button
+                class="btn-confirm"
+                :disabled="!selectedLoaderVersion"
+                @click="confirmLoaderVersion"
+              >
+                {{ $t('version.confirmSelection') }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 下载按钮 -->
+        <div class="vd-footer">
+          <div class="target-folder-row">
+            <div class="target-folder">
               <svg
-                width="16"
-                height="16"
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 stroke-width="2"
               >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
+                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+              </svg>
+              <span>{{ targetFolder || $t('version.selectFolder') }}</span>
+            </div>
+            <button class="btn-browse" @click="browseFolder">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M9 18l6-6-6-6" />
               </svg>
             </button>
           </div>
-          <div class="modal-body">
-            <div v-if="loaderVersionsLoading" class="versions-loading">
-              <div class="spinner"></div>
-              <span>{{ $t('modloader.loading') }}</span>
-            </div>
-            <div v-else-if="loaderVersions.length > 0" class="versions-list">
-              <div
-                v-for="ver in loaderVersions"
-                :key="ver.id"
-                class="version-item"
-                :class="{ selected: selectedLoaderVersion === ver.id }"
-                @click="selectLoaderVersion(ver)"
-              >
-                <div class="version-info">
-                  <span class="version-name">{{ ver.id }}</span>
-                  <span class="version-date">{{ formatDate(ver.releaseTime) }}</span>
-                </div>
-                <div v-if="ver.recommended" class="version-badge recommended">{{ $t('version.recommended') }}</div>
-                <div v-else-if="ver.latest" class="version-badge latest">{{ $t('version.latest') }}</div>
-              </div>
-            </div>
-            <div v-else class="no-versions">
-              <p>{{ $t('modloader.noAvailable') }}</p>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn-cancel" @click="showLoaderVersions = false">{{ $t('common.cancel') }}</button>
-            <button
-              class="btn-confirm"
-              :disabled="!selectedLoaderVersion"
-              @click="confirmLoaderVersion"
-            >
-              {{ $t('version.confirmSelection') }}
-            </button>
-          </div>
-        </div>
-      </div>
 
-      <!-- 下载按钮 -->
-      <div class="vd-footer">
-        <div class="target-folder-row">
-          <div class="target-folder">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
-            </svg>
-            <span>{{ targetFolder || $t('version.selectFolder') }}</span>
+          <div class="selected-info" v-if="selectedLoader && selectedLoaderVersion">
+            <span class="selected-label">{{ $t('version.versionNameLabel') }}</span>
+            <span class="selected-name">{{ versionDisplayName }}</span>
           </div>
-          <button class="btn-browse" @click="browseFolder">
+
+          <button class="btn-download" @click="handleDownload" :disabled="downloading">
             <svg
-              width="14"
-              height="14"
+              v-if="downloading"
+              class="spin-icon"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              stroke-width="2"
+              stroke-width="2.5"
             >
-              <path d="M9 18l6-6-6-6" />
+              <path d="M21 12a9 9 0 11-6.219-8.56" />
             </svg>
+            <svg
+              v-else
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <span>{{
+              downloading ? $t('version.preparingDownload') : $t('version.startDownload')
+            }}</span>
           </button>
         </div>
+      </template>
 
-        <div class="selected-info" v-if="selectedLoader && selectedLoaderVersion">
-          <span class="selected-label">{{ $t('version.versionNameLabel') }}</span>
-          <span class="selected-name">{{ versionDisplayName }}</span>
-        </div>
-
-        <button class="btn-download" @click="handleDownload" :disabled="downloading">
-          <svg
-            v-if="downloading"
-            class="spin-icon"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-          >
-            <path d="M21 12a9 9 0 11-6.219-8.56" />
-          </svg>
-          <svg
-            v-else
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-          >
-            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
-          </svg>
-          <span>{{ downloading ? $t('version.preparingDownload') : $t('version.startDownload') }}</span>
+      <!-- 加载失败 -->
+      <div v-else class="vd-error">
+        <p>{{ $t('version.loadFailed') }}</p>
+        <button class="vox-btn vox-btn--primary" @click="loadVersionInfo">
+          {{ $t('common.retry') }}
         </button>
       </div>
-    </template>
-
-    <!-- 加载失败 -->
-    <div v-else class="vd-error">
-      <p>{{ $t('version.loadFailed') }}</p>
-      <button class="vox-btn vox-btn--primary" @click="loadVersionInfo">{{ $t('common.retry') }}</button>
-    </div>
     </template>
     <template v-else>
       <div class="kor-c6">
@@ -368,8 +396,17 @@
           <KorSettingCard>
             <div class="kor-c6__hero">
               <div class="kor-c6__hero-icon">
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                <svg
+                  width="34"
+                  height="34"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"
+                  />
                   <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
                   <line x1="12" y1="22.08" x2="12" y2="12" />
                 </svg>
@@ -378,7 +415,9 @@
                 <div class="kor-c6__hero-name">{{ versionDisplayName }}</div>
                 <div class="kor-c6__hero-meta">
                   <span class="kor-c6__badge">{{ typeLabel }}</span>
-                  <span v-if="versionInfo.releaseTime">{{ formatDate(versionInfo.releaseTime) }}</span>
+                  <span v-if="versionInfo.releaseTime">{{
+                    formatDate(versionInfo.releaseTime)
+                  }}</span>
                   <span class="kor-c6__hero-id">{{ versionInfo.id }}</span>
                 </div>
               </div>
@@ -394,7 +433,9 @@
               :label="loader.name"
               :desc="$t(loader.descKey)"
             >
-              <span v-if="!isLoaderCompatible(loader.type)" class="kor-c6__badge is-muted">{{ $t('version.incompatible') }}</span>
+              <span v-if="!isLoaderCompatible(loader.type)" class="kor-c6__badge is-muted">{{
+                $t('version.incompatible')
+              }}</span>
               <KorButton
                 v-else
                 size="sm"
@@ -416,13 +457,26 @@
           </KorSettingCard>
 
           <template v-if="selectedLoader">
-            <KorSectionTitle>{{ currentLoaderName }} {{ $t('version.addonsTitle') }}</KorSectionTitle>
+            <KorSectionTitle
+              >{{ currentLoaderName }} {{ $t('version.addonsTitle') }}</KorSectionTitle
+            >
             <KorSettingCard>
-              <template v-if="selectedLoader === 'forge' || selectedLoader === 'neoforge'">
+              <template
+                v-if="
+                  (selectedLoader === 'forge' || selectedLoader === 'neoforge') && optifineSupported
+                "
+              >
                 <KorSettingRow label="OptiFine" :desc="$t('version.optifineHint')">
-                  <KorInput v-model="selectedOptiFineVersion" class="kor-input--short" :placeholder="$t('version.optifineCustom')" />
+                  <KorInput
+                    v-model="selectedOptiFineVersion"
+                    class="kor-input--short"
+                    :placeholder="$t('version.optifineCustom')"
+                  />
                 </KorSettingRow>
-                <KorSettingRow v-if="availableOptiFineVersions.length" :label="$t('version.highDefinition')">
+                <KorSettingRow
+                  v-if="availableOptiFineVersions.length"
+                  :label="$t('version.highDefinition')"
+                >
                   <div class="kor-c6__chips">
                     <KorButton
                       v-for="ver in availableOptiFineVersions"
@@ -439,10 +493,17 @@
 
               <template v-else-if="selectedLoader === 'fabric'">
                 <KorSettingRow label="Fabric API" :desc="$t('version.fabricApiHint')">
-                  <span v-if="fabricApiLoading" class="kor-c6__badge is-muted">{{ $t('modloader.loading') }}</span>
-                  <span v-else-if="!fabricApiVersions.length" class="kor-c6__badge is-muted">{{ $t('version.fabricApiLoadFailed') }}</span>
+                  <span v-if="fabricApiLoading" class="kor-c6__badge is-muted">{{
+                    $t('modloader.loading')
+                  }}</span>
+                  <span v-else-if="!fabricApiVersions.length" class="kor-c6__badge is-muted">{{
+                    $t('version.fabricApiLoadFailed')
+                  }}</span>
                 </KorSettingRow>
-                <KorSettingRow v-if="fabricApiVersions.length" :label="$t('version.fabricApiAutoSelected')">
+                <KorSettingRow
+                  v-if="fabricApiVersions.length"
+                  :label="$t('version.fabricApiAutoSelected')"
+                >
                   <div class="kor-c6__chips">
                     <KorButton
                       v-for="ver in fabricApiVersions"
@@ -467,10 +528,18 @@
 
           <KorSectionTitle>{{ $t('version.startDownload') }}</KorSectionTitle>
           <KorSettingCard>
-            <KorSettingRow :label="$t('version.selectFolder')" :desc="targetFolder || $t('version.selectFolder')">
-              <KorButton variant="outline" size="sm" @click="browseFolder">{{ $t('common.open') }}</KorButton>
+            <KorSettingRow
+              :label="$t('version.selectFolder')"
+              :desc="targetFolder || $t('version.selectFolder')"
+            >
+              <KorButton variant="outline" size="sm" @click="browseFolder">{{
+                $t('common.open')
+              }}</KorButton>
             </KorSettingRow>
-            <KorSettingRow v-if="selectedLoader && selectedLoaderVersion" :label="$t('version.versionNameLabel')">
+            <KorSettingRow
+              v-if="selectedLoader && selectedLoaderVersion"
+              :label="$t('version.versionNameLabel')"
+            >
               <span class="kor-value">{{ versionDisplayName }}</span>
             </KorSettingRow>
             <KorSettingRow :label="$t('version.startDownload')">
@@ -483,7 +552,9 @@
 
         <div v-else class="kor-c6__state">
           <p class="kor-copy is-error">{{ $t('version.loadFailed') }}</p>
-          <KorButton variant="primary" size="sm" @click="loadVersionInfo">{{ $t('common.retry') }}</KorButton>
+          <KorButton variant="primary" size="sm" @click="loadVersionInfo">{{
+            $t('common.retry')
+          }}</KorButton>
         </div>
       </div>
     </template>
@@ -495,7 +566,15 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '../stores'
-import { KorButton, KorInput, KorPageHeader, KorSectionTitle, KorSettingCard, KorSettingRow, KorSkeleton } from '../components/kor'
+import {
+  KorButton,
+  KorInput,
+  KorPageHeader,
+  KorSectionTitle,
+  KorSettingCard,
+  KorSettingRow,
+  KorSkeleton
+} from '../components/kor'
 import { useDownloadStore } from '../stores/download.store'
 
 interface VersionDetailInfo {
@@ -526,7 +605,6 @@ const loading = ref(true)
 const downloading = ref(false)
 const selectedLoader = ref('')
 const selectedLoaderVersion = ref('')
-const selectedOptiFine = ref(false)
 const selectedOptiFineVersion = ref('')
 const selectedFabricApi = ref(false)
 const selectedFabricApiVersion = ref('')
@@ -540,38 +618,12 @@ const loaderVersionsLoading = ref(false)
 // 加载器互斥组：Forge / NeoForge / Fabric 互不兼容
 const incompatibleLoaders = ['forge', 'neoforge', 'fabric']
 
-// OptiFine 已知版本（按 MC 版本映射）
-const optiFineVersions: Record<string, string[]> = {
-  '1.21.4': ['HD_U_J2'],
-  '1.21.3': ['HD_U_J1'],
-  '1.21.1': ['HD_U_J1'],
-  '1.21':   ['HD_U_J1'],
-  '1.20.6': ['HD_U_I6'],
-  '1.20.4': ['HD_U_I6'],
-  '1.20.2': ['HD_U_I6'],
-  '1.20.1': ['HD_U_I5', 'HD_U_I3', 'HD_U_I2'],
-  '1.20':   ['HD_U_I5', 'HD_U_I3', 'HD_U_I2'],
-  '1.19.4': ['HD_U_I5'],
-  '1.19.3': ['HD_U_I4'],
-  '1.19.2': ['HD_U_I2'],
-  '1.18.2': ['HD_U_H9'],
-  '1.17.1': ['HD_U_G9'],
-  '1.16.5': ['HD_U_G8'],
-  '1.16.4': ['HD_U_G7'],
-  '1.15.2': ['HD_U_G6'],
-  '1.14.4': ['HD_U_F6'],
-  '1.12.2': ['HD_U_G5'],
-  '1.8.9':  ['HD_U_L5']
-}
+// OptiFine 版本列表由后端按官网实际发布情况返回（静态映射容易过期）
+const optiFineVersions = ref<string[]>([])
 
 const availableOptiFineVersions = computed(() => {
-  // 如果找不到对应版本，返回默认版本（最新 OptiFine）
-  return optiFineVersions[versionId.value] || ['HD_U_J2']
-})
-
-const optiFineDisplayName = computed(() => {
-  if (!selectedOptiFine.value || !selectedOptiFineVersion.value) return ''
-  return `OptiFine_${selectedOptiFineVersion.value}`
+  // 后端未返回版本说明该 MC 版本没有对应的 OptiFine，不能兜底显示
+  return optiFineVersions.value
 })
 
 // 动态版本显示名称：[游戏版本]-[加载器]_[加载器版本]-[OptiFine]_[版本]
@@ -592,7 +644,13 @@ const versionDisplayName = computed(() => {
 })
 
 const modLoaders = [
-  { type: 'fabric', icon: 'F', name: 'Fabric', descKey: 'modloader.fabricDesc', minVersion: '1.14.4' },
+  {
+    type: 'fabric',
+    icon: 'F',
+    name: 'Fabric',
+    descKey: 'modloader.fabricDesc',
+    minVersion: '1.14.4'
+  },
   { type: 'forge', icon: 'FG', name: 'Forge', descKey: 'modloader.forgeDesc', minVersion: '1.0.0' },
   {
     type: 'neoforge',
@@ -645,9 +703,51 @@ function compareVersions(v1: string, v2: string): number {
   return 0
 }
 
+/** 经后端确认支持的加载器类型（以各加载器官方版本列表为准） */
+const supportedLoaderTypes = ref<string[]>([])
+const loaderSupportLoaded = ref(false)
+
+/** 后端确认当前 MC 版本支持 OptiFine 时才展示相关选项 */
+const optifineSupported = computed(() => supportedLoaderTypes.value.includes('optifine'))
+
+/** 查询当前版本真实支持的加载器，避免「页面显示支持、安装却报不支持」 */
+async function loadLoaderSupport() {
+  const api = window.electronAPI
+  if (!api?.modloader) return
+  try {
+    const res = (await api.modloader.getLoaders(versionId.value)) as {
+      ok?: boolean
+      data?: Array<{ type?: string }>
+    }
+    if (res?.ok && Array.isArray(res.data)) {
+      supportedLoaderTypes.value = res.data
+        .map((l) => l.type)
+        .filter((t): t is string => typeof t === 'string')
+    }
+    if (supportedLoaderTypes.value.includes('optifine')) {
+      await loadOptiFineVersions(api)
+    }
+  } catch (e) {
+    console.error('Failed to load loader support:', e)
+  } finally {
+    loaderSupportLoaded.value = true
+  }
+}
+
+/** 从后端获取官网实际发布的 OptiFine 版本 */
+async function loadOptiFineVersions(api: NonNullable<Window['electronAPI']>) {
+  const res = await api.modloader.getVersions(versionId.value, 'optifine')
+  if (res?.ok && Array.isArray(res.data)) {
+    optiFineVersions.value = res.data
+  }
+}
+
 function isLoaderCompatible(loaderType: string): boolean {
   const loader = modLoaders.find((l) => l.type === loaderType)
-  if (!loader || !loader.minVersion) return true
+  if (!loader) return true
+  // 后端结果返回后以后端为准
+  if (loaderSupportLoaded.value) return supportedLoaderTypes.value.includes(loaderType)
+  // 支持列表加载中先用最低版本粗略判断，避免卡片闪烁
   return compareVersions(versionId.value, loader.minVersion) >= 0
 }
 
@@ -655,13 +755,15 @@ async function loadVersionInfo() {
   loading.value = true
   const api = window.electronAPI
   if (api?.versions) {
-    versionInfo.value = await api.versions.getInfo(versionId.value) as VersionDetailInfo
+    versionInfo.value = (await api.versions.getInfo(versionId.value)) as VersionDetailInfo
   }
   if (api?.folders) {
     const last = await api.folders.getLast()
     targetFolder.value = last ?? ''
   }
   loading.value = false
+  // 加载器支持情况依赖网络，单独异步加载，不阻塞页面渲染
+  void loadLoaderSupport()
 }
 
 async function browseFolder() {
@@ -679,7 +781,6 @@ async function selectLoader(loaderType: string) {
     // 取消选择
     selectedLoader.value = ''
     selectedLoaderVersion.value = ''
-    selectedOptiFine.value = false
     selectedOptiFineVersion.value = ''
     selectedFabricApi.value = false
     selectedFabricApiVersion.value = ''
@@ -724,6 +825,8 @@ async function selectLoader(loaderType: string) {
           if (loaderVersions.value.length > 1) {
             loaderVersions.value[loaderVersions.value.length - 1].latest = true
           }
+          // 默认选中推荐版本，避免用户不选版本时后端只能用 promotions 兜底
+          selectedLoaderVersion.value = loaderVersions.value[0].id
         }
       } else {
         console.warn('modloader:get-versions 返回空或失败:', res)
@@ -768,7 +871,7 @@ const defaultFabricApiVersion = '0.108.0+1.21.4'
 async function fetchFabricApiVersions() {
   fabricApiLoading.value = true
   selectedFabricApiVersion.value = ''
-  
+
   // 1. 优先使用本地 fallback 版本
   if (fabricApiVersionsFallback[versionId.value]) {
     fabricApiVersions.value = fabricApiVersionsFallback[versionId.value]
@@ -776,7 +879,7 @@ async function fetchFabricApiVersions() {
     // 找不到对应版本，用默认版本
     fabricApiVersions.value = [defaultFabricApiVersion]
   }
-  
+
   // 自动选择版本
   if (fabricApiVersions.value.length > 0) {
     // 优先找匹配当前 MC 版本的
@@ -785,15 +888,8 @@ async function fetchFabricApiVersions() {
     )
     selectedFabricApiVersion.value = exactMatch || fabricApiVersions.value[0]
   }
-  
-  fabricApiLoading.value = false
-}
 
-function toggleOptiFine() {
-  selectedOptiFine.value = !selectedOptiFine.value
-  if (!selectedOptiFine.value) {
-    selectedOptiFineVersion.value = ''
-  }
+  fabricApiLoading.value = false
 }
 
 function toggleFabricApi() {
@@ -818,7 +914,7 @@ async function handleDownload() {
       selectedLoader.value,
       selectedLoaderVersion.value,
       versionDisplayName.value,
-      selectedOptiFine.value || undefined,
+      selectedOptiFineVersion.value ? 'optifine' : undefined,
       selectedOptiFineVersion.value || undefined
     )
     // 不自动跳转，通过右上角 DownloadFloat 提示查看进度
@@ -890,7 +986,6 @@ onMounted(() => {
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
-
 
 .vd-hero {
   display: flex;

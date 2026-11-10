@@ -53,8 +53,30 @@ describe('download store - 计算属性', () => {
   it('totalSpeed 应汇总所有下载速度', () => {
     const store = freshStore()
     store.activeDownloads = [
-      { id: '1', fileName: 'a.zip', url: '', destination: '', status: 'downloading', progress: 50, speed: 1024, downloadedSize: 50000, totalSize: 100000, createdAt: '' },
-      { id: '2', fileName: 'b.zip', url: '', destination: '', status: 'downloading', progress: 30, speed: 2048, downloadedSize: 30000, totalSize: 100000, createdAt: '' }
+      {
+        id: '1',
+        fileName: 'a.zip',
+        url: '',
+        destination: '',
+        status: 'downloading',
+        progress: 50,
+        speed: 1024,
+        downloadedSize: 50000,
+        totalSize: 100000,
+        createdAt: ''
+      },
+      {
+        id: '2',
+        fileName: 'b.zip',
+        url: '',
+        destination: '',
+        status: 'downloading',
+        progress: 30,
+        speed: 2048,
+        downloadedSize: 30000,
+        totalSize: 100000,
+        createdAt: ''
+      }
     ]
     expect(store.totalSpeed).toBe(3072)
   })
@@ -62,7 +84,18 @@ describe('download store - 计算属性', () => {
   it('overallProgress 应计算总进度', () => {
     const store = freshStore()
     store.activeDownloads = [
-      { id: '1', fileName: 'a.zip', url: '', destination: '', status: 'downloading', progress: 50, speed: 0, downloadedSize: 50, totalSize: 100, createdAt: '' }
+      {
+        id: '1',
+        fileName: 'a.zip',
+        url: '',
+        destination: '',
+        status: 'downloading',
+        progress: 50,
+        speed: 0,
+        downloadedSize: 50,
+        totalSize: 100,
+        createdAt: ''
+      }
     ]
     expect(store.overallProgress).toBe(50)
   })
@@ -75,9 +108,15 @@ describe('download store - 计算属性', () => {
   it('hasActiveVersionDownload 应在有进行中的版本任务时为 true', () => {
     const store = freshStore()
     store.versionTasks.set('1.20.1', {
-      id: '1.20.1', name: '1.20.1', phase: 'downloading_jar',
-      progress: 50, phaseLabel: '下载中...', speed: 1000,
-      downloadedSize: 50000, totalSize: 100000, targetFolder: '/test'
+      id: '1.20.1',
+      name: '1.20.1',
+      phase: 'downloading_jar',
+      progress: 50,
+      phaseLabel: '下载中...',
+      speed: 1000,
+      downloadedSize: 50000,
+      totalSize: 100000,
+      targetFolder: '/test'
     })
     expect(store.hasActiveVersionDownload).toBe(true)
   })
@@ -85,9 +124,15 @@ describe('download store - 计算属性', () => {
   it('hasActiveVersionDownload 已完成/失败的任务不计入', () => {
     const store = freshStore()
     store.versionTasks.set('1.20.1', {
-      id: '1.20.1', name: '1.20.1', phase: 'completed',
-      progress: 100, phaseLabel: '完成', speed: 0,
-      downloadedSize: 100000, totalSize: 100000, targetFolder: '/test'
+      id: '1.20.1',
+      name: '1.20.1',
+      phase: 'completed',
+      progress: 100,
+      phaseLabel: '完成',
+      speed: 0,
+      downloadedSize: 100000,
+      totalSize: 100000,
+      targetFolder: '/test'
     })
     expect(store.hasActiveVersionDownload).toBe(false)
   })
@@ -96,7 +141,20 @@ describe('download store - 计算属性', () => {
 describe('download store - 搜索操作', () => {
   it('setSource 应更新平台并重置结果', () => {
     const store = freshStore()
-    store.searchResults = [{ id: '1', name: 'Test', author: '', description: '', iconUrl: '', downloads: 0, follows: 0, source: 'modrinth', categories: [], gameVersions: [] }]
+    store.searchResults = [
+      {
+        id: '1',
+        name: 'Test',
+        author: '',
+        description: '',
+        iconUrl: '',
+        downloads: 0,
+        follows: 0,
+        source: 'modrinth',
+        categories: [],
+        gameVersions: []
+      }
+    ]
     store.setSource('curseforge')
     expect(store.searchSource).toBe('curseforge')
     expect(store.searchResults).toEqual([])
@@ -113,15 +171,27 @@ describe('download store - 版本下载任务', () => {
   it('updateVersionProgress 应更新任务进度', () => {
     const store = freshStore()
     store.versionTasks.set('1.20.1', {
-      id: '1.20.1', name: '1.20.1', phase: 'resolving',
-      progress: 5, phaseLabel: '解析中...', speed: 0,
-      downloadedSize: 0, totalSize: 0, targetFolder: '/test'
+      id: '1.20.1',
+      name: '1.20.1',
+      phase: 'resolving',
+      progress: 5,
+      phaseLabel: '解析中...',
+      speed: 0,
+      downloadedSize: 0,
+      totalSize: 0,
+      targetFolder: '/test'
     })
 
     store.updateVersionProgress({
-      taskId: 't1', versionId: '1.20.1', phase: 'downloading_jar',
-      phaseLabel: '下载 jar...', progress: 50, downloaded: 50000,
-      total: 100000, speed: 1024, gameDir: '/test'
+      taskId: 't1',
+      versionId: '1.20.1',
+      phase: 'downloading_jar',
+      phaseLabel: '下载 jar...',
+      progress: 50,
+      downloaded: 50000,
+      total: 100000,
+      speed: 1024,
+      gameDir: '/test'
     })
 
     const task = store.versionTasks.get('1.20.1')
@@ -135,9 +205,15 @@ describe('download store - 版本下载任务', () => {
   it('updateVersionProgress 不存在的任务不应报错', () => {
     const store = freshStore()
     store.updateVersionProgress({
-      taskId: 't1', versionId: 'nonexistent', phase: 'downloading_jar',
-      phaseLabel: '...', progress: 50, downloaded: 0,
-      total: 0, speed: 0, gameDir: '/test'
+      taskId: 't1',
+      versionId: 'nonexistent',
+      phase: 'downloading_jar',
+      phaseLabel: '...',
+      progress: 50,
+      downloaded: 0,
+      total: 0,
+      speed: 0,
+      gameDir: '/test'
     })
     expect(store.versionTasks.size).toBe(0)
   })
@@ -145,9 +221,15 @@ describe('download store - 版本下载任务', () => {
   it('onVersionComplete 应标记为完成', () => {
     const store = freshStore()
     store.versionTasks.set('1.20.1', {
-      id: '1.20.1', name: '1.20.1', phase: 'downloading_jar',
-      progress: 80, phaseLabel: '下载中...', speed: 1024,
-      downloadedSize: 80000, totalSize: 100000, targetFolder: '/test'
+      id: '1.20.1',
+      name: '1.20.1',
+      phase: 'downloading_jar',
+      progress: 80,
+      phaseLabel: '下载中...',
+      speed: 1024,
+      downloadedSize: 80000,
+      totalSize: 100000,
+      targetFolder: '/test'
     })
 
     store.onVersionComplete({ taskId: 't1', versionId: '1.20.1', gameDir: '/test' })
@@ -161,9 +243,15 @@ describe('download store - 版本下载任务', () => {
   it('onVersionError 应标记失败并记录错误', () => {
     const store = freshStore()
     store.versionTasks.set('1.20.1', {
-      id: '1.20.1', name: '1.20.1', phase: 'downloading_jar',
-      progress: 30, phaseLabel: '下载中...', speed: 0,
-      downloadedSize: 30000, totalSize: 100000, targetFolder: '/test'
+      id: '1.20.1',
+      name: '1.20.1',
+      phase: 'downloading_jar',
+      progress: 30,
+      phaseLabel: '下载中...',
+      speed: 0,
+      downloadedSize: 30000,
+      totalSize: 100000,
+      targetFolder: '/test'
     })
 
     store.onVersionError({ taskId: 't1', versionId: '1.20.1', error: '403 Forbidden' })
@@ -177,9 +265,15 @@ describe('download store - 版本下载任务', () => {
   it('removeVersionTask 应移除任务', () => {
     const store = freshStore()
     store.versionTasks.set('1.20.1', {
-      id: '1.20.1', name: '1.20.1', phase: 'completed',
-      progress: 100, phaseLabel: '完成', speed: 0,
-      downloadedSize: 100000, totalSize: 100000, targetFolder: '/test'
+      id: '1.20.1',
+      name: '1.20.1',
+      phase: 'completed',
+      progress: 100,
+      phaseLabel: '完成',
+      speed: 0,
+      downloadedSize: 100000,
+      totalSize: 100000,
+      targetFolder: '/test'
     })
     expect(store.versionTasks.size).toBe(1)
     store.removeVersionTask('1.20.1')
@@ -190,9 +284,15 @@ describe('download store - 版本下载任务', () => {
     const store = freshStore()
     store.showFloatPanel = true
     store.versionTasks.set('1.20.1', {
-      id: '1.20.1', name: '1.20.1', phase: 'completed',
-      progress: 100, phaseLabel: '完成', speed: 0,
-      downloadedSize: 100000, totalSize: 100000, targetFolder: '/test'
+      id: '1.20.1',
+      name: '1.20.1',
+      phase: 'completed',
+      progress: 100,
+      phaseLabel: '完成',
+      speed: 0,
+      downloadedSize: 100000,
+      totalSize: 100000,
+      targetFolder: '/test'
     })
     store.removeVersionTask('1.20.1')
     expect(store.showFloatPanel).toBe(false)
@@ -203,14 +303,37 @@ describe('download store - 搜索 Mod', () => {
   it('searchMods 首次搜索应重置结果', async () => {
     vi.mocked(window.electronAPI.download.searchMods).mockResolvedValueOnce({
       data: [
-        { id: '1', name: 'TestMod', author: 'Author', description: 'Desc',
-          icon_url: '', downloads: 1000, follows: 50, platform: 'modrinth',
-          categories: [], game_versions: ['1.20.1'], loaders: [] }
+        {
+          id: '1',
+          name: 'TestMod',
+          author: 'Author',
+          description: 'Desc',
+          icon_url: '',
+          downloads: 1000,
+          follows: 50,
+          platform: 'modrinth',
+          categories: [],
+          game_versions: ['1.20.1'],
+          loaders: []
+        }
       ]
     } as any)
 
     const store = freshStore()
-    store.searchResults = [{ id: 'old', name: 'Old', author: '', description: '', iconUrl: '', downloads: 0, follows: 0, source: 'modrinth', categories: [], gameVersions: [] }]
+    store.searchResults = [
+      {
+        id: 'old',
+        name: 'Old',
+        author: '',
+        description: '',
+        iconUrl: '',
+        downloads: 0,
+        follows: 0,
+        source: 'modrinth',
+        categories: [],
+        gameVersions: []
+      }
+    ]
 
     await store.searchMods({ query: 'test' })
 
@@ -222,16 +345,48 @@ describe('download store - 搜索 Mod', () => {
   it('searchMods 追加加载应去重', async () => {
     vi.mocked(window.electronAPI.download.searchMods).mockResolvedValueOnce({
       data: [
-        { id: '2', name: 'Mod2', author: '', description: '',
-          icon_url: '', downloads: 500, follows: 10, platform: 'modrinth',
-          categories: [], game_versions: [], loaders: [] }
+        {
+          id: '2',
+          name: 'Mod2',
+          author: '',
+          description: '',
+          icon_url: '',
+          downloads: 500,
+          follows: 10,
+          platform: 'modrinth',
+          categories: [],
+          game_versions: [],
+          loaders: []
+        }
       ]
     } as any)
 
     const store = freshStore()
     store.searchResults = [
-      { id: '1', name: 'Mod1', author: '', description: '', iconUrl: '', downloads: 1000, follows: 0, source: 'modrinth', categories: [], gameVersions: [] },
-      { id: '2', name: 'Mod2', author: '', description: '', iconUrl: '', downloads: 500, follows: 0, source: 'modrinth', categories: [], gameVersions: [] }
+      {
+        id: '1',
+        name: 'Mod1',
+        author: '',
+        description: '',
+        iconUrl: '',
+        downloads: 1000,
+        follows: 0,
+        source: 'modrinth',
+        categories: [],
+        gameVersions: []
+      },
+      {
+        id: '2',
+        name: 'Mod2',
+        author: '',
+        description: '',
+        iconUrl: '',
+        downloads: 500,
+        follows: 0,
+        source: 'modrinth',
+        categories: [],
+        gameVersions: []
+      }
     ]
 
     await store.searchMods({ query: 'test', offset: 1 })
@@ -262,7 +417,20 @@ describe('download store - 搜索缓存', () => {
   // searchCache 是内部状态，通过行为验证缓存效果
   it('连续两次相同搜索应命中缓存（不调 IPC）', async () => {
     vi.mocked(window.electronAPI.download.searchMods).mockResolvedValue({
-      data: [{ id: '1', name: 'Mod', author: '', description: '', icon_url: '', downloads: 100, follows: 0, platform: 'modrinth', categories: [], game_versions: [] }]
+      data: [
+        {
+          id: '1',
+          name: 'Mod',
+          author: '',
+          description: '',
+          icon_url: '',
+          downloads: 100,
+          follows: 0,
+          platform: 'modrinth',
+          categories: [],
+          game_versions: []
+        }
+      ]
     } as any)
 
     // 注意：当前 searchMods 实现没有先查 searchCache，而是每次调 IPC
@@ -277,10 +445,34 @@ describe('download store - 搜索缓存', () => {
 describe('download store - 队列操作', () => {
   it('refreshQueue 应更新活跃和排队下载', async () => {
     vi.mocked(window.electronAPI.download.getActive).mockResolvedValueOnce({
-      data: [{ id: '1', file_name: 'a.jar', url: 'http://a', destination: '/dl', status: 'downloading', progress: 50, speed: 1024, downloaded_size: 50000, total_size: 100000 }]
+      data: [
+        {
+          id: '1',
+          file_name: 'a.jar',
+          url: 'http://a',
+          destination: '/dl',
+          status: 'downloading',
+          progress: 50,
+          speed: 1024,
+          downloaded_size: 50000,
+          total_size: 100000
+        }
+      ]
     } as any)
     vi.mocked(window.electronAPI.download.getQueue).mockResolvedValueOnce({
-      data: [{ id: '2', file_name: 'b.jar', url: 'http://b', destination: '/dl', status: 'pending', progress: 0, speed: 0, downloaded_size: 0, total_size: 0 }]
+      data: [
+        {
+          id: '2',
+          file_name: 'b.jar',
+          url: 'http://b',
+          destination: '/dl',
+          status: 'pending',
+          progress: 0,
+          speed: 0,
+          downloaded_size: 0,
+          total_size: 0
+        }
+      ]
     } as any)
 
     const store = freshStore()

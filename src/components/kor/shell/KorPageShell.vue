@@ -88,6 +88,18 @@ watch(current, (next, prev) => {
   }, 460)
 })
 
+/* ---------------- 侧栏滚动条：滚动时显示，停止滚动后隐藏 ---------------- */
+const isAsideScrolling = ref(false)
+let asideScrollTimer: ReturnType<typeof setTimeout> | undefined
+
+function onAsideScroll(): void {
+  isAsideScrolling.value = true
+  if (asideScrollTimer) clearTimeout(asideScrollTimer)
+  asideScrollTimer = setTimeout(() => {
+    isAsideScrolling.value = false
+  }, 600)
+}
+
 /* ---------------- 选中指示条：按实际 DOM 位置测量 ---------------- */
 const navRef = ref<HTMLElement | null>(null)
 const itemRefs = ref<Record<string, HTMLButtonElement | null>>({})
@@ -127,6 +139,7 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', scheduleMeasure)
   resizeObserver?.disconnect()
   if (transitionTimer) clearTimeout(transitionTimer)
+  if (asideScrollTimer) clearTimeout(asideScrollTimer)
 })
 
 watch([current, () => sidebarGroups.value.length], scheduleMeasure, { flush: 'post' })
@@ -174,7 +187,13 @@ function pageClass(key: string) {
 
 <template>
   <div class="kor-shell" :class="{ 'kor-shell--nav-only': sidebarOnly }">
-    <aside v-if="sidebarGroups.length > 0" class="kor-shell__aside" :style="{ width: `${sidebarWidth}px` }">
+    <aside
+      v-if="sidebarGroups.length > 0"
+      class="kor-shell__aside"
+      :class="{ 'is-scrolling': isAsideScrolling }"
+      :style="{ width: `${sidebarWidth}px` }"
+      @scroll.passive="onAsideScroll"
+    >
       <slot name="sidebar-header" />
       <nav ref="navRef" class="kor-shell__nav" :aria-label="navLabel">
         <span
@@ -183,7 +202,11 @@ function pageClass(key: string) {
           aria-hidden="true"
           :style="{ transform: `translateY(${indicatorTop}px)` }"
         />
-        <div v-for="(group, groupIndex) in sidebarGroups" :key="group.title ?? groupIndex" class="kor-shell__group">
+        <div
+          v-for="(group, groupIndex) in sidebarGroups"
+          :key="group.title ?? groupIndex"
+          class="kor-shell__group"
+        >
           <h4 v-if="group.title" class="kor-shell__group-title">{{ group.title }}</h4>
           <div class="kor-shell__list">
             <button

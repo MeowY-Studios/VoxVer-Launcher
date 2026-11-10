@@ -14,6 +14,15 @@ export function registerNotificationHandlers(): void {
     }
   })
 
+  // 同 key 通知的原地更新（下载进度等）
+  notification.onUpdated((item) => {
+    for (const win of BrowserWindow.getAllWindows()) {
+      if (!win.isDestroyed()) {
+        win.webContents.send('notification:updated', item)
+      }
+    }
+  })
+
   ipcMain.handle('notification:get-history', async (_event, limit?: number) => {
     try {
       const history = notification.getHistory(limit)
@@ -67,12 +76,27 @@ export function registerNotificationHandlers(): void {
         title: string
         body?: string
         type?: 'info' | 'success' | 'warning' | 'error'
+        source?: 'system' | 'download' | 'official'
+        key?: string
+        progress?: number
+        status?: 'info' | 'running' | 'success' | 'warning' | 'error'
         route?: string
+        pinned?: boolean
       }
     ) => {
       try {
-        const { title, body = '', type = 'info', route } = payload
-        notification.notify({ title, body, type, route })
+        const {
+          title,
+          body = '',
+          type = 'info',
+          source,
+          key,
+          progress,
+          status,
+          route,
+          pinned
+        } = payload
+        notification.notify({ title, body, type, source, key, progress, status, route, pinned })
         return { ok: true }
       } catch (error: unknown) {
         return { ok: false, error: (error as Error).message }

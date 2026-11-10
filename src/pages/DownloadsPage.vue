@@ -9,7 +9,6 @@
       nav-label="下载分类"
       class="downloads-kor-nav"
     >
-
     </KorPageShell>
 
     <!-- ====== 原版游戏视图 ====== -->
@@ -26,7 +25,7 @@
       </div>
 
       <!-- 搜索栏 -->
-      <div class="dl-search">
+      <div class="dl-search" @keydown.enter="jumpToVersion">
         <svg
           width="16"
           height="16"
@@ -98,7 +97,8 @@
           >
             <span class="acc-title">{{ $t('download.release') }}</span>
             <span class="acc-count"
-              >{{ allVersions.filter((v) => v.type === 'release').length }} {{ $t('download.versions') }}</span
+              >{{ allVersions.filter((v) => v.type === 'release').length }}
+              {{ $t('download.versions') }}</span
             >
             <svg
               class="acc-arrow"
@@ -117,6 +117,7 @@
               v-for="ver in filteredBySearch(releaseVersions)"
               :key="'r-' + ver.id"
               class="ver-item"
+              :data-ver-name="ver.name"
               :class="{ featured: ver.featured }"
               @mouseenter="ver.hovered = true"
               @mouseleave="ver.hovered = false"
@@ -148,7 +149,11 @@
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                 </button>
-                <button class="va-btn" @click.stop="openChangelog(ver)" :title="$t('download.changelog')">
+                <button
+                  class="va-btn"
+                  @click.stop="openChangelog(ver)"
+                  :title="$t('download.changelog')"
+                >
                   <svg
                     width="13"
                     height="13"
@@ -164,7 +169,11 @@
                     <polyline points="10 9 9 9 8 9" />
                   </svg>
                 </button>
-                <button class="va-btn" @click.stop="downloadServer(ver)" :title="$t('download.downloadServer')">
+                <button
+                  class="va-btn"
+                  @click.stop="downloadServer(ver)"
+                  :title="$t('download.downloadServer')"
+                >
                   <svg
                     width="13"
                     height="13"
@@ -194,7 +203,9 @@
             @click="accOpen.snapshot = !accOpen.snapshot"
           >
             <span class="acc-title">{{ $t('download.snapshotVersion') }}</span>
-            <span class="acc-count">{{ snapshotVersions.length }} {{ $t('download.versions') }}</span>
+            <span class="acc-count"
+              >{{ snapshotVersions.length }} {{ $t('download.versions') }}</span
+            >
             <svg
               class="acc-arrow"
               width="14"
@@ -212,6 +223,7 @@
               v-for="ver in filteredBySearch(snapshotVersions)"
               :key="'s-' + ver.id"
               class="ver-item"
+              :data-ver-name="ver.name"
               :class="{ featured: ver.featured }"
               @mouseenter="ver.hovered = true"
               @mouseleave="ver.hovered = false"
@@ -243,7 +255,11 @@
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                 </button>
-                <button class="va-btn" @click.stop="openChangelog(ver)" :title="$t('download.changelog')">
+                <button
+                  class="va-btn"
+                  @click.stop="openChangelog(ver)"
+                  :title="$t('download.changelog')"
+                >
                   <svg
                     width="13"
                     height="13"
@@ -259,7 +275,11 @@
                     <polyline points="10 9 9 9 8 9" />
                   </svg>
                 </button>
-                <button class="va-btn" @click.stop="downloadServer(ver)" :title="$t('download.downloadServer')">
+                <button
+                  class="va-btn"
+                  @click.stop="downloadServer(ver)"
+                  :title="$t('download.downloadServer')"
+                >
                   <svg
                     width="13"
                     height="13"
@@ -307,6 +327,7 @@
               v-for="ver in filteredBySearch(oldVersions)"
               :key="'o' + ver.id"
               class="ver-item"
+              :data-ver-name="ver.name"
               @mouseenter="ver.hovered = true"
               @mouseleave="ver.hovered = false"
               @click="goToDetail(ver)"
@@ -337,7 +358,11 @@
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                 </button>
-                <button class="va-btn" @click.stop="openChangelog(ver)" :title="$t('download.changelog')">
+                <button
+                  class="va-btn"
+                  @click.stop="openChangelog(ver)"
+                  :title="$t('download.changelog')"
+                >
                   <svg
                     width="13"
                     height="13"
@@ -353,7 +378,11 @@
                     <polyline points="10 9 9 9 8 9" />
                   </svg>
                 </button>
-                <button class="va-btn" @click.stop="downloadServer(ver)" :title="$t('download.downloadServer')">
+                <button
+                  class="va-btn"
+                  @click.stop="downloadServer(ver)"
+                  :title="$t('download.downloadServer')"
+                >
                   <svg
                     width="13"
                     height="13"
@@ -401,6 +430,7 @@
               v-for="ver in filteredBySearch(aprilVersions)"
               :key="'a' + ver.id"
               class="ver-item"
+              :data-ver-name="ver.name"
               :class="{ featured: ver.featured }"
               @mouseenter="ver.hovered = true"
               @mouseleave="ver.hovered = false"
@@ -432,7 +462,11 @@
                     <line x1="12" y1="15" x2="12" y2="3" />
                   </svg>
                 </button>
-                <button class="va-btn" @click.stop="openChangelog(ver)" :title="$t('download.changelog')">
+                <button
+                  class="va-btn"
+                  @click.stop="openChangelog(ver)"
+                  :title="$t('download.changelog')"
+                >
                   <svg
                     width="13"
                     height="13"
@@ -448,7 +482,11 @@
                     <polyline points="10 9 9 9 8 9" />
                   </svg>
                 </button>
-                <button class="va-btn" @click.stop="downloadServer(ver)" :title="$t('download.downloadServer')">
+                <button
+                  class="va-btn"
+                  @click.stop="downloadServer(ver)"
+                  :title="$t('download.downloadServer')"
+                >
                   <svg
                     width="13"
                     height="13"
@@ -473,13 +511,15 @@
 
       <!-- 加载更多 -->
       <div class="ver-more" v-if="hasMoreVersions">
-        <button class="btn-loadmore" @click="loadMoreVersions">{{ $t('download.loadMoreVersions') }}</button>
+        <button class="btn-loadmore" @click="loadMoreVersions">
+          {{ $t('download.loadMoreVersions') }}
+        </button>
       </div>
     </template>
     <!-- ====== 原版游戏视图（Koring） ====== -->
     <template v-else-if="activeCategory === 'vanilla'">
       <div class="kor-c12">
-        <div class="kor-c12__toolbar">
+        <div class="kor-c12__toolbar" @keydown.enter="jumpToVersion">
           <KorInput
             v-model="verSearch"
             :placeholder="$t('download.searchVersion')"
@@ -497,6 +537,7 @@
               v-if="latestRelease"
               type="button"
               class="kor-c12__ver"
+              :data-ver-name="latestRelease.name"
               @click="goToDetail(latestRelease)"
             >
               <span class="kor-c12__ver-head">
@@ -510,6 +551,7 @@
               v-if="latestSnapshot"
               type="button"
               class="kor-c12__ver"
+              :data-ver-name="latestSnapshot.name"
               @click="goToDetail(latestSnapshot)"
             >
               <span class="kor-c12__ver-head">
@@ -528,7 +570,14 @@
               <span class="kor-c12__group-title">{{ group.label }}</span>
               <span class="kor-c12__group-count">{{ group.total }}</span>
               <span class="kor-c12__chevron" :class="{ 'is-open': group.open }">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
               </span>
@@ -539,6 +588,7 @@
                 :key="group.key + '-' + ver.id"
                 type="button"
                 class="kor-c12__ver"
+                :data-ver-name="ver.name"
                 @click="goToDetail(ver)"
               >
                 <span class="kor-c12__ver-head">
@@ -556,7 +606,9 @@
         </div>
 
         <div v-if="hasMoreVersions" class="kor-c12__more">
-          <KorButton size="sm" @click="loadMoreVersions">{{ $t('download.loadMoreVersions') }}</KorButton>
+          <KorButton size="sm" @click="loadMoreVersions">{{
+            $t('download.loadMoreVersions')
+          }}</KorButton>
         </div>
       </div>
     </template>
@@ -639,7 +691,9 @@
         <div class="filter-actions">
           <button class="btn-search" @click="doSearch">{{ $t('download.search') }}</button>
           <button class="btn-reset" @click="resetSearch">{{ $t('download.resetFilters') }}</button>
-          <button v-if="activeCategory === 'modpack'" class="btn-secondary">{{ $t('download.installExistingModpack') }}</button>
+          <button v-if="activeCategory === 'modpack'" class="btn-secondary">
+            {{ $t('download.installExistingModpack') }}
+          </button>
         </div>
       </section>
 
@@ -657,7 +711,10 @@
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
           </svg>
         </div>
-        <p class="load-text">{{ $t('download.loading') }} {{ categoryLabel }} {{ $t('download.list') }} - {{ loadProgress }}%</p>
+        <p class="load-text">
+          {{ $t('download.loading') }} {{ categoryLabel }} {{ $t('download.list') }} -
+          {{ loadProgress }}%
+        </p>
       </section>
 
       <!-- 加载中（保留旧结果，显示加载横幅） -->
@@ -786,91 +843,100 @@
 
       <!-- 搜索错误提示 -->
       <div v-if="dlStore.searchError && !isLoading" class="search-error-bar vox-card">
-        <span class="search-error-text">{{ $t('download.searchError') }}: {{ dlStore.searchError }}</span>
+        <span class="search-error-text"
+          >{{ $t('download.searchError') }}: {{ dlStore.searchError }}</span
+        >
         <button class="btn-retry" @click="doSearch">{{ $t('common.retry') }}</button>
       </div>
     </template>
     <!-- ====== 社区资源视图（Koring） ====== -->
     <template v-else>
       <div class="kor-c12">
-      <section class="filter-section vox-card">
-        <h3 class="fs-title">{{ $t('download.search') }}{{ categoryLabel }}</h3>
-        <div class="filter-grid">
-          <div class="f-row">
-            <label>{{ $t('download.name') }}</label>
-            <input
-              type="text"
-              class="f-input vox-input"
-              v-model="searchName"
-              :placeholder="$t('download.enterKeyword')"
-              @keydown.enter="doSearch"
-            />
-          </div>
-          <div class="f-row">
-            <label>{{ $t('download.source') }}</label>
-            <PxSelect class="f-select" v-model="sourceModel" :options="sourceOptions" />
-          </div>
-          <div class="f-row">
-            <label>{{ $t('download.version') }}</label>
-            <!-- * 自定义可输入下拉框：原生 datalist 弹层由系统渲染，无法适配主题 -->
-            <div class="f-select vox-select-wrapper" ref="versionDropdownRef">
+        <section class="filter-section vox-card">
+          <h3 class="fs-title">{{ $t('download.search') }}{{ categoryLabel }}</h3>
+          <div class="filter-grid">
+            <div class="f-row">
+              <label>{{ $t('download.name') }}</label>
               <input
-                class="vox-select"
-                v-model="searchVersion"
-                autocomplete="off"
-                :placeholder="$t('download.versionPlaceholder')"
-                @focus="versionDropdownOpen = true"
-                @input="versionDropdownOpen = true"
-                @blur="versionDropdownOpen = false"
-                @keydown.esc="versionDropdownOpen = false"
+                type="text"
+                class="f-input vox-input"
+                v-model="searchName"
+                :placeholder="$t('download.enterKeyword')"
+                @keydown.enter="doSearch"
               />
-              <span class="vox-select-arrow" :class="{ open: versionDropdownOpen }">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </span>
-              <div class="vox-select-popup" :class="{ open: versionDropdownOpen }">
-                <div
-                  v-for="v in filteredVersionOptions"
-                  :key="v"
-                  class="vox-select-option"
-                  :class="{ selected: v === searchVersion }"
-                  @mousedown.prevent="selectVersion(v)"
-                >
-                  {{ v }}
-                </div>
-                <div v-if="filteredVersionOptions.length === 0" class="vox-select-option disabled">
-                  {{ $t('download.noResults') }}
+            </div>
+            <div class="f-row">
+              <label>{{ $t('download.source') }}</label>
+              <PxSelect class="f-select" v-model="sourceModel" :options="sourceOptions" />
+            </div>
+            <div class="f-row">
+              <label>{{ $t('download.version') }}</label>
+              <!-- * 自定义可输入下拉框：原生 datalist 弹层由系统渲染，无法适配主题 -->
+              <div class="f-select vox-select-wrapper" ref="versionDropdownRef">
+                <input
+                  class="vox-select"
+                  v-model="searchVersion"
+                  autocomplete="off"
+                  :placeholder="$t('download.versionPlaceholder')"
+                  @focus="versionDropdownOpen = true"
+                  @input="versionDropdownOpen = true"
+                  @blur="versionDropdownOpen = false"
+                  @keydown.esc="versionDropdownOpen = false"
+                />
+                <span class="vox-select-arrow" :class="{ open: versionDropdownOpen }">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </span>
+                <div class="vox-select-popup" :class="{ open: versionDropdownOpen }">
+                  <div
+                    v-for="v in filteredVersionOptions"
+                    :key="v"
+                    class="vox-select-option"
+                    :class="{ selected: v === searchVersion }"
+                    @mousedown.prevent="selectVersion(v)"
+                  >
+                    {{ v }}
+                  </div>
+                  <div
+                    v-if="filteredVersionOptions.length === 0"
+                    class="vox-select-option disabled"
+                  >
+                    {{ $t('download.noResults') }}
+                  </div>
                 </div>
               </div>
             </div>
+            <!-- Mod 分类 / 光影分类 -->
+            <div
+              class="f-row"
+              v-if="
+                activeCategory === 'mod' ||
+                activeCategory === 'shader' ||
+                activeCategory === 'resourcepack' ||
+                activeCategory === 'datapack'
+              "
+            >
+              <label>{{ $t('download.type') }}</label>
+              <PxSelect class="f-select" v-model="searchType" :options="typeOptions" />
+            </div>
+            <!-- 选了版本后出现加载器选项（仅 Mod） -->
+            <div class="f-row" v-if="activeCategory === 'mod' && searchVersion">
+              <label>{{ $t('download.loader') }}</label>
+              <PxSelect class="f-select" v-model="searchLoader" :options="loaderOptions" />
+            </div>
           </div>
-          <!-- Mod 分类 / 光影分类 -->
-          <div
-            class="f-row"
-            v-if="
-              activeCategory === 'mod' ||
-              activeCategory === 'shader' ||
-              activeCategory === 'resourcepack' ||
-              activeCategory === 'datapack'
-            "
-          >
-            <label>{{ $t('download.type') }}</label>
-            <PxSelect class="f-select" v-model="searchType" :options="typeOptions" />
-          </div>
-          <!-- 选了版本后出现加载器选项（仅 Mod） -->
-          <div class="f-row" v-if="activeCategory === 'mod' && searchVersion">
-            <label>{{ $t('download.loader') }}</label>
-            <PxSelect class="f-select" v-model="searchLoader" :options="loaderOptions" />
-          </div>
-        </div>
 
-        <div class="filter-actions">
-          <button class="btn-search" @click="doSearch">{{ $t('download.search') }}</button>
-          <button class="btn-reset" @click="resetSearch">{{ $t('download.resetFilters') }}</button>
-          <button v-if="activeCategory === 'modpack'" class="btn-secondary">{{ $t('download.installExistingModpack') }}</button>
-        </div>
-      </section>
+          <div class="filter-actions">
+            <button class="btn-search" @click="doSearch">{{ $t('download.search') }}</button>
+            <button class="btn-reset" @click="resetSearch">
+              {{ $t('download.resetFilters') }}
+            </button>
+            <button v-if="activeCategory === 'modpack'" class="btn-secondary">
+              {{ $t('download.installExistingModpack') }}
+            </button>
+          </div>
+        </section>
 
         <p v-if="isLoading && !paginatedResources.length" class="kor-c12__hint">
           {{ $t('download.loading') }} {{ categoryLabel }} {{ $t('download.list') }} ·
@@ -917,7 +983,9 @@
 
         <div v-if="totalPages > 1" class="kor-c12__pager">
           <KorButton size="sm" :disabled="currentPage <= 1" @click="goPage(1)">«</KorButton>
-          <KorButton size="sm" :disabled="currentPage <= 1" @click="goPage(currentPage - 1)">‹</KorButton>
+          <KorButton size="sm" :disabled="currentPage <= 1" @click="goPage(currentPage - 1)"
+            >‹</KorButton
+          >
           <span class="kor-c12__pager-current">{{ currentPage }}</span>
           <KorButton
             size="sm"
@@ -935,7 +1003,12 @@
     </template>
 
     <!-- 回到顶部 -->
-    <button v-show="showBackToTop" class="btn-back-to-top" @click="scrollToTop" :title="$t('download.backToTop')">
+    <button
+      v-show="showBackToTop"
+      class="btn-back-to-top"
+      @click="scrollToTop"
+      :title="$t('download.backToTop')"
+    >
       <svg
         width="18"
         height="18"
@@ -951,7 +1024,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, inject, reactive, watch, onMounted, onUnmounted, nextTick, type Ref } from 'vue'
+import {
+  ref,
+  computed,
+  inject,
+  reactive,
+  watch,
+  onMounted,
+  onUnmounted,
+  nextTick,
+  type Ref
+} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useDownloadStore } from '../stores/download.store'
 import { useInstancesStore } from '../stores/instances.store'
@@ -993,19 +1076,26 @@ const activeCategory = computed<string>({
 const korGroups = computed<KorShellGroup[]>(() => [
   {
     title: t('download.vanilla'),
-    items: downloadCategories.map((item) => ({ key: item.id, label: t(item.labelKey), icon: item.icon }))
+    items: downloadCategories.map((item) => ({
+      key: item.id,
+      label: t(item.labelKey),
+      icon: item.icon
+    }))
   },
   {
     title: t('download.sidebar.community'),
-    items: communityCategories.map((item) => ({ key: item.id, label: t(item.labelKey), icon: item.icon }))
+    items: communityCategories.map((item) => ({
+      key: item.id,
+      label: t(item.labelKey),
+      icon: item.icon
+    }))
   },
   {
     items: [
       {
         key: 'manager',
         label: t('download.downloadManager'),
-        icon:
-          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+        icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
         onSelect: () => router.push('/download/manage')
       }
     ]
@@ -1013,7 +1103,14 @@ const korGroups = computed<KorShellGroup[]>(() => [
 ])
 
 const route = useRoute()
-console.log('[DownloadsPage] setup, activeCategory=', activeCategory.value, 'route=', route.path, 'query=', route.query)
+console.log(
+  '[DownloadsPage] setup, activeCategory=',
+  activeCategory.value,
+  'route=',
+  route.path,
+  'query=',
+  route.query
+)
 
 // * 搜索筛选 ref（必须在 immediate watcher 之前声明，否则 TDZ 报错）
 const searchVersion = ref('')
@@ -1130,13 +1227,13 @@ const displayedCount = ref(PAGE_SIZE)
 
 // * 分类版本（计算属性，从 allVersions 过滤）
 /** 最新正式版（版本列表按时间倒序，首个即最新） */
-const latestRelease = computed(() =>
-  allVersions.value.filter((v) => v.type === 'release')[0] || null
+const latestRelease = computed(
+  () => allVersions.value.filter((v) => v.type === 'release')[0] || null
 )
 
 /** 最新预览版 */
-const latestSnapshot = computed(() =>
-  allVersions.value.filter((v) => v.type === 'snapshot')[0] || null
+const latestSnapshot = computed(
+  () => allVersions.value.filter((v) => v.type === 'snapshot')[0] || null
 )
 
 const releaseVersions = computed(() =>
@@ -1279,7 +1376,11 @@ async function refreshVersions() {
 
     // * 从 BMCLAPI 获取版本列表
     const rawVersions = await api.versions.list()
-    allVersions.value = Array.isArray(rawVersions) ? (rawVersions as VersionInfo[]).map((raw: VersionInfo) => toVerItem(raw, installed.has(raw.id))) : []
+    allVersions.value = Array.isArray(rawVersions)
+      ? (rawVersions as VersionInfo[]).map((raw: VersionInfo) =>
+          toVerItem(raw, installed.has(raw.id))
+        )
+      : []
   } catch (err) {
   } finally {
     isLoadingVersions.value = false
@@ -1326,10 +1427,13 @@ async function downloadVersion(ver: VerItem) {
         loaderVersion: ''
       })
     }
-    } catch (err) {
-      console.error('[downloadVersion] 下载失败:', err)
-      dlStore.searchError = t('download.downloadVersionFailed') + ': ' + (err instanceof Error ? err.message : String(err))
-    } finally {
+  } catch (err) {
+    console.error('[downloadVersion] 下载失败:', err)
+    dlStore.searchError =
+      t('download.downloadVersionFailed') +
+      ': ' +
+      (err instanceof Error ? err.message : String(err))
+  } finally {
     ver.downloading = false
   }
 }
@@ -1372,7 +1476,9 @@ async function downloadServer(ver: VerItem) {
     } else {
       window.electronAPI?.notification?.send({
         title: t('common.error'),
-        body: t('download.downloadFailedWithError', { error: (res as { error?: string })?.error || t('download.unknownError') }),
+        body: t('download.downloadFailedWithError', {
+          error: (res as { error?: string })?.error || t('download.unknownError')
+        }),
         type: 'error'
       })
     }
@@ -1381,11 +1487,44 @@ async function downloadServer(ver: VerItem) {
 
 // * 搜索过滤（各分类独立）
 function filteredBySearch(list: VerItem[]): VerItem[] {
-  if (!verSearch.value) return list
-  const q = verSearch.value.toLowerCase()
+  const q = verSearch.value.trim().toLowerCase()
+  if (!q) return list
   return list.filter((v) => v.name.toLowerCase().includes(q))
 }
 
+// * 搜索回车：展开命中版本所在分组，并滚动到该版本
+function jumpToVersion(): void {
+  const q = verSearch.value.trim().toLowerCase()
+  if (!q) return
+  const keys = ['release', 'snapshot', 'old', 'april'] as const
+  let hit: { key: (typeof keys)[number]; name: string } | null = null
+  for (const key of keys) {
+    const list = allVersions.value.filter((v) => v.type === key)
+    const exact = list.find((v) => v.name.toLowerCase() === q)
+    const loose = exact ?? list.find((v) => v.name.toLowerCase().includes(q))
+    if (loose) {
+      hit = { key, name: loose.name }
+      break
+    }
+  }
+  if (!hit) return
+  const target = hit
+  accOpen[target.key] = true
+  // * 正式版按 displayedCount 分页渲染：命中项在已渲染范围之外时先补足，否则页面上根本不存在该元素
+  if (target.key === 'release') {
+    const releases = allVersions.value.filter((v) => v.type === 'release')
+    const index = releases.findIndex((v) => v.name === target.name)
+    if (index >= displayedCount.value) displayedCount.value = index + 1
+  }
+  void nextTick(() => {
+    const scope =
+      document.querySelector('.ver-accordion') ?? document.querySelector('.kor-c12__groups')
+    const el = (scope ?? document).querySelector<HTMLElement>(
+      `[data-ver-name="${CSS.escape(target.name)}"]`
+    )
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  })
+}
 // * 初始加载
 refreshVersions()
 
@@ -1397,7 +1536,8 @@ const searchType = ref('')
 // * 恢复上次离开时的筛选状态（必须在 setup 阶段执行，早于 category-change watch）
 // * 否则 category watch 清空的 searchName 会被 onMounted 中的 restore 覆盖掉
 searchName.value = localStorage.getItem('voxver_dl_filter_searchName') || ''
-searchSource.value = (localStorage.getItem('voxver_dl_filter_searchSource') as ContentPlatform | 'all') || 'all'
+searchSource.value =
+  (localStorage.getItem('voxver_dl_filter_searchSource') as ContentPlatform | 'all') || 'all'
 searchType.value = localStorage.getItem('voxver_dl_filter_searchType') || ''
 
 // * 来源下拉选项（CurseForge 暂未授权，禁用）
@@ -1477,9 +1617,7 @@ watch(
 
 // * MC 版本选项（从 BMCLAPI 版本列表动态获取 release 版本）
 const mcVersionOptions = computed(() => {
-  const releases = allVersions.value
-    .filter((v) => v.type === 'release')
-    .map((v) => v.id)
+  const releases = allVersions.value.filter((v) => v.type === 'release').map((v) => v.id)
   return releases
 })
 
@@ -1538,7 +1676,13 @@ const availableTypes = computed(() => {
     ]
   if (activeCategory.value === 'shader') return ['Iris', 'OptiFine', 'Voyager', 'Complementary']
   if (activeCategory.value === 'resourcepack') return ['16x', '32x', '64x', '128x+']
-  if (activeCategory.value === 'datapack') return [t('download.types.utility'), 'QoL', t('download.types.mechanics'), t('download.types.adventureDatapack')]
+  if (activeCategory.value === 'datapack')
+    return [
+      t('download.types.utility'),
+      'QoL',
+      t('download.types.mechanics'),
+      t('download.types.adventureDatapack')
+    ]
   return []
 })
 
@@ -1760,7 +1904,8 @@ function saveFilters() {
 function restoreFilters() {
   // * 名称、来源、类型不受 URL query 影响，直接恢复
   searchName.value = localStorage.getItem(LS_PREFIX + 'searchName') || ''
-  searchSource.value = (localStorage.getItem(LS_PREFIX + 'searchSource') as ContentPlatform | 'all') || 'all'
+  searchSource.value =
+    (localStorage.getItem(LS_PREFIX + 'searchSource') as ContentPlatform | 'all') || 'all'
   searchType.value = localStorage.getItem(LS_PREFIX + 'searchType') || ''
   // * 版本和加载器只在无 URL query 覆盖时才恢复
   if (!route.query.mcVersion) {
@@ -1772,7 +1917,9 @@ function restoreFilters() {
 }
 
 // * 筛选值变化时自动保存
-watch([searchName, searchSource, searchVersion, searchType, searchLoader], saveFilters, { deep: false })
+watch([searchName, searchSource, searchVersion, searchType, searchLoader], saveFilters, {
+  deep: false
+})
 
 // * 需要从 API 拉取数据的社区分类
 const COMMUNITY_CATEGORIES = ['mod', 'modpack', 'shader', 'resourcepack', 'datapack']
@@ -1867,7 +2014,9 @@ watch(
   font-size: 12.5px;
   text-align: left;
   cursor: pointer;
-  transition: background 140ms ease, color 140ms ease;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
 }
 
 .dl-kor-manager:hover {
@@ -2323,7 +2472,6 @@ watch(
   animation: spin 0.8s linear infinite;
 }
 
-
 .ver-empty {
   text-align: center;
   padding: 48px 20px;
@@ -2474,7 +2622,6 @@ watch(
   font-size: 13px;
   color: var(--voxver-primary);
 }
-
 
 /* * 结果 */
 .result-list {

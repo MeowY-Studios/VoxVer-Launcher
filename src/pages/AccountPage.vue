@@ -1,6 +1,10 @@
 <template>
   <div class="account-page" :class="{ 'is-koring-page': isKoring }">
-    <KorPageHeader v-if="isKoring && !embedded" :title="$t('auth.accountManager')" :desc="$t('auth.tabOnline') + ' / ' + $t('auth.tabOffline')" />
+    <KorPageHeader
+      v-if="isKoring && !embedded"
+      :title="$t('auth.accountManager')"
+      :desc="$t('auth.tabOnline') + ' / ' + $t('auth.tabOffline')"
+    />
     <div v-else-if="!isKoring" class="page-header">
       <h2 class="vox-sec-title">
         <svg
@@ -198,9 +202,7 @@
                 <div class="profile-avatar placeholder">
                   {{ acc.name[0]?.toUpperCase() }}
                 </div>
-                <span v-if="acc.isActive === 1" class="active-badge">{{
-                  $t('auth.active')
-                }}</span>
+                <span v-if="acc.isActive === 1" class="active-badge">{{ $t('auth.active') }}</span>
               </div>
               <p class="bc-uuid">{{ acc.uuid }}</p>
               <div class="bc-bottom">
@@ -224,8 +226,14 @@
           </p>
           <div class="section-footer">
             <button class="vox-btn vox-btn--primary" @click="showAddOffline = true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2.5">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
@@ -338,11 +346,7 @@
         <button class="vox-btn" @click="showAddOffline = false">
           {{ $t('common.cancel') }}
         </button>
-        <button
-          class="vox-btn vox-btn--primary"
-          @click="saveOffline"
-          :disabled="savingOffline"
-        >
+        <button class="vox-btn vox-btn--primary" @click="saveOffline" :disabled="savingOffline">
           {{ savingOffline ? $t('common.saving') : $t('auth.saveOfflineAccount') }}
         </button>
       </template>
@@ -372,7 +376,14 @@ import { useAccountsStore } from '../stores/accounts.store'
 import MicrosoftLoginModal from '../components/auth/MicrosoftLoginModal.vue'
 import SkinViewer3D from '../components/auth/SkinViewer3D.vue'
 import PxModal from '../components/common/PxModal.vue'
-import { KorBadge, KorButton, KorPageHeader, KorSectionTitle, KorSettingCard, KorSettingRow } from '../components/kor'
+import {
+  KorBadge,
+  KorButton,
+  KorPageHeader,
+  KorSectionTitle,
+  KorSettingCard,
+  KorSettingRow
+} from '../components/kor'
 import { useAppStore } from '../stores'
 
 const { t } = useI18n()
@@ -393,9 +404,7 @@ async function onLoggedIn() {
 }
 
 // * ====== 在线/离线路板切换状态 ======
-const activeTab = ref<'online' | 'offline'>(
-  (route.query.tab === 'offline') ? 'offline' : 'online'
-)
+const activeTab = ref<'online' | 'offline'>(route.query.tab === 'offline' ? 'offline' : 'online')
 
 // * ====== 微软账户状态（支持多账户） ======
 const msAccounts = computed(() => accountsStore.accounts.filter((a) => a.type === 'microsoft'))
@@ -1096,7 +1105,6 @@ img.profile-avatar {
     }
   }
 }
-
 </style>
 
 <!-- 添加离线账户弹窗内容（PxModal Teleport 到 body，需全局样式） -->

@@ -171,9 +171,7 @@ export class ModService {
         })
       )
 
-      const validFiles = fileInfos.filter(
-        (f): f is ModFileInfo => f !== null
-      )
+      const validFiles = fileInfos.filter((f): f is ModFileInfo => f !== null)
 
       // 第二步：并行读取所有 mod 信息（带缓存）
       const mods = await Promise.all(

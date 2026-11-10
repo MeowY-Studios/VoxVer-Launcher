@@ -40,11 +40,7 @@ import { VersionsService } from './services/versions'
 import { ModLoaderService } from './services/modloader.service'
 import { DownloadService } from './services/download.service'
 import { initializeContentServiceAsync } from './services/content.ipc'
-import {
-  registerAllIpcHandlers,
-  updateMainWindowRefs,
-  type IpcRegistrationResult
-} from './ipc'
+import { registerAllIpcHandlers, updateMainWindowRefs, type IpcRegistrationResult } from './ipc'
 import { CrashService } from './services/crash.service'
 import { ModService } from './services/mod.service'
 import { initAutoUpdater, checkLatestVersionFromGitHub } from './services/updater.service'
@@ -60,7 +56,11 @@ import { createSplashWindow, finishSplash, SPLASH_MIN_VISIBLE_MS, SPLASH_TITLE }
 const log = logger.child('Main')
 
 // 加载 .env（开发/未打包时均需；打包后 .env 不存在则静默跳过）
-try { require('dotenv').config() } catch { /* 无 .env 文件或 dotenv 未安装 */ }
+try {
+  require('dotenv').config()
+} catch {
+  /* 无 .env 文件或 dotenv 未安装 */
+}
 
 // ── 启动画面（先于主窗口显示，主窗口 ready 后淡出销毁）──────────
 let splashWindow: BrowserWindow | null = null
@@ -213,15 +213,23 @@ function createWindow(): BrowserWindow {
 
   mainWindow.on('ready-to-show', () => {
     // 启动画面至少停留 SPLASH_MIN_VISIBLE_MS：主窗口渲染太快时也不至于一闪而过。
-    // 顺序：先 show() 主窗口，再由启动画面淡出并在动画结束后销毁——两个窗口不会同时消失。
+    // 顺序：启动画面先播放完退场动画，动画结束的同一时刻显示主窗口并销毁启动画面，
+    // 用户看到的是「启动画面走完 → 软件界面出现」，中间不会有主窗口透出来的重叠。
     const wait = splashWindow
       ? Math.max(0, SPLASH_MIN_VISIBLE_MS - (Date.now() - splashStartAt))
       : 0
     setTimeout(() => {
       if (mainWindow.isDestroyed()) return
-      mainWindow.show()
-      finishSplash(splashWindow)
-      splashWindow = null
+      const splash = splashWindow
+      if (splash && !splash.isDestroyed()) {
+        finishSplash(splash, () => {
+          splashWindow = null
+          if (!mainWindow.isDestroyed()) mainWindow.show()
+        })
+      } else {
+        splashWindow = null
+        mainWindow.show()
+      }
     }, wait)
   })
 
@@ -293,13 +301,13 @@ app.whenReady().then(() => {
   }
 
   // F12 打开 DevTools 开关（默认关闭，由渲染进程按开发者设置同步）
-let f12Enabled = false
-ipcMain.handle('app:set-f12-enabled', (_e, enabled: boolean) => {
-  f12Enabled = !!enabled
-  return { success: true }
-})
+  let f12Enabled = false
+  ipcMain.handle('app:set-f12-enabled', (_e, enabled: boolean) => {
+    f12Enabled = !!enabled
+    return { success: true }
+  })
 
-app.on('browser-window-created', (_, window) => {
+  app.on('browser-window-created', (_, window) => {
     window.webContents.on('before-input-event', (_e, input) => {
       if (!f12Enabled) return
       if (input.type === 'keyDown' && input.key === 'F12') {
@@ -349,7 +357,9 @@ app.on('browser-window-created', (_, window) => {
       const downloadService = new DownloadService(db)
       const cfApiKey = getSecureConfig('curseforge_api_key') || process.env.CURSEFORGE_API_KEY || ''
       if (!cfApiKey) {
-        log.warn('[Content Service] CurseForge API Key not configured, some features may be limited')
+        log.warn(
+          '[Content Service] CurseForge API Key not configured, some features may be limited'
+        )
       }
       await initializeContentServiceAsync(cfApiKey, 'VoxVer-Launcher/1.0', downloadService)
       log.info('[Init] Content service initialized')
@@ -383,11 +393,13 @@ app.on('browser-window-created', (_, window) => {
       initAutoUpdater(win)
       log.info('[Init] Auto updater initialized')
     })()
-  ]).then(() => {
-    log.info(`[Init] All services initialized in ${Date.now() - initStartTime}ms`)
-  }).catch((err) => {
-    log.error('[Init] Service initialization failed:', err)
-  })
+  ])
+    .then(() => {
+      log.info(`[Init] All services initialized in ${Date.now() - initStartTime}ms`)
+    })
+    .catch((err) => {
+      log.error('[Init] Service initialization failed:', err)
+    })
 
   // ========== 注册 IPC 处理器 ==========
   try {
@@ -396,13 +408,9 @@ app.on('browser-window-created', (_, window) => {
       writeLog(
         `>>> IPC handlers registered OK (${ipcResult.registered}/${ipcResult.total} modules)`
       )
-      log.info(
-        `[IPC] All registered (${ipcResult.registered}/${ipcResult.total} modules)`
-      )
+      log.info(`[IPC] All registered (${ipcResult.registered}/${ipcResult.total} modules)`)
     } else {
-      const summary = ipcResult.failed
-        .map((f) => `${f.module}(${f.error})`)
-        .join('; ')
+      const summary = ipcResult.failed.map((f) => `${f.module}(${f.error})`).join('; ')
       writeLog(
         `[IPC] >>> Handlers PARTIAL FAILED: ${ipcResult.registered}/${ipcResult.total} — failed: [${summary}]`
       )

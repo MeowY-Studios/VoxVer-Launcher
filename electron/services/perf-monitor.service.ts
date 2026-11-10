@@ -10,9 +10,9 @@ const log = logger.child('PerfMonitor')
 export interface PerfSnapshot {
   pid: number
   alive: boolean
-  cpu: number       // CPU 使用率百分比
-  memoryMB: number  // 内存占用 (MB)
-  uptimeMs: number  // 运行时长 (ms)
+  cpu: number // CPU 使用率百分比
+  memoryMB: number // 内存占用 (MB)
+  uptimeMs: number // 运行时长 (ms)
   timestamp: number
 }
 
@@ -58,7 +58,11 @@ function parseWindowsPerf(pid: number): Promise<RawPerf> {
  * 解析 CPU 累计时间 [[dd-]hh:]mm:ss 为秒数
  */
 function parseCpuTimeToSeconds(raw: string): number {
-  const segs = raw.trim().replace('-', ':').split(':').map((s) => parseFloat(s) || 0)
+  const segs = raw
+    .trim()
+    .replace('-', ':')
+    .split(':')
+    .map((s) => parseFloat(s) || 0)
   // 长度 2: mm:ss / 3: hh:mm:ss / 4: dd:hh:mm:ss
   if (segs.length >= 4) return segs[0] * 86400 + segs[1] * 3600 + segs[2] * 60 + segs[3]
   if (segs.length === 3) return segs[0] * 3600 + segs[1] * 60 + segs[2]
@@ -107,9 +111,7 @@ async function getPerfSnapshot(pid: number): Promise<PerfSnapshot> {
     }
 
     const isWindows = process.platform === 'win32'
-    const perf = isWindows
-      ? await parseWindowsPerf(pid)
-      : await parseUnixPerf(pid)
+    const perf = isWindows ? await parseWindowsPerf(pid) : await parseUnixPerf(pid)
 
     // CPU 利用率 = 采样区间内累计 CPU 时间增量 / 墙钟时间 × 100%
     // （多核进程可超过 100%；首次采样无基准，记 0）

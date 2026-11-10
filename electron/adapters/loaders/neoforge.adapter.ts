@@ -63,10 +63,8 @@ export class NeoForgeAdapter extends BaseLoaderAdapter {
       this.log.warn('Failed to get NeoForge versions:', e)
     }
 
-    // 未找到时返回默认版本
-    if (versions.length === 0) {
-      versions.push(`${mcPrefix}55-beta`)
-    }
+    // 未找到时返回空数组，让上层判定为"不支持"。
+    // ! 不能伪造版本号，否则页面显示可选但下载/安装必然失败
     return versions
   }
 
@@ -99,9 +97,11 @@ export class NeoForgeAdapter extends BaseLoaderAdapter {
     let targetVersion: string | null = ctx.loaderVersion || null
     if (!targetVersion) {
       this.report(ctx, 'downloading', 5, '获取 NeoForge 版本信息...')
-      targetVersion = await this.getLatestVersion(mcVersion)
+      // * 先用 Maven 中该 MC 版本的实际构建，v3 API 只作为兜底
+      const versions = await this.getVersions(mcVersion)
+      targetVersion = versions[0] || (await this.getLatestVersion(mcVersion))
       if (!targetVersion) {
-        throw new Error(`不支持 Minecraft ${mcVersion} 版本的 NeoForge`)
+        throw new Error(`Minecraft ${mcVersion} 没有可用的 NeoForge 构建`)
       }
     }
 

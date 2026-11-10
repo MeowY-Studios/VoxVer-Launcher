@@ -2,6 +2,23 @@
   <!-- ========== Koring 皮肤：Kor 组件版本 ========== -->
   <div v-if="isKoring" class="update-page update-page--kor">
     <div class="kor-page">
+      <button class="back-btn" @click="goBack">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M19 12H5" />
+          <path d="M12 19l-7-7 7-7" />
+        </svg>
+        {{ t('update.updatePage.back') }}
+      </button>
+
       <KorPageHeader
         :title="t('update.updatePage.releaseNotes')"
         :desc="notesVersion ? t('update.updatePage.versionLabel', { version: notesVersion }) : ''"
@@ -45,7 +62,7 @@
         <div v-if="notesFooterHtml" class="notes-footer" v-html="notesFooterHtml" />
       </div>
 
-      <div class="kor-section">
+      <div class="kor-section kor-section--sticky">
         <KorSettingCard>
           <div class="kor-row">
             <div>
@@ -54,16 +71,20 @@
                 {{ formatBytes(status.bytesPerSecond) }}/s
               </div>
             </div>
-            <div class="kor-row-control kor-inline">
-              <KorButton variant="primary" :loading="state === 'checking'" @click="primaryAction">
-                {{ mainButtonLabel }}
-              </KorButton>
-              <KorButton v-if="state === 'downloading'" variant="danger" @click="handleCancel">
-                {{ t('update.updatePage.cancelDownload') }}
-              </KorButton>
-            </div>
           </div>
           <KorProgress v-if="state === 'downloading'" :value="pct" />
+          <!-- 底部整条检查更新按钮：随状态显示 检查中 / 已经是最新版 / 下载更新 等 -->
+          <KorButton
+            variant="primary"
+            block
+            pill
+            class="kor-update-btn"
+            :loading="state === 'checking'"
+            @click="primaryAction"
+          >
+            <span v-if="state === 'checking'" class="kor-update-spinner" aria-hidden="true" />
+            {{ mainButtonLabel }}
+          </KorButton>
           <button type="button" class="kor-ghost-link" @click="openGithub">
             {{ t('update.updatePage.viewOnGitHub') }}
           </button>
@@ -75,7 +96,16 @@
   <div v-else class="update-page">
     <!-- 页面左上角返回按钮 → 设置 -->
     <button class="back-btn" @click="goBack">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
         <path d="M19 12H5" />
         <path d="M12 19l-7-7 7-7" />
       </svg>
@@ -99,10 +129,21 @@
       <div class="notes-section">
         <div class="notes-title">
           <span>{{ t('update.updatePage.releaseNotes') }}</span>
-          <span class="notes-version" v-if="notesVersion">{{ t('update.updatePage.versionLabel', { version: notesVersion }) }}</span>
+          <span class="notes-version" v-if="notesVersion">{{
+            t('update.updatePage.versionLabel', { version: notesVersion })
+          }}</span>
           <a class="github-link" @click="openGithub">
             {{ t('update.updatePage.viewOnGitHub') }}
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
               <polyline points="15 3 21 3 21 9" />
               <line x1="10" y1="14" x2="21" y2="3" />
@@ -136,18 +177,16 @@
         </div>
 
         <!-- 归属行（MeowY-Studios / GitHub）单独展示 -->
-        <div
-          v-if="notesFooterHtml"
-          class="notes-footer"
-          v-html="notesFooterHtml"
-        />
+        <div v-if="notesFooterHtml" class="notes-footer" v-html="notesFooterHtml" />
       </div>
 
       <!-- 底部操作栏 -->
       <div class="action-bar vox-card">
         <div class="action-row">
           <span class="action-status" :class="{ error: hasError }">{{ statusText }}</span>
-          <span class="action-speed" v-if="state === 'downloading' && status?.bytesPerSecond">{{ formatBytes(status.bytesPerSecond) }}/s</span>
+          <span class="action-speed" v-if="state === 'downloading' && status?.bytesPerSecond"
+            >{{ formatBytes(status.bytesPerSecond) }}/s</span
+          >
         </div>
         <div class="progress-track" v-if="state === 'downloading'">
           <div class="progress-fill" :style="{ width: Math.min(100, Math.max(0, pct)) + '%' }" />
@@ -221,7 +260,8 @@ interface StatusPayload {
 }
 
 const appVersion = ref('...')
-const appCommit = typeof __APP_COMMIT__ === 'string' && __APP_COMMIT__ !== 'dev' ? __APP_COMMIT__ : ''
+const appCommit =
+  typeof __APP_COMMIT__ === 'string' && __APP_COMMIT__ !== 'dev' ? __APP_COMMIT__ : ''
 const checkResult = ref<CheckResult | null>(null)
 const checking = ref(false)
 const status = ref<StatusPayload | null>(null)
@@ -235,7 +275,9 @@ const pct = computed(() => {
 })
 
 /** 页面状态机：idle < checking < error < downloading < downloaded < available < uptodate */
-const state = computed<'idle' | 'checking' | 'downloading' | 'downloaded' | 'available' | 'uptodate' | 'error'>(() => {
+const state = computed<
+  'idle' | 'checking' | 'downloading' | 'downloaded' | 'available' | 'uptodate' | 'error'
+>(() => {
   const s = status.value
   if (s?.downloaded) return 'downloaded'
   if (s?.downloading) return 'downloading'
@@ -249,9 +291,7 @@ const state = computed<'idle' | 'checking' | 'downloading' | 'downloaded' | 'ava
 
 const hasError = computed(() => state.value === 'error')
 const hasUpdate = computed(() => state.value === 'available')
-const errorText = computed(
-  () => checkResult.value?.error ?? status.value?.error ?? ''
-)
+const errorText = computed(() => checkResult.value?.error ?? status.value?.error ?? '')
 
 const notesVersion = computed(() => {
   if (checkResult.value?.hasUpdate) return checkResult.value.latestVersion
@@ -292,7 +332,10 @@ const FOOTER_RE = /^\*\*[^*]*MeowY-Studios[^*]*\*\*\s*[—\-–]?\s*\[[^\]]*\]\(
 function extractFooter(raw: string): { body: string; footer: string } {
   const match = FOOTER_RE.exec(raw)
   if (!match) return { body: raw, footer: '' }
-  const body = raw.replace(FOOTER_RE, '').replace(/\n{3,}/g, '\n\n').trim()
+  const body = raw
+    .replace(FOOTER_RE, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
   return { body, footer: match[0] }
 }
 
@@ -388,7 +431,8 @@ const heroStatusText = computed(() => {
 
 const heroStatusClass = computed(() => ({
   ok: state.value === 'uptodate',
-  warn: state.value === 'available' || state.value === 'downloading' || state.value === 'downloaded',
+  warn:
+    state.value === 'available' || state.value === 'downloading' || state.value === 'downloaded',
   error: state.value === 'error'
 }))
 
@@ -420,11 +464,15 @@ const statusText = computed(() => {
 const mainButtonLabel = computed(() => {
   switch (state.value) {
     case 'checking':
-      return t('update.updatePage.checking')
+      return t('update.updatePage.checkingButton')
     case 'available':
       return t('update.updatePage.downloadUpdate')
+    case 'downloading':
+      return t('update.updatePage.cancelDownload')
     case 'downloaded':
       return t('update.updatePage.installUpdate')
+    case 'uptodate':
+      return t('update.updatePage.upToDateButton')
     case 'error':
       return t('update.updatePage.retry')
     default:
@@ -439,6 +487,11 @@ function primaryAction(): void {
       break
     case 'downloaded':
       void window.electronAPI?.updater?.install?.()
+      break
+    case 'downloading':
+      handleCancel()
+      break
+    case 'checking':
       break
     default:
       void runCheck()
@@ -498,11 +551,15 @@ onMounted(async () => {
   try {
     const st = await api?.getStatus?.()
     if (st?.success) status.value = st.data as StatusPayload
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   try {
     const v = await window.electronAPI?.app?.getVersion?.()
     if (v) appVersion.value = v
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   await runCheck()
 })
 
@@ -525,7 +582,66 @@ onUnmounted(() => {
   background: var(--voxver-bg-primary);
 }
 
-/* 返回按钮：独立于滚动区，始终可见 */
+/* Koring 皮肤：内容超出视口时可滚动 */
+.update-page--kor {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* 底部内边距交给吸附的操作区，避免按钮悬空 */
+.update-page.update-page--kor {
+  padding-bottom: 0;
+}
+
+.update-page--kor .kor-page {
+  flex-shrink: 0;
+  padding-bottom: 0;
+}
+
+/* 底部检查更新操作区：吸附在页面底部，不随内容滚走 */
+.update-page--kor .kor-section--sticky {
+  position: sticky;
+  bottom: 0;
+  z-index: 6;
+  padding: 12px 0 20px;
+  background: var(--voxver-bg-primary);
+  box-shadow: 0 -20px 20px -16px var(--voxver-bg-primary);
+}
+
+/* 底部整条检查更新按钮 */
+.kor-update-btn {
+  margin-top: 12px;
+  width: 100%;
+}
+
+.kor-update-spinner {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: kor-update-spin 800ms linear infinite;
+}
+
+@keyframes kor-update-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Koring 皮肤下的返回按钮（配合 32px 页面内边距对齐） */
+.update-page--kor .back-btn {
+  margin: 0 0 12px;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.82);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+}
+
 .back-btn {
   flex-shrink: 0;
   display: inline-flex;
@@ -540,7 +656,9 @@ onUnmounted(() => {
   font-size: 13px;
   width: fit-content;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 
   &:hover {
     background: var(--voxver-bg-hover);
@@ -570,8 +688,12 @@ onUnmounted(() => {
   padding: 36px 24px 30px;
   border-radius: 14px;
   overflow: hidden;
-  background:
-    radial-gradient(120% 140% at 50% -20%, var(--voxver-accent, #14b8a6) 0%, color-mix(in srgb, var(--voxver-accent, #14b8a6) 72%, #000000) 58%, color-mix(in srgb, var(--voxver-accent, #14b8a6) 48%, #000000) 100%);
+  background: radial-gradient(
+    120% 140% at 50% -20%,
+    var(--voxver-accent, #14b8a6) 0%,
+    color-mix(in srgb, var(--voxver-accent, #14b8a6) 72%, #000000) 58%,
+    color-mix(in srgb, var(--voxver-accent, #14b8a6) 48%, #000000) 100%
+  );
   color: #ffffff;
   text-align: center;
   box-shadow: var(--voxver-shadow-md);
@@ -895,7 +1017,9 @@ onUnmounted(() => {
     font-size: 13.5px;
     font-weight: 600;
     cursor: pointer;
-    transition: filter 0.15s ease, opacity 0.15s ease;
+    transition:
+      filter 0.15s ease,
+      opacity 0.15s ease;
 
     &:hover:not(:disabled) {
       filter: brightness(1.08);

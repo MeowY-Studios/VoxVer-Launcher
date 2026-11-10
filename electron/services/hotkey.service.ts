@@ -28,7 +28,12 @@ export interface HotkeyConfig {
   enabled: boolean
 }
 
-export type HotkeyAction = 'launch-game' | 'toggle-window' | 'quick-join' | 'open-home' | 'open-settings'
+export type HotkeyAction =
+  | 'launch-game'
+  | 'toggle-window'
+  | 'quick-join'
+  | 'open-home'
+  | 'open-settings'
 
 // 内置预设
 export const DEFAULT_HOTKEYS: HotkeyConfig[] = [
@@ -162,9 +167,7 @@ export function updateHotkey(hotkey: HotkeyConfig): UpdateHotkeyResult {
   }
 
   // 保存：合并而非覆盖（保留 label/description 等已存在字段）
-  const next = all.map((h) =>
-    h.id === hotkey.id ? { ...h, ...hotkey } : h
-  )
+  const next = all.map((h) => (h.id === hotkey.id ? { ...h, ...hotkey } : h))
   // 保证新的 id 也加进去
   if (!next.find((h) => h.id === hotkey.id)) next.push(hotkey)
   saveHotkeys(next)

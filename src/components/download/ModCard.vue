@@ -62,7 +62,11 @@
     </div>
 
     <!-- 操作按钮 -->
-    <button class="download-btn" @click.stop="$emit('download', mod)" :title="$t('download.download')">
+    <button
+      class="download-btn"
+      @click.stop="$emit('download', mod)"
+      :title="$t('download.download')"
+    >
       <svg
         width="16"
         height="16"

@@ -274,7 +274,8 @@ function scanInstanceSubDir(id: string, subDirName: string, patterns: RegExp[]):
       })
       .sort((a, b) => {
         // 资源包/光影：先 enabled
-        if (subDirName !== 'saves' && a.enabled !== b.enabled) return (b.enabled ? 1 : 0) - (a.enabled ? 1 : 0)
+        if (subDirName !== 'saves' && a.enabled !== b.enabled)
+          return (b.enabled ? 1 : 0) - (a.enabled ? 1 : 0)
         return a.filename.localeCompare(b.filename)
       })
   } catch {

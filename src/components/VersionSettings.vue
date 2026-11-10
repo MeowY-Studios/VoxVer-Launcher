@@ -6,7 +6,14 @@
           <!-- 标题栏 -->
           <header class="vs-header">
             <button class="vs-back" @click="close">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
                 <path d="M15 18l-6-6 6-6" />
               </svg>
             </button>
@@ -29,8 +36,13 @@
           <div class="vs-body">
             <!-- 左侧导航 -->
             <nav class="vs-nav">
-              <button v-for="item in navItems" :key="item.id" class="vs-nav-item"
-                :class="{ active: activeTab === item.id }" @click="activeTab = item.id">
+              <button
+                v-for="item in navItems"
+                :key="item.id"
+                class="vs-nav-item"
+                :class="{ active: activeTab === item.id }"
+                @click="activeTab = item.id"
+              >
                 <span v-html="item.icon"></span>
                 {{ item.label }}
               </button>
@@ -43,15 +55,29 @@
                 <!-- 版本信息卡片 -->
                 <div class="ver-info-card">
                   <div class="ver-icon">
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-accent)"
-                      stroke-width="1.5">
+                    <svg
+                      width="36"
+                      height="36"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="var(--voxver-accent)"
+                      stroke-width="1.5"
+                    >
                       <path
-                        d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                        d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"
+                      />
                     </svg>
                   </div>
                   <div class="ver-detail">
                     <p class="ver-full-name">{{ versionName }}</p>
-                    <p class="ver-sub">{{ $t('version.settings.genuineInfo', { base: versionBase, loader: loaderInfo }) }}</p>
+                    <p class="ver-sub">
+                      {{
+                        $t('version.settings.genuineInfo', {
+                          base: versionBase,
+                          loader: loaderInfo
+                        })
+                      }}
+                    </p>
                   </div>
                 </div>
 
@@ -77,12 +103,22 @@
                     </select>
                   </div>
                   <div class="form-btns">
-                    <button class="form-action-btn" @click="editVersionName">{{ $t('version.settings.editVersionName') }}</button>
+                    <button class="form-action-btn" @click="editVersionName">
+                      {{ $t('version.settings.editVersionName') }}
+                    </button>
                     <button class="form-action-btn" @click="editVersionDescription">
                       {{ $t('version.settings.editVersionDescription') }}
                     </button>
-                    <button class="form-action-btn" :class="{ active: isFavorited }" @click="toggleFavorite">
-                      {{ isFavorited ? $t('version.settings.removeFavorite') : $t('version.settings.addFavorite') }}
+                    <button
+                      class="form-action-btn"
+                      :class="{ active: isFavorited }"
+                      @click="toggleFavorite"
+                    >
+                      {{
+                        isFavorited
+                          ? $t('version.settings.removeFavorite')
+                          : $t('version.settings.addFavorite')
+                      }}
                     </button>
                   </div>
                 </section>
@@ -91,9 +127,15 @@
                 <section class="vs-section">
                   <h3 class="sec-title">{{ $t('version.settings.shortcuts') }}</h3>
                   <div class="form-btns">
-                    <button class="form-action-btn" @click="openFolder('')">{{ $t('version.settings.versionFiles') }}</button>
-                    <button class="form-action-btn" @click="openFolder('saves')">{{ $t('version.settings.saveFiles') }}</button>
-                    <button class="form-action-btn" @click="openFolder('mods')">{{ $t('version.settings.modFiles') }}</button>
+                    <button class="form-action-btn" @click="openFolder('')">
+                      {{ $t('version.settings.versionFiles') }}
+                    </button>
+                    <button class="form-action-btn" @click="openFolder('saves')">
+                      {{ $t('version.settings.saveFiles') }}
+                    </button>
+                    <button class="form-action-btn" @click="openFolder('mods')">
+                      {{ $t('version.settings.modFiles') }}
+                    </button>
                   </div>
                 </section>
 
@@ -104,8 +146,12 @@
                     <button class="form-action-btn outline" @click="exportScript">
                       {{ $t('version.settings.exportLaunchScript') }}
                     </button>
-                    <button class="form-action-btn outline" @click="completeFiles">{{ $t('version.settings.completeFiles') }}</button>
-                    <button class="form-action-btn danger" @click="deleteVersion">{{ $t('version.settings.deleteVersion') }}</button>
+                    <button class="form-action-btn outline" @click="completeFiles">
+                      {{ $t('version.settings.completeFiles') }}
+                    </button>
+                    <button class="form-action-btn danger" @click="deleteVersion">
+                      {{ $t('version.settings.deleteVersion') }}
+                    </button>
                   </div>
                 </section>
               </template>
@@ -114,7 +160,14 @@
               <template v-if="activeTab === 'settings'">
                 <!-- 提示 -->
                 <div class="vs-tip-bar">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 16v-4M12 8h.01" />
                   </svg>
@@ -133,16 +186,28 @@
                   </div>
                   <div class="form-row">
                     <label>{{ $t('version.settings.gameWindowTitle') }}</label>
-                    <input type="text" class="form-input" v-model="settingsForm.gameWindowTitle" :placeholder="$t('version.settings.followGlobal')" />
+                    <input
+                      type="text"
+                      class="form-input"
+                      v-model="settingsForm.gameWindowTitle"
+                      :placeholder="$t('version.settings.followGlobal')"
+                    />
                   </div>
                   <div class="form-row">
                     <label>{{ $t('version.settings.customPath') }}</label>
-                    <input type="text" class="form-input" v-model="settingsForm.customPath" :placeholder="$t('version.settings.followGlobal')" />
+                    <input
+                      type="text"
+                      class="form-input"
+                      v-model="settingsForm.customPath"
+                      :placeholder="$t('version.settings.followGlobal')"
+                    />
                   </div>
                   <div class="form-row">
                     <label>{{ $t('version.settings.gameJavaLabel') }}</label>
                     <select class="form-select" v-model="settingsForm.javaPath">
-                      <option value="follow-global">{{ $t('version.settings.followGlobal') }}</option>
+                      <option value="follow-global">
+                        {{ $t('version.settings.followGlobal') }}
+                      </option>
                       <option value="java17">{{ $t('version.settings.java17') }}</option>
                       <option value="java21">{{ $t('version.settings.java21') }}</option>
                       <option value="custom">{{ $t('version.settings.customPath') }}</option>
@@ -169,13 +234,22 @@
 
                   <!-- 滑块（自定义模式显示） -->
                   <div v-if="memMode === 'custom'" class="slider-area">
-                    <input type="range" class="mem-slider" min="512" max="16384" step="256" v-model="memCustom" />
+                    <input
+                      type="range"
+                      class="mem-slider"
+                      min="512"
+                      max="16384"
+                      step="256"
+                      v-model="memCustom"
+                    />
                   </div>
 
                   <div v-if="memMode !== 'global'" class="form-row" style="margin-top: 10px">
                     <label>{{ $t('version.settings.memOptimize') }}</label>
                     <select class="form-select short-select" v-model="settingsForm.memOptimize">
-                      <option value="follow-global">{{ $t('version.settings.followGlobal') }}</option>
+                      <option value="follow-global">
+                        {{ $t('version.settings.followGlobal') }}
+                      </option>
                       <option value="enabled">{{ $t('version.settings.enabledBtn') }}</option>
                       <option value="disabled">{{ $t('version.settings.disabledBtn') }}</option>
                     </select>
@@ -187,7 +261,9 @@
                       <span class="mem-stat-value">{{ usedMem }} GB / {{ totalMem }} GB</span>
                     </div>
                     <div class="mem-stat">
-                      <span class="mem-stat-label">{{ $t('version.settings.gameAllocation') }}</span>
+                      <span class="mem-stat-label">{{
+                        $t('version.settings.gameAllocation')
+                      }}</span>
                       <span class="mem-stat-value">{{ gameMem }} GB</span>
                     </div>
                   </div>
@@ -198,38 +274,67 @@
                   <div class="form-row">
                     <label>{{ $t('version.settings.loginMethod') }}</label>
                     <select class="form-select" v-model="settingsForm.loginMethod">
-                      <option value="official-or-offline">{{ $t('version.settings.officialOrOffline') }}</option>
-                      <option value="official-only">{{ $t('version.settings.officialOnly') }}</option>
+                      <option value="official-or-offline">
+                        {{ $t('version.settings.officialOrOffline') }}
+                      </option>
+                      <option value="official-only">
+                        {{ $t('version.settings.officialOnly') }}
+                      </option>
                       <option value="offline-only">{{ $t('version.settings.offlineOnly') }}</option>
                     </select>
                   </div>
                   <div class="form-row">
                     <label>{{ $t('version.settings.autoJoinServer') }}</label>
-                      <input type="text" class="form-input" v-model="settingsForm.autoJoinServer" :placeholder="$t('version.settings.serverAddressOptional')" />
+                    <input
+                      type="text"
+                      class="form-input"
+                      v-model="settingsForm.autoJoinServer"
+                      :placeholder="$t('version.settings.serverAddressOptional')"
+                    />
                   </div>
                 </section>
 
                 <section class="vs-section collapsible" :class="{ collapsed: !showAdvanced }">
                   <h3 class="sec-title clickable" @click="showAdvanced = !showAdvanced">
                     {{ $t('version.settings.advancedOptions') }}
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                      :style="{ transform: showAdvanced ? 'rotate(180deg)' : '' }" style="transition: transform 0.2s">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                      :style="{ transform: showAdvanced ? 'rotate(180deg)' : '' }"
+                      style="transition: transform 0.2s"
+                    >
                       <path d="M6 9l6 6 6-6" />
                     </svg>
                   </h3>
                   <div v-show="showAdvanced" class="adv-content">
                     <div class="form-row">
                       <label>{{ $t('version.settings.jvmArgsLabel') }}</label>
-                        <textarea class="form-textarea" rows="2" v-model="settingsForm.jvmArgs" :placeholder="$t('version.settings.followGlobal')"></textarea>
+                      <textarea
+                        class="form-textarea"
+                        rows="2"
+                        v-model="settingsForm.jvmArgs"
+                        :placeholder="$t('version.settings.followGlobal')"
+                      ></textarea>
                     </div>
                     <div class="form-row">
                       <label>{{ $t('version.settings.gameArgsLabel') }}</label>
-                      <input type="text" class="form-input" v-model="settingsForm.gameArgs" :placeholder="$t('version.settings.followGlobal')" />
+                      <input
+                        type="text"
+                        class="form-input"
+                        v-model="settingsForm.gameArgs"
+                        :placeholder="$t('version.settings.followGlobal')"
+                      />
                     </div>
                     <div class="form-row">
                       <label>{{ $t('version.settings.memoryMgmtLabel') }}</label>
                       <select class="form-select" v-model="settingsForm.gcSelection">
-                        <option value="follow-global">{{ $t('version.settings.followGlobal') }}</option>
+                        <option value="follow-global">
+                          {{ $t('version.settings.followGlobal') }}
+                        </option>
                         <option value="g1gc">G1GC</option>
                         <option value="zgc">ZGC</option>
                         <option value="parallel">Parallel GC</option>
@@ -237,52 +342,120 @@
                     </div>
                     <div class="form-row">
                       <label>{{ $t('version.settings.preLaunchCmdLabel') }}</label>
-                        <input type="text" class="form-input" v-model="settingsForm.preLaunchCmd" placeholder="" />
+                      <input
+                        type="text"
+                        class="form-input"
+                        v-model="settingsForm.preLaunchCmd"
+                        placeholder=""
+                      />
                     </div>
                     <div class="checkbox-group">
-                      <label class="checkbox-label"><input type="checkbox" v-model="settingsForm.disableModUpdate" /> {{ $t('version.settings.disableModUpdate') }}</label>
-                      <label class="checkbox-label"><input type="checkbox" v-model="settingsForm.ignoreJavaWarning" /> {{ $t('version.settings.ignoreJavaWarning') }}</label>
-                        <label class="checkbox-label"><input type="checkbox" v-model="settingsForm.disableFileCheck" /> {{ $t('version.settings.disableFileCheck') }}</label>
-                        <label class="checkbox-label"><input type="checkbox" v-model="settingsForm.disableJavaWrapper" /> {{ $t('version.settings.disableJavaWrapper') }}</label>
-                        <label class="checkbox-label"><input type="checkbox" v-model="settingsForm.disableLwjglAgent" /> {{ $t('version.settings.disableLwjglAgent') }}</label>
-                        <label class="checkbox-label"><input type="checkbox" v-model="useHighPerformanceGPU" />
-                          {{ $t('version.settings.useHighPerfGPU') }}</label>
+                      <label class="checkbox-label"
+                        ><input type="checkbox" v-model="settingsForm.disableModUpdate" />
+                        {{ $t('version.settings.disableModUpdate') }}</label
+                      >
+                      <label class="checkbox-label"
+                        ><input type="checkbox" v-model="settingsForm.ignoreJavaWarning" />
+                        {{ $t('version.settings.ignoreJavaWarning') }}</label
+                      >
+                      <label class="checkbox-label"
+                        ><input type="checkbox" v-model="settingsForm.disableFileCheck" />
+                        {{ $t('version.settings.disableFileCheck') }}</label
+                      >
+                      <label class="checkbox-label"
+                        ><input type="checkbox" v-model="settingsForm.disableJavaWrapper" />
+                        {{ $t('version.settings.disableJavaWrapper') }}</label
+                      >
+                      <label class="checkbox-label"
+                        ><input type="checkbox" v-model="settingsForm.disableLwjglAgent" />
+                        {{ $t('version.settings.disableLwjglAgent') }}</label
+                      >
+                      <label class="checkbox-label"
+                        ><input type="checkbox" v-model="useHighPerformanceGPU" />
+                        {{ $t('version.settings.useHighPerfGPU') }}</label
+                      >
                     </div>
                   </div>
                 </section>
 
                 <!-- 保存按钮 -->
-                <button class="vox-btn vox-btn--primary btn-save-settings" @click="saveSettings" :disabled="settingsSaving">
+                <button
+                  class="vox-btn vox-btn--primary btn-save-settings"
+                  @click="saveSettings"
+                  :disabled="settingsSaving"
+                >
                   <template v-if="settingsSaving">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon">
-                      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      class="spin-icon"
+                    >
+                      <path
+                        d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
+                      />
                     </svg>
                   </template>
                   <template v-else-if="settingsSaveStatus === 'success'">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
                       <path d="M20 6L9 17l-5-5" />
                     </svg>
                   </template>
                   <template v-else-if="settingsSaveStatus === 'error'">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
                       <circle cx="12" cy="12" r="10" />
                       <line x1="15" y1="9" x2="9" y2="15" />
                       <line x1="9" y1="9" x2="15" y2="15" />
                     </svg>
                   </template>
                   <template v-else>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
                       <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
                       <polyline points="17,21 17,13 7,13 7,21" />
                       <polyline points="7,3 7,8 15,8" />
                     </svg>
                   </template>
-                  {{ settingsSaving ? $t('version.settings.saving') : $t('version.settings.saveSettings') }}
+                  {{
+                    settingsSaving
+                      ? $t('version.settings.saving')
+                      : $t('version.settings.saveSettings')
+                  }}
                 </button>
 
                 <!-- 底部按钮 -->
                 <button class="btn-global-settings" @click="$router.push('/settings')">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
                     <path d="M5 12h14M12 5l7 7-7 7" />
                   </svg>
                   {{ $t('version.settings.globalSettingsBtn') }}
@@ -291,7 +464,12 @@
 
               <!-- ===== Mod 管理 ===== -->
               <div v-show="activeTab === 'mods'" style="display: contents">
-                <ModManager :gameDir="gameDir" :mcVersion="versionBase" :loader="detectedLoader" @navigate="close" />
+                <ModManager
+                  :gameDir="gameDir"
+                  :mcVersion="versionBase"
+                  :loader="detectedLoader"
+                  @navigate="close"
+                />
               </div>
 
               <!-- ===== 导出 ===== -->
@@ -301,11 +479,16 @@
                   <div class="export-header-row">
                     <div class="form-row compact">
                       <label>{{ $t('version.settings.modpackName') }}</label>
-                        <input type="text" class="form-input" v-model="exportPackName" />
+                      <input type="text" class="form-input" v-model="exportPackName" />
                     </div>
                     <div class="form-row compact">
                       <label>{{ $t('version.settings.modpackVersion') }}</label>
-                        <input type="text" class="form-input short" v-model="exportPackVersion" style="flex: 0 0 120px" />
+                      <input
+                        type="text"
+                        class="form-input short"
+                        v-model="exportPackVersion"
+                        style="flex: 0 0 120px"
+                      />
                     </div>
                   </div>
                 </section>
@@ -314,23 +497,35 @@
                 <section class="vs-section export-list-section">
                   <h3 class="sec-title">
                     {{ $t('version.settings.exportContentList') }}
-                    <span v-if="exportLoading" class="export-loading-hint">{{ $t('common.loading') }}</span>
+                    <span v-if="exportLoading" class="export-loading-hint">{{
+                      $t('common.loading')
+                    }}</span>
                   </h3>
                   <div class="export-tree">
                     <!-- 游戏本体 -->
                     <div class="tree-node">
-                      <label class="tree-checkbox"><input type="checkbox" checked disabled /><span
-                          class="tree-label-bold">{{ $t('version.settings.gameCore') }}</span><span class="tree-sub">{{ versionBase }} {{ loaderInfo }}</span></label>
+                      <label class="tree-checkbox"
+                        ><input type="checkbox" checked disabled /><span class="tree-label-bold">{{
+                          $t('version.settings.gameCore')
+                        }}</span
+                        ><span class="tree-sub">{{ versionBase }} {{ loaderInfo }}</span></label
+                      >
                     </div>
                     <!-- Mod -->
                     <div class="tree-node tree-parent">
                       <label class="tree-checkbox">
                         <input type="checkbox" v-model="exportOpts.includeMods" />
                         <span class="tree-label-bold">{{ $t('version.settings.modLabel') }}</span>
-                        <span class="tree-sub">{{ $t('version.settings.modsCount', { n: exportMods.length }) }}</span>
+                        <span class="tree-sub">{{
+                          $t('version.settings.modsCount', { n: exportMods.length })
+                        }}</span>
                       </label>
                       <div class="tree-children" v-if="exportMods.length > 0">
-                        <div class="tree-child export-mod-item" v-for="mod in exportMods" :key="mod.fileName">
+                        <div
+                          class="tree-child export-mod-item"
+                          v-for="mod in exportMods"
+                          :key="mod.fileName"
+                        >
                           <label class="tree-checkbox export-mod-checkbox">
                             <input type="checkbox" checked disabled />
                             <img
@@ -338,24 +533,43 @@
                               :src="mod.logoUrl"
                               class="export-mod-icon"
                               alt=""
-                              @error="(e: Event) => ((e.target as HTMLImageElement).style.display = 'none')"
+                              @error="
+                                (e: Event) =>
+                                  ((e.target as HTMLImageElement).style.display = 'none')
+                              "
                             />
-                            <span v-else class="export-mod-icon-default">{{ mod.name.slice(0, 1).toUpperCase() }}</span>
+                            <span v-else class="export-mod-icon-default">{{
+                              mod.name.slice(0, 1).toUpperCase()
+                            }}</span>
                             <span class="export-mod-name">{{ mod.name }}</span>
                             <span class="export-mod-version">{{ mod.version }}</span>
-                            <span v-if="!mod.enabled" class="mod-disabled-badge">{{ $t('version.settings.disabledBadge') }}</span>
+                            <span v-if="!mod.enabled" class="mod-disabled-badge">{{
+                              $t('version.settings.disabledBadge')
+                            }}</span>
                           </label>
                         </div>
                       </div>
                       <div class="tree-children" v-else-if="!exportLoading">
-                        <div class="tree-child"><span class="tree-sub">{{ $t('version.settings.notFoundMod') }}</span></div>
+                        <div class="tree-child">
+                          <span class="tree-sub">{{ $t('version.settings.notFoundMod') }}</span>
+                        </div>
                       </div>
                       <div class="tree-children">
                         <div class="tree-child">
-                          <label class="tree-checkbox"><input type="checkbox" v-model="exportOpts.includeDisabledMods" /><span>{{ $t('version.settings.disabledModsCheckbox') }}</span></label>
+                          <label class="tree-checkbox"
+                            ><input
+                              type="checkbox"
+                              v-model="exportOpts.includeDisabledMods"
+                            /><span>{{ $t('version.settings.disabledModsCheckbox') }}</span></label
+                          >
                         </div>
                         <div class="tree-child">
-                          <label class="tree-checkbox"><input type="checkbox" v-model="exportOpts.includeModConfigs" /><span>{{ $t('version.settings.modConfigsCheckbox') }}</span></label>
+                          <label class="tree-checkbox"
+                            ><input
+                              type="checkbox"
+                              v-model="exportOpts.includeModConfigs"
+                            /><span>{{ $t('version.settings.modConfigsCheckbox') }}</span></label
+                          >
                         </div>
                       </div>
                     </div>
@@ -363,46 +577,85 @@
                     <div class="tree-node tree-parent">
                       <label class="tree-checkbox">
                         <input type="checkbox" v-model="exportOpts.includeResourcePacks" />
-                        <span class="tree-label-bold">{{ $t('version.settings.resourcePacksLabel') }}</span>
-                        <span class="tree-sub">{{ $t('version.settings.textureMaterials', { n: exportResourcePacks.length }) }}</span>
+                        <span class="tree-label-bold">{{
+                          $t('version.settings.resourcePacksLabel')
+                        }}</span>
+                        <span class="tree-sub">{{
+                          $t('version.settings.textureMaterials', { n: exportResourcePacks.length })
+                        }}</span>
                       </label>
                       <div class="tree-children" v-if="exportResourcePacks.length > 0">
                         <div class="tree-child" v-for="rp in exportResourcePacks" :key="rp.name">
-                          <label class="tree-checkbox"><input type="checkbox" checked /><span>{{ rp.name }}</span><span class="tree-sub">{{ formatFileSize(rp.size) }}</span></label>
+                          <label class="tree-checkbox"
+                            ><input type="checkbox" checked /><span>{{ rp.name }}</span
+                            ><span class="tree-sub">{{ formatFileSize(rp.size) }}</span></label
+                          >
                         </div>
                       </div>
                       <div class="tree-children" v-else-if="!exportLoading">
-                        <div class="tree-child"><span class="tree-sub">{{ $t('version.settings.notFoundResourcePack') }}</span></div>
+                        <div class="tree-child">
+                          <span class="tree-sub">{{
+                            $t('version.settings.notFoundResourcePack')
+                          }}</span>
+                        </div>
                       </div>
                     </div>
                     <!-- 光影包组 -->
                     <div class="tree-node tree-parent">
                       <label class="tree-checkbox">
                         <input type="checkbox" v-model="exportOpts.includeShaderPacks" />
-                        <span class="tree-label-bold">{{ $t('version.settings.shaderPacksLabel') }}</span>
-                        <span class="tree-sub">{{ $t('version.settings.shaderPacksCount', { n: exportShaderPacks.length }) }}</span>
+                        <span class="tree-label-bold">{{
+                          $t('version.settings.shaderPacksLabel')
+                        }}</span>
+                        <span class="tree-sub">{{
+                          $t('version.settings.shaderPacksCount', { n: exportShaderPacks.length })
+                        }}</span>
                       </label>
                       <div class="tree-children" v-if="exportShaderPacks.length > 0">
                         <div class="tree-child" v-for="sp in exportShaderPacks" :key="sp.name">
-                          <label class="tree-checkbox"><input type="checkbox" checked /><span>{{ sp.name }}</span><span class="tree-sub">{{ formatFileSize(sp.size) }}</span></label>
+                          <label class="tree-checkbox"
+                            ><input type="checkbox" checked /><span>{{ sp.name }}</span
+                            ><span class="tree-sub">{{ formatFileSize(sp.size) }}</span></label
+                          >
                         </div>
                       </div>
                       <div class="tree-children" v-else-if="!exportLoading">
-                        <div class="tree-child"><span class="tree-sub">{{ $t('version.settings.notFoundShaderPack') }}</span></div>
+                        <div class="tree-child">
+                          <span class="tree-sub">{{
+                            $t('version.settings.notFoundShaderPack')
+                          }}</span>
+                        </div>
                       </div>
                     </div>
                     <!-- 其他可选项 -->
                     <div class="tree-node">
-                      <label class="tree-checkbox"><input type="checkbox" v-model="exportOpts.includeSaves" /><span>{{ $t('version.settings.singleSave') }}</span><span
-                          class="tree-sub">{{ $t('version.settings.worldMap') }}</span></label>
+                      <label class="tree-checkbox"
+                        ><input type="checkbox" v-model="exportOpts.includeSaves" /><span>{{
+                          $t('version.settings.singleSave')
+                        }}</span
+                        ><span class="tree-sub">{{ $t('version.settings.worldMap') }}</span></label
+                      >
                     </div>
                     <div class="tree-node">
-                      <label class="tree-checkbox"><input type="checkbox" v-model="exportOpts.includeLauncher" /><span>{{ $t('version.settings.voxverLauncher') }}</span
-                          ><span class="tree-sub">{{ $t('version.settings.packOfficialDesc') }}</span></label>
+                      <label class="tree-checkbox"
+                        ><input type="checkbox" v-model="exportOpts.includeLauncher" /><span>{{
+                          $t('version.settings.voxverLauncher')
+                        }}</span
+                        ><span class="tree-sub">{{
+                          $t('version.settings.packOfficialDesc')
+                        }}</span></label
+                      >
                     </div>
                     <div class="tree-node">
-                      <label class="tree-checkbox"><input type="checkbox" v-model="exportOpts.includePersonalization" /><span>{{ $t('version.settings.voxverPersonalization') }}</span><span
-                          class="tree-sub">{{ $t('version.settings.voxverPersonalizationDesc') }}</span></label>
+                      <label class="tree-checkbox"
+                        ><input
+                          type="checkbox"
+                          v-model="exportOpts.includePersonalization"
+                        /><span>{{ $t('version.settings.voxverPersonalization') }}</span
+                        ><span class="tree-sub">{{
+                          $t('version.settings.voxverPersonalizationDesc')
+                        }}</span></label
+                      >
                     </div>
                   </div>
                 </section>
@@ -411,15 +664,26 @@
                 <section class="vs-section collapsible" :class="{ collapsed: !showExportAdvanced }">
                   <h3 class="sec-title clickable" @click="showExportAdvanced = !showExportAdvanced">
                     {{ $t('version.settings.advancedOptions') }}
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
                       :style="{ transform: showExportAdvanced ? 'rotate(180deg)' : '' }"
-                      style="transition: transform 0.2s">
+                      style="transition: transform 0.2s"
+                    >
                       <path d="M6 9l6 6 6-6" />
                     </svg>
                   </h3>
                   <div v-show="showExportAdvanced" class="adv-content">
-                    <label class="checkbox-label block"><input type="checkbox" /> {{ $t('version.settings.packResources') }}</label>
-                    <label class="checkbox-label block"><input type="checkbox" /> {{ $t('version.settings.modrinthOnly') }}</label>
+                    <label class="checkbox-label block"
+                      ><input type="checkbox" /> {{ $t('version.settings.packResources') }}</label
+                    >
+                    <label class="checkbox-label block"
+                      ><input type="checkbox" /> {{ $t('version.settings.modrinthOnly') }}</label
+                    >
                     <div class="export-tip-box" style="white-space: pre-line">
                       {{ $t('version.settings.advancedExportTip') }}
                     </div>
@@ -429,10 +693,18 @@
                 <!-- 底部大按钮 -->
                 <div class="export-bottom-btn-wrap">
                   <button class="btn-export-primary" @click="doExport" :disabled="exportLoading">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
                       <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
                     </svg>
-                    {{ $t('version.settings.startExport') }} </button>
+                    {{ $t('version.settings.startExport') }}
+                  </button>
                 </div>
               </template>
             </main>
@@ -443,11 +715,22 @@
 
     <!-- 补全文件弹窗 -->
     <transition name="modal-fade">
-      <div v-if="showCompleteModal" class="ver-settings-overlay" @click.self="showCompleteModal = false">
+      <div
+        v-if="showCompleteModal"
+        class="ver-settings-overlay"
+        @click.self="showCompleteModal = false"
+      >
         <div class="ver-settings-window" style="width: 520px">
           <header class="vs-header">
             <button class="vs-back" @click="showCompleteModal = false">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
                 <path d="M15 18l-6-6 6-6" />
               </svg>
             </button>
@@ -471,24 +754,42 @@
 
             <!-- 检测完成：文件完整 -->
             <div v-else-if="completeState === 'complete'" class="complete-status success">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-success)" stroke-width="2">
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--voxver-success)"
+                stroke-width="2"
+              >
                 <path d="M20 6L9 17l-5-5" />
               </svg>
               <p class="complete-status-text">{{ $t('version.settings.allComplete') }}</p>
               <p class="complete-status-sub">
-                {{ completeTarget }} · {{ $t('version.settings.totalChecked', { n: completeTotal }) }}
+                {{ completeTarget }} ·
+                {{ $t('version.settings.totalChecked', { n: completeTotal }) }}
               </p>
             </div>
 
             <!-- 检测完成：有缺失文件 -->
             <div v-else-if="completeState === 'missing'" class="complete-status warning">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-warning)" stroke-width="2">
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--voxver-warning)"
+                stroke-width="2"
+              >
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="12" />
                 <line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
               <p class="complete-status-text">
-                {{ $t('version.settings.foundMissingPrefix') }}<strong>{{ missingFiles.length }}</strong>{{ $t('version.settings.foundMissingSuffix') }} </p>
+                {{ $t('version.settings.foundMissingPrefix')
+                }}<strong>{{ missingFiles.length }}</strong
+                >{{ $t('version.settings.foundMissingSuffix') }}
+              </p>
               <p class="complete-status-sub">{{ $t('version.settings.downloadFromBMCLAPI') }}</p>
 
               <!-- 缺失文件列表（仅显示前10 个） -->
@@ -503,8 +804,13 @@
               </div>
 
               <!-- 下载按钮 -->
-              <button class="form-action-btn" style="margin-top: 16px; width: 100%" @click="startDownloadMissing">
-                {{ $t('version.settings.startDownload') }} </button>
+              <button
+                class="form-action-btn"
+                style="margin-top: 16px; width: 100%"
+                @click="startDownloadMissing"
+              >
+                {{ $t('version.settings.startDownload') }}
+              </button>
             </div>
 
             <!-- 下载中 -->
@@ -522,25 +828,47 @@
 
             <!-- 下载完成 -->
             <div v-else-if="completeState === 'done'" class="complete-status success">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-success)" stroke-width="2">
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--voxver-success)"
+                stroke-width="2"
+              >
                 <path d="M20 6L9 17l-5-5" />
               </svg>
               <p class="complete-status-text">{{ $t('version.settings.completed') }}</p>
-              <p class="complete-status-sub">{{ $t('version.settings.completedFiles', { n: dlTotal }) }}</p>
-                <button class="form-action-btn" style="margin-top: 16px" @click="showCompleteModal = false">
-                  {{ $t('version.settings.doneBtn') }}
-                </button>
+              <p class="complete-status-sub">
+                {{ $t('version.settings.completedFiles', { n: dlTotal }) }}
+              </p>
+              <button
+                class="form-action-btn"
+                style="margin-top: 16px"
+                @click="showCompleteModal = false"
+              >
+                {{ $t('version.settings.doneBtn') }}
+              </button>
             </div>
 
             <!-- 错误 -->
             <div v-else-if="completeState === 'error'" class="complete-status error">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-error)" stroke-width="2">
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--voxver-error)"
+                stroke-width="2"
+              >
                 <circle cx="12" cy="12" r="10" />
                 <line x1="15" y1="9" x2="9" y2="15" />
                 <line x1="9" y1="9" x2="15" y2="15" />
               </svg>
               <p class="complete-status-text">{{ $t('version.settings.failed') }}</p>
-              <p class="complete-status-sub" style="color: var(--voxver-error)">{{ completeError }}</p>
+              <p class="complete-status-sub" style="color: var(--voxver-error)">
+                {{ completeError }}
+              </p>
               <button class="form-action-btn" style="margin-top: 16px" @click="completeFiles">
                 {{ $t('common.retry') }}
               </button>
@@ -556,7 +884,14 @@
         <div class="ver-settings-window input-modal-win">
           <header class="vs-header">
             <button class="vs-back" @click="cancelInputModal">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
                 <path d="M15 18l-6-6 6-6" />
               </svg>
             </button>
@@ -570,14 +905,32 @@
             </div>
           </header>
           <div class="vs-body" style="padding: 20px; flex-direction: column; gap: 12px">
-            <input v-if="!inputModalMultiline" v-model="inputModalValue" type="text" class="form-input"
-              :placeholder="inputModalPlaceholder" @keydown.enter="confirmInputModal" @keydown.esc="cancelInputModal"
-              style="width: 100%" />
-            <textarea v-else v-model="inputModalValue" class="form-textarea" :placeholder="inputModalPlaceholder"
-              rows="4" style="width: 100%; resize: vertical; min-height: 80px" @keydown.esc="cancelInputModal" />
+            <input
+              v-if="!inputModalMultiline"
+              v-model="inputModalValue"
+              type="text"
+              class="form-input"
+              :placeholder="inputModalPlaceholder"
+              @keydown.enter="confirmInputModal"
+              @keydown.esc="cancelInputModal"
+              style="width: 100%"
+            />
+            <textarea
+              v-else
+              v-model="inputModalValue"
+              class="form-textarea"
+              :placeholder="inputModalPlaceholder"
+              rows="4"
+              style="width: 100%; resize: vertical; min-height: 80px"
+              @keydown.esc="cancelInputModal"
+            />
             <div style="display: flex; gap: 8px; justify-content: flex-end">
-              <button class="form-action-btn" @click="cancelInputModal">{{ $t('common.cancel') }}</button>
-              <button class="form-action-btn primary" @click="confirmInputModal">{{ $t('common.ok') }}</button>
+              <button class="form-action-btn" @click="cancelInputModal">
+                {{ $t('common.cancel') }}
+              </button>
+              <button class="form-action-btn primary" @click="confirmInputModal">
+                {{ $t('common.ok') }}
+              </button>
             </div>
           </div>
         </div>
@@ -616,9 +969,12 @@ function close() {
 const activeTab = ref('overview')
 
 // * 每次打开弹窗时重置到概览页
-watch(() => props.visible, (v) => {
-  if (v) activeTab.value = 'overview'
-})
+watch(
+  () => props.visible,
+  (v) => {
+    if (v) activeTab.value = 'overview'
+  }
+)
 
 // * 从实例 store 获取真实的结构化数据（避免用正则解析 versionName 字符串）
 const currentInstance = computed(() =>
@@ -694,14 +1050,23 @@ async function openFolder(subPath: string) {
 
 // * ====== 个性化 ======
 async function editVersionName() {
-  const newName = await openInputModal(t('version.settings.editVersionNameTitle'), props.versionName, t('version.settings.newNamePlaceholder'))
+  const newName = await openInputModal(
+    t('version.settings.editVersionNameTitle'),
+    props.versionName,
+    t('version.settings.newNamePlaceholder')
+  )
   if (!newName || newName === props.versionName) return
   await window.electronAPI?.instance.updateName(props.instanceId, newName)
   emit('update:visible', false)
 }
 
 async function editVersionDescription() {
-  const newDesc = await openInputModal(t('version.settings.editVersionDescTitle'), '', t('version.settings.newDescPlaceholder'), true)
+  const newDesc = await openInputModal(
+    t('version.settings.editVersionDescTitle'),
+    '',
+    t('version.settings.newDescPlaceholder'),
+    true
+  )
   if (newDesc === null) return
   await window.electronAPI?.instance.updateDescription(props.instanceId, newDesc)
 }
@@ -735,12 +1100,15 @@ async function exportScript() {
 async function deleteVersion() {
   if (!props.instanceId) return
   if (
-    !await pxConfirm({
+    !(await pxConfirm({
       title: t('common.warning'),
-      message: t('version.settings.deleteConfirm', { name: props.versionName }) + '\n\n' + t('version.settings.deleteConfirmAgain'),
+      message:
+        t('version.settings.deleteConfirm', { name: props.versionName }) +
+        '\n\n' +
+        t('version.settings.deleteConfirmAgain'),
       type: 'danger',
       confirmText: t('common.confirm')
-    })
+    }))
   )
     return
   await window.electronAPI?.instance.delete(props.instanceId)
@@ -755,7 +1123,11 @@ const memCustom = ref('4096')
 const useHighPerformanceGPU = ref(false)
 
 // 系统内存（真实数据，从主进程获取）
-const systemMemory = ref<{ totalGB: number; freeGB: number; usedGB: number }>({ totalGB: 0, freeGB: 0, usedGB: 0 })
+const systemMemory = ref<{ totalGB: number; freeGB: number; usedGB: number }>({
+  totalGB: 0,
+  freeGB: 0,
+  usedGB: 0
+})
 
 const usedMem = computed(() => systemMemory.value.usedGB.toFixed(1))
 const totalMem = computed(() => systemMemory.value.totalGB.toFixed(1))
@@ -821,15 +1193,20 @@ function initSettingsForm() {
 }
 
 // * watch: modal 打开时重置表单并获取真实系统内存
-watch(() => props.visible, async (val) => {
-  if (val) {
-    initSettingsForm()
-    try {
-      const mem = await window.electronAPI?.app?.getMemoryInfo?.()
-      if (mem) systemMemory.value = mem
-    } catch { /* 获取失败则保持上次值 */ }
+watch(
+  () => props.visible,
+  async (val) => {
+    if (val) {
+      initSettingsForm()
+      try {
+        const mem = await window.electronAPI?.app?.getMemoryInfo?.()
+        if (mem) systemMemory.value = mem
+      } catch {
+        /* 获取失败则保持上次值 */
+      }
+    }
   }
-})
+)
 
 // * ====== 保存设置 ======
 async function saveSettings() {
@@ -880,13 +1257,15 @@ async function saveSettings() {
 const showExportAdvanced = ref(false)
 const exportLoading = ref(false)
 const exportLoaded = ref(false)
-const exportMods = ref<Array<{
-  name: string
-  version: string
-  logoUrl: string
-  enabled: boolean
-  fileName: string
-}>>([])
+const exportMods = ref<
+  Array<{
+    name: string
+    version: string
+    logoUrl: string
+    enabled: boolean
+    fileName: string
+  }>
+>([])
 const exportResourcePacks = ref<Array<{ name: string; size: number }>>([])
 const exportShaderPacks = ref<Array<{ name: string; size: number }>>([])
 const exportPackName = ref('')
@@ -909,13 +1288,21 @@ async function loadExportData() {
   try {
     const result = await window.electronAPI?.instance?.exportPreview(props.gameDir)
     if (result?.ok && result.data) {
-      exportMods.value = (result.data.mods || []).map((m: { name?: string; fileName?: string; version?: string; logoUrl?: string; enabled?: boolean }) => ({
-        name: m.name || m.fileName || t('version.settings.unknownMod'),
-        version: m.version || t('version.settings.unknown'),
-        logoUrl: m.logoUrl || '',
-        enabled: m.enabled !== false,
-        fileName: m.fileName || ''
-      }))
+      exportMods.value = (result.data.mods || []).map(
+        (m: {
+          name?: string
+          fileName?: string
+          version?: string
+          logoUrl?: string
+          enabled?: boolean
+        }) => ({
+          name: m.name || m.fileName || t('version.settings.unknownMod'),
+          version: m.version || t('version.settings.unknown'),
+          logoUrl: m.logoUrl || '',
+          enabled: m.enabled !== false,
+          fileName: m.fileName || ''
+        })
+      )
       exportResourcePacks.value = result.data.resourcePacks || []
       exportShaderPacks.value = result.data.shaderPacks || []
       exportLoaded.value = true
@@ -936,12 +1323,15 @@ watch(activeTab, (tab) => {
   }
 })
 
-watch(() => props.gameDir, () => {
-  exportLoaded.value = false
-  exportMods.value = []
-  exportResourcePacks.value = []
-  exportShaderPacks.value = []
-})
+watch(
+  () => props.gameDir,
+  () => {
+    exportLoaded.value = false
+    exportMods.value = []
+    exportResourcePacks.value = []
+    exportShaderPacks.value = []
+  }
+)
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return bytes + ' B'
@@ -965,11 +1355,7 @@ async function doExport() {
       includeShaderPacks: exportOpts.value.includeShaderPacks,
       includeSaves: exportOpts.value.includeSaves
     }
-    const res = await window.electronAPI?.instance?.exportInstance(
-      props.instanceId,
-      fullPath,
-      opts
-    )
+    const res = await window.electronAPI?.instance?.exportInstance(props.instanceId, fullPath, opts)
     if (res?.ok) {
       window.electronAPI?.notification?.send({
         title: t('version.settings.exportSuccessTitle'),
@@ -1034,9 +1420,17 @@ async function completeFiles() {
 
   try {
     const result = await window.electronAPI?.versions.validate(versionId, gameDir)
-    if (!result || typeof result !== 'object' || !('ok' in result) || !result.ok || !('data' in result) || !result.data) {
+    if (
+      !result ||
+      typeof result !== 'object' ||
+      !('ok' in result) ||
+      !result.ok ||
+      !('data' in result) ||
+      !result.data
+    ) {
       completeState.value = 'error'
-      completeError.value = (result as { error?: string }).error || t('version.settings.checkFailed')
+      completeError.value =
+        (result as { error?: string }).error || t('version.settings.checkFailed')
       return
     }
 
@@ -1242,7 +1636,7 @@ const navItems = [
   transition: all 0.12s;
   position: relative;
 
-  >span {
+  > span {
     flex-shrink: 0;
     display: flex;
     color: var(--voxver-text-muted);
@@ -1252,7 +1646,7 @@ const navItems = [
     color: var(--voxver-primary-muted);
     background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
 
-    >span {
+    > span {
       color: var(--voxver-primary-muted);
     }
   }
@@ -1273,7 +1667,7 @@ const navItems = [
       border-radius: 0 2px 2px 0;
     }
 
-    >span {
+    > span {
       color: var(--voxver-primary-muted);
     }
   }
@@ -1373,7 +1767,7 @@ const navItems = [
   gap: 12px;
   margin-bottom: 12px;
 
-  >label {
+  > label {
     min-width: 70px;
     font-size: 13px;
     font-weight: 400;
@@ -1505,7 +1899,7 @@ const navItems = [
 }
 
 /* * 独立按钮组 */
-.vs-content>.form-btns {
+.vs-content > .form-btns {
   background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
   border-radius: var(--voxver-radius-lg);
   border: 1px solid var(--voxver-border-color);
@@ -1922,8 +2316,6 @@ const navItems = [
   animation: slideDown 0.2s ease;
 }
 
-
-
 /* checkbox 组 */
 .checkbox-group {
   display: flex;
@@ -2215,7 +2607,7 @@ const navItems = [
   .form-row.compact {
     flex: 1;
 
-    >label {
+    > label {
       min-width: 70px;
     }
   }
@@ -2265,7 +2657,7 @@ const navItems = [
     flex-shrink: 0;
   }
 
-  >span {
+  > span {
     flex: 1;
     min-width: 0;
     overflow: hidden;

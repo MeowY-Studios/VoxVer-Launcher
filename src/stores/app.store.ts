@@ -14,14 +14,14 @@ export const useAppStore = defineStore('app', () => {
   const theme = ref<ThemeMode>('dark')
   const skin = ref<ThemeSkin>('voxver')
 
-/** 开发者模式入口是否已显露（关于页连点版本号 7 次） */
-const developerMode = ref(false)
+  /** 开发者模式入口是否已显露（关于页连点版本号 7 次） */
+  const developerMode = ref(false)
 
-/** 开发者功能是否已用密钥解锁 */
-const developerUnlocked = ref(false)
+  /** 开发者功能是否已用密钥解锁 */
+  const developerUnlocked = ref(false)
 
-/** F12 是否允许打开开发者工具（默认关闭） */
-const enableF12 = ref(false)
+  /** F12 是否允许打开开发者工具（默认关闭） */
+  const enableF12 = ref(false)
   const language = ref<Language>('zh-CN')
   const sidebarCollapsed = ref(false)
   const sidebarWidth = ref(220)
@@ -74,36 +74,36 @@ const enableF12 = ref(false)
     applyTheme()
   }
 
-/** 解锁开发者模式（静默，无提示） */
-function unlockDeveloperMode() {
-  if (developerMode.value) return
-  developerMode.value = true
-  localStorage.setItem('voxver_developer', '1')
-}
+  /** 解锁开发者模式（静默，无提示） */
+  function unlockDeveloperMode() {
+    if (developerMode.value) return
+    developerMode.value = true
+    localStorage.setItem('voxver_developer', '1')
+  }
 
-/** 开发者密钥（发布前如需更换只改这里） */
-const DEVELOPER_KEY = 'VOXVER-DEV-2026'
+  /** 开发者密钥（发布前如需更换只改这里） */
+  const DEVELOPER_KEY = 'VOXVER-DEV-2026'
 
-/** 用密钥解锁开发者功能 */
-function unlockDeveloperWithKey(key: string): boolean {
-  if (key.trim().toUpperCase() !== DEVELOPER_KEY) return false
-  developerUnlocked.value = true
-  localStorage.setItem('voxver_developer_key', '1')
-  return true
-}
+  /** 用密钥解锁开发者功能 */
+  function unlockDeveloperWithKey(key: string): boolean {
+    if (key.trim().toUpperCase() !== DEVELOPER_KEY) return false
+    developerUnlocked.value = true
+    localStorage.setItem('voxver_developer_key', '1')
+    return true
+  }
 
-/** 是否允许 F12 打开 DevTools */
-function setEnableF12(next: boolean) {
-  enableF12.value = next
-  localStorage.setItem('voxver_enable_f12', next ? '1' : '0')
-}
-/** 关闭开发者模式 */
-function lockDeveloperMode() {
-  developerMode.value = false
-  developerUnlocked.value = false
-  localStorage.removeItem('voxver_developer')
-  localStorage.removeItem('voxver_developer_key')
-}
+  /** 是否允许 F12 打开 DevTools */
+  function setEnableF12(next: boolean) {
+    enableF12.value = next
+    localStorage.setItem('voxver_enable_f12', next ? '1' : '0')
+  }
+  /** 关闭开发者模式 */
+  function lockDeveloperMode() {
+    developerMode.value = false
+    developerUnlocked.value = false
+    localStorage.removeItem('voxver_developer')
+    localStorage.removeItem('voxver_developer_key')
+  }
   /** 设置背景模式 */
   function setBgImageMode(mode: 'none' | 'custom') {
     bgImageMode.value = mode
@@ -187,10 +187,10 @@ function lockDeveloperMode() {
       skin.value = 'koring'
     }
     const savedDeveloper = localStorage.getItem('voxver_developer') === '1'
-  developerMode.value = savedDeveloper
-  developerUnlocked.value = localStorage.getItem('voxver_developer_key') === '1'
-  enableF12.value = localStorage.getItem('voxver_enable_f12') === '1'
-  const savedSkin = localStorage.getItem('voxver_skin') as ThemeSkin | null
+    developerMode.value = savedDeveloper
+    developerUnlocked.value = localStorage.getItem('voxver_developer_key') === '1'
+    enableF12.value = localStorage.getItem('voxver_enable_f12') === '1'
+    const savedSkin = localStorage.getItem('voxver_skin') as ThemeSkin | null
     if (savedSkin === 'voxver' || savedSkin === 'koring') {
       skin.value = savedSkin
     }

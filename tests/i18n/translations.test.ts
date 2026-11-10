@@ -21,13 +21,26 @@ function getLeafKeys(obj: Record<string, any>, prefix = ''): string[] {
 
 // zh-CN / en-US 实际存在的模块
 const ALL_MODULES = [
-  'common', 'home', 'tabs', 'auth', 'game', 'launch',
-  'version', 'modloader', 'more', 'mod', 'instance',
-  'download', 'settings', 'backup', 'update', 'component'
+  'common',
+  'home',
+  'tabs',
+  'auth',
+  'game',
+  'launch',
+  'version',
+  'modloader',
+  'more',
+  'mod',
+  'instance',
+  'download',
+  'settings',
+  'backup',
+  'update',
+  'component'
 ]
 
 describe('i18n - 模块完整性', () => {
-  ALL_MODULES.forEach(mod => {
+  ALL_MODULES.forEach((mod) => {
     it(`${mod} 在 zh-CN 中存在`, () => {
       expect((zhCN as any)[mod]).toBeDefined()
     })
@@ -42,13 +55,13 @@ describe('i18n - 键一致性', () => {
   // more 模块的 zh-CN 包含分组键而 en-US 没有（非阻塞不一致）
   const allowZhOnlyModules = new Set(['more'])
 
-  ALL_MODULES.forEach(mod => {
+  ALL_MODULES.forEach((mod) => {
     it(`${mod} 两语言键完全一致`, () => {
       const zhKeys = getLeafKeys((zhCN as any)[mod] || {}, mod)
       const enKeys = getLeafKeys((enUS as any)[mod] || {}, mod)
 
-      const zhOnly = zhKeys.filter(k => !enKeys.includes(k))
-      const enOnly = enKeys.filter(k => !zhKeys.includes(k))
+      const zhOnly = zhKeys.filter((k) => !enKeys.includes(k))
+      const enOnly = enKeys.filter((k) => !zhKeys.includes(k))
 
       if (allowZhOnlyModules.has(mod) && enOnly.length === 0) {
         // 允许 zh-CN 有额外键（如分组标签），en-US 无缺失即可

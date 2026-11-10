@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <Transition name="float">
-      <div v-if="store.showFloatPanel && hasAny" class="float-panel">
+      <div v-if="showPanel" class="float-panel">
         <!-- 头部 -->
         <div class="fp-header">
           <span class="fp-title">
@@ -102,7 +102,11 @@
             </div>
             <div class="fp-task-footer">
               <span class="fp-pct">{{ task.progress }}%</span>
-              <button class="fp-cancel-btn" @click="cancelDownload(task)" :title="$t('common.cancel')">
+              <button
+                class="fp-cancel-btn"
+                @click="cancelDownload(task)"
+                :title="$t('common.cancel')"
+              >
                 <svg
                   width="10"
                   height="10"
@@ -133,12 +137,14 @@
                 fill="none"
                 stroke="currentColor"
                 stroke-width="3"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                {{ $t('download.completed') }}
-              </div>
-              <button class="fp-task-dismiss" @click="dismiss(task)">{{ $t('component.remove') }}</button>
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              {{ $t('download.completed') }}
+            </div>
+            <button class="fp-task-dismiss" @click="dismiss(task)">
+              {{ $t('component.remove') }}
+            </button>
           </div>
 
           <!-- 失败的任务 -->
@@ -156,19 +162,23 @@
                 fill="none"
                 stroke="currentColor"
                 stroke-width="2.5"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="15" y1="9" x2="9" y2="15" />
-                  <line x1="9" y1="9" x2="15" y2="15" />
-                </svg>
-                {{ $t('download.failed') }}
-              </div>
-              <button class="fp-task-dismiss" @click="dismiss(task)">{{ $t('component.remove') }}</button>
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+              {{ $t('download.failed') }}
+            </div>
+            <button class="fp-task-dismiss" @click="dismiss(task)">
+              {{ $t('component.remove') }}
+            </button>
           </div>
         </div>
 
         <!-- 底部：查看详情 -->
-        <button class="fp-view-all" @click="openManager">{{ $t('component.viewDetails') }} →</button>
+        <button class="fp-view-all" @click="openManager">
+          {{ $t('component.viewDetails') }} →
+        </button>
       </div>
     </Transition>
   </Teleport>
@@ -189,6 +199,14 @@ const store = useDownloadStore()
 const allTasks = computed(() => store.unifiedTasks)
 
 const hasAny = computed(() => allTasks.value.length > 0)
+
+/**
+ * 下载管理页本身就在展示进度，浮窗不再重复出现。
+ * 这里用路由直接判断（而不是只依赖路由 watch），避免“跳转到下载管理后
+ * 又有新的下载事件把 showFloatPanel 重新置为 true”导致浮窗再次弹出。
+ */
+const isManagerRoute = computed(() => route.path.startsWith('/download/manage'))
+const showPanel = computed(() => store.showFloatPanel && hasAny.value && !isManagerRoute.value)
 const activeCount = computed(
   () => allTasks.value.filter((t) => t.phase !== 'completed' && t.phase !== 'failed').length
 )

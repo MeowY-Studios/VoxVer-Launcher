@@ -7,7 +7,15 @@
 
 import { app, dialog } from 'electron'
 import { join } from 'path'
-import { mkdirSync, appendFileSync, existsSync, readdirSync, readFileSync, writeFileSync, createWriteStream } from 'fs'
+import {
+  mkdirSync,
+  appendFileSync,
+  existsSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+  createWriteStream
+} from 'fs'
 
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR'
 const LEVEL_ORDER: Record<LogLevel, number> = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3 }

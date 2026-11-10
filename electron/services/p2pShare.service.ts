@@ -44,9 +44,9 @@ interface CustomSignalingConfig {
 function getCustomSignalingConfig(): CustomSignalingConfig | null {
   try {
     const db = getDatabase()
-    const row = db
-      .prepare("SELECT value FROM configs WHERE key = 'p2p_signaling_server'")
-      .get() as { value: string } | undefined
+    const row = db.prepare("SELECT value FROM configs WHERE key = 'p2p_signaling_server'").get() as
+      | { value: string }
+      | undefined
 
     if (!row?.value) return null
 
@@ -64,12 +64,22 @@ function getCustomSignalingConfig(): CustomSignalingConfig | null {
 /**
  * 获取 P2P 传输设置（从数据库读取）
  */
-export function getP2pSettings(): { chunkSize: number; connectionTimeout: number; signalingServer: string } {
+export function getP2pSettings(): {
+  chunkSize: number
+  connectionTimeout: number
+  signalingServer: string
+} {
   try {
     const db = getDatabase()
-    const chunkRow = db.prepare("SELECT value FROM configs WHERE key = 'p2p_chunk_size'").get() as { value: string } | undefined
-    const timeoutRow = db.prepare("SELECT value FROM configs WHERE key = 'p2p_connection_timeout'").get() as { value: string } | undefined
-    const signalingRow = db.prepare("SELECT value FROM configs WHERE key = 'p2p_signaling_server'").get() as { value: string } | undefined
+    const chunkRow = db.prepare("SELECT value FROM configs WHERE key = 'p2p_chunk_size'").get() as
+      | { value: string }
+      | undefined
+    const timeoutRow = db
+      .prepare("SELECT value FROM configs WHERE key = 'p2p_connection_timeout'")
+      .get() as { value: string } | undefined
+    const signalingRow = db
+      .prepare("SELECT value FROM configs WHERE key = 'p2p_signaling_server'")
+      .get() as { value: string } | undefined
 
     return {
       chunkSize: chunkRow ? parseInt(chunkRow.value, 10) || 1024 : 1024,
@@ -84,12 +94,20 @@ export function getP2pSettings(): { chunkSize: number; connectionTimeout: number
 /**
  * 保存 P2P 设置到数据库
  */
-export function saveP2pSettings(settings: { chunkSize?: number; connectionTimeout?: number; signalingServer?: string }): void {
+export function saveP2pSettings(settings: {
+  chunkSize?: number
+  connectionTimeout?: number
+  signalingServer?: string
+}): void {
   const db = getDatabase()
-  const upsert = db.prepare("INSERT INTO configs (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
+  const upsert = db.prepare(
+    'INSERT INTO configs (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value'
+  )
   if (settings.chunkSize !== undefined) upsert.run('p2p_chunk_size', String(settings.chunkSize))
-  if (settings.connectionTimeout !== undefined) upsert.run('p2p_connection_timeout', String(settings.connectionTimeout))
-  if (settings.signalingServer !== undefined) upsert.run('p2p_signaling_server', settings.signalingServer)
+  if (settings.connectionTimeout !== undefined)
+    upsert.run('p2p_connection_timeout', String(settings.connectionTimeout))
+  if (settings.signalingServer !== undefined)
+    upsert.run('p2p_signaling_server', settings.signalingServer)
 }
 
 export interface ShareSession {
@@ -237,7 +255,7 @@ function getEffectivePeerConfigs(): Array<typeof DEFAULT_PEER_CONFIG> {
       host: customConfig.host,
       port: customConfig.port,
       path: customConfig.path || '/',
-      secure: customConfig.secure ?? (customConfig.port === 443),
+      secure: customConfig.secure ?? customConfig.port === 443,
       debug: 0,
       key: customConfig.key || 'peerjs',
       config: DEFAULT_PEER_CONFIG.config
@@ -366,9 +384,12 @@ class P2PShareService {
       return { sessionId, shareCode, peerId }
     } catch (e: unknown) {
       log.error('Failed to start share session', e)
-      throw new Error(`Failed to start sharing: ${(e as Error).message || 'Check network connection'}`, {
-        cause: e
-      })
+      throw new Error(
+        `Failed to start sharing: ${(e as Error).message || 'Check network connection'}`,
+        {
+          cause: e
+        }
+      )
     }
   }
 
@@ -541,7 +562,11 @@ class P2PShareService {
       let connectionTimeout: NodeJS.Timeout | null = setTimeout(() => {
         if (session.status === 'connecting') {
           log.warn('Connection timeout, attempting to retry', { sessionId })
-          this.updateSessionStatus(sessionId, 'error', 'Connection timeout, ensure share code is correct and sender is online')
+          this.updateSessionStatus(
+            sessionId,
+            'error',
+            'Connection timeout, ensure share code is correct and sender is online'
+          )
         }
       }, CONNECTION_TIMEOUT)
 
@@ -572,7 +597,11 @@ class P2PShareService {
           connectionTimeout = null
         }
         log.error('Receiver connection error', sessionId, err)
-        this.updateSessionStatus(sessionId, 'error', err.message || 'Connection failed, check network')
+        this.updateSessionStatus(
+          sessionId,
+          'error',
+          err.message || 'Connection failed, check network'
+        )
       })
 
       log.info('Receive session initialized', { sessionId, peerId })
@@ -668,12 +697,17 @@ class P2PShareService {
           // Persist received chunks for resume
           try {
             const metaPath = `${info.tempFilePath}.meta`
-            fs.writeFileSync(metaPath, JSON.stringify({
-              totalChunks: info.totalChunks,
-              chunkSize: info.chunkSize,
-              receivedChunks: Array.from(info.receivedChunks)
-            }))
-          } catch { /* ignore */ }
+            fs.writeFileSync(
+              metaPath,
+              JSON.stringify({
+                totalChunks: info.totalChunks,
+                chunkSize: info.chunkSize,
+                receivedChunks: Array.from(info.receivedChunks)
+              })
+            )
+          } catch {
+            /* ignore */
+          }
 
           const nextChunk = chunkIndex + 1
           if (nextChunk < info.totalChunks) {
@@ -695,7 +729,9 @@ class P2PShareService {
             this.retryCount.delete(retryKey)
             const errMsg: ErrorMessage = {
               type: 'error',
-              data: { message: `Chunk ${chunkIndex} write failed after ${CHUNK_RETRY_COUNT} retries` }
+              data: {
+                message: `Chunk ${chunkIndex} write failed after ${CHUNK_RETRY_COUNT} retries`
+              }
             }
             conn.send(errMsg)
             this.updateSessionStatus(sessionId, 'error', `Chunk ${chunkIndex} write failed`)
@@ -737,7 +773,11 @@ class P2PShareService {
     this.reconnectAttempts.set(sessionId, attempts)
 
     if (attempts > this.MAX_RECONNECT_ATTEMPTS) {
-      this.updateSessionStatus(sessionId, 'error', 'Connection lost, max reconnect attempts reached')
+      this.updateSessionStatus(
+        sessionId,
+        'error',
+        'Connection lost, max reconnect attempts reached'
+      )
       this.reconnectAttempts.delete(sessionId)
       return
     }
@@ -1031,7 +1071,17 @@ function saveShareHistory(entry: {
     db.prepare(
       `INSERT INTO share_history (id, type, instance_name, mc_version, loader_type, share_code, file_size, status, error_msg)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run(entry.id, entry.type, entry.instanceName, entry.mcVersion, entry.loaderType, entry.shareCode, entry.fileSize, entry.status, entry.errorMsg)
+    ).run(
+      entry.id,
+      entry.type,
+      entry.instanceName,
+      entry.mcVersion,
+      entry.loaderType,
+      entry.shareCode,
+      entry.fileSize,
+      entry.status,
+      entry.errorMsg
+    )
   } catch (e: unknown) {
     log.error('Failed to save share history', (e as Error).message)
   }

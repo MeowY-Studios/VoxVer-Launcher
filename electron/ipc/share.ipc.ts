@@ -254,15 +254,21 @@ export function registerShareHandlers(): void {
     }
   })
 
-  ipcMain.handle('share:save-settings', async (_event, settings: { chunkSize?: number; connectionTimeout?: number; signalingServer?: string }) => {
-    try {
-      saveP2pSettings(settings)
-      return { ok: true }
-    } catch (e: unknown) {
-      log.error('Failed to save P2P settings', e)
-      return { ok: false, error: (e as Error).message }
+  ipcMain.handle(
+    'share:save-settings',
+    async (
+      _event,
+      settings: { chunkSize?: number; connectionTimeout?: number; signalingServer?: string }
+    ) => {
+      try {
+        saveP2pSettings(settings)
+        return { ok: true }
+      } catch (e: unknown) {
+        log.error('Failed to save P2P settings', e)
+        return { ok: false, error: (e as Error).message }
+      }
     }
-  })
+  )
 
   ipcMain.handle('share:get-settings', async () => {
     try {

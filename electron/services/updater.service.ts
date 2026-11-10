@@ -4,7 +4,8 @@ import { app, net, BrowserWindow, ipcMain } from 'electron'
 import { logger } from '../utils/logger'
 const log = logger.child('Updater')
 
-const GITHUB_LATEST_RELEASE_API = 'https://api.github.com/repos/MeowY-Studios/VoxVer-Launcher/releases/latest'
+const GITHUB_LATEST_RELEASE_API =
+  'https://api.github.com/repos/MeowY-Studios/VoxVer-Launcher/releases/latest'
 
 /** 版本比对结果（"检查更新"入口返回给渲染端） */
 export interface LatestVersionCheckResult {
@@ -162,10 +163,7 @@ export function initAutoUpdater(window: BrowserWindow): void {
     broadcastStatus()
     log.info('[updater] Update available:', info.version)
     const files = info.files
-    log.info(
-      '[updater] Update files:',
-      files ? files.map((f) => f.url).join(', ') : 'N/A'
-    )
+    log.info('[updater] Update files:', files ? files.map((f) => f.url).join(', ') : 'N/A')
   })
 
   autoUpdater.on('update-not-available', () => {
@@ -262,12 +260,10 @@ export function startDownload(): void {
   // 双链路衔接：元数据未就绪时先补一次检查，再启动下载
   const ready = cachedUpdateCheckResult
     ? Promise.resolve(cachedUpdateCheckResult)
-    : autoUpdater
-        .checkForUpdates()
-        .then((result) => {
-          cachedUpdateCheckResult = result
-          return result
-        })
+    : autoUpdater.checkForUpdates().then((result) => {
+        cachedUpdateCheckResult = result
+        return result
+      })
 
   ready
     .then(() => autoUpdater.downloadUpdate(downloadToken ?? undefined))
@@ -325,8 +321,12 @@ export function setUpdateChannel(channel: string): void {
   autoUpdater.allowPrerelease = channel === 'beta'
   try {
     const db = require('./database').getDatabase()
-    db.prepare("INSERT OR REPLACE INTO configs (key, value) VALUES ('update_channel', ?)").run(channel)
-  } catch { /* ignore - may not have DB access yet */ }
+    db.prepare("INSERT OR REPLACE INTO configs (key, value) VALUES ('update_channel', ?)").run(
+      channel
+    )
+  } catch {
+    /* ignore - may not have DB access yet */
+  }
   log.info('[updater] Channel set to:', channel)
 }
 
@@ -334,8 +334,12 @@ export function setAutoCheckUpdate(enabled: boolean): void {
   autoCheckUpdate = enabled
   try {
     const db = require('./database').getDatabase()
-    db.prepare("INSERT OR REPLACE INTO configs (key, value) VALUES ('auto_check_update', ?)").run(String(enabled))
-  } catch { /* ignore */ }
+    db.prepare("INSERT OR REPLACE INTO configs (key, value) VALUES ('auto_check_update', ?)").run(
+      String(enabled)
+    )
+  } catch {
+    /* ignore */
+  }
   log.info('[updater] Auto check update:', enabled)
 }
 

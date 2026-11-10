@@ -11,8 +11,8 @@ export default defineConfig({
       name: 'html-inject-version',
       transformIndexHtml(html) {
         return html.replace('__APP_VERSION__', JSON.stringify(pkg.version))
-      },
-    },
+      }
+    }
   ],
   resolve: {
     alias: {
@@ -27,7 +27,7 @@ export default defineConfig({
     }
   },
   define: {
-    __APP_VERSION__: JSON.stringify(pkg.version),
+    __APP_VERSION__: JSON.stringify(pkg.version)
   },
   server: {
     host: '0.0.0.0',

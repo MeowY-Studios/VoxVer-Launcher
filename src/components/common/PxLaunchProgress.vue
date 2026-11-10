@@ -7,7 +7,20 @@
           <div class="panel-header">
             <div class="panel-title-group">
               <span class="panel-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5" />
+                  <path d="M2 12l10 5 10-5" />
+                </svg>
               </span>
               <h3 class="panel-title">{{ $t('component.launchProgressLaunching') }}</h3>
               <span class="panel-version">{{ versionId }}</span>
@@ -30,20 +43,50 @@
               >
                 <span class="phase-icon">
                   <template v-if="step.done">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
                   </template>
                   <template v-else-if="step.id === phase && phase === 'error'">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
                   </template>
                   <template v-else-if="step.id === phase">
-                    <svg class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
+                    <svg
+                      class="spinner"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round" />
+                    </svg>
                   </template>
                   <template v-else>
                     <span class="phase-num">{{ idx + 1 }}</span>
                   </template>
                 </span>
                 <span class="phase-label">{{ step.label }}</span>
-                <span class="phase-detail" v-if="step.id === phase">{{ detail || step.detail }}</span>
+                <span class="phase-detail" v-if="step.id === phase">{{
+                  detail || step.detail
+                }}</span>
               </div>
             </TransitionGroup>
           </div>
@@ -51,14 +94,20 @@
           <!-- 实时日志（仅运行阶段可展开） -->
           <div class="log-area" v-if="phase === 'running'">
             <div class="log-header" @click="showLog = !showLog">
-              <span>{{ showLog ? $t('component.launchProgressCollapseLog') : $t('component.launchProgressExpandLog') }}</span>
+              <span>{{
+                showLog
+                  ? $t('component.launchProgressCollapseLog')
+                  : $t('component.launchProgressExpandLog')
+              }}</span>
             </div>
             <pre v-if="showLog" class="log-content">{{ logBuffer }}</pre>
           </div>
 
           <!-- 底部按钮 -->
           <div class="panel-footer" v-if="phase === 'running'">
-            <button class="px-btn px-btn-sm" @click="$emit('openLog')">{{ $t('component.launchProgressViewFullLog') }}</button>
+            <button class="px-btn px-btn-sm" @click="$emit('openLog')">
+              {{ $t('component.launchProgressViewFullLog') }}
+            </button>
           </div>
           <!-- Java 缺失弹窗 -->
           <div v-if="javaMissing" class="java-missing-section">
@@ -75,13 +124,14 @@
             </div>
           </div>
 
+          <!-- 启动失败：直接展示错误摘要，避免用户只看到面板消失 -->
+          <div class="error-area" v-if="phase === 'error'">
+            <pre class="error-text">{{ errorMessage }}</pre>
+          </div>
           <div class="panel-footer" v-if="phase === 'error'">
-            <button
-              class="px-btn px-btn-sm px-btn-danger"
-              @click="$emit('showError', errorMessage)"
-            >
-                {{ $t('component.launchProgressViewError') }}
-              </button>
+            <button class="px-btn px-btn-sm" @click="closeError">
+              {{ $t('common.close') }}
+            </button>
           </div>
         </div>
       </div>
@@ -137,16 +187,66 @@ interface PhaseDef {
 }
 
 const phases = ref<PhaseDef[]>([
-  { id: 'building-config', label: t('component.launchProgressBuildConfig'), detail: t('component.launchProgressBuildingConfig'), done: false },
-  { id: 'validating-java', label: t('component.launchProgressValidateJava'), detail: t('component.launchProgressValidatingJava'), done: false },
-  { id: 'downloading-java', label: t('component.launchProgressDownloadJava'), detail: t('component.launchProgressDownloadingJava'), done: false },
-  { id: 'extracting-java', label: t('component.launchProgressExtractJava'), detail: t('component.launchProgressExtractingJava'), done: false },
-  { id: 'java-ready', label: t('component.launchProgressJavaReady'), detail: t('component.launchProgressJavaInstalled'), done: false },
-  { id: 'checking-files', label: t('component.launchProgressCheckFiles'), detail: t('component.launchProgressCheckingFiles'), done: false },
-  { id: 'downloading-files', label: t('component.launchProgressDownloadFiles'), detail: t('component.launchProgressDownloadingFiles'), done: false },
-  { id: 'launching-process', label: t('component.launchProgressLaunchProcess'), detail: t('component.launchProgressLaunchingProcess'), done: false },
-  { id: 'waiting-window', label: t('component.launchProgressWaitWindow'), detail: t('component.launchProgressWaitingWindow'), done: false },
-  { id: 'running', label: t('component.launchProgressGameRunning'), detail: t('component.launchProgressGameLaunched'), done: false }
+  {
+    id: 'building-config',
+    label: t('component.launchProgressBuildConfig'),
+    detail: t('component.launchProgressBuildingConfig'),
+    done: false
+  },
+  {
+    id: 'validating-java',
+    label: t('component.launchProgressValidateJava'),
+    detail: t('component.launchProgressValidatingJava'),
+    done: false
+  },
+  {
+    id: 'downloading-java',
+    label: t('component.launchProgressDownloadJava'),
+    detail: t('component.launchProgressDownloadingJava'),
+    done: false
+  },
+  {
+    id: 'extracting-java',
+    label: t('component.launchProgressExtractJava'),
+    detail: t('component.launchProgressExtractingJava'),
+    done: false
+  },
+  {
+    id: 'java-ready',
+    label: t('component.launchProgressJavaReady'),
+    detail: t('component.launchProgressJavaInstalled'),
+    done: false
+  },
+  {
+    id: 'checking-files',
+    label: t('component.launchProgressCheckFiles'),
+    detail: t('component.launchProgressCheckingFiles'),
+    done: false
+  },
+  {
+    id: 'downloading-files',
+    label: t('component.launchProgressDownloadFiles'),
+    detail: t('component.launchProgressDownloadingFiles'),
+    done: false
+  },
+  {
+    id: 'launching-process',
+    label: t('component.launchProgressLaunchProcess'),
+    detail: t('component.launchProgressLaunchingProcess'),
+    done: false
+  },
+  {
+    id: 'waiting-window',
+    label: t('component.launchProgressWaitWindow'),
+    detail: t('component.launchProgressWaitingWindow'),
+    done: false
+  },
+  {
+    id: 'running',
+    label: t('component.launchProgressGameRunning'),
+    detail: t('component.launchProgressGameLaunched'),
+    done: false
+  }
 ])
 
 // 只显示当前进行中的阶段：已加载完成的步骤不再保留展示，避免列表堆积
@@ -156,13 +256,20 @@ const visiblePhases = computed(() => {
   return phases.value.filter((p) => p.id === phase.value && (!p.done || phase.value === 'error'))
 })
 
-
-
 // * 清理函数引用
 let cleanupProgress: (() => void) | null = null
 let cleanupLog: (() => void) | null = null
 let cleanupExit: (() => void) | null = null
+let cleanupStopped: (() => void) | null = null
 let cleanupJavaMissing: (() => void) | null = null
+
+/** 关闭错误面板，回到可再次启动的状态 */
+function closeError() {
+  visible.value = false
+  phase.value = 'idle'
+  errorMessage.value = ''
+  resetPhases()
+}
 
 function resetPhases() {
   phases.value.forEach((p) => {
@@ -176,73 +283,71 @@ onMounted(() => {
 
   // * 监听进度
   if (api.game.onProgress) {
-    cleanupProgress = api.game.onProgress(
-      (data: unknown) => {
-        const d = data as { phase: LaunchPhase; message: string; detail?: string }
-        const { phase: newPhase, message: msg, detail: det } = d
+    cleanupProgress = api.game.onProgress((data: unknown) => {
+      const d = data as { phase: LaunchPhase; message: string; detail?: string }
+      const { phase: newPhase, message: msg, detail: det } = d
 
-        if (newPhase === 'idle') {
-          visible.value = false
-          resetPhases()
-          return
-        }
+      if (newPhase === 'idle') {
+        visible.value = false
+        resetPhases()
+        return
+      }
 
-        if (newPhase === 'error') {
-          phase.value = 'error'
-          errorMessage.value = msg || t('component.launchProgressLaunchFailed')
-          message.value = msg
-          detail.value = det || ''
-          visible.value = true
-          return
-        }
-
-        // 标记已完成阶段        
-        const phaseOrder: LaunchPhase[] = [
-          'building-config',
-          'validating-java',
-          'downloading-java',
-          'extracting-java',
-          'java-ready',
-          'checking-files',
-          'downloading-files',
-          'launching-process',
-          'waiting-window',
-          'running'
-        ]
-        const currentIdx = phaseOrder.indexOf(newPhase)
-        phases.value.forEach((p, idx) => {
-          const pIdx = phaseOrder.indexOf(p.id)
-          p.done = pIdx < currentIdx
-        })
-
-        // 如果回到前面阶段（如 checking-files / downloading-files 被调用多次），重置后面的
-        if (newPhase === 'checking-files' || newPhase === 'downloading-files') {
-          phases.value.forEach((p) => {
-            if (p.id !== newPhase) p.done = false
-          })
-        }
-
-        phase.value = newPhase
+      if (newPhase === 'error') {
+        phase.value = 'error'
+        errorMessage.value = msg || t('component.launchProgressLaunchFailed')
         message.value = msg
         detail.value = det || ''
         visible.value = true
-
-        // 游戏成功启动后，延迟 2s 自动关闭面板
-        if (newPhase === 'running') {
-          setTimeout(() => {
-            visible.value = false
-            resetPhases()
-          }, 2000)
-        }
+        return
       }
-    )
+
+      // 标记已完成阶段
+      const phaseOrder: LaunchPhase[] = [
+        'building-config',
+        'validating-java',
+        'downloading-java',
+        'extracting-java',
+        'java-ready',
+        'checking-files',
+        'downloading-files',
+        'launching-process',
+        'waiting-window',
+        'running'
+      ]
+      const currentIdx = phaseOrder.indexOf(newPhase)
+      phases.value.forEach((p, idx) => {
+        const pIdx = phaseOrder.indexOf(p.id)
+        p.done = pIdx < currentIdx
+      })
+
+      // 如果回到前面阶段（如 checking-files / downloading-files 被调用多次），重置后面的
+      if (newPhase === 'checking-files' || newPhase === 'downloading-files') {
+        phases.value.forEach((p) => {
+          if (p.id !== newPhase) p.done = false
+        })
+      }
+
+      phase.value = newPhase
+      message.value = msg
+      detail.value = det || ''
+      visible.value = true
+
+      // 游戏成功启动后，延迟 2s 自动关闭面板
+      if (newPhase === 'running') {
+        setTimeout(() => {
+          visible.value = false
+          resetPhases()
+        }, 2000)
+      }
+    })
   }
 
   // * 监听日志
   if (api.game.onLog) {
     cleanupLog = api.game.onLog((data: string | { text?: string; level?: string }) => {
       // onLog 可能返回 string 或 { text, level } 对象
-      const text = typeof data === 'string' ? data : data?.text ?? ''
+      const text = typeof data === 'string' ? data : (data?.text ?? '')
       if (!text) return
       logBuffer.value += text
       if (logBuffer.value.length > 50000) {
@@ -255,13 +360,49 @@ onMounted(() => {
   if (api.game.onExit) {
     cleanupExit = api.game.onExit(
       (data: { code: number; signal: string | null; instanceId?: string }) => {
-        // 退出后延迟关闭面板，让用户看到完成状态
-        setTimeout(() => {
-          visible.value = false
-          resetPhases()
-        }, data.code === 0 || data.code === null ? 1500 : 0)
+        if (data.code === 0 || data.code === null) {
+          // 正常退出：延迟关闭面板，让用户看到完成状态
+          setTimeout(() => {
+            visible.value = false
+            resetPhases()
+          }, 1500)
+          return
+        }
+        // 非正常退出：先展示通用错误，详细原因随后由 game:status stopped 覆盖
+        phase.value = 'error'
+        message.value = `${t('launch.gameAbnormalExit')} (exit code ${data.code})`
+        errorMessage.value = message.value
+        visible.value = true
       }
     )
+  }
+
+  // 监听 stopped 详情（主进程会带上失败原因、日志尾部、损坏 JAR 清单）
+  if (api.game.onStopped) {
+    cleanupStopped = api.game.onStopped((status, code, detail) => {
+      if (status !== 'stopped') return
+      // 用户主动停止不算错误，直接收起面板
+      if (detail?.aborted) {
+        visible.value = false
+        phase.value = 'idle'
+        errorMessage.value = ''
+        resetPhases()
+        return
+      }
+      if (code === 0) return
+      const errText = detail?.error || `${t('launch.gameAbnormalExit')} (exit code ${code})`
+      phase.value = 'error'
+      message.value = errText
+      errorMessage.value = [
+        errText,
+        detail?.codeText ? `[${detail.codeText}]` : '',
+        detail?.tailPreview ? `\n--- 日志尾部 ---\n${detail.tailPreview}` : '',
+        detail?.badJars ? `\n--- 损坏文件 ---\n${detail.badJars}` : ''
+      ]
+        .filter(Boolean)
+        .join('\n')
+      visible.value = true
+    })
   }
 
   // * 监听 Java 缺失事件（弹窗询问用户是否自动下载安装）
@@ -277,6 +418,7 @@ onUnmounted(() => {
   cleanupProgress?.()
   cleanupLog?.()
   cleanupExit?.()
+  cleanupStopped?.()
   cleanupJavaMissing?.()
   document.removeEventListener('keydown', handleKeydown)
 })
@@ -493,6 +635,25 @@ defineExpose({
   word-break: break-all;
 }
 
+/* ===== 错误详情 ===== */
+.error-area {
+  padding: 0 20px 12px;
+}
+.error-text {
+  margin: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 10px 12px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--voxver-danger);
+  background: var(--voxver-bg-primary);
+  border: 1px solid var(--voxver-border);
+  border-radius: var(--voxver-radius-sm);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
 /* ===== Footer ===== */
 .panel-footer {
   padding: 0 20px 16px;
@@ -594,5 +755,4 @@ defineExpose({
 .px-btn-primary:hover {
   background: color-mix(in oklab, var(--voxver-primary) 85%, black);
 }
-
 </style>

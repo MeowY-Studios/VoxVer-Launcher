@@ -189,22 +189,26 @@ const api = {
     ) => ipcRenderer.invoke('instance:export', id, destPath, options),
     importInstance: (mclaFilePath: string, targetDir: string) =>
       ipcRenderer.invoke('instance:import', mclaFilePath, targetDir),
-    exportPreview: (gameDir: string) =>
-      ipcRenderer.invoke('instance:export-preview', gameDir)
+    exportPreview: (gameDir: string) => ipcRenderer.invoke('instance:export-preview', gameDir)
   },
 
   // 账户管理
   account: {
     list: () => ipcRenderer.invoke('account:list') as Promise<Account[]>,
     getDeviceCode: () => ipcRenderer.invoke('account:get-device-code') as Promise<ApiResult>,
-    loginMicrosoft: () => ipcRenderer.invoke('account:login-microsoft') as Promise<ApiResult<Account>>,
+    loginMicrosoft: () =>
+      ipcRenderer.invoke('account:login-microsoft') as Promise<ApiResult<Account>>,
     cancelLogin: () => ipcRenderer.invoke('account:cancel-login') as Promise<ApiResult>,
-    loginOffline: (username: string) => ipcRenderer.invoke('account:login-offline', username) as Promise<ApiResult<Account>>,
+    loginOffline: (username: string) =>
+      ipcRenderer.invoke('account:login-offline', username) as Promise<ApiResult<Account>>,
     delete: (id: string) => ipcRenderer.invoke('account:delete', id),
     setActive: (id: string) => ipcRenderer.invoke('account:set-active', id),
-    refreshToken: (id: string) => ipcRenderer.invoke('account:refresh-token', id) as Promise<ApiResult>,
-    openVerificationUrl: () => ipcRenderer.invoke('account:open-verification-url') as Promise<ApiResult>,
-    getSkinDataUrl: (uuid: string) => ipcRenderer.invoke('account:get-skin-data-url', uuid) as Promise<ApiResult<string>>,
+    refreshToken: (id: string) =>
+      ipcRenderer.invoke('account:refresh-token', id) as Promise<ApiResult>,
+    openVerificationUrl: () =>
+      ipcRenderer.invoke('account:open-verification-url') as Promise<ApiResult>,
+    getSkinDataUrl: (uuid: string) =>
+      ipcRenderer.invoke('account:get-skin-data-url', uuid) as Promise<ApiResult<string>>,
     onLoginProgress: (callback: (payload: { stage: string; detail?: string }) => void) => {
       const listener = (_event: IpcRendererEvent, payload: { stage: string; detail?: string }) =>
         callback(payload)
@@ -286,9 +290,11 @@ const api = {
     getDownloadConfig: () => ipcRenderer.invoke('download:settings:get-config'),
     setMaxConcurrent: (max: number) => ipcRenderer.invoke('download:settings:set-concurrent', max),
     setMaxThreads: (max: number) => ipcRenderer.invoke('download:settings:set-threads', max),
-    setSpeedLimit: (limit: number) => ipcRenderer.invoke('download:settings:set-speed-limit', limit),
+    setSpeedLimit: (limit: number) =>
+      ipcRenderer.invoke('download:settings:set-speed-limit', limit),
     setMaxRetries: (max: number) => ipcRenderer.invoke('download:settings:set-retries', max),
-    setMirrorStrategy: (strategy: string) => ipcRenderer.invoke('download:settings:set-mirror-strategy', strategy),
+    setMirrorStrategy: (strategy: string) =>
+      ipcRenderer.invoke('download:settings:set-mirror-strategy', strategy),
     // 服务联通性测试
     listServices: () => ipcRenderer.invoke('download:services:list'),
     testServices: () => ipcRenderer.invoke('download:services:test')
@@ -322,8 +328,17 @@ const api = {
     download: (versionId: string, gameDir: string) =>
       ipcRenderer.invoke('versions:download', { versionId, gameDir }),
     /** 启动带进度的后台下载（立即返回 taskId），可选传入加载器/扩展参数用于下载完成后自动安装 */
-    downloadStart: (versionId: string, gameDir: string, opts?: { loader?: string; loaderVersion?: string; optifine?: string; optifineVersion?: string; displayName?: string }) =>
-      ipcRenderer.invoke('versions:download-start', { versionId, gameDir, ...opts }),
+    downloadStart: (
+      versionId: string,
+      gameDir: string,
+      opts?: {
+        loader?: string
+        loaderVersion?: string
+        optifine?: string
+        optifineVersion?: string
+        displayName?: string
+      }
+    ) => ipcRenderer.invoke('versions:download-start', { versionId, gameDir, ...opts }),
     /** 删除目录下的 MC 版本 */
     delete: (versionId: string, gameDir: string) =>
       ipcRenderer.invoke('versions:delete', { versionId, gameDir }),
@@ -445,10 +460,46 @@ const api = {
       ipcRenderer.on('game:log', listener)
       return () => ipcRenderer.removeListener('game:log', listener)
     },
-    onExit: (callback: (data: { code: number; signal: string | null; instanceId?: string }) => void) => {
-      const listener = (_event: IpcRendererEvent, data: { code: number; signal: string | null; instanceId?: string }) => callback(data)
+    onExit: (
+      callback: (data: { code: number; signal: string | null; instanceId?: string }) => void
+    ) => {
+      const listener = (
+        _event: IpcRendererEvent,
+        data: { code: number; signal: string | null; instanceId?: string }
+      ) => callback(data)
       ipcRenderer.on('game:exit', listener)
       return () => ipcRenderer.removeListener('game:exit', listener)
+    },
+    /** 启动状态（含 stopped 时携带的错误详情，用于前端弹窗展示失败原因） */
+    onStopped: (
+      callback: (
+        status: string,
+        code: number,
+        detail?: {
+          error?: string
+          code?: number
+          codeText?: string
+          tailPreview?: string
+          badJars?: string
+          aborted?: boolean
+        }
+      ) => void
+    ) => {
+      const listener = (
+        _event: IpcRendererEvent,
+        status: string,
+        code: number,
+        detail?: {
+          error?: string
+          code?: number
+          codeText?: string
+          tailPreview?: string
+          badJars?: string
+          aborted?: boolean
+        }
+      ) => callback(status, code, detail)
+      ipcRenderer.on('game:status', listener)
+      return () => ipcRenderer.removeListener('game:status', listener)
     },
     /** 检测缺失文件 */
     checkMissingFiles: (versionId: string): Promise<MissingFileInfo[]> =>
@@ -456,8 +507,13 @@ const api = {
     /** 确认下载缺失文件并继续启动 */
     confirmDownloadAndLaunch: (versionId: string, accountId?: string) =>
       ipcRenderer.invoke('game:confirm-download-and-launch', { versionId, accountId }),
-    onJavaMissing: (callback: (data: { majorVersion: number; responseChannel: string }) => void) => {
-      const listener = (_event: IpcRendererEvent, data: { majorVersion: number; responseChannel: string }) => callback(data)
+    onJavaMissing: (
+      callback: (data: { majorVersion: number; responseChannel: string }) => void
+    ) => {
+      const listener = (
+        _event: IpcRendererEvent,
+        data: { majorVersion: number; responseChannel: string }
+      ) => callback(data)
       ipcRenderer.on('game:java-missing', listener)
       return () => ipcRenderer.removeListener('game:java-missing', listener)
     },
@@ -540,13 +596,22 @@ const api = {
       title: string
       body?: string
       type?: 'info' | 'success' | 'warning' | 'error'
+      source?: 'system' | 'download' | 'official'
+      key?: string
+      progress?: number
+      status?: 'info' | 'running' | 'success' | 'warning' | 'error'
       route?: string
+      pinned?: boolean
     }) => ipcRenderer.invoke('notification:send', payload),
     getHistory: (limit?: number) => ipcRenderer.invoke('notification:get-history', limit),
     markRead: (id: string) => ipcRenderer.invoke('notification:mark-read', id),
     markAllRead: () => ipcRenderer.invoke('notification:mark-all-read'),
     clear: () => ipcRenderer.invoke('notification:clear'),
-    getUnreadCount: () => ipcRenderer.invoke('notification:get-unread-count') as Promise<number>,
+    getUnreadCount: () =>
+      ipcRenderer.invoke('notification:get-unread-count') as Promise<{
+        ok: boolean
+        data?: number
+      }>,
     onNotify: (
       callback: (item: {
         id: string
@@ -570,6 +635,30 @@ const api = {
       ) => callback(item)
       ipcRenderer.on('notification:new', listener)
       return () => ipcRenderer.removeListener('notification:new', listener)
+    },
+    onUpdated: (
+      callback: (item: {
+        id: string
+        title: string
+        body: string
+        type: string
+        timestamp: number
+        route?: string
+      }) => void
+    ) => {
+      const listener = (
+        _event: IpcRendererEvent,
+        item: {
+          id: string
+          title: string
+          body: string
+          type: string
+          timestamp: number
+          route?: string
+        }
+      ) => callback(item)
+      ipcRenderer.on('notification:updated', listener)
+      return () => ipcRenderer.removeListener('notification:updated', listener)
     },
     onClicked: (callback: (data: { id: string; route?: string }) => void) => {
       const listener = (_event: IpcRendererEvent, data: { id: string; route?: string }) =>
@@ -638,13 +727,8 @@ const api = {
     getConfig: () => ipcRenderer.invoke('updater:get-config'),
     setChannel: (channel: string) => ipcRenderer.invoke('updater:set-channel', channel),
     setAutoCheck: (enabled: boolean) => ipcRenderer.invoke('updater:set-auto-check', enabled),
-    onStatusChange: (
-      callback: (status: UpdaterStatus) => void
-    ) => {
-      const listener = (
-        _event: IpcRendererEvent,
-        status: UpdaterStatus
-      ) => callback(status)
+    onStatusChange: (callback: (status: UpdaterStatus) => void) => {
+      const listener = (_event: IpcRendererEvent, status: UpdaterStatus) => callback(status)
       ipcRenderer.on('updater:status', listener)
       return () => ipcRenderer.removeListener('updater:status', listener)
     }
@@ -741,8 +825,27 @@ const api = {
     start: (pid: number) => ipcRenderer.invoke('perf-monitor:start', pid),
     stop: () => ipcRenderer.invoke('perf-monitor:stop'),
     status: () => ipcRenderer.invoke('perf-monitor:status'),
-    onSnapshot: (callback: (snap: { pid: number; alive: boolean; cpu: number; memoryMB: number; uptimeMs: number; timestamp: number }) => void) => {
-      const handler = (_event: unknown, snap: unknown) => callback(snap as { pid: number; alive: boolean; cpu: number; memoryMB: number; uptimeMs: number; timestamp: number })
+    onSnapshot: (
+      callback: (snap: {
+        pid: number
+        alive: boolean
+        cpu: number
+        memoryMB: number
+        uptimeMs: number
+        timestamp: number
+      }) => void
+    ) => {
+      const handler = (_event: unknown, snap: unknown) =>
+        callback(
+          snap as {
+            pid: number
+            alive: boolean
+            cpu: number
+            memoryMB: number
+            uptimeMs: number
+            timestamp: number
+          }
+        )
       ipcRenderer.on('perf-monitor:snapshot', handler)
       return () => ipcRenderer.removeListener('perf-monitor:snapshot', handler)
     }
@@ -761,18 +864,18 @@ const api = {
     return {
       startInstance: (instanceId: string) =>
         ipcRenderer.invoke('share:start-instance', { instanceId }),
-      stopShare: (sessionId: string) =>
-        ipcRenderer.invoke('share:stop-share', { sessionId }),
+      stopShare: (sessionId: string) => ipcRenderer.invoke('share:stop-share', { sessionId }),
       receiveInstance: (shareCode: string) =>
         ipcRenderer.invoke('share:receive-instance', { shareCode }),
       importReceived: (sessionId: string) =>
         ipcRenderer.invoke('share:import-received', { sessionId }),
-      closeSession: (sessionId: string) =>
-        ipcRenderer.invoke('share:close-session', { sessionId }),
-      getSession: (sessionId: string) =>
-        ipcRenderer.invoke('share:get-session', { sessionId }),
-      saveSettings: (settings: { chunkSize?: number; connectionTimeout?: number; signalingServer?: string }) =>
-        ipcRenderer.invoke('share:save-settings', settings),
+      closeSession: (sessionId: string) => ipcRenderer.invoke('share:close-session', { sessionId }),
+      getSession: (sessionId: string) => ipcRenderer.invoke('share:get-session', { sessionId }),
+      saveSettings: (settings: {
+        chunkSize?: number
+        connectionTimeout?: number
+        signalingServer?: string
+      }) => ipcRenderer.invoke('share:save-settings', settings),
       getSettings: () => ipcRenderer.invoke('share:get-settings'),
       getHistory: (options?: { limit?: number }) =>
         ipcRenderer.invoke('share:get-history', options || {}),
@@ -783,7 +886,10 @@ const api = {
         return () => ipcRenderer.removeListener('share:protocol-invoke', listener)
       },
       onPackProgress: (
-        callback: (event: IpcRendererEvent, data: { instanceId: string; stage: string; progress: number }) => void
+        callback: (
+          event: IpcRendererEvent,
+          data: { instanceId: string; stage: string; progress: number }
+        ) => void
       ) => {
         const listener = (
           _event: IpcRendererEvent,
@@ -794,11 +900,42 @@ const api = {
         return () => ipcRenderer.removeListener('share:pack-progress', listener)
       },
       onSessionUpdate: (
-        callback: (event: IpcRendererEvent, data: { sessionId: string; session: { sessionId: string; shareCode?: string; type?: string; status: string; transferredChunks: number; totalChunks: number; error?: string; instanceName?: string; mcVersion?: string; loaderType?: string } }) => void
+        callback: (
+          event: IpcRendererEvent,
+          data: {
+            sessionId: string
+            session: {
+              sessionId: string
+              shareCode?: string
+              type?: string
+              status: string
+              transferredChunks: number
+              totalChunks: number
+              error?: string
+              instanceName?: string
+              mcVersion?: string
+              loaderType?: string
+            }
+          }
+        ) => void
       ) => {
         const listener = (
           _event: IpcRendererEvent,
-          data: { sessionId: string; session: { sessionId: string; shareCode?: string; type?: string; status: string; transferredChunks: number; totalChunks: number; error?: string; instanceName?: string; mcVersion?: string; loaderType?: string } }
+          data: {
+            sessionId: string
+            session: {
+              sessionId: string
+              shareCode?: string
+              type?: string
+              status: string
+              transferredChunks: number
+              totalChunks: number
+              error?: string
+              instanceName?: string
+              mcVersion?: string
+              loaderType?: string
+            }
+          }
         ) => callback(_event, data)
         sessionListeners.set(callback, listener)
         ipcRenderer.on('share:session-update', listener)
@@ -835,35 +972,64 @@ const api = {
         return () => ipcRenderer.removeListener('share:progress-update', listener)
       },
       removePackProgressListener: (
-        callback: (event: IpcRendererEvent, data: { instanceId: string; stage: string; progress: number }) => void
+        callback: (
+          event: IpcRendererEvent,
+          data: { instanceId: string; stage: string; progress: number }
+        ) => void
       ) => {
         const listener = packListeners.get(callback)
         if (listener) {
-          ipcRenderer.removeListener('share:pack-progress', listener as (...args: unknown[]) => void)
+          ipcRenderer.removeListener(
+            'share:pack-progress',
+            listener as (...args: unknown[]) => void
+          )
           packListeners.delete(callback)
         }
       },
       removeSessionUpdateListener: (
         callback: (
           event: IpcRendererEvent,
-          data: { sessionId: string; session: { sessionId: string; status: string; transferredChunks: number; totalChunks: number; error?: string } }
+          data: {
+            sessionId: string
+            session: {
+              sessionId: string
+              status: string
+              transferredChunks: number
+              totalChunks: number
+              error?: string
+            }
+          }
         ) => void
       ) => {
         const listener = sessionListeners.get(callback)
         if (listener) {
-          ipcRenderer.removeListener('share:session-update', listener as (...args: unknown[]) => void)
+          ipcRenderer.removeListener(
+            'share:session-update',
+            listener as (...args: unknown[]) => void
+          )
           sessionListeners.delete(callback)
         }
       },
       removeProgressUpdateListener: (
         callback: (
           event: Event,
-          data: { sessionId: string; progress: { transferredChunks: number; totalChunks: number; bytesPerSecond: number; estimatedRemaining: number } }
+          data: {
+            sessionId: string
+            progress: {
+              transferredChunks: number
+              totalChunks: number
+              bytesPerSecond: number
+              estimatedRemaining: number
+            }
+          }
         ) => void
       ) => {
         const listener = progressListeners.get(callback)
         if (listener) {
-          ipcRenderer.removeListener('share:progress-update', listener as (...args: unknown[]) => void)
+          ipcRenderer.removeListener(
+            'share:progress-update',
+            listener as (...args: unknown[]) => void
+          )
           progressListeners.delete(callback)
         }
       }

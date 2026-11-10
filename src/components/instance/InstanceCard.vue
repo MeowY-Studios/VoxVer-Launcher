@@ -61,12 +61,20 @@
 
     <!-- 操作菜单（悬停显示） -->
     <div class="card-actions" v-if="showActions">
-      <button class="action-btn" @click.stop="$emit('launch', instance.id)" :title="$t('instance.launch')">
+      <button
+        class="action-btn"
+        @click.stop="$emit('launch', instance.id)"
+        :title="$t('instance.launch')"
+      >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
           <path d="M8 5v14l11-7z" />
         </svg>
       </button>
-      <button class="action-btn" @click.stop="$emit('open-detail', instance.id)" :title="$t('instance.detail')">
+      <button
+        class="action-btn"
+        @click.stop="$emit('open-detail', instance.id)"
+        :title="$t('instance.detail')"
+      >
         <svg
           width="14"
           height="14"
@@ -79,7 +87,11 @@
           <path d="M21 21l-4.35-4.35" />
         </svg>
       </button>
-      <button class="action-btn danger" @click.stop="$emit('delete', instance.id)" :title="$t('instance.delete')">
+      <button
+        class="action-btn danger"
+        @click.stop="$emit('delete', instance.id)"
+        :title="$t('instance.delete')"
+      >
         <svg
           width="14"
           height="14"
@@ -165,7 +177,10 @@ const relativeTime = computed(() => {
   overflow: hidden;
   cursor: pointer;
   box-shadow: 4px 4px 0 0 rgb(0 0 0 / 0.3);
-  transition: box-shadow var(--voxver-transition-fast), transform var(--voxver-transition-fast), border-color var(--voxver-transition-fast);
+  transition:
+    box-shadow var(--voxver-transition-fast),
+    transform var(--voxver-transition-fast),
+    border-color var(--voxver-transition-fast);
 
   &:hover {
     border-color: var(--voxver-accent);

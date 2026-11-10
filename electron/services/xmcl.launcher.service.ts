@@ -15,9 +15,11 @@ import {
   installAssets,
   installLibraries
 } from '@xmcl/installer'
-import type { Options as InstallerOptions, LibraryOptions as InstallerLibraryOptions } from '@xmcl/installer'
-import { Agent, interceptors } from 'undici'
-import type { Dispatcher } from 'undici'
+import type {
+  Options as InstallerOptions,
+  LibraryOptions as InstallerLibraryOptions
+} from '@xmcl/installer'
+import { download } from '@xmcl/file-transfer'
 import { ChildProcess, execFile, execSync } from 'child_process'
 import { BrowserWindow, dialog, app, ipcMain } from 'electron'
 import * as fs from 'fs'
@@ -60,21 +62,11 @@ function findJavaBin(rootDir: string): string | null {
   return null
 }
 
-/** Java 下载专用 undici Agent：不走系统代理，直连下载 */
-const javaDownloadDispatcher = new Agent({
-  connect: { timeout: 30_000 },
-  bodyTimeout: 600_000,  // 10 分钟，JDK 包较大
-  headersTimeout: 30_000,
-}).compose(interceptors.redirect({ maxRedirections: 5 }))
-
-/**
- * Node（undici）的 fetch 支持 `dispatcher` 选项来指定连接池，
- * 但 TypeScript 内置的 DOM `RequestInit` 里没有这个字段，故在此声明扩展类型。
- */
-type FetchInitWithDispatcher = RequestInit & { dispatcher?: Dispatcher }
-
 /** 下载并安装指定大版本的 Adoptium JDK，返回 java.exe 路径 */
-async function downloadAndInstallJava(majorVersion: number, mainWindow: BrowserWindow): Promise<string> {
+async function downloadAndInstallJava(
+  majorVersion: number,
+  mainWindow: BrowserWindow
+): Promise<string> {
   const targetDir = join(app.getPath('userData'), 'java-runtime', `jdk-${majorVersion}`)
   const zipPath = join(app.getPath('temp'), `jdk-${majorVersion}-adoptium.zip`)
 
@@ -88,41 +80,48 @@ async function downloadAndInstallJava(majorVersion: number, mainWindow: BrowserW
     detail: '正在查询最新版本'
   })
 
+  interface AdoptiumBinary {
+    architecture?: string
+    os?: string
+    image_type?: string
+    jvm_impl?: string
+    package?: { name?: string; link?: string }
+  }
+  interface AdoptiumAsset {
+    release_name?: string
+    /** Adoptium 新版接口把二进制信息直接放在 binary 字段（扁平结构） */
+    binary?: AdoptiumBinary
+    /** 旧版接口的数组结构，保留兼容 */
+    binaries?: AdoptiumBinary[]
+  }
+
   const infoUrl = `https://api.adoptium.net/v3/assets/latest/${majorVersion}/hotspot`
   let releaseName = ''
   let officialBinaryUrl = ''
-  let infoOk = false
+  let packageName = ''
 
   try {
     log.info(`[downloadAndInstallJava] 查询版本信息: ${infoUrl}`)
-    const infoResp = await fetch(infoUrl, {
-      dispatcher: javaDownloadDispatcher
-    } as FetchInitWithDispatcher)
+    const infoResp = await fetch(infoUrl)
     if (infoResp.ok) {
-      const infoData = (await infoResp.json()) as Array<{
-        release_name?: string
-        binaries?: Array<{
-          architecture?: string; os?: string; image_type?: string
-          jvm_impl?: string; package?: { name?: string; link?: string }
-        }>
-      }>
-      for (const ver of infoData) {
-        releaseName = ver.release_name || ''
-        for (const bin of ver.binaries || []) {
-          if (
+      const infoData = (await infoResp.json()) as AdoptiumAsset[]
+      releaseName = infoData[0]?.release_name || ''
+      const matched = infoData
+        .flatMap((asset) => (asset.binary ? [asset.binary] : asset.binaries || []))
+        .find(
+          (bin) =>
             bin.architecture === 'x64' &&
             bin.os === 'windows' &&
             bin.image_type === 'jdk' &&
             bin.jvm_impl === 'hotspot'
-          ) {
-            officialBinaryUrl = bin.package?.link || ''
-            break
-          }
-        }
-        if (officialBinaryUrl) break
+        )
+      if (matched) {
+        officialBinaryUrl = matched.package?.link || ''
+        packageName = matched.package?.name || ''
       }
-      infoOk = true
-      log.info(`[downloadAndInstallJava] 版本信息: release=${releaseName}, url=${officialBinaryUrl}`)
+      log.info(
+        `[downloadAndInstallJava] 版本信息: release=${releaseName}, package=${packageName}, url=${officialBinaryUrl}`
+      )
     } else {
       log.warn(`[downloadAndInstallJava] 版本信息 API 返回 ${infoResp.status}`)
     }
@@ -133,26 +132,31 @@ async function downloadAndInstallJava(majorVersion: number, mainWindow: BrowserW
   // ---------- Step 2: 构建多源下载列表 ----------
   const downloadUrls: { url: string; label: string }[] = []
 
-  // 2a. 官方 GitHub 直链（如果拿到了）
-  if (officialBinaryUrl) {
-    downloadUrls.push({ url: officialBinaryUrl, label: 'GitHub' })
-  }
-
-  // 2b. 国内镜像（按优先级排列）
-  if (infoOk && releaseName) {
-    // releaseName 示例: jdk-8u432-b09，URL 中 + 需要编码
-    const mirrorName = releaseName.replace(/\+/g, '%2B')
-    const basePath = `${majorVersion}/jdk/x64/windows/${mirrorName}.zip`
+  // 2a. 国内镜像（优先）：镜像里的文件名是 Adoptium 的包名，
+  //     例如 OpenJDK25U-jdk_x64_windows_hotspot_25.0.5_8.zip；
+  //     release_name（jdk-25.0.5+8）在镜像上并不存在，用它拼 URL 会 404
+  if (packageName) {
+    const mirrorName = encodeURIComponent(packageName)
+    const basePath = `${majorVersion}/jdk/x64/windows/${mirrorName}`
     const mirrors: { url: string; label: string }[] = [
       { url: `https://mirrors.tuna.tsinghua.edu.cn/Adoptium/${basePath}`, label: '清华镜像' },
       { url: `https://mirrors.ustc.edu.cn/Adoptium/${basePath}`, label: '中科大镜像' },
       { url: `https://mirrors.nju.edu.cn/Adoptium/${basePath}`, label: '南大镜像' },
-      { url: `https://mirrors.cloud.tencent.com/Adoptium/${basePath}`, label: '腾讯云镜像' },
+      { url: `https://mirrors.cloud.tencent.com/Adoptium/${basePath}`, label: '腾讯云镜像' }
     ]
     for (const m of mirrors) {
       downloadUrls.push(m)
       log.info(`[downloadAndInstallJava] ${m.label}: ${m.url}`)
     }
+  } else {
+    log.warn(
+      `[downloadAndInstallJava] 未取到 Adoptium 包名（release=${releaseName || '未知'}），跳过国内镜像`
+    )
+  }
+
+  // 2b. 官方 GitHub 直链（如果拿到了）
+  if (officialBinaryUrl) {
+    downloadUrls.push({ url: officialBinaryUrl, label: 'GitHub' })
   }
 
   // 2c. 官方 API 重定向（兜底，可能跳转到 GitHub 而不可达）
@@ -167,9 +171,9 @@ async function downloadAndInstallJava(majorVersion: number, mainWindow: BrowserW
     const { url, label: sourceLabel } = downloadUrls[i]
     const attempt = `${i + 1}/${downloadUrls.length}`
 
-    // 同源最多尝试 3 次（1 次初始 + 2 次重试），单次超时 10 秒
+    // 同源最多尝试 3 次（1 次初始 + 2 次重试），单次超时 10 分钟（JDK 压缩包约 140MB）
     const MAX_RETRIES = 3
-    const REQUEST_TIMEOUT_MS = 10_000
+    const REQUEST_TIMEOUT_MS = 600_000
     let sourceError: Error | undefined
 
     for (let retry = 0; retry < MAX_RETRIES; retry++) {
@@ -185,21 +189,39 @@ async function downloadAndInstallJava(majorVersion: number, mainWindow: BrowserW
         const controller = new AbortController()
         const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
 
-        const response = await fetch(url, {
-          dispatcher: javaDownloadDispatcher,
-          redirect: 'follow',
-          signal: controller.signal
-        } as FetchInitWithDispatcher)
-        clearTimeout(timer)
+        // 先清掉上次失败的临时文件，避免断点续传拿到残缺内容
+        await fs.promises.unlink(`${zipPath}.part`).catch(() => undefined)
 
-        if (!response.ok) throw new Error(`HTTP ${response.status}`)
+        try {
+          await download({
+            url,
+            destination: zipPath,
+            pendingFile: `${zipPath}.part`,
+            // 部分镜像对缺少 Accept 头的请求直接返回 403，这里显式带上
+            headers: { accept: '*/*', 'user-agent': 'node' },
+            abortSignal: controller.signal
+          })
+        } finally {
+          clearTimeout(timer)
+        }
 
-        const arrayBuffer = await response.arrayBuffer()
-        const buffer = Buffer.from(arrayBuffer)
-        log.info(`[downloadAndInstallJava] 下载完成，大小: ${(buffer.length / 1024 / 1024).toFixed(1)} MB`)
-
-        if (!fs.existsSync(dirname(zipPath))) fs.mkdirSync(dirname(zipPath), { recursive: true })
-        fs.writeFileSync(zipPath, buffer)
+        // file-transfer 把非 2xx 响应当成「成功」，会留下 0 字节/错误页文件，这里兜底校验
+        const zipSize = fs.statSync(zipPath).size
+        const zipHead = Buffer.alloc(2)
+        const zipFd = fs.openSync(zipPath, 'r')
+        try {
+          fs.readSync(zipFd, zipHead, 0, 2, 0)
+        } finally {
+          fs.closeSync(zipFd)
+        }
+        if (zipSize < 10 * 1024 * 1024 || zipHead.toString('latin1') !== 'PK') {
+          throw new Error(
+            `下载内容异常（${(zipSize / 1024 / 1024).toFixed(1)} MB，不是 zip），该源可能返回了错误页`
+          )
+        }
+        log.info(
+          `[downloadAndInstallJava] 下载完成，大小: ${(zipSize / 1024 / 1024).toFixed(1)} MB`
+        )
 
         // ---------- Step 4: 解压安装 ----------
         mainWindow.webContents.send('game:progress', {
@@ -214,7 +236,11 @@ async function downloadAndInstallJava(majorVersion: number, mainWindow: BrowserW
           `powershell -Command "Expand-Archive -Path '${zipPath}' -DestinationPath '${targetDir}' -Force"`,
           { windowsHide: true, encoding: 'utf-8' }
         )
-        try { fs.unlinkSync(zipPath) } catch { /* ignore */ }
+        try {
+          fs.unlinkSync(zipPath)
+        } catch {
+          /* ignore */
+        }
 
         const javaBin = findJavaBin(targetDir)
         if (!javaBin) throw new Error('Java 安装完成但未找到 java.exe')
@@ -229,17 +255,20 @@ async function downloadAndInstallJava(majorVersion: number, mainWindow: BrowserW
         return javaBin
       } catch (e) {
         sourceError = e as Error
-        const isTimeout = (e as Error).name === 'AbortError' || sourceError.message.includes('aborted')
+        const isTimeout =
+          (e as Error).name === 'AbortError' || sourceError.message.includes('aborted')
         const reason = isTimeout ? `${REQUEST_TIMEOUT_MS / 1000}s 超时` : sourceError.message
         log.warn(
           `[downloadAndInstallJava] [${retryLabel}] ${sourceLabel} 失败: ${reason}` +
-          (retry < MAX_RETRIES - 1 ? '，将重试...' : '')
+            (retry < MAX_RETRIES - 1 ? '，将重试...' : '')
         )
       }
     }
 
     lastError = sourceError
-    log.warn(`[downloadAndInstallJava] ${sourceLabel} 全部 ${MAX_RETRIES} 次尝试均失败，切换下一个源`)
+    log.warn(
+      `[downloadAndInstallJava] ${sourceLabel} 全部 ${MAX_RETRIES} 次尝试均失败，切换下一个源`
+    )
   }
 
   // 所有源均失败
@@ -387,10 +416,7 @@ function bmclapiLibraryHost(lib: { download?: { url?: string } }): string | stri
   // 这样如果 BMCLAPI 镜像失败，会自动回退到原始域名
   if (lib.download?.url) {
     const url = lib.download.url
-    if (
-      url.includes('optifine.net') ||
-      url.includes('/optifine/')
-    ) {
+    if (url.includes('optifine.net') || url.includes('/optifine/')) {
       return []
     }
   }
@@ -400,34 +426,57 @@ function bmclapiLibraryHost(lib: { download?: { url?: string } }): string | stri
 // 资源索引 URL 替换为 BMCLAPI（返回多线路数组）
 function bmclapiAssetsIndexUrl(version: ResolvedVersion): string | string[] {
   if (version.assetIndex?.url) {
-    return BMCLAPI_MIRRORS_LIST.map((base) =>
-      version.assetIndex!.url
-        .replace('https://launchermeta.mojang.com', base)
+    return rankedMirrorBases.map((base) =>
+      version
+        .assetIndex!.url.replace('https://launchermeta.mojang.com', base)
         .replace('https://piston-meta.mojang.com', base)
     )
   }
   return []
 }
 
-// 带超时的 undici Agent（per-request 15s 超时 + 3 次重试）
-const DOWNLOAD_TIMEOUT = 15_000
-const downloadDispatcher = new Agent({
-  connect: { timeout: DOWNLOAD_TIMEOUT },
-  bodyTimeout: DOWNLOAD_TIMEOUT,
-  headersTimeout: DOWNLOAD_TIMEOUT,
-}).compose(
-  interceptors.retry({ maxRetries: 3, maxTimeout: DOWNLOAD_TIMEOUT }),
-  interceptors.redirect({ maxRedirections: 5 })
-)
+// 单个文件的下载超时（超时后交由多线路 URL 列表换源）
+const DOWNLOAD_TIMEOUT = 10_000
 
-// 统一的 BMCLAPI 安装选项（多线路 + per-request 超时）
+/** 镜像测速：探测每个镜像根路径的可达性与延迟，可达的按延迟升序排前面，不可达的排最后兜底 */
+const MIRROR_PROBE_TIMEOUT = 1_500
+let rankedMirrorBases: string[] = [...BMCLAPI_MIRRORS_LIST]
+
+async function refreshMirrorOrder(): Promise<void> {
+  const probes = await Promise.all(
+    BMCLAPI_MIRRORS_LIST.map(async (base) => {
+      const startAt = Date.now()
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), MIRROR_PROBE_TIMEOUT)
+      try {
+        await fetch(`${base}/maven/`, { method: 'HEAD', signal: controller.signal })
+        return { base, latency: Date.now() - startAt }
+      } catch {
+        return { base, latency: Number.POSITIVE_INFINITY }
+      } finally {
+        clearTimeout(timer)
+      }
+    })
+  )
+  rankedMirrorBases = probes.sort((a, b) => a.latency - b.latency).map((p) => p.base)
+  const summary = probes
+    .map((p) => `${p.base}=${Number.isFinite(p.latency) ? `${p.latency}ms` : '不可达'}`)
+    .join(', ')
+  log.info(`[refreshMirrorOrder] 镜像测速: ${summary}`)
+}
+
+// 统一的 BMCLAPI 安装选项（多线路）
+// 注意：不能把项目根目录的 undici Agent 塞进这里 —— @xmcl/file-transfer 内部用的是它自带的
+// undici 7.2.x，两个版本的 Request 实现不兼容，传进去会直接抛 "maxRedirections is not supported"，
+// 导致所有文件下载失败并在 assets 里留下 0 字节残骸。这里交给 installer 用它自己的默认连接池。
 function getBmclapiInstallOptions(): Record<string, unknown> {
   return {
     libraryHost: bmclapiLibraryHost,
-    mavenHost: BMCLAPI_MIRRORS_LIST.map((b) => `${b}/maven`),
-    assetsHost: BMCLAPI_MIRRORS_LIST.map((b) => `${b}/assets`),
+    mavenHost: rankedMirrorBases.map((b) => `${b}/maven`),
+    assetsHost: rankedMirrorBases.map((b) => `${b}/assets`),
     assetsIndexUrl: bmclapiAssetsIndexUrl,
-    dispatcher: downloadDispatcher
+    // 已存在的资源只按大小预校验，避免每次启动都把 500MB+ 资源完整算一遍 SHA1
+    prevalidSizeOnly: true
   }
 }
 
@@ -456,11 +505,19 @@ async function detectMissingFiles(
       // Issue 接口字段：file（绝对路径）/role/type/hint。LibraryIssue 还额外带 .library（含 groupId/artifactId/version 方便定位）
       const libInfo =
         issue.role === 'library'
-          ? ((issue as unknown as { library?: { groupId?: string; artifactId?: string; version?: string } }).library
-              ? `${(issue as unknown as { library: { groupId: string; artifactId: string; version: string } }).library.groupId}:${
-                  (issue as unknown as { library: { groupId: string; artifactId: string; version: string } }).library.artifactId
-                }:${(issue as unknown as { library: { groupId: string; artifactId: string; version: string } }).library.version}`
-              : '')
+          ? (
+              issue as unknown as {
+                library?: { groupId?: string; artifactId?: string; version?: string }
+              }
+            ).library
+            ? `${(issue as unknown as { library: { groupId: string; artifactId: string; version: string } }).library.groupId}:${
+                (
+                  issue as unknown as {
+                    library: { groupId: string; artifactId: string; version: string }
+                  }
+                ).library.artifactId
+              }:${(issue as unknown as { library: { groupId: string; artifactId: string; version: string } }).library.version}`
+            : ''
           : ''
       log.info(
         `[detectMissingFiles] - [${issue.type}] ${issue.role}${libInfo ? ' ' + libInfo : ''} file=${(issue as unknown as { file?: string }).file || 'n/a'}: ${issue.hint}`
@@ -473,6 +530,132 @@ async function detectMissingFiles(
   }
 }
 
+/** 资源索引里的单个对象 */
+interface AssetIndexObject {
+  hash: string
+  size: number
+}
+
+interface BrokenAsset {
+  name: string
+  hash: string
+  size: number
+}
+
+/**
+ * 扫描资源索引，找出「文件不存在 / 0 字节 / 大小不符」的资源对象。
+ * 只比较大小不计算 SHA1，9000+ 文件也能很快完成。
+ */
+async function findBrokenAssets(
+  folder: MinecraftFolder,
+  assetsIndexId: string
+): Promise<BrokenAsset[]> {
+  const indexPath = folder.getAssetsIndex(assetsIndexId)
+  const raw = await fs.promises.readFile(indexPath, 'utf-8')
+  const parsed = JSON.parse(raw) as { objects?: Record<string, AssetIndexObject> }
+  const entries = Object.entries(parsed.objects || {})
+  const broken: BrokenAsset[] = []
+  const CONCURRENCY = 32
+  for (let i = 0; i < entries.length; i += CONCURRENCY) {
+    const chunk = entries.slice(i, i + CONCURRENCY)
+    await Promise.all(
+      chunk.map(async ([name, obj]) => {
+        const stat = await fs.promises.stat(folder.getAsset(obj.hash)).catch(() => null)
+        if (!stat || stat.size !== obj.size) broken.push({ name, hash: obj.hash, size: obj.size })
+      })
+    )
+  }
+  return broken
+}
+
+/**
+ * 修复损坏/不完整的资源文件。
+ * 关键点：先下载到 `<hash>.part` 临时文件，SHA1 校验通过后再改名为正式文件；
+ * 这样即使下载被超时/退出中断，也只会留下 .part，不会在 assets/objects 里留下 0 字节残骸，
+ * 避免下次启动被 diagnose 判成损坏 → 删除 → 重下的死循环。
+ */
+async function repairBrokenAssets(
+  mainWindow: BrowserWindow,
+  folder: MinecraftFolder,
+  assetsIndexId: string
+): Promise<void> {
+  let broken: BrokenAsset[]
+  try {
+    broken = await findBrokenAssets(folder, assetsIndexId)
+  } catch (e: unknown) {
+    log.warn(`[repairBrokenAssets] 读取资源索引失败，跳过资源自检: ${(e as Error).message}`)
+    return
+  }
+  if (broken.length === 0) return
+
+  log.info(
+    `[repairBrokenAssets] 检测到 ${broken.length} 个资源文件损坏（0 字节或大小不符），开始用临时文件重下`
+  )
+  mainWindow.webContents.send('game:progress', {
+    phase: 'downloading-files',
+    message: '正在修复损坏的游戏资源...',
+    detail: `共 ${broken.length} 个文件，正在测速下载源`
+  })
+
+  // 修补前重新测一次镜像延迟，避免沿用几分钟前的旧顺序
+  await refreshMirrorOrder().catch((e: unknown) => {
+    log.warn(`[repairBrokenAssets] 镜像测速失败，沿用当前顺序: ${(e as Error).message}`)
+  })
+  log.info(`[repairBrokenAssets] 修补使用的下载源顺序: ${rankedMirrorBases.join(' → ')}`)
+  mainWindow.webContents.send('game:progress', {
+    phase: 'downloading-files',
+    message: '正在修复损坏的游戏资源...',
+    detail: `共 ${broken.length} 个文件，临时文件下载 + 校验`
+  })
+
+  const assetsHosts = [
+    ...rankedMirrorBases.map((base) => `${base}/assets`),
+    'https://resources.download.minecraft.net'
+  ]
+  const total = broken.length
+  let finished = 0
+  let failed = 0
+  const queue = [...broken]
+
+  const worker = async (): Promise<void> => {
+    for (;;) {
+      const task = queue.shift()
+      if (!task) return
+      const head = task.hash.substring(0, 2)
+      const destination = folder.getAsset(task.hash)
+      const pendingFile = `${destination}.part`
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), DOWNLOAD_TIMEOUT)
+      try {
+        await download({
+          url: assetsHosts.map((host) => `${host}/${head}/${task.hash}`),
+          destination,
+          pendingFile,
+          validator: { algorithm: 'sha1', hash: task.hash },
+          abortSignal: controller.signal
+        })
+      } catch (e: unknown) {
+        failed++
+        log.warn(`[repairBrokenAssets] 修复失败 ${task.name}: ${(e as Error).message}`)
+        await fs.promises.unlink(pendingFile).catch(() => undefined)
+      } finally {
+        clearTimeout(timer)
+      }
+      finished++
+      if (finished === total || finished % 25 === 0) {
+        mainWindow.webContents.send('game:progress', {
+          phase: 'downloading-files',
+          message: '正在修复损坏的游戏资源...',
+          detail: `${finished}/${total}（失败 ${failed}）`
+        })
+      }
+    }
+  }
+
+  await Promise.all(Array.from({ length: Math.min(32, total) }, () => worker()))
+  log.info(`[repairBrokenAssets] 资源修复完成：成功 ${total - failed} 个，失败 ${failed} 个`)
+}
+
 // 下载缺失的版本 JSON 和 JAR（处理原版及衍生版本如 Forge/Fabric）
 async function downloadVersionFiles(
   folder: MinecraftFolder,
@@ -481,9 +664,10 @@ async function downloadVersionFiles(
 ): Promise<void> {
   // 衍生版本（Forge/Fabric/OptiFine）的 minecraftVersion 才是原版版本号
   // inheritances 数组最后一个元素是根 Minecraft 版本
-  const mcVersion = resolvedVersion.minecraftVersion
-    || resolvedVersion.inheritances?.[resolvedVersion.inheritances.length - 1]
-    || versionId
+  const mcVersion =
+    resolvedVersion.minecraftVersion ||
+    resolvedVersion.inheritances?.[resolvedVersion.inheritances.length - 1] ||
+    versionId
 
   const versionJsonPath = folder.getVersionJson(versionId)
   const versionJarPath = folder.getVersionJar(versionId)
@@ -517,6 +701,57 @@ async function downloadVersionFiles(
   await downloadFromVersionList(folder, versionId)
 }
 
+// 从本地 version.json 的 downloads.client 补齐缺失的版本 JAR。
+// 用于自愈历史遗留的坏版本目录（目录/JSON 被改名后，versions/<id>/<id>.jar 不存在，
+// 但 JSON 里的 client 信息仍然有效）。校验 sha1 后落盘，保证 checkVersion 能通过。
+async function repairVersionJarFromLocalJson(
+  folder: MinecraftFolder,
+  versionId: string
+): Promise<boolean> {
+  const jsonPath = folder.getVersionJson(versionId)
+  if (!fs.existsSync(jsonPath)) return false
+
+  let client: { url?: string; sha1?: string } | undefined
+  try {
+    const parsed = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
+      downloads?: { client?: { url?: string; sha1?: string } }
+    }
+    client = parsed.downloads?.client
+  } catch (e: unknown) {
+    log.warn(
+      `[repairVersionJarFromLocalJson] 解析 ${versionId} 的 JSON 失败: ${(e as Error).message}`
+    )
+    return false
+  }
+  if (!client?.url) return false
+
+  const jarPath = folder.getVersionJar(versionId)
+  const pendingFile = `${jarPath}.part`
+  log.info(
+    `[repairVersionJarFromLocalJson] 清单缺少 ${versionId}，改用本地 JSON 的 client 下载: ${client.url}`
+  )
+
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), DOWNLOAD_TIMEOUT)
+  try {
+    await download({
+      url: client.url,
+      destination: jarPath,
+      pendingFile,
+      validator: client.sha1 ? { algorithm: 'sha1', hash: client.sha1 } : undefined,
+      abortSignal: controller.signal
+    })
+    log.info(`[repairVersionJarFromLocalJson] 版本 JAR 已补齐: ${jarPath}`)
+    return true
+  } catch (e: unknown) {
+    log.error(`[repairVersionJarFromLocalJson] 补齐版本 JAR 失败: ${(e as Error).message}`)
+    await fs.promises.unlink(pendingFile).catch(() => undefined)
+    return false
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 // 从 BMCLAPI 版本清单下载版本 JSON + JAR
 async function downloadFromVersionList(folder: MinecraftFolder, versionId: string): Promise<void> {
   try {
@@ -525,7 +760,11 @@ async function downloadFromVersionList(folder: MinecraftFolder, versionId: strin
     const versionMeta = versionList.versions.find((v) => v.id === versionId)
 
     if (!versionMeta) {
-      log.warn(`[downloadFromVersionList] 版本清单中未找到: ${versionId}`)
+      // 清单里没有该 id：可能是历史遗留的被改名目录，尝试用本地 JSON 自带的 client 补齐
+      const repaired = await repairVersionJarFromLocalJson(folder, versionId)
+      if (!repaired) {
+        log.warn(`[downloadFromVersionList] 版本清单中未找到: ${versionId}`)
+      }
       return
     }
 
@@ -579,7 +818,9 @@ async function downloadMissingDependencies(
     if (report) {
       const missingCount = report.issues.filter((i) => i.type === 'missing').length
       const corruptedCount = report.issues.filter((i) => i.type === 'corrupted').length
-      log.info(`[downloadMissingDependencies] 缺失 ${missingCount} 个，损坏 ${corruptedCount} 个文件`)
+      log.info(
+        `[downloadMissingDependencies] 缺失 ${missingCount} 个，损坏 ${corruptedCount} 个文件`
+      )
 
       // corrupted 文件清理：
       //   - role=library：按 shouldSkipCorruptedCleanup 判断（OptiFine 合成 / 无 checksum 且 JAR 有效 → 跳过）
@@ -629,10 +870,14 @@ async function downloadMissingDependencies(
           }
         }
         if (skipped.length > 0) {
-          log.info(`[downloadMissingDependencies] 跳过清理 ${skipped.length} 个非真损坏文件（库/版本文件内容实际有效）：${skipped.length}`)
+          log.info(
+            `[downloadMissingDependencies] 跳过清理 ${skipped.length} 个非真损坏文件（库/版本文件内容实际有效）：${skipped.length}`
+          )
         }
         if (purged.length > 0) {
-          log.info(`[downloadMissingDependencies] 已清理 ${purged.length} 个真正损坏的文件，将被重新下载`)
+          log.info(
+            `[downloadMissingDependencies] 已清理 ${purged.length} 个真正损坏的文件，将被重新下载`
+          )
         }
       }
 
@@ -651,7 +896,8 @@ async function downloadMissingDependencies(
           if (i.type !== 'corrupted') return false
           if (w.role === 'library') return shouldSkipCorruptedCleanup(w)
           if (w.role === 'versionJar') return !!(w.file && isValidJarFile(w.file))
-          if (w.role === 'versionJson' || w.role === 'assetIndex') return !!(w.file && isValidJsonObjectFile(w.file))
+          if (w.role === 'versionJson' || w.role === 'assetIndex')
+            return !!(w.file && isValidJsonObjectFile(w.file))
           // asset 等其他角色：按保守处理（判非真损坏→不跳 fastTrack），保证走重下
           return false
         })
@@ -666,7 +912,9 @@ async function downloadMissingDependencies(
           await LaunchPrecheck.checkNatives(folder, refreshed, {} as LaunchOption)
           log.info(`[downloadMissingDependencies] natives 校验/解压完成`)
         } catch (e: unknown) {
-          log.error(`[downloadMissingDependencies] checkNatives 失败（仍会尝试启动）: ${(e as Error).message}`)
+          log.error(
+            `[downloadMissingDependencies] checkNatives 失败（仍会尝试启动）: ${(e as Error).message}`
+          )
         }
         mainWindow.webContents.send('game:status', 'launching')
         return true
@@ -687,20 +935,38 @@ async function downloadMissingDependencies(
     log.info(`[downloadMissingDependencies] 开始安装依赖（库 + 资源）`)
     let installOk = false
 
+    // 先测速排序镜像：不可达的源排到最后，避免每个文件都先等它超时
+    await refreshMirrorOrder().catch((e: unknown) => {
+      log.warn(`[downloadMissingDependencies] 镜像测速失败，沿用默认顺序: ${(e as Error).message}`)
+    })
+
     const installOptions = getBmclapiInstallOptions()
-    log.info(`[downloadMissingDependencies] 镜像配置: mavenHost=${JSON.stringify(installOptions.mavenHost)}`)
+    log.info(
+      `[downloadMissingDependencies] 镜像配置: mavenHost=${JSON.stringify(installOptions.mavenHost)}`
+    )
+
+    // 2b. 先用「临时文件 + SHA1」补齐缺失/损坏的资源（受控并发 + 单文件超时），
+    //     这样 installDependencies 里绝大多数资源已存在，可以快速跳过
+    try {
+      const assetVersion = await Version.parse(gamePath, versionId)
+      await repairBrokenAssets(mainWindow, folder, assetVersion.assets)
+    } catch (e: unknown) {
+      log.warn(
+        `[downloadMissingDependencies] 资源预补齐失败（不影响后续安装）: ${(e as Error).message}`
+      )
+    }
 
     // 通知前端：开始下载依赖
     mainWindow.webContents.send('game:progress', {
       phase: 'downloading-files',
       message: '正在下载游戏依赖文件...',
-      detail: `${BMCLAPI_MIRRORS_LIST.length} 条镜像线路，单文件 ${DOWNLOAD_TIMEOUT / 1000}s 超时自动切换`
+      detail: `${rankedMirrorBases.length} 条镜像线路（已测速排序），单文件 ${DOWNLOAD_TIMEOUT / 1000}s 超时自动切换`
     })
 
     try {
       const refreshedVersion = await Version.parse(gamePath, versionId)
       const t0 = Date.now()
-      log.info(`[downloadMissingDependencies] installDependencies 开始，超时 90s ...`)
+      log.info(`[downloadMissingDependencies] installDependencies 开始，超时 180s ...`)
       mainWindow.webContents.send('game:progress', {
         phase: 'downloading-files',
         message: '正在下载库文件和资源...',
@@ -708,14 +974,18 @@ async function downloadMissingDependencies(
       })
       await withTimeout(
         installDependencies(refreshedVersion, installOptions as InstallerOptions),
-        90_000,
-        `installDependencies(${versionId}) 超过 90s，中断并降级为分步安装`
+        180_000,
+        `installDependencies(${versionId}) 超过 180s，中断并降级为分步安装`
       )
-      log.info(`[downloadMissingDependencies] 依赖安装完成（${((Date.now() - t0) / 1000).toFixed(1)}s）`)
+      log.info(
+        `[downloadMissingDependencies] 依赖安装完成（${((Date.now() - t0) / 1000).toFixed(1)}s）`
+      )
       installOk = true
     } catch (e: unknown) {
       checkLaunchAbort('installDependencies 超时/失败后')
-      log.warn(`[downloadMissingDependencies] installDependencies 失败，尝试分步安装: ${(e as Error).message}`)
+      log.warn(
+        `[downloadMissingDependencies] installDependencies 失败，尝试分步安装: ${(e as Error).message}`
+      )
       // 通知前端：批量下载失败，正在降级
       mainWindow.webContents.send('game:progress', {
         phase: 'downloading-files',
@@ -725,22 +995,24 @@ async function downloadMissingDependencies(
       try {
         const refreshedVersion = await Version.parse(gamePath, versionId)
         const tLib = Date.now()
-        log.info(`[downloadMissingDependencies] 开始 installLibraries，超时 90s ...`)
+        log.info(`[downloadMissingDependencies] 开始 installLibraries，超时 120s ...`)
         mainWindow.webContents.send('game:progress', {
           phase: 'downloading-files',
           message: '正在下载库文件...',
-          detail: `镜像源: ${BMCLAPI_MIRRORS_LIST.join(' → ')}`
+          detail: `镜像源: ${rankedMirrorBases.join(' → ')}`
         })
         await withTimeout(
           installLibraries(refreshedVersion, installOptions as InstallerLibraryOptions),
-          90_000,
-          `installLibraries(${versionId}) 超过 90s，中断`
+          120_000,
+          `installLibraries(${versionId}) 超过 120s，中断`
         )
-        log.info(`[downloadMissingDependencies] 库安装完成（${((Date.now() - tLib) / 1000).toFixed(1)}s）`)
+        log.info(
+          `[downloadMissingDependencies] 库安装完成（${((Date.now() - tLib) / 1000).toFixed(1)}s）`
+        )
         checkLaunchAbort('installLibraries 完成后')
 
         const tAsset = Date.now()
-        log.info(`[downloadMissingDependencies] 开始 installAssets，超时 90s ...`)
+        log.info(`[downloadMissingDependencies] 开始 installAssets，超时 180s ...`)
         mainWindow.webContents.send('game:progress', {
           phase: 'downloading-files',
           message: '正在下载游戏资源...',
@@ -748,10 +1020,12 @@ async function downloadMissingDependencies(
         })
         await withTimeout(
           installAssets(refreshedVersion, installOptions as InstallerOptions),
-          90_000,
-          `installAssets(${versionId}) 超过 90s，中断`
+          180_000,
+          `installAssets(${versionId}) 超过 180s，中断`
         )
-        log.info(`[downloadMissingDependencies] 资源安装完成（${((Date.now() - tAsset) / 1000).toFixed(1)}s）`)
+        log.info(
+          `[downloadMissingDependencies] 资源安装完成（${((Date.now() - tAsset) / 1000).toFixed(1)}s）`
+        )
         installOk = true
       } catch (e2: unknown) {
         log.error(`[downloadMissingDependencies] 分步安装也失败: ${(e2 as Error).message}`)
@@ -765,6 +1039,15 @@ async function downloadMissingDependencies(
     }
     checkLaunchAbort('依赖安装阶段结束')
 
+    // 3c. 资源自检：把 0 字节 / 大小不符的资源用「临时文件 + SHA1 校验」修复，
+    //     避免下载中断留下的残骸在下次启动又被判损坏、反复重下
+    try {
+      const checkVersion = await Version.parse(gamePath, versionId)
+      await repairBrokenAssets(mainWindow, folder, checkVersion.assets)
+    } catch (e: unknown) {
+      log.warn(`[downloadMissingDependencies] 资源自检失败（不影响启动）: ${(e as Error).message}`)
+    }
+
     // 3b. 必须在启动前执行 checkNatives，确保 LWJGL native DLL（glfw.dll / openal.dll）
     //     已从 natives JAR 里解压出来；缺这步会直接 UnsatisfiedLinkError → exit code 1
     try {
@@ -773,38 +1056,40 @@ async function downloadMissingDependencies(
       await LaunchPrecheck.checkNatives(folder, refreshed, {} as LaunchOption)
       log.info(`[downloadMissingDependencies] natives 校验/解压完成`)
     } catch (e: unknown) {
-      log.error(`[downloadMissingDependencies] checkNatives 失败（仍会尝试启动）: ${(e as Error).message}`)
+      log.error(
+        `[downloadMissingDependencies] checkNatives 失败（仍会尝试启动）: ${(e as Error).message}`
+      )
     }
 
     // 4. 再次诊断确认
     const finalReport = await detectMissingFiles(gamePath, versionId)
     if (finalReport && finalReport.issues.length > 0) {
-      log.warn(`[downloadMissingDependencies] 仍存在 ${finalReport.issues.length} 个问题，installOk=${installOk}`)
+      log.warn(
+        `[downloadMissingDependencies] 仍存在 ${finalReport.issues.length} 个问题，installOk=${installOk}`
+      )
       for (const issue of finalReport.issues) {
         const p = (issue as unknown as { file?: string }).file
-        log.warn(
-          `  - [${issue.type}] ${issue.role}${p ? ' ' + p : ''}: ${issue.hint}`
-        )
+        log.warn(`  - [${issue.type}] ${issue.role}${p ? ' ' + p : ''}: ${issue.hint}`)
       }
 
       // 策略：如果两次诊断下来所有 corrupted 都属于「内容实际有效」：
       //       library → shouldSkipCorruptedCleanup；versionJar → isValidJarFile；JSON → isValidJsonObjectFile
       //       则不阻断启动，交给游戏 JVM 自己失败时再报具体错。
       //       否则每次启动都卡在 46 秒长超时，用户以为启动器卡死了。
-      const allNonFatalCorrupted =
-        finalReport.issues.every((i) => {
-          const w = i as unknown as {
-            file?: string
-            library?: { groupId?: string; artifactId?: string }
-            expectedChecksum?: string | null
-            role?: string
-          }
-          if (i.type !== 'corrupted') return false
-          if (w.role === 'library') return shouldSkipCorruptedCleanup(w)
-          if (w.role === 'versionJar') return !!(w.file && isValidJarFile(w.file))
-          if (w.role === 'versionJson' || w.role === 'assetIndex') return !!(w.file && isValidJsonObjectFile(w.file))
-          return false
-        })
+      const allNonFatalCorrupted = finalReport.issues.every((i) => {
+        const w = i as unknown as {
+          file?: string
+          library?: { groupId?: string; artifactId?: string }
+          expectedChecksum?: string | null
+          role?: string
+        }
+        if (i.type !== 'corrupted') return false
+        if (w.role === 'library') return shouldSkipCorruptedCleanup(w)
+        if (w.role === 'versionJar') return !!(w.file && isValidJarFile(w.file))
+        if (w.role === 'versionJson' || w.role === 'assetIndex')
+          return !!(w.file && isValidJsonObjectFile(w.file))
+        return false
+      })
       if (allNonFatalCorrupted) {
         log.warn(
           `[downloadMissingDependencies] 继续启动策略：${finalReport.issues.length} 个 corrupted 均为非真损坏（内容有效），不阻断启动，交由 JVM 报告实际错误。`
@@ -869,18 +1154,29 @@ export interface LaunchStoppedDetail {
 // 常见 JVM/启动退出码 → 中文说明（仅用于弹窗中 codeText 字段，辅助排错）
 function exitCodeToText(code: number | null | undefined): string {
   switch (code) {
-    case 0: return 'OK'
-    case 1: return 'JVM_GENERAL_ERROR（常见：classpath 缺类 / 模块拦截 / 无效 JAR）'
-    case 2: return 'JVM_INVALID_ARG（请检查 JVM 参数是否有无法识别的选项）'
-    case 3: return 'JVM_STARTUP_EXCEPTION'
-    case 130: return 'SIGINT / 用户主动停止'
-    case 134: return 'SIGABRT（JVM native crash）'
-    case 137: return 'SIGKILL / 内存不足被系统杀'
-    case 139: return 'SIGSEGV（JVM native crash / LWJGL OpenGL 驱动）'
-    case 255: return 'FORGE_EXCEPTION（modlauncher 启动失败）'
-    case -1: return 'SPAWN_ERROR（Java 进程创建失败）'
+    case 0:
+      return 'OK'
+    case 1:
+      return 'JVM_GENERAL_ERROR（常见：classpath 缺类 / 模块拦截 / 无效 JAR）'
+    case 2:
+      return 'JVM_INVALID_ARG（请检查 JVM 参数是否有无法识别的选项）'
+    case 3:
+      return 'JVM_STARTUP_EXCEPTION'
+    case 130:
+      return 'SIGINT / 用户主动停止'
+    case 134:
+      return 'SIGABRT（JVM native crash）'
+    case 137:
+      return 'SIGKILL / 内存不足被系统杀'
+    case 139:
+      return 'SIGSEGV（JVM native crash / LWJGL OpenGL 驱动）'
+    case 255:
+      return 'FORGE_EXCEPTION（modlauncher 启动失败）'
+    case -1:
+      return 'SPAWN_ERROR（Java 进程创建失败）'
     default:
-      if (typeof code === 'number' && code >= 0x80000000) return `WINDOWS_NTSTATUS_${code.toString(16)}`
+      if (typeof code === 'number' && code >= 0x80000000)
+        return `WINDOWS_NTSTATUS_${code.toString(16)}`
       return `UNKNOWN_EXIT_${code}`
   }
 }
@@ -890,35 +1186,75 @@ function exitCodeToText(code: number | null | undefined): string {
 function pickFriendlyErrorFromTail(tail: string): string | undefined {
   if (!tail) return undefined
   const rules: Array<{ re: RegExp; msg: (m: RegExpExecArray) => string }> = [
-    { re: /zip END header not found/,                                          msg: () => '启动文件有半截下载 / 空 JAR，点击"修复损坏文件"即可自动重下' },
-    { re: /InaccessibleObjectException:\s*Unable to make .*? module (java\.\S+) does not "opens (\S+)"/,
-      msg: (m) => `Java 模块系统拦截：模块 ${m[1]} 未开放包 ${m[2]}，请切换到推荐的 Java 版本` },
-    { re: /ClassNotFoundException:\s*(\S+)/,                                     msg: (m) => `缺少类：${m[1]}（通常是 classpath 上某个 Mod/加载器 JAR 未下载成功）` },
-    { re: /NoClassDefFoundError:\s*(\S+)/,                                       msg: (m) => `类找不到：${m[1]}（依赖版本不匹配或 JAR 损坏）` },
-    { re: /java\.lang\.OutOfMemoryError:\s*Java heap space/,                     msg: () => '堆内存不足，请把最大内存调高或关闭其他占用内存的程序' },
-    { re: /Could not create the Java Virtual Machine/,                            msg: () => '无法创建 Java 虚拟机（最大内存可能超过系统可用内存）' },
-    { re: /Unrecognized VM option '(\S+)'/,                                      msg: (m) => `无法识别的 JVM 参数：${m[1]}` },
-    { re: /java\.lang\.VerifyError: /,                                           msg: () => '字节码校验失败（常见：Forge 与 OptiFine 版本不兼容，需降级其中一方）' },
-    { re: /Missing required system property fml\.forgeVersion/,                  msg: () => 'Forge 缺少 fml.forgeVersion 系统属性（启动参数构建失败）' },
+    {
+      re: /UnsupportedClassVersionError:[\s\S]*?class file version (\d+)\.0[\s\S]*?class file versions up to (\d+)\.0/,
+      msg: (m) =>
+        `Java 版本过低：该版本需要 Java ${parseInt(m[1], 10) - 44}（class 版本 ${m[1]}），当前 Java 只有 Java ${parseInt(m[2], 10) - 44}`
+    },
+    {
+      re: /zip END header not found/,
+      msg: () => '启动文件有半截下载 / 空 JAR，点击"修复损坏文件"即可自动重下'
+    },
+    {
+      re: /InaccessibleObjectException:\s*Unable to make .*? module (java\.\S+) does not "opens (\S+)"/,
+      msg: (m) => `Java 模块系统拦截：模块 ${m[1]} 未开放包 ${m[2]}，请切换到推荐的 Java 版本`
+    },
+    {
+      re: /ClassNotFoundException:\s*(\S+)/,
+      msg: (m) => `缺少类：${m[1]}（通常是 classpath 上某个 Mod/加载器 JAR 未下载成功）`
+    },
+    {
+      re: /NoClassDefFoundError:\s*(\S+)/,
+      msg: (m) => `类找不到：${m[1]}（依赖版本不匹配或 JAR 损坏）`
+    },
+    {
+      re: /java\.lang\.OutOfMemoryError:\s*Java heap space/,
+      msg: () => '堆内存不足，请把最大内存调高或关闭其他占用内存的程序'
+    },
+    {
+      re: /Could not create the Java Virtual Machine/,
+      msg: () => '无法创建 Java 虚拟机（最大内存可能超过系统可用内存）'
+    },
+    { re: /Unrecognized VM option '(\S+)'/, msg: (m) => `无法识别的 JVM 参数：${m[1]}` },
+    {
+      re: /java\.lang\.VerifyError: /,
+      msg: () => '字节码校验失败（常见：Forge 与 OptiFine 版本不兼容，需降级其中一方）'
+    },
+    {
+      re: /Missing required system property fml\.forgeVersion/,
+      msg: () => 'Forge 缺少 fml.forgeVersion 系统属性（启动参数构建失败）'
+    }
   ]
   for (const r of rules) {
     const m = r.re.exec(tail)
     if (m) return r.msg(m)
   }
   // 兜底：如果没有命中规则，但 tail 第一行非空就截断后做副标题
-  const firstLine = tail.split('\n').map((s) => s.trim()).find(Boolean)
+  const firstLine = tail
+    .split('\n')
+    .map((s) => s.trim())
+    .find(Boolean)
   if (firstLine) return firstLine.length > 180 ? firstLine.slice(0, 180) + '…' : firstLine
   return undefined
 }
 
 let currentProcess: ChildProcess | null = null
 let gameStatus: 'idle' | 'launching' | 'running' = 'idle'
+// 标记当前进程是用户主动停止的（此时退出码非 0 也不该当成崩溃弹错误）
+let userTerminatedProcess = false
 
 // 启动阶段（版本解析 / diagnose / 依赖下载 / withTimeout 包装）的可取消令牌。
 // 只有 JVM 进程 spawn 之后才 kill currentProcess；之前的所有阶段都需要靠这个 flag 主动 break。
 let launchAborted: { flag: boolean } | null = null
 
 export function getXMCLStatus() {
+  // 兜底校正：JVM 已退出（exitCode 非 null）或句柄已丢失时，不要让状态卡在 running，
+  // 否则用户关掉游戏窗口后再次启动，会被“游戏已运行中”挡住。
+  if (gameStatus === 'running' && (!currentProcess || currentProcess.exitCode !== null)) {
+    log.warn('[getXMCLStatus] 检测到游戏进程已退出，状态从 running 纠正为 idle')
+    currentProcess = null
+    gameStatus = 'idle'
+  }
   return gameStatus
 }
 
@@ -929,6 +1265,7 @@ export function getXMCLProcess() {
 export function terminateXMCLGame() {
   // 1) 已经 spawn 的 JVM：直接 kill
   if (currentProcess) {
+    userTerminatedProcess = true
     currentProcess.kill()
     currentProcess = null
     gameStatus = 'idle'
@@ -939,7 +1276,9 @@ export function terminateXMCLGame() {
     launchAborted = null
     gameStatus = 'idle'
   }
-  log.info(`[terminateXMCLGame] 已收到停止指令（currentProcess=${!!currentProcess}，launchAborted=${!!launchAborted}）`)
+  log.info(
+    `[terminateXMCLGame] 已收到停止指令（currentProcess=${!!currentProcess}，launchAborted=${!!launchAborted}）`
+  )
 }
 
 // 在 launch 过程的每个"可以安全放弃"的检查点调用。
@@ -953,7 +1292,10 @@ function checkLaunchAbort(reason: string): void {
   }
 }
 class LaunchAbortedError extends Error {
-  constructor(msg: string) { super(msg); this.name = 'LaunchAbortedError' }
+  constructor(msg: string) {
+    super(msg)
+    this.name = 'LaunchAbortedError'
+  }
 }
 
 // 获取每个 Minecraft 版本的最大允许 Java 版本
@@ -984,20 +1326,76 @@ function compareMcVersions(a: string, b: string): number {
   return 0
 }
 
-async function resolveJavaPath(versionId: string, baseVersion: string, javaPath?: string): Promise<string> {
-  const recommendedMajor = recommendedJavaMajor(baseVersion)
-  const maxMajor = maxJavaMajor(baseVersion)
+/** 从 "21.0.1" / "1.8.0_402" 这类版本串里取 Java 大版本 */
+function parseJavaMajor(version?: string): number {
+  if (!version) return 0
+  const parts = version.split('.')
+  const major = version.startsWith('1.')
+    ? parseInt(parts[1] || '0', 10)
+    : parseInt(parts[0] || '0', 10)
+  return Number.isFinite(major) ? major : 0
+}
 
-  log.info(`[resolveJavaPath] 版本 ${versionId} → 推荐 Java ${recommendedMajor}, 最大允许 Java ${maxMajor}`)
+/**
+ * 读取版本 JSON 里声明的 Java 大版本（javaVersion.majorVersion）。
+ * 新版本号（如 26.3）无法靠「1.x 规则」推断，必须以此为准。
+ */
+async function getRequiredJavaMajor(
+  gamePath: string,
+  versionId: string,
+  jsonPath?: string | null
+): Promise<number | undefined> {
+  try {
+    const parsed = await Version.parse(gamePath, versionId)
+    const major = parsed.javaVersion?.majorVersion
+    if (typeof major === 'number' && major > 0) return major
+  } catch {
+    // 解析失败（缺父版本等）时退回直接读 JSON
+  }
+  if (!jsonPath) return undefined
+  try {
+    const raw = await fs.promises.readFile(jsonPath, 'utf-8')
+    const json = JSON.parse(raw) as { javaVersion?: { majorVersion?: number } }
+    const major = json.javaVersion?.majorVersion
+    if (typeof major === 'number' && major > 0) return major
+  } catch {
+    // 忽略：交给版本号推断
+  }
+  return undefined
+}
 
-  // 1. 用户指定的 Java 路径优先（信任用户选择，只验证可用性）
+async function resolveJavaPath(
+  versionId: string,
+  baseVersion: string,
+  javaPath?: string,
+  requiredJavaMajor?: number
+): Promise<string> {
+  const recommendedMajor =
+    requiredJavaMajor && requiredJavaMajor > 0
+      ? requiredJavaMajor
+      : recommendedJavaMajor(baseVersion)
+  const maxMajor = Math.max(maxJavaMajor(baseVersion), recommendedMajor)
+
+  log.info(
+    `[resolveJavaPath] 版本 ${versionId} → 推荐 Java ${recommendedMajor}` +
+      `${requiredJavaMajor ? '（版本 JSON 声明）' : '（按版本号推断）'}, 最大允许 Java ${maxMajor}`
+  )
+
+  // 1. 用户指定的 Java 路径优先（信任用户选择，但低于版本硬性要求时放弃）
   if (javaPath && fs.existsSync(javaPath)) {
     const validation = await validateJava(javaPath)
     if (validation.success) {
-      log.info(`[resolveJavaPath] 使用用户指定 Java ${validation.javaVersion}: ${javaPath}`)
-      return javaPath
+      const userMajor = parseJavaMajor(validation.javaVersion)
+      if (!requiredJavaMajor || userMajor >= requiredJavaMajor) {
+        log.info(`[resolveJavaPath] 使用用户指定 Java ${validation.javaVersion}: ${javaPath}`)
+        return javaPath
+      }
+      log.warn(
+        `[resolveJavaPath] 用户指定 Java ${validation.javaVersion} 低于版本要求的 Java ${requiredJavaMajor}，改为自动选择`
+      )
+    } else {
+      log.warn(`[resolveJavaPath] 用户指定 Java 验证失败: ${validation.error}，将自动选择`)
     }
-    log.warn(`[resolveJavaPath] 用户指定 Java 验证失败: ${validation.error}，将自动选择`)
   }
 
   // 2. 扫描所有 Java，筛选允许范围内的版本
@@ -1016,7 +1414,9 @@ async function resolveJavaPath(versionId: string, baseVersion: string, javaPath?
       return a.majorVersion - b.majorVersion
     })
     const picked = inRange[0]
-    log.info(`[resolveJavaPath] 选择 Java ${picked.version} (major ${picked.majorVersion}): ${picked.path}`)
+    log.info(
+      `[resolveJavaPath] 选择 Java ${picked.version} (major ${picked.majorVersion}): ${picked.path}`
+    )
     return picked.path
   }
 
@@ -1033,15 +1433,14 @@ function calculateMaxMemory(requested?: number): number {
   const availableMem = Math.floor(totalMem * 0.6)
 
   // 智能默认：取系统内存的 50%，底限 4096MB，上限为 availableMem（60%）
-  const smartDefault = Math.min(
-    Math.max(4096, Math.floor(totalMem * 0.5)),
-    availableMem
-  )
+  const smartDefault = Math.min(Math.max(4096, Math.floor(totalMem * 0.5)), availableMem)
 
   let maxMem = requested || smartDefault
   if (maxMem > availableMem) {
     maxMem = Math.max(512, availableMem)
-    log.warn(`[calculateMaxMemory] 内存配置 ${requested || maxMem}MB 超过系统可用，限制为 ${maxMem}MB`)
+    log.warn(
+      `[calculateMaxMemory] 内存配置 ${requested || maxMem}MB 超过系统可用，限制为 ${maxMem}MB`
+    )
   }
   return maxMem
 }
@@ -1085,7 +1484,9 @@ function prepareInstanceDir(sharedGamePath: string, instancePath: string): void 
       createdLinks.push(dir)
       log.info(`[prepareInstanceDir] 已创建目录链接: ${instanceDir} -> ${sharedDir}`)
     } catch (e: unknown) {
-      log.warn(`[prepareInstanceDir] 创建链接失败 ${dir}: ${(e as Error).message}，尝试 cmd fallback`)
+      log.warn(
+        `[prepareInstanceDir] 创建链接失败 ${dir}: ${(e as Error).message}，尝试 cmd fallback`
+      )
       // Windows 回退：使用 mklink /J（路径已通过 validatePathSafe 校验）
       try {
         const { execSync } = require('child_process')
@@ -1106,7 +1507,9 @@ function prepareInstanceDir(sharedGamePath: string, instancePath: string): void 
             if (fs.existsSync(linkPath)) {
               fs.rmSync(linkPath, { recursive: true, force: true })
             }
-          } catch { /* ignore */ }
+          } catch {
+            /* ignore */
+          }
         }
         throw e
       }
@@ -1205,7 +1608,9 @@ async function waitForGameWindow(
 
   // 超时兜底：进程仍存活则按已启动处理，避免加载显示永远不消失
   if (!abort.flag && proc.exitCode === null) {
-    log.warn(`[waitForGameWindow] 等待游戏窗口超时（${timeoutMs / 1000}s），进程仍存活，按已启动处理`)
+    log.warn(
+      `[waitForGameWindow] 等待游戏窗口超时（${timeoutMs / 1000}s），进程仍存活，按已启动处理`
+    )
     sendRunning()
   }
 }
@@ -1215,8 +1620,9 @@ export async function launchWithXMCL(
   options: XMCLLaunchOptions
 ): Promise<XMCLLaunchResult> {
   // 1) 全局防止重入：正在 launching / running 时拒绝再次启动，避免两份 abort token 互相覆盖
-  if (gameStatus !== 'idle') {
-    return { success: false, error: `游戏已在运行中（状态=${gameStatus}），请先停止再启动新的实例` }
+  const status = getXMCLStatus()
+  if (status !== 'idle') {
+    return { success: false, error: `游戏已在运行中（状态=${status}），请先停止再启动新的实例` }
   }
 
   // 2) 绑定本次 launch 的可取消令牌；terminateXMCLGame() 会把 .flag=true
@@ -1232,7 +1638,7 @@ export async function launchWithXMCL(
       message: '正在构建启动参数...',
       detail: `版本: ${options.versionId}`
     })
-    
+
     const sharedGamePath = options.gamePath
     const instancePath = options.gameDir
     let gamePath = sharedGamePath
@@ -1249,7 +1655,7 @@ export async function launchWithXMCL(
     const detectedLoader = versionDetection.loader
     log.info(
       `[launchWithXMCL] 版本识别: MC=${baseVersion}, 加载器=${formatLoaderInfo(detectedLoader)}` +
-      `, 版本 JSON=${versionDetection.jsonPath ?? '未找到'}`
+        `, 版本 JSON=${versionDetection.jsonPath ?? '未找到'}`
     )
 
     let javaPath: string
@@ -1260,7 +1666,15 @@ export async function launchWithXMCL(
         message: '正在验证 Java 环境...',
         detail: '检测 Java 版本和路径'
       })
-      javaPath = await resolveJavaPath(versionId, baseVersion, options.javaPath)
+      const requiredJavaMajor = await getRequiredJavaMajor(
+        sharedGamePath,
+        versionId,
+        versionDetection.jsonPath
+      )
+      if (requiredJavaMajor) {
+        log.info(`[launchWithXMCL] 版本 JSON 要求 Java ${requiredJavaMajor}`)
+      }
+      javaPath = await resolveJavaPath(versionId, baseVersion, options.javaPath, requiredJavaMajor)
       log.info(`[launchWithXMCL] 使用 Java: ${javaPath}`)
     } catch (e: unknown) {
       // 检测到缺少所需 Java 版本：通知渲染进程弹窗询问用户是否自动下载安装
@@ -1325,7 +1739,12 @@ export async function launchWithXMCL(
         // 用户主动点了停止 → 立刻走 stopped，返回 error
         log.warn(`[launchWithXMCL] 用户主动停止（依赖检查阶段）：${e.message}`)
         const stopErr = '启动已被用户停止（依赖检查阶段）'
-        try { mainWindow.webContents.send('game:status', 'stopped', 0, { error: stopErr, code: 'ABORTED_DURING_DIAGNOSE' }) } catch {}
+        try {
+          mainWindow.webContents.send('game:status', 'stopped', 0, {
+            error: stopErr,
+            code: 'ABORTED_DURING_DIAGNOSE'
+          })
+        } catch {}
         return { success: false, aborted: true, error: stopErr }
       }
       log.warn(`[launchWithXMCL] 依赖下载失败，尝试直接启动: ${(e as Error).message}`)
@@ -1337,11 +1756,15 @@ export async function launchWithXMCL(
     const folder = new MinecraftFolder(gamePath)
     const mcVersionJar = folder.getVersionJar(resolvedVersion.minecraftVersion)
     const actualVersionJar = folder.getVersionJar(versionId)
-    if (resolvedVersion.inheritances.length === 1
-        && resolvedVersion.minecraftVersion !== versionId
-        && !fs.existsSync(mcVersionJar)
-        && fs.existsSync(actualVersionJar)) {
-      log.info(`[launchWithXMCL] 检测到自包含版本，确保 Minecraft 版本 JAR 存在: ${resolvedVersion.minecraftVersion}`)
+    if (
+      resolvedVersion.inheritances.length === 1 &&
+      resolvedVersion.minecraftVersion !== versionId &&
+      !fs.existsSync(mcVersionJar) &&
+      fs.existsSync(actualVersionJar)
+    ) {
+      log.info(
+        `[launchWithXMCL] 检测到自包含版本，确保 Minecraft 版本 JAR 存在: ${resolvedVersion.minecraftVersion}`
+      )
       try {
         const mcVersionDir = dirname(mcVersionJar)
         if (!fs.existsSync(mcVersionDir)) {
@@ -1407,9 +1830,13 @@ export async function launchWithXMCL(
     let maxMemoryOverride: number | undefined
     if (!options.maxMemory) {
       const db = getDatabase()
-      const modeRow = db.prepare("SELECT value FROM configs WHERE key = 'global_memory_mode'").get() as { value: string } | undefined
+      const modeRow = db
+        .prepare("SELECT value FROM configs WHERE key = 'global_memory_mode'")
+        .get() as { value: string } | undefined
       if (modeRow?.value === 'custom') {
-        const gbRow = db.prepare("SELECT value FROM configs WHERE key = 'global_memory_custom'").get() as { value: string } | undefined
+        const gbRow = db
+          .prepare("SELECT value FROM configs WHERE key = 'global_memory_custom'")
+          .get() as { value: string } | undefined
         const gb = parseFloat(gbRow?.value || '4')
         maxMemoryOverride = Math.round(gb * 1024) // GB → MB
       }
@@ -1417,26 +1844,31 @@ export async function launchWithXMCL(
 
     const maxMem = calculateMaxMemory(options.maxMemory || maxMemoryOverride)
     const minMem = options.minMemory || Math.min(512, maxMem)
-    
+
     const yggdrasilAgent = process.env.YGGDRASIL_AGENT as string | undefined
-    
+
     const extraJvmArgs: string[] = [
       '-Dfml.ignorePatchDiscrepancies=true',
       '-Dfml.ignoreInvalidMinecraftCertificates=true',
-      '-Dorg.lwjgl.system.allocator=system',
+      '-Dorg.lwjgl.system.allocator=system'
     ]
 
     // Java 16+（JPMS 模块系统）下 Forge/Fabric + OptiFine 的运行必需：
     // 缺少任意一条会在 JVM 启动阶段抛 IllegalAccessError / ClassNotFoundException / InaccessibleObjectException，
     // 最终直接 exit code 1，没有后续输出。
-    const majorJava = parseInt((await (async () => {
-      try {
-        const { spawnSync } = await import('child_process')
-        const res = spawnSync(javaPath, ['-version'], { encoding: 'utf8', timeout: 5000 })
-        const m = /version "(\d+)/.exec((res.stderr || '') + (res.stdout || ''))
-        return m ? m[1] : '0'
-      } catch { return '0' }
-    })()), 10)
+    const majorJava = parseInt(
+      await (async () => {
+        try {
+          const { spawnSync } = await import('child_process')
+          const res = spawnSync(javaPath, ['-version'], { encoding: 'utf8', timeout: 5000 })
+          const m = /version "(\d+)/.exec((res.stderr || '') + (res.stdout || ''))
+          return m ? m[1] : '0'
+        } catch {
+          return '0'
+        }
+      })(),
+      10
+    )
 
     if (majorJava >= 16) {
       const addOpens = [
@@ -1454,7 +1886,7 @@ export async function launchWithXMCL(
         '--add-opens=java.desktop/sun.font=ALL-UNNAMED',
         '--add-opens=java.desktop/javax.imageio=ALL-UNNAMED',
         '--add-opens=jdk.security.auth/com.sun.security.auth.module=ALL-UNNAMED',
-        '--add-opens=java.base/sun.security.x509=ALL-UNNAMED',
+        '--add-opens=java.base/sun.security.x509=ALL-UNNAMED'
       ]
       for (const arg of addOpens) {
         // 避免重复 push（用户侧可能已经手工加过）
@@ -1462,11 +1894,28 @@ export async function launchWithXMCL(
           extraJvmArgs.push(arg)
         }
       }
-      log.info(`[launchWithXMCL] 检测到 Java ${majorJava}，已注入 ${addOpens.length} 条 --add-opens 模块开放参数`)
+      log.info(
+        `[launchWithXMCL] 检测到 Java ${majorJava}，已注入 ${addOpens.length} 条 --add-opens 模块开放参数`
+      )
     }
 
     if (options.extraJvmArgs) {
       extraJvmArgs.push(...options.extraJvmArgs)
+    }
+
+    // 强制 JVM 以 UTF-8 输出：Windows 默认 GBK 会让中文（存档名/维度名/模组文本）在日志中乱码
+    const utf8Args = [
+      '-Dfile.encoding=UTF-8',
+      '-Dsun.stdout.encoding=UTF-8',
+      '-Dsun.stderr.encoding=UTF-8'
+    ]
+    for (const arg of utf8Args) {
+      const existIdx = extraJvmArgs.findIndex((a) => a.startsWith(arg.split('=')[0] + '='))
+      if (existIdx >= 0) {
+        extraJvmArgs[existIdx] = arg
+      } else {
+        extraJvmArgs.push(arg)
+      }
     }
 
     if (yggdrasilAgent && fs.existsSync(yggdrasilAgent)) {
@@ -1478,7 +1927,9 @@ export async function launchWithXMCL(
     const mcBaseForLoader = baseVersion
 
     if (detectedLoader && !detectedLoader.version) {
-      log.warn(`[launchWithXMCL] 已识别加载器 ${detectedLoader.kind}，但无法确定加载器版本，跳过加载器专属 JVM 属性注入`)
+      log.warn(
+        `[launchWithXMCL] 已识别加载器 ${detectedLoader.kind}，但无法确定加载器版本，跳过加载器专属 JVM 属性注入`
+      )
     } else if (detectedLoader) {
       if (detectedLoader.kind === 'forge') {
         const forgeVer = detectedLoader.version
@@ -1489,40 +1940,49 @@ export async function launchWithXMCL(
           `-Dfml.forgeGroup=net.minecraftforge`,
           `-Dfml.mcpChannel=official`,
           // mappings（MCP → Mojang mappings）随 mcVersion 对齐，若 version.json 已有就用 existing，否则用 mc base 作为 fallback
-          `-Dfml.mcpVersion=${mcBaseForLoader}`,
+          `-Dfml.mcpVersion=${mcBaseForLoader}`
           // G1GC + StringDeduplication 是 Forge 推荐的 GC 组合（不强制但稳定）
           // '-XX:+UseG1GC', '-XX:+UseStringDeduplication' 让用户自己设置，不在这里覆盖 settings
         ]
-        const unique = fmlArgs.filter((a) => !extraJvmArgs.includes(a) && !(options.extraJvmArgs || []).includes(a))
+        const unique = fmlArgs.filter(
+          (a) => !extraJvmArgs.includes(a) && !(options.extraJvmArgs || []).includes(a)
+        )
         log.info(`[launchWithXMCL] 检测到 Forge ${forgeVer}，注入 ${unique.length} 条 FML JVM 属性`)
         extraJvmArgs.push(...unique)
       } else if (detectedLoader.kind === 'neoforge') {
         const nfVer = detectedLoader.version
-        const neoArgs = [
-          `-Dneoforge.version=${nfVer}`,
-          `-Dneoforge.mcVersion=${mcBaseForLoader}`,
-        ]
-        const unique = neoArgs.filter((a) => !extraJvmArgs.includes(a) && !(options.extraJvmArgs || []).includes(a))
-        log.info(`[launchWithXMCL] 检测到 NeoForge ${nfVer}，注入 ${unique.length} 条 NeoForge JVM 属性`)
+        const neoArgs = [`-Dneoforge.version=${nfVer}`, `-Dneoforge.mcVersion=${mcBaseForLoader}`]
+        const unique = neoArgs.filter(
+          (a) => !extraJvmArgs.includes(a) && !(options.extraJvmArgs || []).includes(a)
+        )
+        log.info(
+          `[launchWithXMCL] 检测到 NeoForge ${nfVer}，注入 ${unique.length} 条 NeoForge JVM 属性`
+        )
         extraJvmArgs.push(...unique)
       } else if (detectedLoader.kind === 'fabric') {
         const fbVer = detectedLoader.version
         const fbArgs = [
           `-Dfabric.gameVersion=${mcBaseForLoader}`,
           `-Dfabric.side=client`,
-          `-Dfabric.loaderVersion=${fbVer}`,
+          `-Dfabric.loaderVersion=${fbVer}`
         ]
-        const unique = fbArgs.filter((a) => !extraJvmArgs.includes(a) && !(options.extraJvmArgs || []).includes(a))
-        log.info(`[launchWithXMCL] 检测到 Fabric ${fbVer}，注入 ${unique.length} 条 Fabric JVM 属性`)
+        const unique = fbArgs.filter(
+          (a) => !extraJvmArgs.includes(a) && !(options.extraJvmArgs || []).includes(a)
+        )
+        log.info(
+          `[launchWithXMCL] 检测到 Fabric ${fbVer}，注入 ${unique.length} 条 Fabric JVM 属性`
+        )
         extraJvmArgs.push(...unique)
       } else if (detectedLoader.kind === 'quilt') {
         const qtVer = detectedLoader.version
         const qtArgs = [
           `-Dloader.gameVersion=${mcBaseForLoader}`,
           `-Dloader.side=client`,
-          `-Dloader.version=${qtVer}`,
+          `-Dloader.version=${qtVer}`
         ]
-        const unique = qtArgs.filter((a) => !extraJvmArgs.includes(a) && !(options.extraJvmArgs || []).includes(a))
+        const unique = qtArgs.filter(
+          (a) => !extraJvmArgs.includes(a) && !(options.extraJvmArgs || []).includes(a)
+        )
         log.info(`[launchWithXMCL] 检测到 Quilt ${qtVer}，注入 ${unique.length} 条 Quilt JVM 属性`)
         extraJvmArgs.push(...unique)
       }
@@ -1541,11 +2001,14 @@ export async function launchWithXMCL(
       const javaw = join(binDir, 'javaw.exe')
       const java = join(binDir, 'java.exe')
       // 如果 javaw 不存在就不强行替换（某些精简 JDK 只带 java.exe）
-      const target = shouldUseJavaw && fs.existsSync(javaw) ? javaw : (fs.existsSync(java) ? java : javaPath)
+      const target =
+        shouldUseJavaw && fs.existsSync(javaw) ? javaw : fs.existsSync(java) ? java : javaPath
       javaExe = target
     }
 
-    log.info(`[launchWithXMCL] 使用可执行文件: ${javaExe}（${shouldUseJavaw ? 'LWJGL3→javaw' : 'LWJGL2→java'}）`)
+    log.info(
+      `[launchWithXMCL] 使用可执行文件: ${javaExe}（${shouldUseJavaw ? 'LWJGL3→javaw' : 'LWJGL2→java'}）`
+    )
     log.info(`[launchWithXMCL] 内存配置: min=${minMem}MB max=${maxMem}MB`)
 
     const launchOptions: Record<string, unknown> & {
@@ -1567,7 +2030,8 @@ export async function launchWithXMCL(
       ignoreInvalidMinecraftCertificates: true,
       ignorePatchDiscrepancies: true,
       extraExecOption: {
-        detached: false,
+        // detached: 游戏进程放入独立进程组，关闭启动器时游戏继续运行，不会被连带结束
+        detached: true,
         stdio: ['pipe', 'pipe', 'pipe']
       }
     }
@@ -1657,33 +2121,81 @@ export async function launchWithXMCL(
       else if (signal) finalCode = 137
       else finalCode = 0
 
-      log.info(`[launchWithXMCL] 游戏进程退出，退出码: ${finalCode}（raw=${code}, signal=${signal ?? 'none'}）`)
+      log.info(
+        `[launchWithXMCL] 游戏进程退出，退出码: ${finalCode}（raw=${code}, signal=${signal ?? 'none'}）`
+      )
+      // 进程一旦退出就立刻恢复 idle：用户点击游戏窗口 X 关闭游戏后，
+      // 启动器必须同步退出“运行中”状态，不能等后面的崩溃诊断（可能很慢）结束。
+      gameStatus = 'idle'
+      currentProcess = null
+      // 通知渲染端（preload 的 game.onExit 监听的是 game:exit 频道）
+      try {
+        mainWindow.webContents.send('game:exit', { code: finalCode, signal: signal ?? null })
+      } catch (sendErr) {
+        // 渲染端已关闭时忽略，但要留痕便于排查事件丢失
+        log.warn(`[launchWithXMCL] 发送 game:exit 失败: ${(sendErr as Error).message}`)
+      }
+      // 用户主动停止：退出码非 0 属于预期行为，不能当崩溃提示
+      const terminatedByUser = userTerminatedProcess
+      userTerminatedProcess = false
+      if (terminatedByUser) {
+        log.info('[launchWithXMCL] 进程由用户主动停止，跳过崩溃提示')
+        const detail: LaunchStoppedDetail = {
+          error: '游戏已被用户停止',
+          code: finalCode,
+          codeText: 'USER_TERMINATED',
+          aborted: true
+        }
+        try {
+          mainWindow.webContents.send('game:status', 'stopped', finalCode, detail)
+        } catch {
+          /* renderer 已关忽略 */
+        }
+        return
+      }
       if (finalCode !== 0) {
         if (tailLines.length > 0) {
-          log.error(`[launchWithXMCL] 进程异常退出，最后 ${tailLines.length} 行输出:\n${tailLines.join('\n')}`)
+          log.error(
+            `[launchWithXMCL] 进程异常退出，最后 ${tailLines.length} 行输出:\n${tailLines.join('\n')}`
+          )
         }
         // 针对 ZipException / zip END header not found 这类典型"classpath 里有假 JAR"错误，
         // 做一次自动排查：枚举 resolvedVersion.libraries + version.jar，逐个 isValidJarFile 扫，
         // 把坏的 JAR 明确打印出来，下次用户不用猜是哪个库。
         const tailJoined = tailLines.join('\n')
         let badJarsSummary = ''
-        if (/zip END header not found|ZipException|SecureJar\.from|UnionFileSystem/.test(tailJoined)) {
+        if (
+          /zip END header not found|ZipException|SecureJar\.from|UnionFileSystem/.test(tailJoined)
+        ) {
           try {
             const bad: Array<{ path: string; reason: string; size: number }> = []
             const folder = new MinecraftFolder(gamePath)
-            if (resolvedVersion && (resolvedVersion as unknown as { libraries?: unknown[] }).libraries) {
-              const libs = (resolvedVersion as unknown as { libraries: Array<{ path: string }> }).libraries
+            if (
+              resolvedVersion &&
+              (resolvedVersion as unknown as { libraries?: unknown[] }).libraries
+            ) {
+              const libs = (resolvedVersion as unknown as { libraries: Array<{ path: string }> })
+                .libraries
               for (const l of libs) {
                 if (!l || !l.path) continue
                 try {
                   const p = folder.getLibraryByPath(l.path)
                   if (!p) continue
-                  if (!fs.existsSync(p)) { bad.push({ path: p, reason: 'file missing', size: 0 }); continue }
+                  if (!fs.existsSync(p)) {
+                    bad.push({ path: p, reason: 'file missing', size: 0 })
+                    continue
+                  }
                   if (!isValidJarFile(p)) {
                     const st = fs.statSync(p)
-                    bad.push({ path: p, reason: 'invalid ZIP magic (0-byte/half-download/404-HTML)', size: st.size })
+                    bad.push({
+                      path: p,
+                      reason: 'invalid ZIP magic (0-byte/half-download/404-HTML)',
+                      size: st.size
+                    })
                   }
-                } catch { /* 单个库 path 解析失败不中断 */ }
+                } catch {
+                  /* 单个库 path 解析失败不中断 */
+                }
               }
             }
             // 再加上 version.jar 本身（Forge bootstraplauncher 第一个加载的就是这个）
@@ -1691,21 +2203,37 @@ export async function launchWithXMCL(
               const vjar = folder.getVersionJar(versionId)
               if (vjar && fs.existsSync(vjar) && !isValidJarFile(vjar)) {
                 const st = fs.statSync(vjar)
-                bad.unshift({ path: vjar, reason: 'VERSION.JAR invalid ZIP magic (critical!)', size: st.size })
+                bad.unshift({
+                  path: vjar,
+                  reason: 'VERSION.JAR invalid ZIP magic (critical!)',
+                  size: st.size
+                })
               } else if (vjar && !fs.existsSync(vjar)) {
                 bad.unshift({ path: vjar, reason: 'VERSION.JAR MISSING (critical!)', size: 0 })
               }
-            } catch { /* version.jar 路径异常不中断 */ }
+            } catch {
+              /* version.jar 路径异常不中断 */
+            }
 
             if (bad.length > 0) {
-              log.error(`[launchWithXMCL] ========== 检测到 ${bad.length} 个损坏的 classpath JAR ==========`)
+              log.error(
+                `[launchWithXMCL] ========== 检测到 ${bad.length} 个损坏的 classpath JAR ==========`
+              )
               for (const b of bad) {
                 log.error(`[launchWithXMCL]   - ${b.reason} (size=${b.size}) : ${b.path}`)
               }
-              log.error(`[launchWithXMCL] 建议：重新运行"下载版本文件+依赖"或手动删除上述文件后再次启动，启动器会自动重下合法副本。`)
-              badJarsSummary = bad.slice(0, 5).map((b) => `- ${b.reason} (${b.size}B) ${b.path}`).join('\n') + (bad.length > 5 ? `\n... 及 ${bad.length - 5} 个其他损坏文件` : '')
+              log.error(
+                `[launchWithXMCL] 建议：重新运行"下载版本文件+依赖"或手动删除上述文件后再次启动，启动器会自动重下合法副本。`
+              )
+              badJarsSummary =
+                bad
+                  .slice(0, 5)
+                  .map((b) => `- ${b.reason} (${b.size}B) ${b.path}`)
+                  .join('\n') + (bad.length > 5 ? `\n... 及 ${bad.length - 5} 个其他损坏文件` : '')
             } else {
-              log.warn(`[launchWithXMCL] 退出疑似 classpath ZIP 损坏，但 isValidJarFile 扫描未发现假 JAR，可能是 Forge 模块路径（JRT / JMOD）出错，需进一步看完整 game:log`)
+              log.warn(
+                `[launchWithXMCL] 退出疑似 classpath ZIP 损坏，但 isValidJarFile 扫描未发现假 JAR，可能是 Forge 模块路径（JRT / JMOD）出错，需进一步看完整 game:log`
+              )
             }
           } catch (eScan: unknown) {
             log.error(`[launchWithXMCL] 诊断损坏 JAR 扫描失败: ${(eScan as Error).message}`)
@@ -1714,7 +2242,11 @@ export async function launchWithXMCL(
 
         // 构造人类可读错误摘要，通过 game:status stopped 直接发给 renderer，让渲染端可以立刻弹窗，
         // 避免"从 launching → stopped 无任何反馈，用户以为启动器卡死"。
-        const tailPreview = tailLines.slice(0, 8).map((l) => l.replace(/\s+$/g, '')).filter(Boolean).join('\n')
+        const tailPreview = tailLines
+          .slice(0, 8)
+          .map((l) => l.replace(/\s+$/g, ''))
+          .filter(Boolean)
+          .join('\n')
         const headMsg = pickFriendlyErrorFromTail(tailJoined)
         const detail: LaunchStoppedDetail = {
           error: headMsg
@@ -1726,15 +2258,21 @@ export async function launchWithXMCL(
           badJars: badJarsSummary || undefined
         }
         log.error(`[launchWithXMCL] 渲染端错误摘要: ${detail.error}`)
-        gameStatus = 'idle'
-        currentProcess = null
-        try { mainWindow.webContents.send('game:status', 'stopped', finalCode, detail) } catch { /* renderer 已关忽略 */ }
+        try {
+          mainWindow.webContents.send('game:status', 'stopped', finalCode, detail)
+        } catch {
+          /* renderer 已关忽略 */
+        }
         return
       }
       // finalCode === 0：正常退出
-      gameStatus = 'idle'
-      currentProcess = null
-      try { mainWindow.webContents.send('game:status', 'stopped', finalCode, { error: undefined, code: 0, codeText: 'OK' }) } catch {}
+      try {
+        mainWindow.webContents.send('game:status', 'stopped', finalCode, {
+          error: undefined,
+          code: 0,
+          codeText: 'OK'
+        })
+      } catch {}
     })
 
     proc.on('error', (err) => {
@@ -1746,25 +2284,70 @@ export async function launchWithXMCL(
       }
       gameStatus = 'idle'
       currentProcess = null
-      try { mainWindow.webContents.send('game:status', 'stopped', -1, detail) } catch {}
+      try {
+        mainWindow.webContents.send('game:status', 'stopped', -1, detail)
+      } catch {}
+      try {
+        mainWindow.webContents.send('game:exit', { code: -1, signal: null })
+      } catch {}
     })
 
+    // 游戏输出编码自适应：优先按 UTF-8 解码，遇到非法字节序列时回退 GBK（Windows 旧版默认编码）。
+    // 以完整行为单位解码：既避免多字节字符被数据块边界截断，也兼容未真正启用 UTF-8 的版本/模组。
+    const utf8Decoder = new TextDecoder('utf-8', { fatal: true })
+    let gbkDecoder: TextDecoder | null = null
+    const decodeLine = (buf: Buffer): string => {
+      try {
+        return utf8Decoder.decode(buf)
+      } catch {
+        try {
+          if (!gbkDecoder) gbkDecoder = new TextDecoder('gbk')
+          return gbkDecoder.decode(buf)
+        } catch {
+          return buf.toString('latin1')
+        }
+      }
+    }
+
+    /** 把字节流按行切开后逐行解码，避免跨 chunk 截断多字节字符 */
+    const createLineDecoder = (onText: (text: string) => void) => {
+      let remainder: Buffer<ArrayBufferLike> = Buffer.alloc(0)
+      return (chunk: Buffer): void => {
+        remainder = remainder.length > 0 ? Buffer.concat([remainder, chunk]) : chunk
+        let start = 0
+        for (let i = 0; i < remainder.length; i++) {
+          if (remainder[i] !== 0x0a) continue
+          onText(decodeLine(remainder.subarray(start, i + 1)))
+          start = i + 1
+        }
+        remainder = Buffer.from(remainder.subarray(start))
+      }
+    }
+
     if (proc.stdout) {
-      proc.stdout.on('data', (data) => {
-        const output = data.toString()
+      const onStdout = createLineDecoder((output) => {
         pushTail(output)
-        try { mainWindow.webContents.send('game:log', output) } catch { /* renderer 已关时忽略 */ }
+        try {
+          mainWindow.webContents.send('game:log', output)
+        } catch {
+          /* renderer 已关时忽略 */
+        }
         log.info(`[Game-STDOUT] ${output.replace(/\s+$/g, '')}`)
       })
+      proc.stdout.on('data', onStdout)
     }
 
     if (proc.stderr) {
-      proc.stderr.on('data', (data) => {
-        const output = data.toString()
+      const onStderr = createLineDecoder((output) => {
         pushTail(output)
-        try { mainWindow.webContents.send('game:log', output) } catch { /* renderer 已关时忽略 */ }
+        try {
+          mainWindow.webContents.send('game:log', output)
+        } catch {
+          /* renderer 已关时忽略 */
+        }
         log.error(`[Game-STDERR] ${output.replace(/\s+$/g, '')}`)
       })
+      proc.stderr.on('data', onStderr)
     }
 
     return {
@@ -1792,7 +2375,9 @@ export async function launchWithXMCL(
         codeText: 'SIGINT / 用户主动停止',
         aborted: true
       }
-      try { mainWindow.webContents.send('game:status', 'stopped', 130, detail) } catch {}
+      try {
+        mainWindow.webContents.send('game:status', 'stopped', 130, detail)
+      } catch {}
       return { success: false, aborted: true, error: detail.error }
     }
     log.error(`[launchWithXMCL] 启动失败: ${(e as Error).message}`)
@@ -1802,7 +2387,9 @@ export async function launchWithXMCL(
       codeText: 'LAUNCH_STAGE_ERROR',
       tailPreview: (e as Error).stack || undefined
     }
-    try { mainWindow.webContents.send('game:status', 'stopped', -2, detail) } catch {}
+    try {
+      mainWindow.webContents.send('game:status', 'stopped', -2, detail)
+    } catch {}
     return { success: false, error: (e as Error).message }
   }
 }
@@ -1823,7 +2410,7 @@ export async function launchByVersionWithXMCL(
   }
 ): Promise<XMCLLaunchResult> {
   const db = getDatabase()
-  
+
   let gamePath = options.gameDir
   if (!gamePath) {
     const userDataDir = process.env.APPDATA || process.env.HOME || ''
@@ -1834,17 +2421,19 @@ export async function launchByVersionWithXMCL(
     name: 'Player',
     uuid: '00000000-0000-0000-0000-000000000000'
   }
-  
+
   if (options.accountId) {
     const accountRow = db
       .prepare('SELECT name, uuid, access_token, xuid FROM accounts WHERE id = ?')
-      .get(options.accountId) as {
-        name: string
-        uuid: string
-        access_token: string | null
-        xuid: string | null
-      } | undefined
-    
+      .get(options.accountId) as
+      | {
+          name: string
+          uuid: string
+          access_token: string | null
+          xuid: string | null
+        }
+      | undefined
+
     if (accountRow) {
       account = {
         name: accountRow.name,
@@ -1856,13 +2445,15 @@ export async function launchByVersionWithXMCL(
   } else {
     const defaultAccount = db
       .prepare('SELECT name, uuid, access_token, xuid FROM accounts WHERE is_active = 1 LIMIT 1')
-      .get() as {
-        name: string
-        uuid: string
-        access_token: string | null
-        xuid: string | null
-      } | undefined
-    
+      .get() as
+      | {
+          name: string
+          uuid: string
+          access_token: string | null
+          xuid: string | null
+        }
+      | undefined
+
     if (defaultAccount) {
       account = {
         name: defaultAccount.name,

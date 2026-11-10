@@ -59,9 +59,4 @@ export async function searchMods(
   }
 }
 
-export {
-  CurseforgeV1Client,
-  ModsSearchSortField,
-  FileReleaseType,
-  FileModLoaderType
-}
+export { CurseforgeV1Client, ModsSearchSortField, FileReleaseType, FileModLoaderType }

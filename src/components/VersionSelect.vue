@@ -6,7 +6,14 @@
           <!-- 标题栏 -->
           <header class="vs-header">
             <button class="vs-back" @click="close">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
                 <path d="M15 18l-6-6 6-6" />
               </svg>
             </button>
@@ -37,10 +44,21 @@
                 <div class="current-folder">
                   <div class="cf-label">{{ $t('component.currentFolder') }}</div>
                   <div class="cf-top">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"
+                      />
                     </svg>
-                    <span v-if="isLoadingPath" class="cf-name loading-text">{{ $t('component.detecting') }}</span>
+                    <span v-if="isLoadingPath" class="cf-name loading-text">{{
+                      $t('component.detecting')
+                    }}</span>
                     <span v-else class="cf-name">{{ currentFolderName }}</span>
                   </div>
                   <div class="cf-path" v-if="!isLoadingPath">{{ currentFolderPath }}</div>
@@ -48,17 +66,34 @@
                 </div>
 
                 <!-- 已添加的其他文件夹列表 -->
-                <div v-for="folder in folders.filter((f) => !f.isActive)" :key="folder.path" class="folder-item"
-                  @click="switchFolder(folder.path)">
+                <div
+                  v-for="folder in folders.filter((f) => !f.isActive)"
+                  :key="folder.path"
+                  class="folder-item"
+                  @click="switchFolder(folder.path)"
+                >
                   <div class="fi-top">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"
+                      />
                     </svg>
                     <span class="fi-name">{{ folder.name }}</span>
                   </div>
                   <div class="fi-path">{{ folder.path }}</div>
-                  <span class="folder-remove" @click.stop="removeFolder(folder.path)"
-                    :title="$t('component.remove')">✕</span>
+                  <span
+                    class="folder-remove"
+                    @click.stop="removeFolder(folder.path)"
+                    :title="$t('component.remove')"
+                    >✕</span
+                  >
                 </div>
 
                 <!-- 分隔线 -->
@@ -81,8 +116,17 @@
               <!-- 无文件夹时：显示提示 -->
               <template v-else>
                 <div class="no-folder-hint">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <path
+                      d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"
+                    />
                     <line x1="12" y1="11" x2="12" y2="17" />
                     <line x1="9" y1="14" x2="15" y2="14" />
                   </svg>
@@ -94,9 +138,17 @@
                     </button>
                     <button class="action-item" @click="createMinecraftFolderHere">
                       <span class="action-icon create">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                          stroke-width="2">
-                          <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+                        <svg
+                          width="13"
+                          height="13"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"
+                          />
                         </svg>
                       </span>
                       <span>{{ $t('component.createMinecraft') }}</span>
@@ -111,43 +163,82 @@
               <!-- 已安装版本区 -->
               <section class="content-section collapsible" :class="{ collapsed: !showInstalled }">
                 <header class="sec-header clickable" @click="showInstalled = !showInstalled">
-                  <span class="sec-header-title">{{ $t('component.installedVersions') }} ({{ installedVersions.length
-                    }})</span>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    :style="{ transform: showInstalled ? 'rotate(180deg)' : '' }" style="transition: transform 0.2s">
+                  <span class="sec-header-title"
+                    >{{ $t('component.installedVersions') }} ({{ installedVersions.length }})</span
+                  >
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    :style="{ transform: showInstalled ? 'rotate(180deg)' : '' }"
+                    style="transition: transform 0.2s"
+                  >
                     <path d="M6 9l6 6 6-6" />
                   </svg>
                 </header>
                 <div v-show="showInstalled" class="sec-body">
                   <!-- 扫描中且有旧数据：显示加载指示器 -->
-                  <div v-if="isLoadingVersions && installedVersions.length" class="scanning-indicator">
+                  <div
+                    v-if="isLoadingVersions && installedVersions.length"
+                    class="scanning-indicator"
+                  >
                     <span class="spin-loader" />
                     <span>{{ $t('component.scanningVersions') }}</span>
                   </div>
                   <!-- 扫描中且无数据 -->
-                  <div v-else-if="isLoadingVersions && !installedVersions.length" class="empty-hint scanning-hint">
+                  <div
+                    v-else-if="isLoadingVersions && !installedVersions.length"
+                    class="empty-hint scanning-hint"
+                  >
                     <span class="spin-loader" />
                     <p>{{ $t('component.scanningVersions') }}</p>
                   </div>
                   <!-- 无版本 -->
-                  <div v-else-if="!installedVersions.length && !isLoadingVersions" class="empty-hint">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--pcl-text-muted)"
-                      stroke-width="1.5">
+                  <div
+                    v-else-if="!installedVersions.length && !isLoadingVersions"
+                    class="empty-hint"
+                  >
+                    <svg
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="var(--pcl-text-muted)"
+                      stroke-width="1.5"
+                    >
                       <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <p>{{ $t('component.noInstalledVersions') }}</p>
                   </div>
-                  <div v-for="ver in installedVersions" :key="ver.id" class="installed-ver-item" @click="selectActive(ver)">
+                  <div
+                    v-for="ver in installedVersions"
+                    :key="ver.id"
+                    class="installed-ver-item"
+                    @click="selectActive(ver)"
+                  >
                     <div class="iv-check">
-                      <input type="radio" name="activeVersion" :checked="ver.isActive" @change="selectActive(ver)" />
+                      <input
+                        type="radio"
+                        name="activeVersion"
+                        :checked="ver.isActive"
+                        @change="selectActive(ver)"
+                      />
                     </div>
                     <div class="iv-info">
                       <p class="iv-name">{{ ver.name }}</p>
                       <p class="iv-detail">
-                        {{ $t('component.releaseVersion') }} {{ ver.baseVersion }} {{ ver.loaderInfo || '' }}
+                        {{ $t('component.releaseVersion') }} {{ ver.baseVersion }}
+                        {{ ver.loaderInfo || '' }}
                       </p>
                     </div>
-                    <button class="iv-remove" :title="$t('component.deleteVersion')" @click.stop="removeVersion(ver.id)">
+                    <button
+                      class="iv-remove"
+                      :title="$t('component.deleteVersion')"
+                      @click.stop="removeVersion(ver.id)"
+                    >
                       🗑
                     </button>
                   </div>
@@ -213,7 +304,7 @@ async function loadMinecraftPath() {
     return
   }
 
-  // * 1. 加载已保存的文件夹列表  
+  // * 1. 加载已保存的文件夹列表
   const savedPaths: string[] = api.folders ? await api.folders.list() : []
 
   // * 2. 检查每个保存的路径是否存在
@@ -230,7 +321,7 @@ async function loadMinecraftPath() {
   if (lastFolder && validPaths.includes(lastFolder)) {
     effectivePath = lastFolder
   } else if (validPaths.length > 0) {
-    // * 上次选中的无效了，使用第一个有效路径    
+    // * 上次选中的无效了，使用第一个有效路径
     effectivePath = validPaths[0]
   }
 
@@ -248,7 +339,7 @@ async function loadMinecraftPath() {
     isLoadingPath.value = false
     await loadVersionsFromFolder(effectivePath)
   } else {
-    // * 没有有效的 .minecraft 文件夹     
+    // * 没有有效的 .minecraft 文件夹
     currentFolderPath.value = t('component.notFoundFolder')
     currentFolderName.value = ''
     installedVersions.value = []
@@ -279,7 +370,7 @@ async function addFolder() {
       return
     }
 
-    // * 持久化到数据库    
+    // * 持久化到数据库
     if (api.folders) {
       await api.folders.add(selectedPath)
     }
@@ -294,7 +385,11 @@ async function addFolder() {
     // * 自动切换到新添加的文件夹
     await switchFolder(selectedPath)
   } catch (err) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('component.addFolderFailed'), type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: t('component.addFolderFailed'),
+      type: 'error'
+    })
   }
 }
 
@@ -311,7 +406,11 @@ async function importModpack() {
       api.instance?.scanMinecraft?.(filePath)
     }, 200)
   } catch (err) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('component.importModpackFailed'), type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: t('component.importModpackFailed'),
+      type: 'error'
+    })
   }
 }
 
@@ -347,7 +446,7 @@ async function createMinecraftFolder() {
 
     const minecraftPath = parentPath.replace(/[\\/]+$/, '') + '/.minecraft'
 
-    // * 调用主进程创建目录    
+    // * 调用主进程创建目录
     if (api.path) {
       await api.path.createDir(minecraftPath)
     }
@@ -365,7 +464,11 @@ async function createMinecraftFolder() {
 
     await switchFolder(minecraftPath)
   } catch (err) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('component.detectMinecraftFailed'), type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: t('component.detectMinecraftFailed'),
+      type: 'error'
+    })
   }
 }
 
@@ -392,7 +495,11 @@ async function createMinecraftFolderHere() {
 
     await switchFolder(minecraftPath)
   } catch (err) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('component.createFolderFailed'), type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: t('component.createFolderFailed'),
+      type: 'error'
+    })
   }
 }
 
@@ -447,7 +554,11 @@ async function loadVersionsFromFolder(gameDir: string) {
       })
     }
   } catch (err) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('component.loadVersionsFailed'), type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: t('component.loadVersionsFailed'),
+      type: 'error'
+    })
   } finally {
     isLoadingVersions.value = false
   }
@@ -459,7 +570,15 @@ function selectActive(ver: InstalledVer) {
 }
 
 async function removeVersion(id: string) {
-  if (!await pxConfirm({ title: t('common.warning'), message: t('component.deleteVersionConfirm', { id }), type: 'danger', confirmText: t('common.confirm') })) return
+  if (
+    !(await pxConfirm({
+      title: t('common.warning'),
+      message: t('component.deleteVersionConfirm', { id }),
+      type: 'danger',
+      confirmText: t('common.confirm')
+    }))
+  )
+    return
   installedVersions.value = installedVersions.value.filter((v) => v.id !== id)
   // * 从文件系统删除版本  if (api?.versions) {
   const mcPath = await api.path?.getMinecraft()
@@ -467,7 +586,6 @@ async function removeVersion(id: string) {
     await api.versions.delete(id, mcPath)
   }
 }
-
 </script>
 
 <style scoped lang="scss">

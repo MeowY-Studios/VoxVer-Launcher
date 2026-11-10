@@ -15,7 +15,10 @@
           {{ cancelText }}
         </button>
         <button
-          :class="['vox-btn px-confirm__btn', type === 'danger' ? 'px-confirm__btn--danger' : 'vox-btn--primary']"
+          :class="[
+            'vox-btn px-confirm__btn',
+            type === 'danger' ? 'px-confirm__btn--danger' : 'vox-btn--primary'
+          ]"
           @click="onConfirm"
           ref="confirmBtnRef"
         >

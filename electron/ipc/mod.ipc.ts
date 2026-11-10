@@ -1,7 +1,12 @@
 import { ipcMain } from 'electron'
 import { promises as fs, existsSync } from 'fs'
 import * as path from 'path'
-import { ModService, ModInfo, ModUpdateInfo, ModDependencyCheckResult } from '../services/mod.service'
+import {
+  ModService,
+  ModInfo,
+  ModUpdateInfo,
+  ModDependencyCheckResult
+} from '../services/mod.service'
 import { assertSafeIpcPath, MOD_EXTENSIONS } from '../utils/ipc-path-guard'
 
 /** Mod 文件路径校验：受信任目录下 mods/ 里的 Mod 包 */
@@ -296,29 +301,26 @@ export function registerModIpcHandlers(modService: ModService) {
    * @param mcVersion string MC 版本
    * @param loader string ModLoader 类型
    */
-  ipcMain.handle(
-    'mod:install-dependencies',
-    async (event, { mod, gameDir, mcVersion, loader }) => {
-      try {
-        const result = await modService.installMissingDependencies(
-          mod,
-          gameDir,
-          mcVersion,
-          loader,
-          (depName, progress) => {
-            event.sender.send('mod:dependency-progress', {
-              modPath: mod.filePath,
-              depName,
-              progress
-            })
-          }
-        )
-        return { ok: true, data: result }
-      } catch (error: unknown) {
-        return { ok: false, error: (error as Error).message }
-      }
+  ipcMain.handle('mod:install-dependencies', async (event, { mod, gameDir, mcVersion, loader }) => {
+    try {
+      const result = await modService.installMissingDependencies(
+        mod,
+        gameDir,
+        mcVersion,
+        loader,
+        (depName, progress) => {
+          event.sender.send('mod:dependency-progress', {
+            modPath: mod.filePath,
+            depName,
+            progress
+          })
+        }
+      )
+      return { ok: true, data: result }
+    } catch (error: unknown) {
+      return { ok: false, error: (error as Error).message }
     }
-  )
+  })
 
   /**
    * 导出选中的 Mod 文件为 zip

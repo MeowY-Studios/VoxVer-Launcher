@@ -3,7 +3,7 @@ import zhCN from './zh-CN'
 import enUS from './en-US'
 import type { LocaleKey } from './index'
 
-const savedLocale = localStorage.getItem('voxver-language') as LocaleKey || 'zh-CN'
+const savedLocale = (localStorage.getItem('voxver-language') as LocaleKey) || 'zh-CN'
 
 const i18n = createI18n({
   legacy: false,

@@ -14,10 +14,14 @@
       />
     </div>
 
-    <!-- 操作按钮组 --> 
+    <!-- 操作按钮组 -->
     <div class="mod-toolbar">
-      <button class="form-action-btn primary-outline" @click="openModFolder">{{ $t('mod.openFolder') }}</button>
-      <button class="form-action-btn" @click="installModFromFile">{{ $t('mod.installFromFile') }}</button>
+      <button class="form-action-btn primary-outline" @click="openModFolder">
+        {{ $t('mod.openFolder') }}
+      </button>
+      <button class="form-action-btn" @click="installModFromFile">
+        {{ $t('mod.installFromFile') }}
+      </button>
       <button class="form-action-btn" @click="goToDownloads">{{ $t('mod.downloadMod') }}</button>
       <button
         class="form-action-btn"
@@ -132,7 +136,9 @@
           @change="toggleSelectAll"
           class="mod-checkbox"
         />
-        <span v-if="selectedMods.size > 0">{{ $t('mod.selectedCount', { n: selectedMods.size }) }}</span>
+        <span v-if="selectedMods.size > 0">{{
+          $t('mod.selectedCount', { n: selectedMods.size })
+        }}</span>
         <span v-else>{{ $t('common.selectAll') }}</span>
       </label>
     </div>
@@ -203,20 +209,32 @@
                 <div class="mod-name-row">
                   <span class="mod-name">{{ mod.name }}</span>
                   <span class="mod-version">{{ mod.version }}</span>
-                  <span v-if="!mod.enabled" class="mod-disabled-badge">{{ $t('mod.disabled') }}</span>    
+                  <span v-if="!mod.enabled" class="mod-disabled-badge">{{
+                    $t('mod.disabled')
+                  }}</span>
                   <!-- 有更新角标 -->
                   <span v-if="updateInfoMap[mod.filePath]?.hasUpdate" class="mod-update-badge">
-                    {{ $t('mod.updateBadge', { name: updateInfoMap[mod.filePath].latestVersionName }) }}
+                    {{
+                      $t('mod.updateBadge', { name: updateInfoMap[mod.filePath].latestVersionName })
+                    }}
                   </span>
                   <!-- 缺失依赖角标 -->
                   <span
                     v-if="depCheckMap[mod.filePath]?.missingDependencies?.length > 0"
                     class="mod-dep-badge"
                   >
-                    {{ $t('mod.missingDepsBadge', { count: depCheckMap[mod.filePath].missingDependencies.length }) }}
+                    {{
+                      $t('mod.missingDepsBadge', {
+                        count: depCheckMap[mod.filePath].missingDependencies.length
+                      })
+                    }}
                   </span>
                   <!-- 不兼容角标 -->
-                  <span v-if="compatBadgeMap[mod.filePath]" class="mod-compat-badge" :title="compatBadgeMap[mod.filePath]">
+                  <span
+                    v-if="compatBadgeMap[mod.filePath]"
+                    class="mod-compat-badge"
+                    :title="compatBadgeMap[mod.filePath]"
+                  >
                     {{ $t('mod.compatBadge') }}
                   </span>
                 </div>
@@ -227,12 +245,18 @@
                 class="mod-actions"
                 :class="{ visible: mod.hovered || selectedMod === mod.filePath }"
               >
-                <button class="mod-action-btn" @click.stop="showModDetails(mod)">{{ $t('mod.detail') }}</button>
-                <button class="mod-action-btn" @click.stop="openModFile(mod)">{{ $t('mod.fileLocation') }}</button>
+                <button class="mod-action-btn" @click.stop="showModDetails(mod)">
+                  {{ $t('mod.detail') }}
+                </button>
+                <button class="mod-action-btn" @click.stop="openModFile(mod)">
+                  {{ $t('mod.fileLocation') }}
+                </button>
                 <button class="mod-action-btn" @click.stop="toggleModEnable(mod)">
                   {{ mod.enabled ? $t('mod.disable') : $t('mod.enable') }}
                 </button>
-                <button class="mod-action-btn danger" @click.stop="removeMod(mod)">{{ $t('common.delete') }}</button>
+                <button class="mod-action-btn danger" @click.stop="removeMod(mod)">
+                  {{ $t('common.delete') }}
+                </button>
               </div>
             </div>
           </template>
@@ -251,7 +275,7 @@
             d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM9 17v-5l-2 2-2-2v5"
           />
         </svg>
-        <p>{{ $t('mod.noMatchingMods') }}</p>  
+        <p>{{ $t('mod.noMatchingMods') }}</p>
       </div>
     </div>
 
@@ -267,19 +291,34 @@
       <div class="mod-bottom-actions">
         <button class="mod-bottom-btn" @click="batchEnable">{{ $t('mod.enable') }}</button>
         <button class="mod-bottom-btn" @click="batchDisable">{{ $t('mod.disable') }}</button>
-        <button v-if="selectedMods.size === 1 && selectedModHasUpdate"
+        <button
+          v-if="selectedMods.size === 1 && selectedModHasUpdate"
           class="mod-bottom-btn has-update"
           :disabled="updatingMod === selectedMod"
           @click="updateSelectedMod"
         >
           <template v-if="updatingMod === selectedMod">
-            {{ $t('mod.updatingProgress', { percent: Math.round((updateProgressMap[selectedMod!] ?? 0) * 100) }) }}
+            {{
+              $t('mod.updatingProgress', {
+                percent: Math.round((updateProgressMap[selectedMod!] ?? 0) * 100)
+              })
+            }}
           </template>
           <template v-else>{{ $t('mod.updateAvailable') }}</template>
         </button>
         <button class="mod-bottom-btn" @click="batchDelete">{{ $t('common.delete') }}</button>
-        <button class="mod-bottom-btn" @click="exportSelected">{{ $t('mod.exportSelected') }}</button>
-        <button class="mod-bottom-btn" @click="selectedMods.clear(); selectedMod = null">{{ $t('mod.cancelSelection') }}</button>
+        <button class="mod-bottom-btn" @click="exportSelected">
+          {{ $t('mod.exportSelected') }}
+        </button>
+        <button
+          class="mod-bottom-btn"
+          @click="
+            selectedMods.clear();
+            selectedMod = null;
+          "
+        >
+          {{ $t('mod.cancelSelection') }}
+        </button>
       </div>
     </div>
 
@@ -304,7 +343,9 @@
             <div v-else class="mod-detail-icon-default">{{ selectedDetailMod.name[0] }}</div>
 
             <h3 class="mod-detail-name">{{ selectedDetailMod.name }}</h3>
-            <p class="mod-detail-version">{{ $t('mod.detailVersion', { version: selectedDetailMod.version }) }}</p>
+            <p class="mod-detail-version">
+              {{ $t('mod.detailVersion', { version: selectedDetailMod.version }) }}
+            </p>
             <p v-if="selectedDetailMod.authors?.length" class="mod-detail-authors">
               {{ $t('mod.detailAuthors', { authors: selectedDetailMod.authors.join('、') }) }}
             </p>
@@ -312,12 +353,17 @@
               {{ selectedDetailMod.description }}
             </p>
             <p v-if="selectedDetailMod.dependencies?.length" class="mod-detail-deps">
-              {{ $t('mod.detailDependencies', { deps: selectedDetailMod.dependencies.join('、') }) }}
+              {{
+                $t('mod.detailDependencies', { deps: selectedDetailMod.dependencies.join('、') })
+              }}
             </p>
             <p v-if="selectedDetailMod.url" class="mod-detail-url">
-              {{ $t('mod.detailLink') }}<a :href="selectedDetailMod.url" target="_blank">{{ selectedDetailMod.url }}</a>
+              {{ $t('mod.detailLink')
+              }}<a :href="selectedDetailMod.url" target="_blank">{{ selectedDetailMod.url }}</a>
             </p>
-            <p class="mod-detail-path">{{ $t('mod.detailPath', { path: selectedDetailMod.filePath }) }}</p>
+            <p class="mod-detail-path">
+              {{ $t('mod.detailPath', { path: selectedDetailMod.filePath }) }}
+            </p>
           </div>
         </div>
       </div>
@@ -328,7 +374,9 @@
       <div class="mod-compat-header">
         <span class="mod-compat-title">{{ $t('mod.compatResults') }}</span>
         <span class="mod-compat-summary">
-          <span class="compat-ok">{{ $t('mod.compatCompatible', { n: compatCompatibleCount }) }}</span>
+          <span class="compat-ok">{{
+            $t('mod.compatCompatible', { n: compatCompatibleCount })
+          }}</span>
           <span v-if="compatIncompatibleCount > 0" class="compat-bad">
             {{ $t('mod.compatIncompatible', { n: compatIncompatibleCount }) }}
           </span>
@@ -347,10 +395,26 @@
           :class="{ 'is-incompatible': !item.compatible }"
         >
           <span class="mod-compat-icon">
-            <svg v-if="item.compatible" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-success)" stroke-width="2">
+            <svg
+              v-if="item.compatible"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--voxver-success)"
+              stroke-width="2"
+            >
               <polyline points="20 6 9 17 4 12" />
             </svg>
-            <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--voxver-error)" stroke-width="2">
+            <svg
+              v-else
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--voxver-error)"
+              stroke-width="2"
+            >
               <circle cx="12" cy="12" r="10" />
               <line x1="15" y1="9" x2="9" y2="15" />
               <line x1="9" y1="9" x2="15" y2="15" />
@@ -475,9 +539,7 @@ interface CompatResult {
   reason: string
 }
 const compatResults = ref<CompatResult[]>([])
-const compatCompatibleCount = computed(
-  () => compatResults.value.filter((r) => r.compatible).length
-)
+const compatCompatibleCount = computed(() => compatResults.value.filter((r) => r.compatible).length)
 const compatIncompatibleCount = computed(
   () => compatResults.value.filter((r) => !r.compatible).length
 )
@@ -585,7 +647,15 @@ async function batchDelete() {
   const names = Array.from(selectedMods.value)
     .map((fp) => installedMods.value.find((m) => m.filePath === fp)?.name || fp)
     .join('、')
-  if (!await pxConfirm({ title: t('common.warning'), message: t('mod.confirmBatchDelete', { names }), type: 'danger', confirmText: t('common.confirm') })) return
+  if (
+    !(await pxConfirm({
+      title: t('common.warning'),
+      message: t('mod.confirmBatchDelete', { names }),
+      type: 'danger',
+      confirmText: t('common.confirm')
+    }))
+  )
+    return
   for (const filePath of Array.from(selectedMods.value)) {
     try {
       await window.electronAPI?.mod.uninstall(filePath)
@@ -602,7 +672,11 @@ async function batchDelete() {
 async function exportSelected() {
   const api = window.electronAPI
   if (!api?.mod?.exportMods) {
-    api?.notification?.send({ title: t('common.error'), body: t('mod.exportNotSupported'), type: 'error' })
+    api?.notification?.send({
+      title: t('common.error'),
+      body: t('mod.exportNotSupported'),
+      type: 'error'
+    })
     return
   }
   const filePaths = Array.from(selectedMods.value)
@@ -746,7 +820,9 @@ const filteredMods = computed(() => {
   }
   // * 排序
   if (modSort.value === 'version') {
-    list = [...list].sort((a, b) => b.version.localeCompare(a.version, undefined, { numeric: true }))
+    list = [...list].sort((a, b) =>
+      b.version.localeCompare(a.version, undefined, { numeric: true })
+    )
   } else if (modSort.value === 'status') {
     list = [...list].sort((a, b) => (a.enabled === b.enabled ? 0 : a.enabled ? -1 : 1))
   } else {
@@ -791,7 +867,11 @@ async function checkAllUpdates() {
       updateInfoMap.value = map
     }
   } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.updateCheckFailed'), type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: t('mod.updateCheckFailed'),
+      type: 'error'
+    })
   } finally {
     checkingUpdates.value = false
   }
@@ -830,7 +910,18 @@ async function doUpdateMod(mod: ModItem, info: ModUpdateInfo) {
     })
     return
   }
-  if (!await pxConfirm({ title: t('common.warning'), message: t('mod.confirmUpdate', { name: mod.name, currentVersion: info.currentVersionName, latestVersion: info.latestVersionName }), type: 'warning', confirmText: t('common.confirm') }))
+  if (
+    !(await pxConfirm({
+      title: t('common.warning'),
+      message: t('mod.confirmUpdate', {
+        name: mod.name,
+        currentVersion: info.currentVersionName,
+        latestVersion: info.latestVersionName
+      }),
+      type: 'warning',
+      confirmText: t('common.confirm')
+    }))
+  )
     return
 
   updatingMod.value = mod.filePath
@@ -884,7 +975,11 @@ async function checkAllDependencies() {
   try {
     const api = window.electronAPI
     if (!api?.mod?.checkDependencies) return
-    const result = await api.mod.checkDependencies(installedMods.value, props.mcVersion, props.loader)
+    const result = await api.mod.checkDependencies(
+      installedMods.value,
+      props.mcVersion,
+      props.loader
+    )
     if (result?.ok && Array.isArray(result.data)) {
       const map: Record<string, ModDependencyCheckResult> = {}
       for (const info of result.data) {
@@ -893,7 +988,11 @@ async function checkAllDependencies() {
       depCheckMap.value = map
     }
   } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.dependencyCheckFailed'), type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: t('mod.dependencyCheckFailed'),
+      type: 'error'
+    })
   } finally {
     checkingDependencies.value = false
   }
@@ -926,7 +1025,17 @@ async function installSelectedDeps() {
 }
 
 async function doInstallDeps(mod: ModItem, depCheck: ModDependencyCheckResult) {
-  if (!await pxConfirm({ title: t('common.warning'), message: t('mod.confirmInstallDeps', { name: mod.name, count: depCheck.missingDependencies.length }), type: 'warning', confirmText: t('common.confirm') }))
+  if (
+    !(await pxConfirm({
+      title: t('common.warning'),
+      message: t('mod.confirmInstallDeps', {
+        name: mod.name,
+        count: depCheck.missingDependencies.length
+      }),
+      type: 'warning',
+      confirmText: t('common.confirm')
+    }))
+  )
     return
 
   installingDeps.value = mod.filePath
@@ -943,14 +1052,22 @@ async function doInstallDeps(mod: ModItem, depCheck: ModDependencyCheckResult) {
       }
     )
 
-    const result = await api.mod.installDependencies(mod, props.gameDir, props.mcVersion, props.loader)
+    const result = await api.mod.installDependencies(
+      mod,
+      props.gameDir,
+      props.mcVersion,
+      props.loader
+    )
     unsubProgress?.()
 
     if (result?.ok) {
       const data = (result as { data?: { success?: string[]; failed?: string[] } }).data || {}
       window.electronAPI?.notification?.send({
         title: t('mod.depInstallComplete'),
-        body: t('mod.depInstallResult', { success: data.success?.length || 0, failed: data.failed?.length || 0 }),
+        body: t('mod.depInstallResult', {
+          success: data.success?.length || 0,
+          failed: data.failed?.length || 0
+        }),
         type: data.failed?.length ? 'warning' : 'success'
       })
       await loadMods()
@@ -986,7 +1103,11 @@ async function toggleSelectedModEnable() {
     }
     await loadMods()
   } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.toggleModFailed'), type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: t('mod.toggleModFailed'),
+      type: 'error'
+    })
   }
 }
 
@@ -994,13 +1115,25 @@ async function removeSelectedMod() {
   if (!selectedMod.value) return
   const mod = installedMods.value.find((m) => m.filePath === selectedMod.value)
   if (!mod) return
-  if (!await pxConfirm({ title: t('common.warning'), message: t('mod.confirmDeleteMod', { name: mod.name }), type: 'danger', confirmText: t('common.confirm') })) return
+  if (
+    !(await pxConfirm({
+      title: t('common.warning'),
+      message: t('mod.confirmDeleteMod', { name: mod.name }),
+      type: 'danger',
+      confirmText: t('common.confirm')
+    }))
+  )
+    return
   try {
     await window.electronAPI?.mod.uninstall(mod.filePath)
     await loadMods()
     selectedMod.value = null
   } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.deleteModFailed'), type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: t('mod.deleteModFailed'),
+      type: 'error'
+    })
   }
 }
 
@@ -1072,18 +1205,34 @@ async function toggleModEnable(mod: ModItem) {
     }
     await loadMods()
   } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.toggleModFailed'), type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: t('mod.toggleModFailed'),
+      type: 'error'
+    })
   }
 }
 
 // * 删除单个 Mod
 async function removeMod(mod: ModItem) {
-  if (!await pxConfirm({ title: t('common.warning'), message: t('mod.confirmDeleteMod', { name: mod.name }), type: 'danger', confirmText: t('common.confirm') })) return
+  if (
+    !(await pxConfirm({
+      title: t('common.warning'),
+      message: t('mod.confirmDeleteMod', { name: mod.name }),
+      type: 'danger',
+      confirmText: t('common.confirm')
+    }))
+  )
+    return
   try {
     await window.electronAPI?.mod.uninstall(mod.filePath)
     await loadMods()
   } catch (e) {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.deleteModFailed'), type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: t('mod.deleteModFailed'),
+      type: 'error'
+    })
   }
 }
 
@@ -1101,7 +1250,7 @@ onMounted(() => {
   overflow: hidden;
 }
 
-  /* 搜索卡片 */
+/* 搜索卡片 */
 .mod-search-card {
   display: flex;
   align-items: center;
@@ -1127,7 +1276,7 @@ onMounted(() => {
   }
 }
 
-  /* 操作按钮 */  
+/* 操作按钮 */
 .mod-toolbar {
   display: flex;
   gap: 8px;
@@ -1155,7 +1304,7 @@ onMounted(() => {
   }
 }
 
-  /* 筛选器 Tabs */
+/* 筛选器 Tabs */
 .mod-tabs-row {
   display: flex;
   align-items: center;
@@ -1346,7 +1495,7 @@ onMounted(() => {
   }
 }
 
-  /* 底部操作栏 */
+/* 底部操作栏 */
 .mod-bottom-bar {
   display: flex;
   align-items: center;
@@ -1502,8 +1651,8 @@ onMounted(() => {
   }
 }
 
-  /* * 空状态 */
- .empty-state {
+/* * 空状态 */
+.empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1516,7 +1665,6 @@ onMounted(() => {
     animation: spin 1s linear infinite;
   }
 }
-
 
 /* 弹窗过渡 */
 .modal-fade-enter-active,

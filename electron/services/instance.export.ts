@@ -379,7 +379,10 @@ export async function importInstance(
     await fs.promises.mkdir(instancePath, { recursive: true })
 
     // 解压所有文件
-    const entries = zip.filter((_: unknown, file: { dir: boolean; name: string }) => !file.dir && file.name !== 'manifest.json')
+    const entries = zip.filter(
+      (_: unknown, file: { dir: boolean; name: string }) =>
+        !file.dir && file.name !== 'manifest.json'
+    )
     for (const entry of entries) {
       const destPath = path.join(instancePath, entry.name)
       const destDir = path.dirname(destPath)

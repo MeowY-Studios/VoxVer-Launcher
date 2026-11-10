@@ -16,8 +16,17 @@
         @click.stop="$emit('toggle-favorite', instance)"
         :title="instance.is_favorited === 1 ? $t('instance.unfavorite') : $t('instance.favorite')"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" :fill="instance.is_favorited === 1 ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
-          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          :fill="instance.is_favorited === 1 ? 'currentColor' : 'none'"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+          />
         </svg>
       </button>
     </div>
@@ -27,7 +36,14 @@
       <h3 class="card-name" :title="instance.name">{{ instance.name }}</h3>
       <p class="card-meta">
         <span class="meta-item">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
@@ -38,24 +54,57 @@
 
     <!-- 操作按钮 -->
     <div class="card-actions">
-      <button class="action-btn launch" @click.stop="$emit('launch', instance)" :title="$t('instance.launch')">
+      <button
+        class="action-btn launch"
+        @click.stop="$emit('launch', instance)"
+        :title="$t('instance.launch')"
+      >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
           <path d="M8 5v14l11-7z" />
         </svg>
       </button>
-      <button class="action-btn" @click.stop="$emit('open-folder', instance)" :title="$t('instance.openFolder')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <button
+        class="action-btn"
+        @click.stop="$emit('open-folder', instance)"
+        :title="$t('instance.openFolder')"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
           <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
         </svg>
       </button>
       <button class="action-btn" @click.stop="$emit('edit', instance)" :title="$t('instance.edit')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
           <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
           <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
         </svg>
       </button>
-      <button class="action-btn danger" @click.stop="$emit('delete', instance)" :title="$t('instance.delete')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <button
+        class="action-btn danger"
+        @click.stop="$emit('delete', instance)"
+        :title="$t('instance.delete')"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
           <polyline points="3 6 5 6 21 6" />
           <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
           <path d="M10 11v6M14 11v6" />

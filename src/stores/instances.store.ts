@@ -40,8 +40,8 @@ export const useInstancesStore = defineStore('instances', () => {
     try {
       const rawList = await window.electronAPI?.instance.list()
       // * 映射 snake_case -> camelCase
-      instances.value = ((rawList as unknown[]) || []).map(
-        (raw) => mapRawToInstance(raw as unknown as Record<string, unknown>)
+      instances.value = ((rawList as unknown[]) || []).map((raw) =>
+        mapRawToInstance(raw as unknown as Record<string, unknown>)
       )
     } catch (e: unknown) {
       error.value = (e as Error).message || $t('instance.loadFailed')
@@ -56,9 +56,7 @@ export const useInstancesStore = defineStore('instances', () => {
       params as unknown as Record<string, unknown>
     )
     if (result) {
-      instances.value.unshift(
-        mapRawToInstance(result as unknown as Record<string, unknown>)
-      )
+      instances.value.unshift(mapRawToInstance(result as unknown as Record<string, unknown>))
       return result
     }
     return null

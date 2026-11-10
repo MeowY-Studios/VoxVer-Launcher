@@ -36,13 +36,15 @@
                 <button
                   class="btn-cancel"
                   @click="
-                    showInstallConfirm = false
-                    pendingFile = null
+                    showInstallConfirm = false;
+                    pendingFile = null;
                   "
                 >
                   {{ $t('common.cancel') }}
                 </button>
-                <button class="btn-confirm" @click="confirmDownload">{{ $t('mod.confirmInstall') }}</button>
+                <button class="btn-confirm" @click="confirmDownload">
+                  {{ $t('mod.confirmInstall') }}
+                </button>
               </div>
             </div>
           </div>
@@ -62,7 +64,9 @@
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
-          <span class="modal-title">{{ $t('mod.resourceDownload', { name: detail?.name || 'Mod' }) }}</span>
+          <span class="modal-title">{{
+            $t('mod.resourceDownload', { name: detail?.name || 'Mod' })
+          }}</span>
           <button class="btn-close" @click="close">
             <svg
               width="16"
@@ -138,7 +142,9 @@
             <!-- 操作按钮 -->
             <div class="info-actions">
               <button class="btn-action primary" @click="openInBrowser">
-                {{ detail.source === 'curseforge' ? $t('mod.goToCurseforge') : $t('mod.goToModrinth') }}
+                {{
+                  detail.source === 'curseforge' ? $t('mod.goToCurseforge') : $t('mod.goToModrinth')
+                }}
               </button>
               <button class="btn-action" @click="openMcWiki">{{ $t('mod.goToMcWiki') }}</button>
               <button class="btn-action" @click="copyName">{{ $t('mod.copyName') }}</button>
@@ -172,7 +178,9 @@
               <span>{{ $t('mod.loadingFiles') }}</span>
             </div>
 
-            <div v-else-if="!files.length" class="files-empty">{{ $t('mod.noFilesAvailable') }}</div>
+            <div v-else-if="!files.length" class="files-empty">
+              {{ $t('mod.noFilesAvailable') }}
+            </div>
 
             <div v-else class="versions-list">
               <div
@@ -242,7 +250,11 @@
                       >
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
                       </svg>
-                      {{ downloadingId === file.id ? $t('mod.downloadingStatus') : $t('common.download') }}
+                      {{
+                        downloadingId === file.id
+                          ? $t('mod.downloadingStatus')
+                          : $t('common.download')
+                      }}
                     </button>
                   </div>
                 </div>
@@ -618,7 +630,10 @@ async function confirmDownload() {
   const target = `${selectedTarget.value}${file.filename || file.displayName}`
   downloadingId.value = file.id
   try {
-    const download = window.electronAPI?.download as unknown as Record<string, (params: Record<string, unknown>) => Promise<{ success?: boolean; error?: string }>>
+    const download = window.electronAPI?.download as unknown as Record<
+      string,
+      (params: Record<string, unknown>) => Promise<{ success?: boolean; error?: string }>
+    >
     const res = await download?.file({
       id: file.id,
       fileName: file.filename || file.displayName,
@@ -679,22 +694,34 @@ function openInBrowser() {
     detail.value.source === 'curseforge'
       ? `https://www.curseforge.com/minecraft/mc-mods/${detail.value.id}`
       : `https://modrinth.com/mod/${detail.value.id}`
-  ;(window.electronAPI as unknown as { openExternal: (url: string) => Promise<void> })?.openExternal(url)
+  ;(
+    window.electronAPI as unknown as { openExternal: (url: string) => Promise<void> }
+  )?.openExternal(url)
 }
 
 function openMcWiki() {
   if (!detail.value) return
   const name = encodeURIComponent(detail.value.name)
-  ;(window.electronAPI as unknown as { openExternal: (url: string) => Promise<void> })?.openExternal(`https://minecraft.fandom.com/zh/wiki/${name}`)
+  ;(
+    window.electronAPI as unknown as { openExternal: (url: string) => Promise<void> }
+  )?.openExternal(`https://minecraft.fandom.com/zh/wiki/${name}`)
 }
 
 async function copyName() {
   if (!detail.value) return
   try {
     await navigator.clipboard.writeText(detail.value.name)
-    window.electronAPI?.notification?.send({ title: t('common.success'), body: t('mod.nameCopied'), type: 'success' })
+    window.electronAPI?.notification?.send({
+      title: t('common.success'),
+      body: t('mod.nameCopied'),
+      type: 'success'
+    })
   } catch {
-    window.electronAPI?.notification?.send({ title: t('common.error'), body: t('mod.copyFailed'), type: 'error' })
+    window.electronAPI?.notification?.send({
+      title: t('common.error'),
+      body: t('mod.copyFailed'),
+      type: 'error'
+    })
   }
 }
 
@@ -1093,7 +1120,10 @@ function formatDate(dateStr: string): string {
   }
 
   &.active {
-    background: var(--voxver-primary-light, color-mix(in oklab, var(--voxver-primary) 12%, transparent));
+    background: var(
+      --voxver-primary-light,
+      color-mix(in oklab, var(--voxver-primary) 12%, transparent)
+    );
     border-color: var(--voxver-primary-400);
     color: var(--voxver-primary-300);
   }
@@ -1395,7 +1425,10 @@ function formatDate(dateStr: string): string {
 .btn-download {
   height: 32px;
   padding: 0 16px;
-  background: var(--voxver-gradient-primary, linear-gradient(135deg, var(--voxver-primary), #0ea5e9));
+  background: var(
+    --voxver-gradient-primary,
+    linear-gradient(135deg, var(--voxver-primary), #0ea5e9)
+  );
   border: none;
   border-radius: var(--voxver-radius-sm);
   color: #fff;
@@ -1434,8 +1467,6 @@ function formatDate(dateStr: string): string {
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;
 }
-
-
 
 /* * ====== 安装确认弹窗 ====== */
 .confirm-overlay {

@@ -82,14 +82,17 @@ export function registerScreenshotHandlers(): void {
     }
   )
 
-  ipcMain.handle('screenshot:delete', async (_event, filePath: string): Promise<{ ok: boolean }> => {
-    try {
-      const result = deleteScreenshot(safeShot(filePath))
-      return { ok: result }
-    } catch {
-      return { ok: false }
+  ipcMain.handle(
+    'screenshot:delete',
+    async (_event, filePath: string): Promise<{ ok: boolean }> => {
+      try {
+        const result = deleteScreenshot(safeShot(filePath))
+        return { ok: result }
+      } catch {
+        return { ok: false }
+      }
     }
-  })
+  )
 
   ipcMain.handle(
     'screenshot:rename',

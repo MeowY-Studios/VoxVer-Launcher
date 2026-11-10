@@ -58,7 +58,12 @@
         </div>
         <div class="share-stage-title">{{ $t('component.transferring') }}</div>
         <div class="share-stage-subtitle">
-          {{ transferredChunks }} / {{ totalChunks }} {{ $t('component.chunksProgress', { transferred: transferredChunks, total: totalChunks }) }} ({{ formatSpeed(bytesPerSecond) }} - {{ $t('component.remainingTime', { time: formatTime(estimatedRemaining) }) }})
+          {{ transferredChunks }} / {{ totalChunks }}
+          {{
+            $t('component.chunksProgress', { transferred: transferredChunks, total: totalChunks })
+          }}
+          ({{ formatSpeed(bytesPerSecond) }} -
+          {{ $t('component.remainingTime', { time: formatTime(estimatedRemaining) }) }})
         </div>
         <PxProgress
           :value="transferProgress"

@@ -105,6 +105,7 @@ export type VersionDownloadPhase =
   | 'downloading_json' // * 下载版本 JSON
   | 'downloading_json_ok'
   | 'downloading_jar' // * 下载 client.jar
+  | 'installing_failed' // * 原版下载完成但加载器/扩展安装失败
   | 'completed'
   | 'failed'
 

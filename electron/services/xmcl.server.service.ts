@@ -20,10 +20,7 @@ export async function pingServer(host: string, port?: number): Promise<ServerSta
 
   try {
     const startTime = Date.now()
-    const status = await queryStatus(
-      { host, port: port ?? 25565 },
-      { timeout: 5000 }
-    )
+    const status = await queryStatus({ host, port: port ?? 25565 }, { timeout: 5000 })
 
     const elapsed = Date.now() - startTime
 
@@ -32,9 +29,7 @@ export async function pingServer(host: string, port?: number): Promise<ServerSta
       if (typeof status.description === 'string') {
         motd = status.description
       } else {
-        motd = (status.description.extra ?? [])
-          .map((e: { text?: string }) => e.text ?? '')
-          .join('')
+        motd = (status.description.extra ?? []).map((e: { text?: string }) => e.text ?? '').join('')
         if (status.description.text) {
           motd = status.description.text + motd
         }

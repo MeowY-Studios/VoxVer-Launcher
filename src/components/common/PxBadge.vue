@@ -91,7 +91,10 @@ const badgeClasses = computed(() => [
 
 /* * Variants */
 .px-badge--primary {
-  background: var(--voxver-primary-100, color-mix(in oklab, var(--voxver-primary) 12%, transparent));
+  background: var(
+    --voxver-primary-100,
+    color-mix(in oklab, var(--voxver-primary) 12%, transparent)
+  );
   color: var(--voxver-primary-700);
 }
 .px-badge--success {

@@ -62,10 +62,14 @@ function detectMcVersion(gameDir: string): string {
             continue
           }
           if (json.id) return json.id
-        } catch { continue }
+        } catch {
+          continue
+        }
       }
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return ''
 }
 
@@ -83,15 +87,23 @@ function getLoaderFromVersion(gameDir: string): { type: string; version: string 
         const json = JSON.parse(content)
         if (json.inheritsFrom) {
           const name = json.id || dir
-          if (name.includes('fabric')) return { type: 'fabric', version: name.replace(/.*fabric-?/, '') }
-          if (name.includes('forge')) return { type: 'forge', version: name.replace(/.*forge-?/, '') }
-          if (name.includes('quilt')) return { type: 'quilt', version: name.replace(/.*quilt-?/, '') }
-          if (name.includes('neoforge')) return { type: 'neoforge', version: name.replace(/.*neoforge-?/, '') }
+          if (name.includes('fabric'))
+            return { type: 'fabric', version: name.replace(/.*fabric-?/, '') }
+          if (name.includes('forge'))
+            return { type: 'forge', version: name.replace(/.*forge-?/, '') }
+          if (name.includes('quilt'))
+            return { type: 'quilt', version: name.replace(/.*quilt-?/, '') }
+          if (name.includes('neoforge'))
+            return { type: 'neoforge', version: name.replace(/.*neoforge-?/, '') }
           return { type: dir, version: name }
         }
-      } catch { continue }
+      } catch {
+        continue
+      }
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return { type: 'vanilla', version: '' }
 }
 
@@ -130,7 +142,9 @@ function detectHMCL(): ExternalLauncherInfo | null {
       } else if (config.commonpath) {
         gameDirs = [config.commonpath]
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
 
   // Also check hmcl.json.multimc style
@@ -141,7 +155,9 @@ function detectHMCL(): ExternalLauncherInfo | null {
       if (config.gameDir) {
         gameDirs.push(config.gameDir)
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
 
   const instances: ExternalInstance[] = []
@@ -203,7 +219,9 @@ function scanPCLDir(mcPath: string): ExternalLauncherInfo {
     if (pclConfig.launcherData?.CommonDirectory) {
       gameDirs = [pclConfig.launcherData.CommonDirectory]
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   const instances: ExternalInstance[] = []
   for (const gameDir of [...new Set(gameDirs)]) {

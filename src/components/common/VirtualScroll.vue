@@ -1,9 +1,5 @@
 <template>
-  <div
-    class="virtual-scroll-container"
-    ref="containerRef"
-    @scroll="handleScroll"
-  >
+  <div class="virtual-scroll-container" ref="containerRef" @scroll="handleScroll">
     <!-- 空状态 -->
     <div v-if="!items.length" class="virtual-scroll-empty">
       {{ $t('common.noData') }}

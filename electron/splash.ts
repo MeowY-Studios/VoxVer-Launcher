@@ -126,16 +126,21 @@ export function createSplashWindow(version: string): BrowserWindow | null {
 /**
  * 播放退场动画并销毁启动画面。
  *
- * 顺序很关键：主窗口先 show()，再销毁启动画面——两个窗口之间不会出现
- * “零窗口”的空档，避免触发 window-all-closed 的退出逻辑。
+ * 动画播完后先执行 onFinished（由调用方在此时显示主窗口），再销毁启动画面：
+ * 两个窗口在同一时刻交接，既保证用户看到的是“启动画面完全走完后再出现主界面”，
+ * 也不会出现“零窗口”的空档而触发 window-all-closed 的退出逻辑。
  */
-export function finishSplash(splash: BrowserWindow | null): void {
-  if (!splash || splash.isDestroyed()) return
+export function finishSplash(splash: BrowserWindow | null, onFinished?: () => void): void {
+  if (!splash || splash.isDestroyed()) {
+    if (onFinished) onFinished()
+    return
+  }
 
   let destroyed = false
   const destroy = (): void => {
     if (destroyed) return
     destroyed = true
+    if (onFinished) onFinished()
     if (!splash.isDestroyed()) splash.destroy()
   }
 

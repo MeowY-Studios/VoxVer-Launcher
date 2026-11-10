@@ -526,7 +526,9 @@ export class DownloadService extends EventEmitter {
     const nextIndex = (currentIndex + 1) % BMCLAPI_MIRRORS.length
     if (nextIndex === currentIndex) return false // 只有一个镜像
     const nextMirror = BMCLAPI_MIRRORS[nextIndex]
-    log.warn(`[Download] ${task.fileName} 下载失败，切换镜像: ${this.currentMirror.name} → ${nextMirror.name}`)
+    log.warn(
+      `[Download] ${task.fileName} 下载失败，切换镜像: ${this.currentMirror.name} → ${nextMirror.name}`
+    )
     // 临时切换到下一个镜像
     const prevMirror = this.currentMirror
     this.currentMirror = nextMirror

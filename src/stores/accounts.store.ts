@@ -46,9 +46,15 @@ export const useAccountsStore = defineStore('accounts', () => {
   async function loginMicrosoft() {
     try {
       const result = await window.electronAPI?.account.loginMicrosoft()
-      if (!result || typeof result !== 'object' || !('ok' in result) || !(result as { ok?: boolean; error?: string }).ok) {
+      if (
+        !result ||
+        typeof result !== 'object' ||
+        !('ok' in result) ||
+        !(result as { ok?: boolean; error?: string }).ok
+      ) {
         if ((result as { ok?: boolean; error?: string }).error === 'LOGIN_CANCELLED') return false
-        error.value = (result as { ok?: boolean; error?: string }).error || $t('auth.microsoftLoginFailed')
+        error.value =
+          (result as { ok?: boolean; error?: string }).error || $t('auth.microsoftLoginFailed')
         return false
       }
       await fetchAccounts()
@@ -62,12 +68,21 @@ export const useAccountsStore = defineStore('accounts', () => {
   /** 离线登录（创建离线账户） */
   async function loginOffline(username: string) {
     try {
-      const result = await window.electronAPI?.account.loginOffline(username) as { ok?: boolean; error?: string }
-      if (!result || typeof result !== 'object' || !('ok' in result) || !(result as { ok?: boolean; error?: string }).ok) {
+      const result = (await window.electronAPI?.account.loginOffline(username)) as {
+        ok?: boolean
+        error?: string
+      }
+      if (
+        !result ||
+        typeof result !== 'object' ||
+        !('ok' in result) ||
+        !(result as { ok?: boolean; error?: string }).ok
+      ) {
         await fetchAccounts()
         return true
       }
-      error.value = (result as { ok?: boolean; error?: string }).error || $t('auth.offlineLoginFailed') 
+      error.value =
+        (result as { ok?: boolean; error?: string }).error || $t('auth.offlineLoginFailed')
       return false
     } catch (e: unknown) {
       error.value = (e as Error).message || $t('auth.offlineLoginFailed')

@@ -77,7 +77,15 @@ function onClick() {
       <span v-if="stateText" class="kor-version-card__state">{{ stateText }}</span>
       <span v-if="clickable" class="kor-version-card__link">
         {{ actionText }}
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.4"
+          aria-hidden="true"
+        >
           <polyline points="9 6 15 12 9 18" />
         </svg>
       </span>

@@ -111,7 +111,10 @@ export function findVersionJsonPath(versionDir: string, versionId: string): stri
   }
   let files: string[]
   try {
-    files = fs.readdirSync(versionDir).filter((f) => f.toLowerCase().endsWith('.json')).sort()
+    files = fs
+      .readdirSync(versionDir)
+      .filter((f) => f.toLowerCase().endsWith('.json'))
+      .sort()
   } catch {
     return null
   }
@@ -272,7 +275,10 @@ function detectLoaderFromMainClass(mainClass: string | undefined): LoaderInfo | 
   if (mainClass.includes('quilt')) {
     return { kind: 'quilt', version: '' }
   }
-  if (mainClass === 'cpw.mods.bootstraplauncher.BootstrapLauncher' || mainClass === 'net.minecraft.launchwrapper.Launch') {
+  if (
+    mainClass === 'cpw.mods.bootstraplauncher.BootstrapLauncher' ||
+    mainClass === 'net.minecraft.launchwrapper.Launch'
+  ) {
     return { kind: 'forge', version: '' }
   }
   return null

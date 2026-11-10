@@ -2,10 +2,7 @@
  * XMCL ResourcePack 服务
  * 基于 @xmcl/resourcepack 提供 Minecraft 资源包解析能力
  */
-import {
-  readPackMetaAndIcon,
-  ResourcePack
-} from '@xmcl/resourcepack'
+import { readPackMetaAndIcon, ResourcePack } from '@xmcl/resourcepack'
 import { resolveFileSystem } from '@xmcl/system'
 import { logger } from '../utils/logger'
 

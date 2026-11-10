@@ -1,26 +1,38 @@
 <template>
-  <!-- Koring 皮肤：满屏主色背景 + 大圆环，账户在左上，版本名贴底 -->
+  <!-- Koring 皮肤：满屏主色背景 + V 水印，账户在左上，实例名/版本名贴左下 -->
   <div v-if="appStore.skin === 'koring'" class="kor-home">
-    <div class="kor-home__bg" aria-hidden="true">
-      <span class="kor-home__ring kor-home__ring--outer" />
-      <span class="kor-home__ring kor-home__ring--inner" />
-    </div>
-
     <button type="button" class="kor-home__account" @click="router.push('/account')">
       <span class="kor-home__avatar">{{ korAccountInitial }}</span>
       <span class="kor-home__account-text">
         <span class="kor-home__account-name">{{ korAccountName }}</span>
         <span class="kor-home__account-desc">{{ korAccountDesc }}</span>
       </span>
-      <svg class="kor-home__chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <svg
+        class="kor-home__chev"
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"
+      >
         <polyline points="9 6 15 12 9 18" />
       </svg>
     </button>
 
-    <button type="button" class="kor-home__bottom" @click="router.push('/launch')">
-      <span class="kor-home__title">{{ korTitle }}</span>
-      <span class="kor-home__hint">{{ $t('home.koringLaunchHint') }}</span>
-    </button>
+    <!-- 左下：版本名占住按钮位；hover 时名称上移、启动胶囊滑出；点名称去实例页 -->
+    <div class="kor-home__bottom">
+      <button type="button" class="kor-home__title" @click="router.push('/instances')">
+        {{ korTitle }}
+      </button>
+      <button v-if="korVersionSelected" type="button" class="kor-home__start" @click="korLaunch">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M8 5.14v13.72L19 12z" />
+        </svg>
+        <span>{{ $t('home.koringLaunchGame') }}</span>
+      </button>
+    </div>
   </div>
 
   <div v-else class="home-page">
@@ -32,41 +44,64 @@
           <div class="hero-icon">
             <img src="/Alogo.png" alt="VoxVer" class="hero-logo-img" />
           </div>
-
         </div>
       </div>
-
-
 
       <!-- 快捷操作 - 占 4 列 -->
       <div class="bento-card bento-card--span-4 bento-card--actions">
         <div class="actions-grid">
           <button class="action-btn" @click="$router.push('/downloads')">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
             </svg>
             <span>{{ $t('download.downloads') }}</span>
           </button>
           <button class="action-btn" @click="$router.push('/settings')">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+              <path
+                d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"
+              />
             </svg>
             <span>{{ $t('settings.settings') }}</span>
           </button>
           <button class="action-btn" @click="$router.push('/account')">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
               <circle cx="12" cy="7" r="4" />
             </svg>
             <span>{{ $t('auth.account') }}</span>
           </button>
           <button class="action-btn" @click="openReceiveModal">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <circle cx="18" cy="5" r="3" />
               <circle cx="6" cy="12" r="3" />
               <circle cx="18" cy="19" r="3" />
@@ -103,17 +138,29 @@ const appStore = useAppStore()
 const versionsStore = useVersionsStore()
 const router = useRouter()
 
-/** Koring 首页标题：当前选中版本名，未选则提示选择版本 */
+/** 是否已选中具体版本：决定左下角是否出现「启动游戏」胶囊 */
+const korVersionSelected = computed(() => Boolean(versionsStore.currentVersionId))
+
+/** Koring 首页左下大标题：显示当前选中的具体版本号，未选则提示选择版本 */
 const korTitle = computed(() => versionsStore.currentVersionId || t('home.koringPickVersion'))
 
+/** 左下「启动游戏」：进启动页并自动开始启动 */
+function korLaunch() {
+  router.push({ path: '/launch', query: { autostart: '1' } })
+}
+
 /** Koring 首页左上账户卡：显示当前账号名与类型 */
-const korAccountName = computed(() => accountsStore.activeAccount?.name || t('home.koringNotSignedIn'))
+const korAccountName = computed(
+  () => accountsStore.activeAccount?.name || t('home.koringNotSignedIn')
+)
 const korAccountDesc = computed(() => {
   const account = accountsStore.activeAccount
   if (!account) return t('home.koringAccountHint')
   return account.type === 'microsoft' ? t('home.koringMicrosoft') : t('home.koringOffline')
 })
-const korAccountInitial = computed(() => (accountsStore.activeAccount?.name || 'V').slice(0, 1).toUpperCase())
+const korAccountInitial = computed(() =>
+  (accountsStore.activeAccount?.name || 'V').slice(0, 1).toUpperCase()
+)
 
 const showReceiveModal = ref(false)
 const initialShareCode = ref('')
@@ -231,11 +278,17 @@ onUnmounted(() => {
 
 /* * ===== 响应式 ===== */
 @media (max-width: 768px) {
-  .home-page { padding: 16px 20px; }
+  .home-page {
+    padding: 16px 20px;
+  }
 
-  .bento-card--hero { padding: 24px; }
+  .bento-card--hero {
+    padding: 24px;
+  }
 
-  .hero-title { font-size: 20px; }
+  .hero-title {
+    font-size: 20px;
+  }
 
   .actions-grid {
     grid-template-columns: repeat(2, 1fr);

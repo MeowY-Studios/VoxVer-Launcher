@@ -147,7 +147,10 @@ export function registerDialogHandlers(mainWindow: BrowserWindow): void {
     const prefix = norm(folderToRemove)
     const db = getDatabase()
     const allRows = db
-      .prepare<[], { id: string; name: string; path: string }>('SELECT id, name, path FROM instances')
+      .prepare<
+        [],
+        { id: string; name: string; path: string }
+      >('SELECT id, name, path FROM instances')
       .all()
     const affected = allRows.filter((row) => {
       // path 为空不判定为"该文件夹下的实例"，避免误删老版本未写入 path 的记录

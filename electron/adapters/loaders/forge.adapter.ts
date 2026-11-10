@@ -35,9 +35,22 @@ export class ForgeAdapter extends BaseLoaderAdapter {
     '1.20',
     '1.20.1',
     '1.20.2',
+    '1.20.3',
     '1.20.4',
-    '1.20.5',
-    '1.20.6'
+    // ! Forge 跳过了 1.20.5，没有任何构建。白名单命中会跳过在线校验，
+    // ! 一旦把不存在的版本写进来，页面会显示支持但安装必然失败。
+    '1.20.6',
+    '1.21',
+    '1.21.1',
+    '1.21.3',
+    '1.21.4',
+    '1.21.5',
+    '1.21.6',
+    '1.21.7',
+    '1.21.8',
+    '1.21.9',
+    '1.21.10',
+    '1.21.11'
   ]
 
   /**
@@ -63,10 +76,8 @@ export class ForgeAdapter extends BaseLoaderAdapter {
       this.log.warn('Failed to get Forge versions from Maven:', e)
     }
 
-    // 未找到时返回默认版本
-    if (versions.length === 0) {
-      versions.push(`${mcVersion}-47.3.0`)
-    }
+    // 找不到对应版本时返回空数组，让上层判定为“不支持”，
+    // 不能伪造一个版本号，否则会显示为可选却无法安装
 
     // 倒序（最新在前）
     versions.sort((a, b) => {
@@ -110,9 +121,12 @@ export class ForgeAdapter extends BaseLoaderAdapter {
     let targetVersion: string | null = ctx.loaderVersion || null
     if (!targetVersion) {
       this.report(ctx, 'downloading', 5, '获取 Forge 版本信息...')
-      targetVersion = await this.getRecommendedVersion(mcVersion)
+      // * 优先用 Maven 中该 MC 版本的实际构建，promotions 只作为兜底：
+      // * 很多版本只有 latest 没有 recommended，甚至 promotions 缺失但 Maven 有构建
+      const versions = await this.getVersions(mcVersion)
+      targetVersion = versions[0] || (await this.getRecommendedVersion(mcVersion))
       if (!targetVersion) {
-        throw new Error(`不支持 Minecraft ${mcVersion} 版本的 Forge`)
+        throw new Error(`Minecraft ${mcVersion} 没有可用的 Forge 构建`)
       }
     }
 

@@ -244,10 +244,14 @@ export function revealInExplorer(targetPath: string): void {
   if (platform.isWin) {
     shell.openPath(targetPath) // Windows Explorer 自动选中
   } else if (platform.isMac) {
-    execAsync(`open -R "${targetPath}"`).catch((e) => { logger.warn('macOS revealInExplorer 失败:', e) })
+    execAsync(`open -R "${targetPath}"`).catch((e) => {
+      logger.warn('macOS revealInExplorer 失败:', e)
+    })
   } else {
     // Linux: xdg-open 打开目录
     const dir = targetPath.endsWith(sep) ? targetPath : join(targetPath, '..')
-    execAsync(`xdg-open "${dir}"`).catch((e) => { logger.warn('Linux revealInExplorer 失败:', e) })
+    execAsync(`xdg-open "${dir}"`).catch((e) => {
+      logger.warn('Linux revealInExplorer 失败:', e)
+    })
   }
 }

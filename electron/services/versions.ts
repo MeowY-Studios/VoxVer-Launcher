@@ -241,7 +241,9 @@ export class VersionsService {
           return data
         } catch (err) {
           lastError = err
-          log.warn(`[VersionsService] 版本 ${versionId} 信息获取失败 (源: ${mirrorUrl}): ${(err as Error).message}`)
+          log.warn(
+            `[VersionsService] 版本 ${versionId} 信息获取失败 (源: ${mirrorUrl}): ${(err as Error).message}`
+          )
         }
       }
 

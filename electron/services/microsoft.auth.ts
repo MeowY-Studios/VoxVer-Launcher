@@ -149,11 +149,11 @@ export async function pollForToken(
       throw new Error('LOGIN_CANCELLED')
     }
 
-    const data = await httpPost(TOKEN_URL, {
+    const data = (await httpPost(TOKEN_URL, {
       client_id: CLIENT_ID,
       grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
       device_code: deviceCode
-    }) as Record<string, string>
+    })) as Record<string, string>
 
     if (data.error) {
       // authorization_pending / slow_down = 用户还没操作，继续等
@@ -185,12 +185,12 @@ export async function pollForToken(
  * 用 Refresh Token 静默刷新 Access Token（参考 StarLight.Core，使用 live.com 端点）
  */
 export async function refreshMicrosoftToken(refreshToken: string): Promise<MicrosoftTokens> {
-  const data = await httpPost(LIVE_TOKEN_URL, {
+  const data = (await httpPost(LIVE_TOKEN_URL, {
     client_id: CLIENT_ID,
     grant_type: 'refresh_token',
     refresh_token: refreshToken,
     redirect_uri: 'https://login.live.com/oauth20_desktop.srf'
-  }) as Record<string, string>
+  })) as Record<string, string>
 
   if (!data.access_token) throw new Error('TOKEN_REFRESH_FAILED')
   return {

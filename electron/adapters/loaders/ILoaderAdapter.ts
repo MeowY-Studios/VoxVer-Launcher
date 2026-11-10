@@ -38,8 +38,14 @@ export interface ILoaderAdapter {
   /** 支持适配的 Minecraft 版本列表 */
   readonly supportedVersions: string[]
 
-  /** 是否支持指定 MC 版本 */
+  /** 是否支持指定 MC 版本（静态白名单） */
   supportsVersion(mcVersion: string): boolean
+
+  /**
+   * 是否支持指定 MC 版本（以加载器官方版本列表为准）
+   * 新版本 Minecraft 是否可用由官方元数据决定，避免静态白名单过期
+   */
+  isSupported(mcVersion: string): Promise<boolean>
 
   /** 获取指定 MC 版本可用的加载器版本列表（最新在前） */
   getVersions(mcVersion: string): Promise<string[]>

@@ -18,7 +18,11 @@ import { resolve, join } from 'path'
 export function safeJoin(baseDir: string, ...segments: string[]): string {
   const fullPath = resolve(baseDir, join(...segments))
   const normalizedBase = resolve(baseDir)
-  if (fullPath !== normalizedBase && !fullPath.startsWith(normalizedBase + '\\') && !fullPath.startsWith(normalizedBase + '/')) {
+  if (
+    fullPath !== normalizedBase &&
+    !fullPath.startsWith(normalizedBase + '\\') &&
+    !fullPath.startsWith(normalizedBase + '/')
+  ) {
     throw new Error(`路径遍历检测: ${fullPath} 不在 ${normalizedBase} 内`)
   }
   return fullPath
@@ -48,7 +52,13 @@ export function validateVersionId(versionId: string): void {
  * 校验路径中不包含危险字符（用于命令拼接场景）
  */
 export function validatePathSafe(path: string): void {
-  if (path.includes('"') || path.includes("'") || path.includes(';') || path.includes('&') || path.includes('|')) {
+  if (
+    path.includes('"') ||
+    path.includes("'") ||
+    path.includes(';') ||
+    path.includes('&') ||
+    path.includes('|')
+  ) {
     throw new Error(`路径包含危险字符: ${path}`)
   }
 }

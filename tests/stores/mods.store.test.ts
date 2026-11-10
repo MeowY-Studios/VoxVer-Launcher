@@ -86,7 +86,10 @@ describe('mods store - filteredMods', () => {
 
   it('应按关键词搜索 displayName', () => {
     const store = freshStore()
-    store.mods = [mockMod({ id: '1', displayName: 'OptiFine' }), mockMod({ id: '2', displayName: 'JEI' })]
+    store.mods = [
+      mockMod({ id: '1', displayName: 'OptiFine' }),
+      mockMod({ id: '2', displayName: 'JEI' })
+    ]
     store.searchQuery = 'optifine'
     expect(store.filteredMods).toHaveLength(1)
     expect(store.filteredMods[0].displayName).toBe('OptiFine')
@@ -104,10 +107,7 @@ describe('mods store - filteredMods', () => {
 
   it('应按作者搜索', () => {
     const store = freshStore()
-    store.mods = [
-      mockMod({ id: '1', author: 'CaffeineMC' }),
-      mockMod({ id: '2', author: 'Mezz' })
-    ]
+    store.mods = [mockMod({ id: '1', author: 'CaffeineMC' }), mockMod({ id: '2', author: 'Mezz' })]
     store.searchQuery = 'caffeine'
     expect(store.filteredMods).toHaveLength(1)
   })
@@ -230,7 +230,10 @@ describe('mods store - removeMod', () => {
   it('应卸载并从列表移除', async () => {
     vi.mocked(window.electronAPI.mod.uninstall).mockResolvedValueOnce(true)
     const store = freshStore()
-    store.mods = [mockMod({ id: '1', filePath: '/mods/a.jar' }), mockMod({ id: '2', filePath: '/mods/b.jar' })]
+    store.mods = [
+      mockMod({ id: '1', filePath: '/mods/a.jar' }),
+      mockMod({ id: '2', filePath: '/mods/b.jar' })
+    ]
 
     await store.removeMod('1')
 

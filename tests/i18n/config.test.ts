@@ -3,12 +3,7 @@
  * 覆盖：setLocale, getCurrentLocale, getLocaleName, localeNames
  */
 import { describe, it, expect, beforeEach } from 'vitest'
-import {
-  setLocale,
-  getCurrentLocale,
-  getLocaleName,
-  localeNames
-} from '../../src/locale/i18n'
+import { setLocale, getCurrentLocale, getLocaleName, localeNames } from '../../src/locale/i18n'
 
 beforeEach(() => {
   // 重置 locale 为 zh-CN

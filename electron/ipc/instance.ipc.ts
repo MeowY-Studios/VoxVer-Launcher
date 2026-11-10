@@ -73,11 +73,15 @@ export function registerInstanceHandlers(modService?: ModService): void {
   )
   // ===== 存档 =====
   ipcMain.handle('instance:list-saves', (_e, id: string) => enhanced.listSaves(id))
-  ipcMain.handle('instance:delete-save', (_e, id: string, name: string) => enhanced.deleteSave(id, name))
+  ipcMain.handle('instance:delete-save', (_e, id: string, name: string) =>
+    enhanced.deleteSave(id, name)
+  )
   ipcMain.handle('instance:rename-save', (_e, id: string, oldN: string, newN: string) =>
     enhanced.renameSave(id, oldN, newN)
   )
-  ipcMain.handle('instance:backup-save', (_e, id: string, name: string) => enhanced.backupSave(id, name))
+  ipcMain.handle('instance:backup-save', (_e, id: string, name: string) =>
+    enhanced.backupSave(id, name)
+  )
 
   // ===== 导入导出 =====
   ipcMain.handle('instance:scan-minecraft', async (_event, dirPath: string) => {
@@ -98,13 +102,13 @@ export function registerInstanceHandlers(modService?: ModService): void {
       instanceId: string,
       destPath: string,
       options?: {
-      includeMods?: boolean
-      includeDisabledMods?: boolean
-      includeConfigs?: boolean
-      includeResourcePacks?: boolean
-      includeShaderPacks?: boolean
-      includeSaves?: boolean
-    }
+        includeMods?: boolean
+        includeDisabledMods?: boolean
+        includeConfigs?: boolean
+        includeResourcePacks?: boolean
+        includeShaderPacks?: boolean
+        includeSaves?: boolean
+      }
     ) => {
       try {
         const { exportInstance } = await import('../services/instance.export')

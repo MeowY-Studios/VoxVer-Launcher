@@ -167,7 +167,20 @@ describe('accounts store - loginOffline', () => {
   it('离线登录应刷新账户列表', async () => {
     vi.mocked(window.electronAPI.account.loginOffline).mockResolvedValueOnce({ ok: false } as any)
     vi.mocked(window.electronAPI.account.list).mockResolvedValueOnce([
-      { id: '1', type: 'offline', name: 'OfflinePlayer', uuid: 'uuid-1', access_token: null, refresh_token: null, expires_at: null, is_active: 1, skin_url: null, created_at: '', updated_at: '', xuid: null }
+      {
+        id: '1',
+        type: 'offline',
+        name: 'OfflinePlayer',
+        uuid: 'uuid-1',
+        access_token: null,
+        refresh_token: null,
+        expires_at: null,
+        is_active: 1,
+        skin_url: null,
+        created_at: '',
+        updated_at: '',
+        xuid: null
+      }
     ])
 
     const store = freshStore()
@@ -181,8 +194,34 @@ describe('accounts store - setActive', () => {
   it('应调用主进程切换活跃账户并刷新', async () => {
     vi.mocked(window.electronAPI.account.setActive).mockResolvedValueOnce(true)
     vi.mocked(window.electronAPI.account.list).mockResolvedValueOnce([
-      { id: '2', type: 'microsoft', name: 'ActiveOne', uuid: 'u2', access_token: null, refresh_token: null, expires_at: null, is_active: 1, skin_url: null, created_at: '', updated_at: '', xuid: null },
-      { id: '1', type: 'microsoft', name: 'Old', uuid: 'u1', access_token: null, refresh_token: null, expires_at: null, is_active: 0, skin_url: null, created_at: '', updated_at: '', xuid: null }
+      {
+        id: '2',
+        type: 'microsoft',
+        name: 'ActiveOne',
+        uuid: 'u2',
+        access_token: null,
+        refresh_token: null,
+        expires_at: null,
+        is_active: 1,
+        skin_url: null,
+        created_at: '',
+        updated_at: '',
+        xuid: null
+      },
+      {
+        id: '1',
+        type: 'microsoft',
+        name: 'Old',
+        uuid: 'u1',
+        access_token: null,
+        refresh_token: null,
+        expires_at: null,
+        is_active: 0,
+        skin_url: null,
+        created_at: '',
+        updated_at: '',
+        xuid: null
+      }
     ])
 
     const store = freshStore()
