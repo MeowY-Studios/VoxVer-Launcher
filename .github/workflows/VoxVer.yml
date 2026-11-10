@@ -6,6 +6,9 @@ on:
     tags:
       - 'VoxVer*'
 
+permissions:
+  contents: write
+
 env:
   NODE_VERSION: 24.x
   NPM_REGISTRY: https://registry.npmjs.org/
