@@ -437,7 +437,7 @@ async function loadFolders(silent = false) {
       const match =
         storedPath &&
         entries.find((e) => e.path.replace(/[\\/]+$/, '') === storedPath.replace(/[\\/]+$/, ''))
-      activeFolder.value = match ? match.path : entries[0]?.path ?? null
+      activeFolder.value = match ? match.path : (entries[0]?.path ?? null)
       writeStored(FOLDER_KEY, activeFolder.value ?? '')
     }
   } finally {

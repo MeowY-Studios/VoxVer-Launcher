@@ -208,7 +208,6 @@ export const useDownloadStore = defineStore('download', () => {
 
   restoreVersionTasks()
 
-
   // * ====== 计算属性 ======
 
   /** 是否有正在进行的下载 */

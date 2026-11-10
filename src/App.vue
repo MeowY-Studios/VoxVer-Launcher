@@ -778,9 +778,15 @@ const appStore = useAppStore()
 const isKorOwnNav = computed(
   () =>
     appStore.skin === 'koring' &&
-    ['/settings', '/downloads', '/download/manage', '/', '/instances', '/launch', '/update'].includes(
-      currentRoute.value
-    )
+    [
+      '/settings',
+      '/downloads',
+      '/download/manage',
+      '/',
+      '/instances',
+      '/launch',
+      '/update'
+    ].includes(currentRoute.value)
 )
 const isKorDownloads = computed(
   () => appStore.skin === 'koring' && currentRoute.value === '/downloads'

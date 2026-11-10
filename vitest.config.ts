@@ -3,7 +3,10 @@ import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    // 公共目录里的绝对路径资源（/xxx.png）不要在测试里被解析成文件 URL
+    vue({ template: { transformAssetUrls: { includeAbsolute: false } } })
+  ],
   test: {
     globals: true,
     environment: 'jsdom',

@@ -735,7 +735,7 @@ async function loadLoaderSupport() {
 }
 
 /** 从后端获取官网实际发布的 OptiFine 版本 */
-async function loadOptiFineVersions(api: NonNullable<Window['electronAPI']>) {
+async function loadOptiFineVersions(api: NonNullable<typeof window.electronAPI>) {
   const res = await api.modloader.getVersions(versionId.value, 'optifine')
   if (res?.ok && Array.isArray(res.data)) {
     optiFineVersions.value = res.data

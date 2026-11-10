@@ -36,8 +36,8 @@
                 <button
                   class="btn-cancel"
                   @click="
-                    showInstallConfirm = false;
-                    pendingFile = null;
+                    showInstallConfirm = false
+                    pendingFile = null
                   "
                 >
                   {{ $t('common.cancel') }}

@@ -310,13 +310,7 @@
         <button class="mod-bottom-btn" @click="exportSelected">
           {{ $t('mod.exportSelected') }}
         </button>
-        <button
-          class="mod-bottom-btn"
-          @click="
-            selectedMods.clear();
-            selectedMod = null;
-          "
-        >
+        <button class="mod-bottom-btn" @click="clearSelection">
           {{ $t('mod.cancelSelection') }}
         </button>
       </div>
@@ -643,6 +637,11 @@ async function batchDisable() {
 }
 
 // * 批量删除
+function clearSelection() {
+  selectedMods.value.clear()
+  selectedMod.value = null
+}
+
 async function batchDelete() {
   const names = Array.from(selectedMods.value)
     .map((fp) => installedMods.value.find((m) => m.filePath === fp)?.name || fp)

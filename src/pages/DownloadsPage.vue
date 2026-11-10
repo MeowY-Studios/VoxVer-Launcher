@@ -1520,7 +1520,7 @@ function jumpToVersion(): void {
     const scope =
       document.querySelector('.ver-accordion') ?? document.querySelector('.kor-c12__groups')
     const el = (scope ?? document).querySelector<HTMLElement>(
-      `[data-ver-name="${CSS.escape(target.name)}"]`
+      `[data-ver-name="${target.name.replace(/["\\]/g, '\\$&')}"]`
     )
     el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   })

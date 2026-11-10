@@ -363,8 +363,7 @@ export class ModLoaderService {
     // 以官网实际发布的版本为准，忽略非法的 flag 值（例如 'optifine'）
     const available = await this.getOptiFineVersionsForMinecraft(mcVersion)
     const requested = optifineVersion?.startsWith('HD_U_') ? optifineVersion : undefined
-    const targetVersion =
-      requested && available.includes(requested) ? requested : available[0]
+    const targetVersion = requested && available.includes(requested) ? requested : available[0]
     if (!targetVersion) {
       throw new Error(`Minecraft ${mcVersion} 没有可用的 OptiFine 版本`)
     }
@@ -376,7 +375,11 @@ export class ModLoaderService {
     // 确保目录存在
     await fs.mkdir(path.dirname(installerPath), { recursive: true })
 
-    this.reportProgress({ stage: 'downloading', progress: 10, message: `下载 OptiFine ${targetVersion}...` })
+    this.reportProgress({
+      stage: 'downloading',
+      progress: 10,
+      message: `下载 OptiFine ${targetVersion}...`
+    })
 
     // OptiFine 的下载链接是 adloadx 页面动态生成的一次性 token，不能硬编码
     const downloadUrl = await this.resolveOptiFineDownloadUrl(fileName)
@@ -511,7 +514,7 @@ export class ModLoaderService {
     )
 
     let output = ''
-    let exitCode = -1
+    let exitCode: number
     try {
       exitCode = await new Promise<number>((resolve, reject) => {
         const args = [
@@ -608,10 +611,7 @@ export class ModLoaderService {
     if (output.includes('Base resource not found')) {
       return `OptiFine 补丁失败：Minecraft ${mcVersion} 本体 jar 不完整，请重新安装该版本后重试`
     }
-    if (
-      output.includes('showMessageVersionNotFound') ||
-      output.includes('copyMinecraftVersion')
-    ) {
+    if (output.includes('showMessageVersionNotFound') || output.includes('copyMinecraftVersion')) {
       return `未找到 Minecraft ${mcVersion} 的版本文件，请先在启动器里安装 ${mcVersion} 本体再装 OptiFine`
     }
     const line = output

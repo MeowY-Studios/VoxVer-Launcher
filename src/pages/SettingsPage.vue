@@ -1166,20 +1166,14 @@
             <button
               class="vox-chip vox-chip--on"
               :class="{ 'vox-chip--active': autoCheckUpdate }"
-              @click="
-                autoCheckUpdate = true;
-                onAutoCheckChange();
-              "
+              @click="setAutoCheck(true)"
             >
               {{ $t('settings.autoCheckEnable') }}
             </button>
             <button
               class="vox-chip vox-chip--off"
               :class="{ 'vox-chip--active': !autoCheckUpdate }"
-              @click="
-                autoCheckUpdate = false;
-                onAutoCheckChange();
-              "
+              @click="setAutoCheck(false)"
             >
               {{ $t('settings.autoCheckDisable') }}
             </button>
@@ -7839,6 +7833,11 @@ async function loadUpdateConfig() {
 async function onUpdateChannelChange(channel: string) {
   updateChannel.value = channel
   await window.electronAPI?.updater?.setChannel(channel)
+}
+
+function setAutoCheck(enabled: boolean) {
+  autoCheckUpdate.value = enabled
+  onAutoCheckChange()
 }
 
 async function onAutoCheckChange() {

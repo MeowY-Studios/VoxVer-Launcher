@@ -149,10 +149,7 @@
         <button
           class="tab-btn"
           :class="{ active: detailTab === 'resourcepacks' }"
-          @click="
-            detailTab = 'resourcepacks';
-            loadResourcePacks();
-          "
+          @click="openDetailTab('resourcepacks')"
         >
           <svg
             width="14"
@@ -171,10 +168,7 @@
         <button
           class="tab-btn"
           :class="{ active: detailTab === 'shaderpacks' }"
-          @click="
-            detailTab = 'shaderpacks';
-            loadShaderPacks();
-          "
+          @click="openDetailTab('shaderpacks')"
         >
           <svg
             width="14"
@@ -194,10 +188,7 @@
         <button
           class="tab-btn"
           :class="{ active: detailTab === 'saves' }"
-          @click="
-            detailTab = 'saves';
-            loadSaves();
-          "
+          @click="openDetailTab('saves')"
         >
           <svg
             width="14"
@@ -1468,6 +1459,16 @@ async function openInstanceSubdir(
 ) {
   if (!instance.value?.path) return
   window.electronAPI?.shell.openPath(instance.value.path + '/' + sub)
+}
+
+type DetailTab = 'overview' | 'mods' | 'resourcepacks' | 'shaderpacks' | 'saves'
+
+/** 切换实例详情页签并按需加载数据 */
+function openDetailTab(tab: DetailTab) {
+  detailTab.value = tab
+  if (tab === 'resourcepacks') loadResourcePacks()
+  if (tab === 'shaderpacks') loadShaderPacks()
+  if (tab === 'saves') loadSaves()
 }
 
 async function loadResourcePacks() {
