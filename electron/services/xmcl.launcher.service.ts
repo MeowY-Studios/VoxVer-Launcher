@@ -1633,10 +1633,12 @@ export async function launchWithXMCL(
     log.info(`[launchWithXMCL] 开始启动版本: ${options.versionId}`)
 
     // 通知前端：开始构建启动配置
+    // versionId 供启动进度面板显示「实际启动的版本」，避免与页面当前选中版本不一致
     mainWindow.webContents.send('game:progress', {
       phase: 'building-config',
       message: '正在构建启动参数...',
-      detail: `版本: ${options.versionId}`
+      detail: `版本: ${options.versionId}`,
+      versionId: options.versionId
     })
 
     const sharedGamePath = options.gamePath

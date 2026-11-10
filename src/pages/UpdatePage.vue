@@ -2,27 +2,24 @@
   <!-- ========== Koring 皮肤：Kor 组件版本 ========== -->
   <div v-if="isKoring" class="update-page update-page--kor">
     <div class="kor-page">
-      <button class="back-btn" @click="goBack">
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M19 12H5" />
-          <path d="M12 19l-7-7 7-7" />
-        </svg>
-        {{ t('update.updatePage.back') }}
-      </button>
-
-      <KorPageHeader
-        :title="t('update.updatePage.releaseNotes')"
-        :desc="notesVersion ? t('update.updatePage.versionLabel', { version: notesVersion }) : ''"
-      />
+      <div class="kor-page__topbar">
+        <button class="back-btn" @click="goBack">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M19 12H5" />
+            <path d="M12 19l-7-7 7-7" />
+          </svg>
+          {{ t('update.updatePage.back') }}
+        </button>
+      </div>
 
       <div class="kor-section">
         <KorVersionCard
@@ -45,11 +42,13 @@
         </KorSettingCard>
 
         <template v-else-if="parsedSections.length > 0 && parsedSections.some((s) => s.title)">
-          <KorSettingCard v-for="(sec, idx) in parsedSections" :key="idx">
-            <div class="kor-row-label" v-if="sec.title">{{ sec.title }}</div>
-            <!-- eslint-disable-next-line vue/no-v-html -->
-            <div class="notes-body" v-html="sec.html" />
-          </KorSettingCard>
+          <div class="kor-cards">
+            <KorSettingCard v-for="(sec, idx) in parsedSections" :key="idx">
+              <div class="kor-row-label" v-if="sec.title">{{ sec.title }}</div>
+              <!-- eslint-disable-next-line vue/no-v-html -->
+              <div class="notes-body" v-html="sec.html" />
+            </KorSettingCard>
+          </div>
         </template>
 
         <KorSettingCard v-else>
@@ -62,33 +61,22 @@
         <div v-if="notesFooterHtml" class="notes-footer" v-html="notesFooterHtml" />
       </div>
 
-      <div class="kor-section kor-section--sticky">
-        <KorSettingCard>
-          <div class="kor-row">
-            <div>
-              <div class="kor-row-label">{{ statusText }}</div>
-              <div class="kor-row-desc" v-if="state === 'downloading' && status?.bytesPerSecond">
-                {{ formatBytes(status.bytesPerSecond) }}/s
-              </div>
-            </div>
-          </div>
+      <!-- 底部固定操作栏（对标 Koring Launcher 更新页）：状态行 + 主按钮，阅读时自动收起 -->
+      <div class="kor-upd-bar" :class="{ 'is-hidden': !barVisible }">
+        <div class="kor-upd-bar__inner">
+          <p v-if="statusText" class="kor-upd-bar__status">{{ statusText }}</p>
           <KorProgress v-if="state === 'downloading'" :value="pct" />
-          <!-- 底部整条检查更新按钮：随状态显示 检查中 / 已经是最新版 / 下载更新 等 -->
           <KorButton
             variant="primary"
             block
             pill
-            class="kor-update-btn"
             :loading="state === 'checking'"
+            :disabled="state === 'checking'"
             @click="primaryAction"
           >
-            <span v-if="state === 'checking'" class="kor-update-spinner" aria-hidden="true" />
             {{ mainButtonLabel }}
           </KorButton>
-          <button type="button" class="kor-ghost-link" @click="openGithub">
-            {{ t('update.updatePage.viewOnGitHub') }}
-          </button>
-        </KorSettingCard>
+        </div>
       </div>
     </div>
   </div>
@@ -221,7 +209,6 @@ import SilkBackground from '../components/SilkBackground.vue'
 import {
   KorButton,
   KorEmpty,
-  KorPageHeader,
   KorProgress,
   KorSectionTitle,
   KorSettingCard,
@@ -291,6 +278,30 @@ const state = computed<
 
 const hasError = computed(() => state.value === 'error')
 const hasUpdate = computed(() => state.value === 'available')
+/** 底部操作栏可见性：阅读发布说明向下滚动时收起，回滚/到顶恢复（Koring 同款行为） */
+const barVisible = ref(true)
+let barScrollEl: HTMLElement | null = null
+let barLastY = 0
+let barTicking = false
+function onBarScroll(): void {
+  if (barTicking || !barScrollEl) return
+  barTicking = true
+  requestAnimationFrame(() => {
+    const el = barScrollEl
+    if (!el) {
+      barTicking = false
+      return
+    }
+    const y = el.scrollTop
+    const delta = y - barLastY
+    const busy = state.value === 'checking' || state.value === 'downloading'
+    if (busy) barVisible.value = true
+    else if (delta > 8 && y > 120) barVisible.value = false
+    else if (delta < -8 || y < 72) barVisible.value = true
+    barLastY = y
+    barTicking = false
+  })
+}
 const errorText = computed(() => checkResult.value?.error ?? status.value?.error ?? '')
 
 const notesVersion = computed(() => {
@@ -421,7 +432,8 @@ const heroStatusText = computed(() => {
     case 'downloaded':
       return t('update.updatePage.newVersionAvailable')
     case 'uptodate':
-      return t('update.updatePage.upToDate')
+      // 按钮本身已显示「已是最新版本」，状态行不再重复
+      return ''
     case 'error':
       return t('update.updatePage.updateFailed', { error: errorText.value })
     default:
@@ -453,7 +465,8 @@ const statusText = computed(() => {
     case 'downloaded':
       return t('update.updatePage.downloaded')
     case 'uptodate':
-      return t('update.updatePage.upToDate')
+      // 按钮本身已显示「已是最新版本」，状态行不再重复
+      return ''
     case 'error':
       return t('update.updatePage.checkFailed', { error: errorText.value })
     default:
@@ -561,10 +574,18 @@ onMounted(async () => {
     /* ignore */
   }
   await runCheck()
+  barScrollEl =
+    document.querySelector<HTMLElement>('.update-page--kor') ??
+    document.querySelector<HTMLElement>('.main-content')
+  if (barScrollEl) {
+    barLastY = barScrollEl.scrollTop
+    barScrollEl.addEventListener('scroll', onBarScroll, { passive: true })
+  }
 })
 
 onUnmounted(() => {
   unsubStatus?.()
+  if (barScrollEl) barScrollEl.removeEventListener('scroll', onBarScroll)
 })
 </script>
 
@@ -582,12 +603,35 @@ onUnmounted(() => {
   background: var(--voxver-bg-primary);
 }
 
-/* Koring 皮肤：内容超出视口时可滚动 */
+/* Koring 皮肤：背景交给全局天蓝 V 底（app-body），本层只做滚动容器 */
 .update-page--kor {
   overflow-y: auto;
   overscroll-behavior: contain;
+  background: transparent;
 }
 
+/* Koring 下滚动条隐到 hover 再显，与其他页面一致 */
+.update-page--kor::-webkit-scrollbar {
+  width: 8px;
+}
+.update-page--kor::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+}
+.update-page--kor:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* Koring 顶栏：返回按钮靠左，作为页面唯一头部 */
+.update-page--kor .kor-page__topbar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.update-page--kor .kor-page__topbar .back-btn {
+  margin: 0;
+}
 /* 底部内边距交给吸附的操作区，避免按钮悬空 */
 .update-page.update-page--kor {
   padding-bottom: 0;
@@ -1051,4 +1095,85 @@ onUnmounted(() => {
     }
   }
 }
-</style>
+
+/* ===== Koring 更新页：底部固定操作栏（对标 Koring Launcher） ===== */
+.update-page--kor .kor-page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 20px 32px 150px;
+}
+
+.kor-upd-bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  padding: 10px 24px 14px;
+  background: rgba(10, 22, 44, 0.72);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px) saturate(120%);
+  transition:
+    transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 240ms ease;
+  pointer-events: auto;
+}
+
+.kor-upd-bar.is-hidden {
+  transform: translateY(110%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.kor-upd-bar__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 768px;
+  margin: 0 auto;
+}
+
+.kor-upd-bar__status {
+  margin: 0;
+  overflow: hidden;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.72);
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Koring：更新内容多张卡片之间的间距（默认 12px 偏紧） */
+.update-page--kor .kor-cards {
+  gap: 20px;
+}
+
+/* Koring：更新内容排版增加呼吸感（原先列表项 4px 太挤） */
+.update-page--kor .notes-body {
+  :deep(li) {
+    margin: 9px 0;
+    line-height: 1.8;
+  }
+
+  :deep(ul),
+  :deep(ol) {
+    margin: 10px 0;
+  }
+
+  :deep(p) {
+    margin: 12px 0;
+  }
+
+  :deep(h4) {
+    margin: 20px 0 10px;
+  }
+
+  :deep(h3) {
+    margin: 24px 0 12px;
+  }
+
+  :deep(li)::marker {
+    color: rgba(255, 255, 255, 0.55);
+  }
+}</style>

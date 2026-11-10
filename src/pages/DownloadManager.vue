@@ -537,6 +537,27 @@ async function retryTask(task: UnifiedTask) {
   }
 }
 
+/**
+ * 根据下载任务推断安装后生成的版本目录名（按优先级从高到低）。
+ * 加载器/OptiFine 安装会各自建一个版本目录，所以按「装了哪个」依次给出候选。
+ */
+function buildInstanceCandidates(task: UnifiedTask): string[] {
+  const mc = task.id
+  const ids: string[] = []
+  if (task.optifineVersion) ids.push(`${mc}-OptiFine_${task.optifineVersion}`)
+  if (task.loader === 'forge' && task.loaderVersion) {
+    ids.push(`${mc}-forge-${task.loaderVersion.split('-').pop()}`)
+  }
+  if (task.loader === 'fabric' && task.loaderVersion) {
+    ids.push(`fabric-loader-${task.loaderVersion}-${mc}`)
+  }
+  if (task.loader === 'neoforge' && task.loaderVersion) {
+    ids.push(`${mc}-neoforge-${task.loaderVersion}`)
+  }
+  ids.push(mc)
+  return ids
+}
+
 async function viewInstance(task: UnifiedTask) {
   if (task._type !== 'version') return
   const api = window.electronAPI
@@ -548,7 +569,11 @@ async function viewInstance(task: UnifiedTask) {
       loaderVersion: ''
     })
   }
-  router.push('/versions')
+  // * 跳到「实例」页，并把下载目标目录 + 刚下载的版本目录名带过去供自动选中
+  router.push({
+    path: '/instances',
+    query: { folder: task.targetFolder, select: buildInstanceCandidates(task).join(',') }
+  })
 }
 
 function removeTask(task: UnifiedTask) {
@@ -558,12 +583,8 @@ function removeTask(task: UnifiedTask) {
 }
 
 function clearCompleted() {
-  tasks.value.forEach((task) => {
-    if (task.phase === 'completed' && task._type === 'version') {
-      downloadStore.removeVersionTask(task.id)
-    }
-  })
-  // 同步清空持久化的历史记录
+  // * 只清除下载列表里的记录（含跨会话持久化的历史），不会删除磁盘上的版本文件
+  downloadStore.clearVersionHistory()
   void downloadStore.clearHistory()
 }
 

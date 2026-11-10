@@ -233,7 +233,8 @@ function openManager() {
 }
 
 function close() {
-  store.showFloatPanel = false
+  // * 用户主动关闭：本次下载期间不再自动弹出（切页面也不会），直到再次触发下载
+  store.dismissFloat()
 }
 
 function dismiss(task: UnifiedTask) {
@@ -273,8 +274,8 @@ watch(
       store.suppressFloat = true
     } else {
       store.suppressFloat = false
-      // * 仅当仍有下载中的任务时才恢复显示浮窗；已完成/失败的历史任务不应再次自动弹出
-      if (activeCount.value > 0) {
+      // * 仅当仍有下载中的任务、且用户没有手动关掉浮窗时才恢复显示
+      if (activeCount.value > 0 && !store.floatDismissed) {
         store.showFloatPanel = true
       }
     }

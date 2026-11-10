@@ -141,8 +141,73 @@ export const useDownloadStore = defineStore('download', () => {
   const showFloatPanel = ref(false)
   /** 是否抑制浮窗自动弹出（进入下载管理页时启用，避免进度事件再次拉起浮窗） */
   const suppressFloat = ref(false)
+  /**
+   * 用户是否手动关闭过悬浮窗（点了 X）。
+   * 关闭后本次下载期间不再自动弹出，切换任何页面都不会弹出；
+   * 只有用户再次触发下载时才重置。
+   */
+  const floatDismissed = ref(false)
   /** 下载管理器页面是否打开 */
   const showDownloadManager = ref(false)
+
+  /** 用户点了悬浮窗的 X：本次下载期间不再自动弹出 */
+  function dismissFloat(): void {
+    showFloatPanel.value = false
+    floatDismissed.value = true
+  }
+
+  /** 触发新的下载：重置「已关闭」规则并弹出悬浮窗 */
+  function openFloatForNewDownload(): void {
+    floatDismissed.value = false
+    if (!suppressFloat.value) showFloatPanel.value = true
+  }
+
+  /** 版本下载历史持久化键（仅存已结束的任务，供跨会话展示） */
+  const VERSION_HISTORY_KEY = 'voxver_version_download_history'
+
+  /** 把已结束的版本下载任务写入本地存储 */
+  function persistVersionTasks() {
+    try {
+      const finished = Array.from(versionTasks.value.values())
+        .filter((t) => t.phase === 'completed' || t.phase === 'failed')
+        .map((t) => ({ ...t, speed: 0 }))
+      localStorage.setItem(VERSION_HISTORY_KEY, JSON.stringify(finished))
+    } catch {
+      // 持久化失败不影响下载流程
+    }
+  }
+
+  /** 恢复上次运行的版本下载历史 */
+  function restoreVersionTasks() {
+    try {
+      const raw = localStorage.getItem(VERSION_HISTORY_KEY)
+      if (!raw) return
+      const list: unknown = JSON.parse(raw)
+      if (!Array.isArray(list)) return
+      for (const item of list) {
+        if (!item || typeof item !== 'object') continue
+        const task = item as VersionDownloadTask
+        if (typeof task.id !== 'string' || versionTasks.value.has(task.id)) continue
+        if (task.phase !== 'completed' && task.phase !== 'failed') continue
+        versionTasks.value.set(task.id, { ...task, speed: 0 })
+      }
+    } catch {
+      // 数据损坏时直接忽略
+    }
+  }
+
+  /** 清除版本下载历史：只移除列表记录，不删除磁盘文件 */
+  function clearVersionHistory() {
+    for (const [id, t] of versionTasks.value) {
+      if (t.phase === 'completed' || t.phase === 'failed') {
+        versionTasks.value.delete(id)
+      }
+    }
+    persistVersionTasks()
+  }
+
+  restoreVersionTasks()
+
 
   // * ====== 计算属性 ======
 
@@ -259,9 +324,8 @@ export const useDownloadStore = defineStore('download', () => {
       optifineVersion
     }
     versionTasks.value.set(versionId, task)
-    if (!suppressFloat.value) {
-      showFloatPanel.value = true
-    }
+    // * 用户主动触发的下载：重置「已关闭浮窗」规则
+    openFloatForNewDownload()
     // * 下载开始：在通知中心创建一条带进度的下载通知
     sendDownloadNotification(`dl:version:${versionId}`, {
       title: task.name,
@@ -338,6 +402,7 @@ export const useDownloadStore = defineStore('download', () => {
       progress: 100,
       status: installFailed ? 'error' : 'success'
     })
+    persistVersionTasks()
   }
 
   /** 版本下载失败 */
@@ -354,11 +419,13 @@ export const useDownloadStore = defineStore('download', () => {
       type: 'error',
       status: 'error'
     })
+    persistVersionTasks()
   }
 
   /** 移除版本下载任务 */
   function removeVersionTask(versionId: string) {
     versionTasks.value.delete(versionId)
+    persistVersionTasks()
     // * 只有版本任务和 Mod 任务都为空时才隐藏面板
     if (versionTasks.value.size === 0 && activeDownloads.value.length === 0) {
       showFloatPanel.value = false
@@ -382,9 +449,8 @@ export const useDownloadStore = defineStore('download', () => {
       targetFolder: savePath
     }
     versionTasks.value.set(task.id, task)
-    if (!suppressFloat.value) {
-      showFloatPanel.value = true
-    }
+    // * 用户主动触发的下载：重置「已关闭浮窗」规则
+    openFloatForNewDownload()
 
     try {
       await api.versions.downloadServer(versionId, savePath)
@@ -618,8 +684,13 @@ export const useDownloadStore = defineStore('download', () => {
           status: 'running'
         })
       }
-      // * 有活跃 mod 下载时显示浮动面板（下载管理页打开期间抑制自动弹出）
-      if (!suppressFloat.value && !showFloatPanel.value && activeDownloads.value.length > 0) {
+      // * 有活跃 mod 下载时显示浮动面板（下载管理页打开期间、用户手动关闭过之后都不自动弹出）
+      if (
+        !suppressFloat.value &&
+        !floatDismissed.value &&
+        !showFloatPanel.value &&
+        activeDownloads.value.length > 0
+      ) {
         showFloatPanel.value = true
       }
     })
@@ -687,6 +758,7 @@ export const useDownloadStore = defineStore('download', () => {
     versionTasks,
     showFloatPanel,
     suppressFloat,
+    floatDismissed,
     showDownloadManager,
 
     // * 计算属性
@@ -698,11 +770,14 @@ export const useDownloadStore = defineStore('download', () => {
     hasAnyTask,
 
     // * 操作
+    dismissFloat,
+    openFloatForNewDownload,
     startVersionDownload,
     updateVersionProgress,
     onVersionComplete,
     onVersionError,
     removeVersionTask,
+    clearVersionHistory,
     downloadServerJar,
     searchMods,
     loadMore,

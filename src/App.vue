@@ -778,7 +778,7 @@ const appStore = useAppStore()
 const isKorOwnNav = computed(
   () =>
     appStore.skin === 'koring' &&
-    ['/settings', '/downloads', '/download/manage', '/', '/instances', '/launch'].includes(
+    ['/settings', '/downloads', '/download/manage', '/', '/instances', '/launch', '/update'].includes(
       currentRoute.value
     )
 )
@@ -1102,6 +1102,17 @@ function formatUptime(ms: number): string {
 const showVersionSelect = ref(false)
 const selectedVersionId = ref('')
 const selectedVersion = ref(t('game.selectVersion'))
+
+// * 实例页等其它页面切换当前版本时，首页显示的版本同步跟随，避免「启动的版本」与「显示的版本」不一致
+watch(
+  () => versionsStore.currentVersionId,
+  (id) => {
+    if (!id || id === selectedVersionId.value) return
+    const hit = versions.value.find((v) => v.id === id)
+    selectedVersionId.value = id
+    selectedVersion.value = hit ? `${hit.name}${hit.loader ? '-' + hit.loader : ''}` : id
+  }
+)
 
 // * 缺失文件下载确认弹窗
 const showMissingFilesModal = ref(false)

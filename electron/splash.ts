@@ -28,6 +28,19 @@ export const SPLASH_MIN_VISIBLE_MS = ((): number => {
 /** 退场动画时长（毫秒），需与 splash.html 里 __voxSplashExit 的动画时长一致 */
 const EXIT_ANIMATION_MS = 260
 
+/**
+ * 启动画面首帧可见的时刻（0 表示还没显示）。
+ *
+ * 最短展示时长必须以这个时刻为基准：dev 下 splash.html 要等 dev server 响应，
+ * 从窗口创建时刻算起会导致动画还没播完就被主窗口顶掉。
+ */
+let splashShownAt = 0
+
+/** 读取启动画面真正可见的时刻，未显示时返回 0 */
+export function getSplashShownAt(): number {
+  return splashShownAt
+}
+
 /** 启动画面尺寸：与 splash.html 中 .splash 的 440×272 保持一致 */
 const SPLASH_WIDTH = 440
 const SPLASH_HEIGHT = 272
@@ -63,6 +76,7 @@ function resolveSplashTarget(): { url?: string; file?: string } {
 export function createSplashWindow(version: string): BrowserWindow | null {
   const target = resolveSplashTarget()
   if (!target.url && !target.file) return null
+  splashShownAt = 0
 
   try {
     const splash = new BrowserWindow({
@@ -95,12 +109,23 @@ export function createSplashWindow(version: string): BrowserWindow | null {
     splash.setMenuBarVisibility(false)
     if (process.platform === 'win32') splash.setSkipTaskbar(true)
 
+    // * 动画从页面渲染出来的那一刻开始播放，所以以 ready-to-show 作为计时起点；
+    // * did-finish-load 作为兜底（个别环境 ready-to-show 可能不触发）
+    const markShown = (): void => {
+      if (!splashShownAt) splashShownAt = Date.now()
+    }
+
     splash.once('ready-to-show', () => {
       if (!splash.isDestroyed()) {
         splash.showInactive()
         splash.moveTop()
+        markShown()
       }
     })
+
+    splash.webContents.once('did-finish-load', markShown)
+    // * 加载失败时立刻放开计时，避免主窗口一直等启动画面
+    splash.webContents.once('did-fail-load', markShown)
 
     // 兜底：某些环境 ready-to-show 可能不触发，150ms 后直接显示，宁可早点出现
     setTimeout(() => {

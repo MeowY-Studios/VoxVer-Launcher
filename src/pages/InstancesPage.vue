@@ -150,7 +150,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAppStore, useVersionsStore } from '../stores'
 import { useConfirm } from '@/composables/useConfirm'
 
@@ -175,6 +175,7 @@ interface VersionItem extends ScannedVersion {
 
 const { t } = useI18n()
 const router = useRouter()
+const route = useRoute()
 const appStore = useAppStore()
 const versionsStore = useVersionsStore()
 const { confirm: pxConfirm } = useConfirm()
@@ -238,13 +239,10 @@ async function persistActiveFolder(path: string) {
 }
 
 function toggleFolder(path: string) {
-  const next = activeFolder.value === path ? null : path
-  activeFolder.value = next
-  if (next) {
-    void persistActiveFolder(next)
-  } else {
-    writeStored(FOLDER_KEY, '')
-  }
+  // 目录为单选：点击已选中的目录也保持选中，避免右栏退回「全部目录混排」
+  if (activeFolder.value === path) return
+  activeFolder.value = path
+  void persistActiveFolder(path)
 }
 
 /** 右键菜单：{ x, y, folder } */
@@ -396,7 +394,7 @@ async function loadFolders(silent = false) {
       const match =
         storedPath &&
         entries.find((e) => e.path.replace(/[\\/]+$/, '') === storedPath.replace(/[\\/]+$/, ''))
-      activeFolder.value = match ? match.path : null
+      activeFolder.value = match ? match.path : entries[0]?.path ?? null
       writeStored(FOLDER_KEY, activeFolder.value ?? '')
     }
   } finally {
@@ -428,9 +426,41 @@ function onMenuKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') closeFolderMenu()
 }
 
+/**
+ * 从下载管理页「查看实例」跳过来时：定位到下载目标目录，并选中刚下载的版本。
+ * query: folder=目标游戏目录，select=可能的版本目录名（逗号分隔，按优先级）
+ */
+async function applyRouteSelection() {
+  const qFolder = typeof route.query.folder === 'string' ? route.query.folder : ''
+  const qSelect = typeof route.query.select === 'string' ? route.query.select : ''
+  if (!qFolder && !qSelect) return
+
+  const candidates = qSelect
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+
+  if (qFolder) {
+    const target = folders.value.find((f) => normalizePath(f.path) === normalizePath(qFolder))
+    if (target) {
+      activeFolder.value = target.path
+      writeStored(FOLDER_KEY, target.path)
+      void persistActiveFolder(target.path)
+    }
+  }
+
+  const hit = candidates
+    .map((id) => visibleVersions.value.find((ver) => ver.id === id))
+    .find((ver): ver is VersionItem => ver !== undefined)
+  if (hit) selectVersion(hit)
+
+  // * 用完即清掉 query，避免刷新或再次进入时重复选中
+  await router.replace({ path: '/instances' })
+}
+
 onMounted(() => {
   // 有缓存时先渲染旧数据，同时后台静默刷新（避免每次切页都闪 loading）
-  void loadFolders(folderCache !== null)
+  void loadFolders(folderCache !== null).then(() => applyRouteSelection())
   window.addEventListener('click', closeFolderMenu)
   window.addEventListener('keydown', onMenuKeydown)
 })

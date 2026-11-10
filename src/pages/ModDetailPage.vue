@@ -604,7 +604,7 @@ async function confirmDownload() {
         platform: modSource.value
       })
     )
-    dlStore.showFloatPanel = true
+    dlStore.openFloatForNewDownload()
     const res = await window.electronAPI?.download.downloadFile(payload, dest)
     if ((res as { success?: boolean; error?: string })?.success) {
       await dlStore.refreshQueue()

@@ -51,7 +51,13 @@ import {
   cleanupHotkeys
 } from './services/hotkey.service'
 import { logger } from './utils/logger'
-import { createSplashWindow, finishSplash, SPLASH_MIN_VISIBLE_MS, SPLASH_TITLE } from './splash'
+import {
+  createSplashWindow,
+  finishSplash,
+  getSplashShownAt,
+  SPLASH_MIN_VISIBLE_MS,
+  SPLASH_TITLE
+} from './splash'
 
 const log = logger.child('Main')
 
@@ -64,7 +70,6 @@ try {
 
 // ── 启动画面（先于主窗口显示，主窗口 ready 后淡出销毁）──────────
 let splashWindow: BrowserWindow | null = null
-let splashStartAt = 0
 
 // ── 服务实例（模块级，供 IPC 使用）──────────────────────────
 let versionsService: VersionsService
@@ -212,25 +217,36 @@ function createWindow(): BrowserWindow {
   // DevTools 默认不自动打开，用户可通过 F12 快捷键手动打开
 
   mainWindow.on('ready-to-show', () => {
-    // 启动画面至少停留 SPLASH_MIN_VISIBLE_MS：主窗口渲染太快时也不至于一闪而过。
-    // 顺序：启动画面先播放完退场动画，动画结束的同一时刻显示主窗口并销毁启动画面，
-    // 用户看到的是「启动画面走完 → 软件界面出现」，中间不会有主窗口透出来的重叠。
-    const wait = splashWindow
-      ? Math.max(0, SPLASH_MIN_VISIBLE_MS - (Date.now() - splashStartAt))
-      : 0
-    setTimeout(() => {
-      if (mainWindow.isDestroyed()) return
+    // 启动画面至少完整播放 SPLASH_MIN_VISIBLE_MS。
+    // 计时基准是「启动画面真正可见」的时刻（见 splash.ts getSplashShownAt），
+    // 而不是窗口创建时刻：dev 下 splash.html 要等 dev server 响应，
+    // 用创建时刻计时会导致动画播到一半就被主窗口顶掉。
+    const settle = (): void => {
+      if (mainWindow.isDestroyed() || mainWindow.isVisible()) return
       const splash = splashWindow
-      if (splash && !splash.isDestroyed()) {
-        finishSplash(splash, () => {
-          splashWindow = null
-          if (!mainWindow.isDestroyed()) mainWindow.show()
-        })
-      } else {
-        splashWindow = null
-        mainWindow.show()
+      const alive = splash !== null && !splash.isDestroyed()
+      const shownAt = getSplashShownAt()
+      if (alive && !shownAt) {
+        // 启动画面还没渲染出来，等它真正显示后再开始计时
+        setTimeout(settle, 50)
+        return
       }
-    }, wait)
+      const wait = alive ? Math.max(0, SPLASH_MIN_VISIBLE_MS - (Date.now() - shownAt)) : 0
+      setTimeout(() => {
+        if (mainWindow.isDestroyed()) return
+        const current = splashWindow
+        if (current && !current.isDestroyed()) {
+          finishSplash(current, () => {
+            splashWindow = null
+            if (!mainWindow.isDestroyed()) mainWindow.show()
+          })
+        } else {
+          splashWindow = null
+          mainWindow.show()
+        }
+      }, wait)
+    }
+    settle()
   })
 
   // 在窗口中打开外部链接
@@ -323,7 +339,6 @@ app.whenReady().then(() => {
   })
 
   // ========== 启动画面：先于主窗口出现，遮住渲染进程冷启动的空白 ==========
-  splashStartAt = Date.now()
   splashWindow = createSplashWindow(app.getVersion())
   writeLog('Splash window created:', splashWindow !== null)
 

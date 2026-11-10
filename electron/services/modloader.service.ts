@@ -6,10 +6,12 @@
  */
 import { spawn } from 'child_process'
 import { promises as fs } from 'fs'
+import * as os from 'os'
 import * as path from 'path'
 import axios from 'axios'
 import type { GameInstance, ModLoader, ModLoaderType } from '../types/adapter.types'
 import { logger } from '../utils/logger'
+import { getDefaultJava } from './java.management.service'
 import { downloadFile } from '../adapters/loaders/download'
 import type { ILoaderAdapter, InstallationProgress } from '../adapters/loaders/ILoaderAdapter'
 import { ForgeAdapter } from '../adapters/loaders/forge.adapter'
@@ -285,7 +287,10 @@ export class ModLoaderService {
         const html = String(response.data)
 
         const versions: string[] = []
-        const regex = new RegExp(`OptiFine_${mcVersion.replace(/\./g, '\\.')}_(HD_U_[A-Za-z0-9]+)`, 'g')
+        // 只取正式版下载链接：preview 版本在官网写作 preview_OptiFine_xxx_preN.jar，
+        // 若只按版本号匹配会把预览版当成正式版，拼出不存在的文件名导致下载到 "File not found." 页面
+        const escapedMc = mcVersion.replace(/\./g, '\\.')
+        const regex = new RegExp(`adloadx\\?f=OptiFine_${escapedMc}_(HD_U_[A-Za-z0-9]+)\\.jar`, 'g')
         let match: RegExpExecArray | null
         while ((match = regex.exec(html)) !== null) {
           if (!versions.includes(match[1])) versions.push(match[1])
@@ -403,10 +408,14 @@ export class ModLoaderService {
       throw new Error(`OptiFine 安装包下载失败：${invalidReason}（${fileName}）`)
     }
 
-    this.reportProgress({ stage: 'installing', progress: 45, message: '安装 OptiFine...' })
+    this.reportProgress({
+      stage: 'installing',
+      progress: 45,
+      message: '正在安装 OptiFine（自动完成，无需点击）...'
+    })
 
-    // 运行 OptiFine 安装器
-    await this.runOptiFineInstaller(installerPath, gameDir)
+    // 无头运行 OptiFine 安装器
+    await this.runOptiFineInstaller(installerPath, gameDir, mcVersion, targetVersion)
 
     // 清理临时文件
     try {
@@ -470,33 +479,145 @@ export class ModLoaderService {
   }
 
   /**
-   * 运行 OptiFine 安装器
+   * 无头运行 OptiFine 安装器（安装全程无需用户点击）
+   *
+   * 安装器 jar 的 Main-Class 是带界面的 optifine.InstallerFrame，`java -jar` 会弹出
+   * GUI 等用户点 Install。改走 `-cp <jar> optifine.Installer` 入口即可执行
+   * Installer.doInstall() 纯命令行流程。
+   * 该入口固定把游戏目录取为 %APPDATA%\.minecraft（Linux/macOS 为 ~/.minecraft），
+   * 所以用一个临时目录 + 目录联接把它重定向到真实游戏目录。
    */
-  private async runOptiFineInstaller(installerPath: string, gameDir: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const args = ['-jar', installerPath]
+  private async runOptiFineInstaller(
+    installerPath: string,
+    gameDir: string,
+    mcVersion: string,
+    ofEdition: string
+  ): Promise<void> {
+    let javaExe = 'java'
+    try {
+      const javaInfo = await getDefaultJava(mcVersion)
+      if (javaInfo?.path) javaExe = javaInfo.path
+    } catch (err) {
+      log.warn('[OptiFine] 读取默认 Java 失败，回退到 PATH 中的 java:', err)
+    }
 
-      log.info(`[OptiFine] 运行安装器: java ${args.join(' ')}`)
+    const workRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'voxver-optifine-'))
+    const linkedDir = path.join(workRoot, '.minecraft')
+    // * Windows 用目录联接（junction），不需要管理员权限
+    await fs.symlink(
+      path.resolve(gameDir),
+      linkedDir,
+      process.platform === 'win32' ? 'junction' : 'dir'
+    )
 
-      const child = spawn('java', args, {
-        stdio: 'inherit',
-        cwd: gameDir
-      })
+    let output = ''
+    let exitCode = -1
+    try {
+      exitCode = await new Promise<number>((resolve, reject) => {
+        const args = [
+          '-Djava.awt.headless=true',
+          `-Duser.home=${workRoot}`,
+          '-cp',
+          installerPath,
+          'optifine.Installer'
+        ]
+        log.info(`[OptiFine] 无头安装: ${javaExe} ${args.join(' ')}`)
 
-      child.on('close', (code) => {
-        if (code === 0) {
-          log.info('[OptiFine] 安装器成功完成')
-          resolve()
-        } else {
-          log.error(`[OptiFine] 安装器退出码: ${code}`)
-          reject(new Error(`OptiFine 安装器失败，退出码: ${code}`))
+        const child = spawn(javaExe, args, {
+          cwd: workRoot,
+          // * Windows 下安装器只认 APPDATA 拼出的 .minecraft
+          env: { ...process.env, APPDATA: workRoot },
+          windowsHide: true
+        })
+
+        const append = (chunk: Buffer): void => {
+          output += chunk.toString('utf8')
+          // 只保留末尾内容，避免日志无限增长
+          if (output.length > 20000) output = output.slice(-20000)
         }
+        child.stdout?.on('data', append)
+        child.stderr?.on('data', append)
+        child.on('error', (err) => reject(err))
+        child.on('close', (code) => resolve(code ?? -1))
       })
+    } finally {
+      await this.releaseOptiFineTempDir(workRoot, linkedDir)
+    }
 
-      child.on('error', (err) => {
-        log.error('[OptiFine] 运行安装器出错:', err)
-        reject(err)
-      })
-    })
+    // 安装器最后一步会写 launcher_profiles.json，官方启动器没有该文件时会报错退出；
+    // 但此时版本目录与库已经生成完毕，所以以产物是否存在为准
+    if (!(await this.isOptiFineInstalled(gameDir, mcVersion, ofEdition))) {
+      throw new Error(this.describeOptiFineFailure(output, mcVersion))
+    }
+    if (exitCode !== 0) {
+      log.warn(`[OptiFine] 安装器退出码 ${exitCode}，但安装产物已生成，按安装成功处理`)
+    }
+    log.info('[OptiFine] 无头安装完成')
+  }
+
+  /** 断开临时目录与游戏目录的联接并清理临时目录（绝不递归进入游戏目录） */
+  private async releaseOptiFineTempDir(workRoot: string, linkedDir: string): Promise<void> {
+    try {
+      // * 只删除联接本身，不会动游戏目录里的任何文件
+      if (process.platform === 'win32') {
+        await fs.rmdir(linkedDir)
+      } else {
+        await fs.unlink(linkedDir)
+      }
+    } catch {
+      // 联接删除失败时保留临时目录，宁可留下垃圾也不能误删游戏文件
+      return
+    }
+    try {
+      await fs.rm(workRoot, { recursive: true, force: true })
+    } catch {
+      // 临时目录残留不影响安装结果
+    }
+  }
+
+  /** 检查 OptiFine 安装产物是否齐全 */
+  private async isOptiFineInstalled(
+    gameDir: string,
+    mcVersion: string,
+    ofEdition: string
+  ): Promise<boolean> {
+    const versionId = `${mcVersion}-OptiFine_${ofEdition}`
+    const targets = [
+      path.join(gameDir, 'versions', versionId),
+      path.join(
+        gameDir,
+        'libraries',
+        'optifine',
+        'OptiFine',
+        `${mcVersion}_${ofEdition}`,
+        `OptiFine-${mcVersion}_${ofEdition}.jar`
+      )
+    ]
+    for (const target of targets) {
+      try {
+        await fs.access(target)
+      } catch {
+        return false
+      }
+    }
+    return true
+  }
+
+  /** 把安装器输出翻译成用户能看懂的失败原因 */
+  private describeOptiFineFailure(output: string, mcVersion: string): string {
+    if (output.includes('Base resource not found')) {
+      return `OptiFine 补丁失败：Minecraft ${mcVersion} 本体 jar 不完整，请重新安装该版本后重试`
+    }
+    if (
+      output.includes('showMessageVersionNotFound') ||
+      output.includes('copyMinecraftVersion')
+    ) {
+      return `未找到 Minecraft ${mcVersion} 的版本文件，请先在启动器里安装 ${mcVersion} 本体再装 OptiFine`
+    }
+    const line = output
+      .split(/\r?\n/)
+      .map((item) => item.trim())
+      .find((item) => item.includes('Exception') || item.includes('Error'))
+    return line ? `OptiFine 安装器执行失败：${line}` : 'OptiFine 安装器执行失败'
   }
 }

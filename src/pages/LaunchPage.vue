@@ -663,9 +663,14 @@ onMounted(async () => {
   try {
     const api = window.electronAPI
     if (api?.path) {
-      // 检查是否有自定义路径
+      // * 优先用「上次使用的游戏目录」（实例页选中的目录 / 下载目标目录），
+      // * 否则会退回默认目录，和实际启动的目录对不上
+      const lastFolder = (await api?.folders?.getLast?.()) || ''
       const customPath = await api.path.getCustom()
-      if (customPath) {
+      if (lastFolder) {
+        mcPath.value = lastFolder
+        isCustomPath.value = customPath === lastFolder
+      } else if (customPath) {
         mcPath.value = customPath
         isCustomPath.value = true
       } else {

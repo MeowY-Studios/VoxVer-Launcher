@@ -23,7 +23,7 @@
                 </svg>
               </span>
               <h3 class="panel-title">{{ $t('component.launchProgressLaunching') }}</h3>
-              <span class="panel-version">{{ versionId }}</span>
+              <span class="panel-version">{{ actualVersionId || versionId }}</span>
             </div>
             <!-- 关闭按钮已移除：启动进度条不可手动关闭，只能等游戏出现后自动消失 -->
           </div>
@@ -156,6 +156,8 @@ const emit = defineEmits<{
 
 const visible = ref(false)
 const phase = ref<LaunchPhase>('idle')
+/** 本次实际启动的版本（由主进程进度事件带来），优先于外部传入的选中版本 */
+const actualVersionId = ref('')
 const message = ref('')
 const detail = ref('')
 const logBuffer = ref('')
@@ -284,11 +286,15 @@ onMounted(() => {
   // * 监听进度
   if (api.game.onProgress) {
     cleanupProgress = api.game.onProgress((data: unknown) => {
-      const d = data as { phase: LaunchPhase; message: string; detail?: string }
+      const d = data as { phase: LaunchPhase; message: string; detail?: string; versionId?: string }
       const { phase: newPhase, message: msg, detail: det } = d
+
+      // * 主进程会带上实际启动的版本，用它覆盖页面里可能已过期的选中版本
+      if (d.versionId) actualVersionId.value = d.versionId
 
       if (newPhase === 'idle') {
         visible.value = false
+        actualVersionId.value = ''
         resetPhases()
         return
       }
