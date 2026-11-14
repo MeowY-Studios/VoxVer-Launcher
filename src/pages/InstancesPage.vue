@@ -525,50 +525,9 @@ onBeforeUnmount(() => {
 }
 
 /* ===== Koring 背景 ===== */
-.inst-bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
 .instances-page.is-kor {
   /* 底色与 V 水印由全局 app-body 提供 */
   background: transparent;
-}
-
-.inst-bg::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 52%;
-  width: min(120vh, 110%);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(
-    closest-side,
-    rgba(255, 255, 255, 0.18),
-    rgba(255, 255, 255, 0.04) 62%,
-    transparent 78%
-  );
-  filter: blur(44px);
-}
-
-.inst-v {
-  position: absolute;
-  left: 50%;
-  top: 52%;
-  width: min(62vh, 50vw);
-  aspect-ratio: 1 / 1.12;
-  transform: translate(-50%, -50%);
-  background: linear-gradient(
-    170deg,
-    rgba(255, 255, 255, 0.24) 0%,
-    rgba(255, 255, 255, 0.1) 42%,
-    rgba(255, 255, 255, 0) 94%
-  );
-  clip-path: polygon(2% 0%, 27% 0%, 50% 61%, 73% 0%, 98% 0%, 62% 100%, 38% 100%);
-  filter: blur(1.4px) drop-shadow(0 26px 60px rgba(0, 0, 0, 0.22));
-  opacity: 0.68;
 }
 
 /* ===== 左侧目录栏 ===== */
@@ -600,7 +559,7 @@ onBeforeUnmount(() => {
 }
 
 .instances-page.is-kor .inst-rail__title {
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.55);
 }
 
 .inst-folder,
@@ -627,12 +586,12 @@ onBeforeUnmount(() => {
 
 .instances-page.is-kor .inst-folder,
 .instances-page.is-kor .inst-action {
-  color: #fff;
+  color: var(--kor-ink, #fff);
 }
 
 .instances-page.is-kor .inst-folder:hover,
 .instances-page.is-kor .inst-action:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.1);
 }
 
 .inst-folder.is-active {
@@ -640,7 +599,7 @@ onBeforeUnmount(() => {
 }
 
 .instances-page.is-kor .inst-folder.is-active {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.14);
 }
 
 .inst-folder__icon {
@@ -672,7 +631,7 @@ onBeforeUnmount(() => {
 }
 
 .instances-page.is-kor .inst-folder__path {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.5);
 }
 
 .inst-action:disabled {
@@ -722,10 +681,10 @@ onBeforeUnmount(() => {
 }
 
 .instances-page.is-kor .inst-card {
-  border-color: var(--kor-hairline, rgba(255, 255, 255, 0.09));
-  background: rgba(0, 0, 0, 0.32);
+  border-color: var(--kor-hairline, rgba(var(--kor-fg-rgb, 255, 255, 255), 0.09));
+  background: var(--kor-surface, rgba(0, 0, 0, 0.32));
   backdrop-filter: blur(12px);
-  color: #fff;
+  color: var(--kor-ink, #fff);
 }
 
 .instances-page.is-kor .inst-card:hover {
@@ -733,8 +692,21 @@ onBeforeUnmount(() => {
 }
 
 .instances-page.is-kor .inst-card.is-active {
-  border-color: rgba(255, 255, 255, 0.22);
+  border-color: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.22);
   background: rgba(12, 26, 46, 0.6);
+}
+
+html[data-theme='light'] .instances-page.is-kor .inst-card {
+  background: rgba(255, 255, 255, 0.66);
+}
+
+html[data-theme='light'] .instances-page.is-kor .inst-card:hover {
+  background: rgba(255, 255, 255, 0.86);
+}
+
+html[data-theme='light'] .instances-page.is-kor .inst-card.is-active {
+  border-color: color-mix(in oklab, var(--voxver-primary) 45%, transparent);
+  background: color-mix(in oklab, var(--voxver-primary) 14%, #ffffff);
 }
 
 .inst-card__icon {
@@ -770,13 +742,13 @@ onBeforeUnmount(() => {
 }
 
 .instances-page.is-kor .inst-card__meta {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.6);
 }
 
 .inst-card__check {
   flex: 0 0 auto;
   margin-left: auto;
-  color: #4ade80;
+  color: var(--voxver-success);
 }
 
 .inst-state {
@@ -786,7 +758,7 @@ onBeforeUnmount(() => {
 }
 
 .instances-page.is-kor .inst-state {
-  color: rgba(255, 255, 255, 0.66);
+  color: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.66);
 }
 
 .inst-state__title {
@@ -797,7 +769,7 @@ onBeforeUnmount(() => {
 }
 
 .instances-page.is-kor .inst-state__title {
-  color: #fff;
+  color: var(--kor-ink, #fff);
 }
 
 .inst-state__desc {
@@ -814,15 +786,51 @@ onBeforeUnmount(() => {
   line-height: 18px;
   text-align: center;
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.72);
+  background: var(--voxver-bg-tertiary);
+  color: var(--voxver-text-secondary);
+}
+
+.instances-page.is-kor .inst-folder__count {
+  background: rgba(var(--kor-fg-rgb), 0.1);
+  color: rgba(var(--kor-fg-rgb), 0.72);
+}
+
+[data-theme='light'] .instances-page.is-kor .inst-folder__count {
+  color: rgba(var(--kor-fg-rgb), 0.78);
+}
+
+/* 浅色下卡片底更亮，深色模式沿用的一半透明度会掉到 3~4:1 */
+[data-theme='light'] .instances-page.is-kor .inst-rail__title {
+  color: rgba(var(--kor-fg-rgb), 0.7);
+}
+
+[data-theme='light'] .instances-page.is-kor .inst-folder__path {
+  color: rgba(var(--kor-fg-rgb), 0.72);
+}
+
+[data-theme='light'] .instances-page.is-kor .inst-card__meta {
+  color: rgba(var(--kor-fg-rgb), 0.7);
 }
 
 .inst-rail__empty {
   padding: 6px 10px;
   font-size: 12px;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.55);
+}
+
+/* 浅色下 0.55 / 0.8 叠加后在浅蓝底上只有 3.3~3.5:1 */
+[data-theme='light'] .inst-rail__empty {
+  /* 原版皮肤下 --kor-fg-rgb 未定义会回落成白色，白底上不可见 */
+  color: var(--voxver-text-tertiary);
+}
+
+[data-theme='light'] .instances-page.is-kor .inst-rail__empty {
+  color: rgba(var(--kor-fg-rgb), 0.75);
+}
+
+[data-theme='light'] .instances-page.is-kor .inst-state__desc {
+  opacity: 1;
 }
 
 /* ===== 目录右键菜单 ===== */

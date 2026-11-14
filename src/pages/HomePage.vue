@@ -23,7 +23,12 @@
 
     <!-- 左下：版本名占住按钮位；hover 时名称上移、启动胶囊滑出；点名称去实例页 -->
     <div class="kor-home__bottom">
-      <button type="button" class="kor-home__title" @click="router.push('/instances')">
+      <button
+        type="button"
+        class="kor-home__title"
+        @click="router.push('/instances')"
+        @contextmenu.prevent.stop="openVersionMenu"
+      >
         {{ korTitle }}
       </button>
       <button v-if="korVersionSelected" type="button" class="kor-home__start" @click="korLaunch">
@@ -121,6 +126,20 @@
       @imported="onInstanceImported"
     />
   </div>
+
+  <!-- 右键版本号：版本设置菜单 -->
+  <Teleport to="body">
+    <div
+      v-if="versionMenu"
+      class="kor-ver-menu"
+      :style="{ left: `${versionMenu.x}px`, top: `${versionMenu.y}px` }"
+      @click.stop
+    >
+      <button type="button" class="kor-ver-menu__item" @click="goVersionSettings">
+        {{ $t('home.versionSettings') }}
+      </button>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -147,6 +166,27 @@ const korTitle = computed(() => versionsStore.currentVersionId || t('home.koring
 /** 左下「启动游戏」：进启动页并自动开始启动 */
 function korLaunch() {
   router.push({ path: '/launch', query: { autostart: '1' } })
+}
+
+/** 右键版本号 → 「版本设置」菜单（只对当前选中的版本生效） */
+const versionMenu = ref<{ x: number; y: number } | null>(null)
+
+function openVersionMenu(e: MouseEvent) {
+  if (!versionsStore.currentVersionId) return
+  // 贴边时向内收，避免菜单超出窗口
+  versionMenu.value = {
+    x: Math.min(e.clientX, window.innerWidth - 148),
+    y: Math.min(e.clientY, window.innerHeight - 40)
+  }
+}
+
+function goVersionSettings() {
+  versionMenu.value = null
+  void router.push('/versions')
+}
+
+function closeVersionMenu() {
+  versionMenu.value = null
 }
 
 /** Koring 首页左上账户卡：显示当前账号名与类型 */
@@ -183,10 +223,15 @@ onMounted(async () => {
     initialShareCode.value = code
     showReceiveModal.value = true
   })
+
+  window.addEventListener('click', closeVersionMenu)
+  window.addEventListener('keydown', closeVersionMenu)
 })
 
 onUnmounted(() => {
   protocolCleanup?.()
+  window.removeEventListener('click', closeVersionMenu)
+  window.removeEventListener('keydown', closeVersionMenu)
 })
 </script>
 
@@ -219,14 +264,6 @@ onUnmounted(() => {
     object-fit: contain;
     display: block;
   }
-}
-
-.hero-desc {
-  margin: 0;
-  font-size: 13px;
-  color: var(--voxver-text-tertiary);
-  max-width: 380px;
-  line-height: 1.5;
 }
 
 /* * ===== 操作卡片（全宽） ===== */
@@ -284,10 +321,6 @@ onUnmounted(() => {
 
   .bento-card--hero {
     padding: 24px;
-  }
-
-  .hero-title {
-    font-size: 20px;
   }
 
   .actions-grid {

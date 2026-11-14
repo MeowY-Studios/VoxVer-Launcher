@@ -117,14 +117,15 @@
     <div
       class="app-body"
       :class="{
-        'is-kor-bleed': appStore.skin === 'koring' && ['/', '/instances'].includes(currentRoute)
+        'is-kor-bleed':
+          appStore.skin === 'koring' && ['/', '/instances', '/versions'].includes(currentRoute)
       }"
     >
       <!-- 背景图层（覆盖侧边栏 + 主内容区） -->
       <div class="app-body-bg" :style="bgStyle"></div>
       <div v-if="bgOverlayVisible" class="app-body-overlay" :style="overlayStyle"></div>
       <!-- 左侧边栏（各页面上文内容；主导航已移到标题栏上导航） -->
-      <aside class="sidebar" :class="{ 'is-kor-hidden': isKorOwnNav }">
+      <aside v-if="!isVersionSettingsPage" class="sidebar" :class="{ 'is-kor-hidden': isKorOwnNav }">
         <!-- 侧边栏内容区 -->
         <div class="sidebar-content">
           <!-- ========== 首页侧栏：账户 + 启动（PCL2 风格）========== -->
@@ -696,6 +697,8 @@ onUnmounted(() => {
   offHotkeyListener = null
 })
 const currentRoute = computed(() => route.path)
+/** 版本设置页：整页展示，不需要启动器左侧边栏 */
+const isVersionSettingsPage = computed(() => currentRoute.value === '/versions')
 
 /* ---------------- 顶部导航滑动指示器（对标 Koring 的胶囊切换动画） ---------------- */
 const topNavRef = ref<HTMLElement | null>(null)
@@ -770,6 +773,27 @@ onUnmounted(() => {
   navResizeObserver = null
   window.removeEventListener('resize', scheduleNavIndicator)
 })
+
+// * Koring：滚动条只在滚动时淡入。scroll 不冒泡，用捕获阶段统一接住所有滚动容器
+const SCROLL_IDLE_MS = 900
+const scrollIdleTimers = new WeakMap<Element, number>()
+function markScrollingElement(event: Event) {
+  const target = event.target
+  if (!(target instanceof Element)) return
+  target.classList.add('is-scrolling')
+  const pending = scrollIdleTimers.get(target)
+  if (pending) window.clearTimeout(pending)
+  scrollIdleTimers.set(
+    target,
+    window.setTimeout(() => {
+      target.classList.remove('is-scrolling')
+      scrollIdleTimers.delete(target)
+    }, SCROLL_IDLE_MS)
+  )
+}
+
+onMounted(() => window.addEventListener('scroll', markScrollingElement, true))
+onUnmounted(() => window.removeEventListener('scroll', markScrollingElement, true))
 const isElectron = ref(false)
 const appVersion = ref('0.6.0')
 const platform = ref<'windows' | 'macos' | 'linux' | 'unknown'>('unknown')

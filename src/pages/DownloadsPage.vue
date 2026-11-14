@@ -1973,61 +1973,6 @@ watch(
   padding-left: 244px;
 }
 
-.dl-kor-nav {
-  position: fixed;
-  top: 76px;
-  left: 24px;
-  z-index: 6;
-  width: 220px;
-  max-height: calc(100vh - 112px);
-  overflow-y: auto;
-}
-
-.dl-kor-group {
-  padding: 12px 14px 6px;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--voxver-text-tertiary);
-}
-
-.dl-kor-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.dl-kor-manager {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  width: 100%;
-  height: 36px;
-  margin-top: 4px;
-  padding: 0 10px;
-  border: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 0;
-  background: transparent;
-  color: var(--voxver-text-tertiary);
-  font-size: 12.5px;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    background 140ms ease,
-    color 140ms ease;
-}
-
-.dl-kor-manager:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--voxver-text-primary);
-}
-
-.dl-kor-manager svg {
-  flex: 0 0 auto;
-  opacity: 0.75;
-}
 .downloads-page {
   padding: 20px 24px;
   overflow-y: auto;
@@ -2080,43 +2025,6 @@ watch(
     margin: 2px 0 0;
     font-size: 12px;
     color: var(--voxver-text-muted);
-  }
-}
-
-/* * ---- 版本分类 Tab ---- */
-.ver-tabs {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 14px;
-  flex-shrink: 0;
-}
-
-.ver-tab {
-  padding: 7px 16px;
-  border: none;
-  border-radius: var(--voxver-radius-md);
-  background: transparent;
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--voxver-text-secondary);
-  cursor: pointer;
-  transition: all 0.14s;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-
-  &:hover {
-    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
-    color: var(--voxver-primary);
-  }
-  &.active {
-    background: color-mix(in oklab, var(--voxver-primary) 10%, transparent);
-    color: var(--voxver-primary);
-  }
-
-  .tab-count {
-    font-size: 11px;
-    opacity: 0.7;
   }
 }
 
@@ -2444,45 +2352,6 @@ watch(
     border-color: var(--voxver-primary);
     color: var(--voxver-primary);
   }
-  &.primary {
-    background: var(--voxver-primary);
-    border-color: var(--voxver-primary);
-    color: var(--voxver-text-inverse);
-    &:hover {
-      background: var(--voxver-primary-hover);
-    }
-  }
-  &.is-dl {
-    background: var(--voxver-primary-hover);
-    border-color: var(--voxver-primary);
-    color: var(--voxver-text-inverse);
-    cursor: wait;
-    opacity: 0.85;
-  }
-  &.is-done {
-    background: var(--voxver-success);
-    border-color: var(--voxver-success);
-    color: var(--voxver-text-inverse);
-    cursor: default;
-    opacity: 0.8;
-  }
-}
-
-.spin-icon {
-  animation: spin 0.8s linear infinite;
-}
-
-.ver-empty {
-  text-align: center;
-  padding: 48px 20px;
-  color: var(--voxver-text-muted);
-  p {
-    margin: 8px 0 0;
-    font-size: 13px;
-  }
-  svg {
-    opacity: 0.3;
-  }
 }
 
 .ver-more {
@@ -2765,13 +2634,6 @@ watch(
   }
 }
 
-.empty-section {
-  text-align: center;
-  padding: 48px 20px;
-  color: var(--voxver-text-muted);
-  font-size: 14px;
-}
-
 /* * 分页 */
 .pagination-bar {
   display: flex;
@@ -2867,38 +2729,6 @@ watch(
   padding: 10px 0;
   font-size: 12px;
   color: var(--voxver-text-muted);
-}
-
-/* * 加载更多 */
-.load-more-bar {
-  display: flex;
-  justify-content: center;
-  padding: 14px 0 20px;
-}
-
-.btn-load-more {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  height: 36px;
-  padding: 0 28px;
-  border: 1px solid var(--voxver-primary);
-  border-radius: var(--voxver-radius-md);
-  background: transparent;
-  color: var(--voxver-primary);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.13s;
-
-  &:hover:not(:disabled) {
-    background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
-  }
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
 }
 
 .btn-back-to-top {

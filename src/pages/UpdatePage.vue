@@ -619,7 +619,7 @@ onUnmounted(() => {
   border-radius: 999px;
 }
 .update-page--kor:hover::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.28);
 }
 
 /* Koring 顶栏：返回按钮靠左，作为页面唯一头部 */
@@ -677,12 +677,12 @@ onUnmounted(() => {
 /* Koring 皮肤下的返回按钮（配合 32px 页面内边距对齐） */
 .update-page--kor .back-btn {
   margin: 0 0 12px;
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.82);
+  background: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.12);
+  color: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.82);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
+    background: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.2);
+    color: var(--kor-ink, #fff);
   }
 }
 
@@ -969,6 +969,12 @@ onUnmounted(() => {
     color: var(--voxver-accent);
   }
 
+  // 浅色下主色字落在 10% 主色浅底上只有 4.0:1，加深文字并降低底色浓度
+  [data-theme='light'] & :deep(code) {
+    background: color-mix(in oklab, var(--voxver-accent) 8%, var(--voxver-bg-tertiary));
+    color: color-mix(in oklab, var(--voxver-accent) 86%, #0b1524);
+  }
+
   // ── 加粗 ──
   :deep(strong) {
     font-weight: 600;
@@ -1110,8 +1116,8 @@ onUnmounted(() => {
   left: 0;
   z-index: 20;
   padding: 10px 24px 14px;
-  background: rgba(10, 22, 44, 0.72);
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--kor-surface-strong, rgba(10, 22, 44, 0.72));
+  border-top: 1px solid rgba(var(--kor-fg-rgb, 255, 255, 255), 0.12);
   backdrop-filter: blur(10px) saturate(120%);
   transition:
     transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -1139,7 +1145,7 @@ onUnmounted(() => {
   overflow: hidden;
   font-size: 12.5px;
   line-height: 1.4;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.72);
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1174,7 +1180,7 @@ onUnmounted(() => {
   }
 
   :deep(li)::marker {
-    color: rgba(255, 255, 255, 0.55);
+    color: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.55);
   }
 }
 </style>

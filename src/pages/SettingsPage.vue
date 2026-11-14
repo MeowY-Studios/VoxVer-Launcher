@@ -8850,15 +8850,6 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
       color: var(--voxver-primary);
       flex-shrink: 0;
     }
-
-    .sec-arrow {
-      margin-left: auto;
-      color: var(--voxver-text-muted);
-      transition: transform 0.2s ease;
-      &.open {
-        transform: rotate(180deg);
-      }
-    }
   }
 
   .memory-alloc-card {
@@ -8992,34 +8983,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   &::placeholder {
     color: var(--voxver-text-muted);
   }
-}
-
-.sel {
-  padding: 8px 32px 8px 12px;
-  border: 1px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-sm);
-  font-size: 13px;
-  color: var(--voxver-text-primary);
-  color-scheme: dark light;
-  background: transparent
-    url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238b8fa3' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")
-    no-repeat right 10px center;
-  outline: none;
-  cursor: pointer;
-  appearance: none;
-  transition:
-    border-color 0.14s,
-    background 0.14s;
-
-  &:focus {
-    border-color: var(--voxver-primary);
-    background: color-mix(in oklab, var(--voxver-primary) 3%, transparent)
-      url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236366F1' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")
-      no-repeat right 10px center;
-  }
-}
-
-.textarea {
+}.textarea {
   width: 100%;
   padding: 8px 12px;
   border: 1px solid var(--voxver-border-color);
@@ -9047,8 +9011,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   align-items: center;
   flex-wrap: wrap;
 
-  .inp,
-  .sel {
+  .inp {
     flex: 1;
     min-width: 120px;
   }
@@ -9080,68 +9043,16 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.java-list-title {
-  font-size: 12px;
-  color: var(--voxver-text-secondary);
-  margin: 4px 0;
-}
-
-.java-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 6px 10px;
-  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
-  border-radius: var(--voxver-radius-sm);
-  margin-bottom: 4px;
-  border: 1px solid var(--voxver-border-color);
-}
-
-.java-info {
-  font-size: 13px;
-  color: var(--voxver-text-primary);
-  font-weight: 400;
-}
-
-.java-path {
-  font-size: 11px;
-  color: var(--voxver-text-muted);
-  word-break: break-all;
-}
-
-.java-detection {
+}.java-detection {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-.java-detect-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.java-detect-header button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.java-detect-header button svg {
-  animation: spin 1s linear infinite;
-}
-
-/* Java 选择行 — 下拉框 + 检测按钮水平 */
+}/* Java 选择行 — 下拉框 + 检测按钮水平 */
 .java-select-row {
   display: flex;
   gap: 8px;
   align-items: center;
-}
-.java-select-row .sel.java-preset-sel {
-  flex: 1;
 }
 .java-select-row .btn-sm.java-detect-btn {
   flex-shrink: 0;
@@ -9203,142 +9114,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   background: linear-gradient(90deg, var(--voxver-primary), var(--voxver-primary));
   border-radius: 3px;
   transition: width 0.3s ease;
-}
-
-// Java list styles
-.java-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.java-list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.java-list-title {
-  font-size: 12px;
-  color: var(--voxver-text-secondary);
-  margin: 0;
-  font-weight: 400;
-}
-
-.java-list-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.java-item {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px;
-  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
-  border-radius: var(--voxver-radius-md);
-  border: 1px solid var(--voxver-border-color);
-  transition: all 0.2s ease;
-
-  &:hover {
-    border-color: var(--voxver-primary);
-    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
-  }
-}
-
-.java-item-default {
-  border-color: var(--voxver-primary);
-  background: color-mix(in oklab, var(--voxver-primary) 5%, transparent);
-}
-
-.java-item-main {
-  display: flex;
-  gap: 12px;
-  flex: 1;
-}
-
-.java-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
-  border-radius: var(--voxver-radius-md);
-  color: var(--voxver-primary);
-  flex-shrink: 0;
-}
-
-.java-details {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.java-name {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.java-vendor {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--voxver-text-primary);
-}
-
-.java-version {
-  font-size: 13px;
-  color: var(--voxver-text-secondary);
-}
-
-.java-badge {
-  font-size: 10px;
-  padding: 2px 6px;
-  background: var(--voxver-primary);
-  color: white;
-  border-radius: var(--voxver-radius-xs);
-  font-weight: 400;
-}
-
-.java-meta {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.java-meta-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  color: var(--voxver-text-muted);
-
-  svg {
-    flex-shrink: 0;
-  }
-}
-
-.java-path {
-  font-size: 11px;
-  color: var(--voxver-text-muted);
-  word-break: break-all;
-  font-family: 'Consolas', 'Courier New', monospace;
-}
-
-.java-item-actions {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-// Java not found styles
+}// Java not found styles
 .java-not-found {
   display: flex;
   flex-direction: column;
@@ -9435,37 +9211,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   font-weight: 600;
   color: var(--voxver-primary);
   flex-shrink: 0;
-}
-
-/* ---- 内存进度条 ---- */
-.memory-bar {
-  height: 8px;
-  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
-  border-radius: var(--voxver-radius-xs);
-  margin-top: 8px;
-  overflow: hidden;
-}
-
-.bar-fill {
-  height: 100%;
-  border-radius: var(--voxver-radius-xs);
-  background: linear-gradient(90deg, var(--voxver-primary), var(--voxver-primary));
-  transition: width 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  min-width: 32px;
-
-  .bar-text {
-    font-size: 9px;
-    font-weight: 700;
-    color: #fff;
-    padding-right: 6px;
-    /* text-shadow removed per Apple spec */
-  }
-}
-
-/* ---- 复选框 ---- */
+}/* ---- 复选框 ---- */
 .chk {
   display: inline-flex;
   align-items: center;
@@ -9480,47 +9226,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
     accent-color: var(--voxver-primary);
     cursor: pointer;
   }
-}
-
-/* ---- 主题模式切换 ---- */
-.theme-mode-options {
-  display: flex;
-  gap: 8px;
-}
-
-.theme-mode-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: var(--voxver-radius-md);
-  border: 1px solid var(--voxver-border-color);
-  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
-  color: var(--voxver-text-secondary);
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover {
-    border-color: var(--voxver-primary-400);
-    color: var(--voxver-primary-600);
-  }
-
-  &.active {
-    background: var(--voxver-primary-light);
-    border-color: var(--voxver-primary);
-    color: var(--voxver-primary);
-  }
-}
-
-/* ---- 色板 ---- */
-.color-options {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.color-swatch {
+}.color-swatch {
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -9654,165 +9360,12 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 
 .quick-grid-item:hover .quick-grid-arrow {
   opacity: 1;
-}
-
-/* ---- 常用设置列表 ---- */
-.common-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-
-  .row {
-    cursor: pointer;
-    border-radius: var(--voxver-radius-md);
-    transition: background 0.12s;
-
-    &:hover {
-      background: color-mix(in oklab, var(--voxver-text-primary) 4%, transparent);
-    }
-
-    &:active {
-      background: color-mix(in oklab, var(--voxver-text-primary) 7%, transparent);
-    }
-
-    .row-control svg {
-      transition: transform 0.12s;
-    }
-
-    &:hover .row-control svg {
-      transform: translateX(2px);
-    }
-  }
-}
-
-/* 5列 grid：第1列行标签，后4列 checkbox 项 */
-.feature-hide-table {
-  display: grid;
-  grid-template-columns: 90px repeat(4, 1fr);
-  row-gap: 2px;
-}
-
-.fh-row-label {
-  font-size: 13px;
-  color: var(--voxver-text-primary);
-  display: flex;
-  align-items: center;
-  padding: 5px 8px 5px 0;
-  white-space: nowrap;
-}
-
-.fh-cell {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 8px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.12s;
-
-  &:hover:not(.fh-pad):not(.disabled) {
-    background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
-  }
-
-  &.hidden .feat-name {
-    color: var(--voxver-text-muted);
-    text-decoration: line-through;
-    opacity: 0.6;
-  }
-
-  &.disabled {
-    cursor: not-allowed;
-    opacity: 0.55;
-    .feat-name {
-      color: var(--voxver-text-muted);
-    }
-  }
-
-  input[type='checkbox'] {
-    width: 14px;
-    height: 14px;
-    accent-color: var(--voxver-primary);
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-
-  input[type='checkbox']:disabled {
-    cursor: not-allowed;
-  }
-
-  .feat-name {
-    font-size: 13px;
-    color: var(--voxver-text-primary);
-    transition:
-      color 0.15s,
-      opacity 0.15s;
-  }
-}
-
-.fh-pad {
-  cursor: default;
-  pointer-events: none;
-}
-
-.warn-orange {
-  background: rgb(245 158 11 / 0.1);
-  border: 1px solid rgb(245 158 11 / 0.35);
-  color: var(--voxver-warning);
-  border-radius: var(--voxver-radius-sm);
-  padding: 8px 12px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  svg {
-    flex-shrink: 0;
-    color: var(--voxver-warning);
-  }
-}
-
-/* ---- 功能网格（旧，保留兼容） ---- */
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px 16px;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  border-radius: var(--voxver-radius-sm);
-  cursor: pointer;
-  transition: background 0.12s;
-
-  &:hover {
-    background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
-  }
-
-  input[type='checkbox'] {
-    width: 16px;
-    height: 16px;
-    accent-color: var(--voxver-primary);
-    cursor: pointer;
-  }
-
-  .feat-name {
-    font-size: 13px;
-    color: var(--voxver-text-primary);
-  }
-}
-
-/* ---- 按钮行 ---- */
+}/* ---- 按钮行 ---- */
 .btn-row {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
 
-  &.danger-zone {
-    padding-top: 14px;
-    border-top: 1px dashed var(--voxver-border-color);
-  }
 }
 
 .action-btn {
@@ -9962,27 +9515,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
       border-radius: var(--voxver-radius-sm);
     }
   }
-}
-
-.update-status-text {
-  font-size: 12px;
-  color: var(--voxver-text-secondary);
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.update-available {
-  color: var(--voxver-primary);
-  font-weight: 500;
-}
-
-.update-error {
-  color: var(--voxver-error);
-}
-
-/* 更新错误弹窗 */
+}/* 更新错误弹窗 */
 .update-error-modal {
   max-width: 500px;
   word-break: break-all;
@@ -10226,16 +9759,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
   flex: 1;
   user-select: all;
-}
-
-.about-redirect-desc {
-  font-size: 13px;
-  color: var(--voxver-text-muted);
-  line-height: 1.7;
-  margin: 0;
-}
-
-/* ---- 鸣谢列表 ---- */
+}/* ---- 鸣谢列表 ---- */
 .credit-list {
   display: flex;
   flex-direction: column;
@@ -10747,127 +10271,6 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   border-radius: var(--voxver-radius-md);
   border: 1px solid var(--voxver-border-color-light);
   padding: 16px;
-}
-
-/* ---- 主题预览缩略图（Koring 风格） ---- */
-.theme-preview-row {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-.theme-preview-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 4px;
-  border-radius: var(--voxver-radius-md);
-  border: 1px solid transparent;
-  background: transparent;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-}
-.theme-preview-card:hover {
-  border-color: color-mix(in oklab, var(--voxver-text) 15%, transparent);
-}
-.theme-preview-card.active {
-  border-color: var(--voxver-primary);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 20%, transparent);
-}
-.theme-preview-window {
-  width: 140px;
-  height: 96px;
-  border-radius: var(--voxver-radius-xs);
-  overflow: hidden;
-  display: flex;
-}
-.theme-preview-window .tpw-half {
-  width: 50%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-.tpw-light {
-  background: #ffffff;
-}
-.tpw-dark {
-  background: #1c1c1e;
-}
-.tpw-titlebar {
-  height: 8px;
-  display: flex;
-  align-items: center;
-  padding: 0 4px;
-  gap: 2px;
-  flex-shrink: 0;
-}
-.tpw-light .tpw-titlebar {
-  background: #e5e5e7;
-}
-.tpw-dark .tpw-titlebar {
-  background: #2c2c2e;
-}
-.tpw-titlebar span {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.tpw-light .tpw-titlebar span:nth-child(1) {
-  background: #ff6058;
-}
-.tpw-light .tpw-titlebar span:nth-child(2) {
-  background: #ffbd2e;
-}
-.tpw-light .tpw-titlebar span:nth-child(3) {
-  background: #28ca42;
-}
-.tpw-dark .tpw-titlebar span:nth-child(1) {
-  background: #ff5f57;
-}
-.tpw-dark .tpw-titlebar span:nth-child(2) {
-  background: #febc2e;
-}
-.tpw-dark .tpw-titlebar span:nth-child(3) {
-  background: #28c840;
-}
-.tpw-content {
-  flex: 1;
-  padding: 6px 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.tpw-bar {
-  height: 4px;
-  border-radius: 2px;
-}
-.tpw-light .tpw-bar {
-  background: #e5e5e7;
-}
-.tpw-dark .tpw-bar {
-  background: #3a3a3c;
-}
-.tpw-bar.w-full {
-  width: 100%;
-}
-.tpw-bar.w-3-4 {
-  width: 75%;
-}
-.tpw-bar.w-1-2 {
-  width: 50%;
-}
-.theme-preview-label {
-  font-size: 11px;
-  color: var(--voxver-text-muted);
-  margin-top: 6px;
-  text-align: center;
-}
-.theme-preview-card.active .theme-preview-label {
-  color: var(--voxver-primary);
-  font-weight: 400;
-}
 
 /* ---- 背景卡片列表（Koring 风格） ---- */
 .bg-card-list {
@@ -10925,6 +10328,12 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 }
 .btn-destructive:hover {
   background: color-mix(in oklab, var(--voxver-error) 25%, transparent);
+}
+
+/* 浅色下红字落在 15% 红底上只有 4.15:1，加深文字并降低底色浓度 */
+[data-theme='light'] .btn-destructive {
+  background: color-mix(in oklab, var(--voxver-error) 10%, transparent);
+  color: color-mix(in oklab, var(--voxver-error) 82%, #0b1524);
 }
 
 /* ---- FAQ ---- */
@@ -11195,178 +10604,17 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
     color: var(--voxver-primary);
     background: rgb(21 101 192 / 0.05);
   }
-}
-
-/* ---- 高级选项 checkbox 组 ---- */
-.adv-checkbox-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 4px 0;
-}
-
-/* ---- 进度条（整合包/备份）---- */
-.progress-box {
-  margin-top: 12px;
-  padding: 12px;
-  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
-  border-radius: var(--voxver-radius-sm);
-  border: 1px solid var(--voxver-border-color-light);
-}
-
-.progress-label {
-  font-size: 12.5px;
-  color: var(--voxver-text-secondary);
-  margin-bottom: 8px;
-}
-
-.progress-bar-wrap {
-  width: 100%;
-  height: 8px;
-  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
-  border-radius: var(--voxver-radius-xs);
-  overflow: hidden;
-}
-
-.progress-bar {
+}.progress-bar {
   height: 100%;
   background: var(--voxver-primary);
   transition: width 0.2s ease;
   border-radius: var(--voxver-radius-xs);
-}
-
-.progress-sub {
-  font-size: 11.5px;
-  color: var(--voxver-text-muted);
-  margin-top: 6px;
-  word-break: break-all;
-}
-
-/* ---- section 子标题 ---- */
-.sec-subtitle {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--voxver-text-primary);
-  margin: 4px 0 10px;
-  padding: 0;
-}
-
-/* ---- 小按钮 danger ---- */
-.btn-sm.danger-btn {
-  color: var(--voxver-error);
-  border-color: rgb(229 57 53 / 0.3);
-  &:hover {
-    background: var(--voxver-error);
-    border-color: var(--voxver-error);
-    color: #fff;
-  }
-}
-
-/* ---- 备份文件列表 ---- */
-.backup-list {
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--voxver-border-color);
-}
-
-.backup-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
-  border-radius: var(--voxver-radius-sm);
-  margin-bottom: 6px;
-  border: 1px solid var(--voxver-border-color-light);
-}
-
-.backup-info {
-  flex: 1;
-}
-
-.backup-name {
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--voxver-text-primary);
-}
-
-.backup-meta {
-  font-size: 11.5px;
-  color: var(--voxver-text-muted);
-  margin-top: 3px;
-  display: flex;
-  gap: 14px;
-}
-
-/* ---- 更新检查状态 ---- */
-.update-status {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
-  border-radius: var(--voxver-radius-md);
-  border: 1px solid var(--voxver-border-color-light);
-
-  &.checking {
-    border-color: var(--voxver-primary);
-    background: rgb(21 101 192 / 0.05);
-  }
-
-  &.available {
-    border-color: var(--voxver-green);
-    background: rgb(46 125 50 / 0.05);
-  }
-
-  &.error {
-    border-color: var(--voxver-error);
-    background: rgb(229 57 53 / 0.05);
-  }
-
-  &.up-to-date {
-    border-color: var(--voxver-border-color-light);
-  }
-}
-
-.update-icon {
-  font-size: 20px;
-  flex-shrink: 0;
-}
-
-.update-text {
-  flex: 1;
-  font-size: 13px;
-  color: var(--voxver-text-primary);
-
-  .update-notes {
-    font-size: 11.5px;
-    color: var(--voxver-text-muted);
-    margin-top: 4px;
-    line-height: 1.5;
-    max-width: 400px;
-    word-break: break-all;
-  }
-}
-
-.update-actions {
-  flex-shrink: 0;
-}
-
-.download-progress {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 150px;
-}
-
-.progress-text {
+}/* ---- 小按钮 danger ---- */
+}.progress-text {
   font-size: 12px;
   color: var(--voxver-text-secondary);
 }
 
-.progress-bar-wrap.small {
-  height: 6px;
-}
 
 /* ===== 游戏截图 ===== */
 .screenshot-grid {
@@ -11589,15 +10837,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
 }
 .preset-swatch--custom {
   border: 1px dashed var(--voxver-border-color-strong);
-}
-.theme-custom-card {
-  padding: 12px;
-  background: var(--voxver-bg-tertiary);
-  border: 1px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-md);
-}
-
-.color-swatch {
+}.color-swatch {
   position: relative;
   width: 32px;
   height: 32px;
@@ -11615,36 +10855,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   border: none;
   cursor: pointer;
   opacity: 0;
-}
-
-.quick-color-palette {
-  display: flex;
-  gap: 6px;
-  margin-top: 4px;
-  flex-wrap: wrap;
-}
-
-.quick-swatch {
-  width: 22px;
-  height: 22px;
-  border: 2px solid transparent;
-  border-radius: 50%;
-  cursor: pointer;
-  transition:
-    transform var(--voxver-transition-fast),
-    border-color var(--voxver-transition-fast);
-
-  &:hover {
-    transform: scale(1.2);
-  }
-
-  &.active {
-    border-color: var(--voxver-text-primary);
-    box-shadow: 0 0 0 2px color-mix(in oklab, var(--voxver-primary) 30%, transparent);
-  }
-}
-
-.theme-preview-bar {
+}.theme-preview-bar {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -11659,16 +10870,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   height: 20px;
   border-radius: var(--voxver-radius-xs);
   flex-shrink: 0;
-}
-
-.preview-label {
-  margin-left: 8px;
-  font-size: 11px;
-  color: var(--voxver-text-muted);
-  font-family: var(--voxver-font-mono);
-}
-
-/* ===== 更新通道分段选择 ===== */
+}/* ===== 更新通道分段选择 ===== */
 .segmented-group {
   display: inline-flex;
   background: var(--voxver-bg-raised);
@@ -11733,14 +10935,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
       background: color-mix(in oklab, var(--voxver-error) 24%, transparent);
     }
   }
-}
-
-/* ===== 自动检查更新按钮行 ===== */
-.update-toggle-row {
-  margin-top: 12px;
-}
-
-/* ===== 设置行布局 ===== */
+}/* ===== 设置行布局 ===== */
 .setting-row {
   display: flex;
   align-items: center;
@@ -11775,14 +10970,7 @@ function generatePalette(rgb: { r: number; g: number; b: number }) {
   &.status-dot--off {
     background: var(--voxver-text-muted);
   }
-}
-
-/* toggle chip 继承 vox-chip 样式 */
-.vox-chip--toggle {
-  padding: 6px 20px;
-}
-
-/* ========== 文件夹列表样式 ========== */
+}/* ========== 文件夹列表样式 ========== */
 .folder-list-container {
   display: flex;
   flex-direction: column;

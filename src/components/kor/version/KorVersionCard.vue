@@ -187,7 +187,7 @@ function onClick() {
 .kor-version-card__meta {
   font-family: var(--voxver-font-mono, ui-monospace, monospace);
   font-size: 11px;
-  opacity: 0.62;
+  opacity: 0.85;
 }
 
 .kor-version-card__state {
@@ -201,7 +201,7 @@ function onClick() {
   gap: 2px;
   margin-top: 2px;
   font-size: 11.5px;
-  opacity: 0.66;
+  opacity: 0.9;
   transition: opacity 160ms ease;
 }
 

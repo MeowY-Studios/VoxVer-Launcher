@@ -793,6 +793,12 @@ function onCtxEsc(e: KeyboardEvent): void {
   }
 }
 
+/* 浅色下 muted 字落在 15% 同色浅底上只有 4.1:1 */
+[data-theme='light'] .status-badge.default {
+  background: color-mix(in oklab, var(--voxver-text-muted) 10%, transparent);
+  color: var(--voxver-text-secondary);
+}
+
 .section-body {
   padding: 16px;
 
@@ -953,9 +959,6 @@ function onCtxEsc(e: KeyboardEvent): void {
   flex-direction: column;
   overflow: hidden;
 
-  .skin-viewer {
-    flex: 1;
-  }
 }
 
 /* * 3D 皮肤左右切换：新模型从右滑入，旧模型向左滑出 */
@@ -990,6 +993,12 @@ function onCtxEsc(e: KeyboardEvent): void {
   color: var(--voxver-success);
   background: color-mix(in oklab, var(--voxver-success) 15%, transparent);
   border-radius: var(--voxver-radius-xs);
+}
+
+/* 当前账号卡本身带绿色浅底，徽标绿字只有 4.2:1 */
+[data-theme='light'] .active-badge {
+  background: color-mix(in oklab, var(--voxver-success) 10%, transparent);
+  color: color-mix(in oklab, var(--voxver-success) 78%, #0b1524);
 }
 
 .section-footer {
@@ -1049,14 +1058,6 @@ img.profile-avatar {
   .vox-input {
     flex: 1;
   }
-}
-
-.form-actions {
-  margin-top: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
 }
 
 .form-error {
@@ -1147,10 +1148,14 @@ img.profile-avatar {
   min-width: 132px;
   padding: 4px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(20, 20, 24, 0.96);
+  border: 1px solid var(--kor-hairline, rgba(255, 255, 255, 0.08));
+  background: var(--kor-popover, rgba(20, 20, 24, 0.96));
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(14px);
+}
+
+html[data-theme='light'] .account-ctx {
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
 }
 
 .account-ctx__danger {

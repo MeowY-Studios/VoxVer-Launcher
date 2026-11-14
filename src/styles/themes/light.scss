@@ -17,37 +17,39 @@
   --voxver-bg-elevated: oklch(100% 0 0);
   --voxver-bg-input: oklch(100% 0 0);
   --voxver-bg-overlay: oklch(0% 0 0 / 0.45);
-  --voxver-bg-hover: oklch(0% 0 0 / 0.04);
-  --voxver-bg-active: oklch(0% 0 0 / 0.08);
+  --voxver-bg-hover: oklch(0% 0 0 / 0.06);
+  --voxver-bg-active: oklch(0% 0 0 / 0.1);
 
-  /** 文字色阶 — 暖灰黑 */
+  /** 文字色阶 — 暖灰黑（全部 ≥ 4.5:1，AA） */
   --voxver-text: oklch(22% 0.002 252);
   --voxver-text-primary: oklch(20% 0.002 252);
   --voxver-text-secondary: oklch(38% 0.002 252);
-  --voxver-text-tertiary: oklch(52% 0.001 252);
-  --voxver-text-muted: oklch(62% 0.001 252);
+  --voxver-text-tertiary: oklch(48% 0.001 252);
+  --voxver-text-muted: oklch(52% 0.001 252);
 
-  /** 边框色阶 — hairline 浅色 */
-  --voxver-border-color: oklch(0% 0 0 / 0.08);
-  --voxver-border-color-light: oklch(0% 0 0 / 0.05);
-  --voxver-border-strong: oklch(0% 0 0 / 0.13);
+  /** 边框色阶 — hairline 浅色（交互控件另见文件末尾 ≥ 3:1 覆盖） */
+  --voxver-border-color: oklch(0% 0 0 / 0.12);
+  --voxver-border-color-light: oklch(0% 0 0 / 0.08);
+  --voxver-border-strong: oklch(0% 0 0 / 0.28);
 
   /** 主色 — 深蓝 (需更高对比度以适配白底) */
   --voxver-primary: oklch(52% 0.21 252);
-  --voxver-primary-hover: oklch(56% 0.19 252);
+  --voxver-primary-hover: oklch(54% 0.19 252);
   --voxver-primary-light: oklch(52% 0.21 252 / 0.1);
   --voxver-primary-300: oklch(52% 0.21 252);
   --voxver-primary-400: oklch(52% 0.21 252);
   --voxver-primary-500: oklch(52% 0.21 252);
-  --voxver-primary-600: oklch(56% 0.19 252);
-  --voxver-primary-700: oklch(56% 0.19 252);
-  --voxver-gradient-primary: linear-gradient(135deg, oklch(52% 0.21 252), oklch(58% 0.17 252));
+  --voxver-primary-600: oklch(54% 0.19 252);
+  /* 作为正文颜色使用（如侧栏正版/离线切换），需在浅色底上 ≥ 4.5:1 */
+  --voxver-primary-700: oklch(50% 0.2 252);
+  /* 渐变亮端也需保证白字 ≥ 4.5:1 */
+  --voxver-gradient-primary: linear-gradient(135deg, oklch(52% 0.21 252), oklch(54% 0.17 252));
 
-  /** 状态色 */
-  --voxver-success: oklch(55% 0.19 142);
-  --voxver-success-light: oklch(55% 0.19 142 / 0.12);
-  --voxver-warning: oklch(58% 0.17 75);
-  --voxver-warning-light: oklch(58% 0.17 75 / 0.12);
+  /** 状态色（作为文字时 ≥ 4.5:1，含 12%~15% 同色系浅底上的徽标文字） */
+  --voxver-success: oklch(45% 0.16 142);
+  --voxver-success-light: oklch(45% 0.16 142 / 0.12);
+  --voxver-warning: oklch(46% 0.14 75);
+  --voxver-warning-light: oklch(46% 0.14 75 / 0.12);
   --voxver-error: oklch(48% 0.24 27);
   --voxver-error-light: oklch(48% 0.24 27 / 0.12);
   --voxver-info: oklch(52% 0.21 252);
@@ -65,7 +67,7 @@
   --voxver-input-bg: var(--voxver-bg-input);
   --voxver-input-border: var(--voxver-border-color);
   --voxver-input-focus-border: oklch(52% 0.21 252);
-  --voxver-input-focus-shadow: 0 0 0 3px oklch(52% 0.21 252 / 0.15);
+  --voxver-input-focus-shadow: 0 0 0 3px oklch(52% 0.21 252 / 0.32);
   --voxver-tab-active-color: oklch(52% 0.21 252);
   --voxver-tab-active-border: oklch(52% 0.21 252);
   --voxver-nav-active-color: oklch(52% 0.21 252);
@@ -89,7 +91,7 @@
 
   /** 强调色 — 需更高饱和以适配白底 */
   --voxver-accent: oklch(52% 0.21 252);
-  --voxver-accent-hover: oklch(56% 0.19 252);
+  --voxver-accent-hover: oklch(54% 0.19 252);
   --voxver-accent-soft: oklch(52% 0.21 252 / 0.1);
 
   /** 扩展色阶 */
@@ -108,11 +110,63 @@
   --voxver-bg-raised: var(--voxver-bg-elevated);
   --voxver-border: var(--voxver-border-color);
   --voxver-border-color-focus: var(--voxver-accent);
-  --voxver-gradient-success: linear-gradient(135deg, oklch(55% 0.19 142), oklch(52% 0.18 142));
-  --voxver-launch-gradient: linear-gradient(135deg, oklch(52% 0.21 252), oklch(58% 0.17 252));
+  --voxver-gradient-success: linear-gradient(135deg, oklch(45% 0.16 142), oklch(42% 0.15 142));
+  --voxver-launch-gradient: linear-gradient(135deg, oklch(50% 0.2 252), oklch(52% 0.17 252));
   --voxver-shadow-glow-primary: 0 0 20px oklch(52% 0.21 252 / 0.1);
   --voxver-shadow-xl: 0 12px 48px oklch(0% 0 0 / 0.12);
   --voxver-scrollbar-track: transparent;
   --voxver-scrollbar-thumb: oklch(0% 0 0 / 0.15);
   --voxver-scrollbar-thumb-hover: oklch(0% 0 0 / 0.25);
+}
+
+/* ================================================================
+   浅色模式可访问性增强（WCAG 2.1 AA）
+   1.4.3  文本 ≥ 4.5:1；1.4.11 交互控件边界 ≥ 3:1
+   ================================================================ */
+
+/* 输入框 / 下拉框：边界必须可辨识（0.5 黑 ≈ 3.4:1） */
+[data-theme='light'] .vox-input,
+[data-theme='light'] .vox-select {
+  border-color: oklch(0% 0 0 / 0.5);
+}
+
+[data-theme='light'] .vox-input:hover:not(:disabled):not(:focus) {
+  border-color: oklch(0% 0 0 / 0.62);
+}
+
+/* 开关关闭态：轨道与白色滑块、页面背景均需可区分 */
+[data-theme='light'] .vox-toggle-slider {
+  background: oklch(0% 0 0 / 0.5);
+}
+
+[data-theme='light'] .vox-toggle:hover .vox-toggle-slider {
+  background: oklch(0% 0 0 / 0.62);
+}
+
+/* 输入框强调态：焦点环加深，避免只在白底上留一圈淡蓝 */
+[data-theme='light'] .vox-input:focus,
+[data-theme='light'] .vox-select:focus {
+  box-shadow: 0 0 0 3px oklch(52% 0.21 252 / 0.32);
+}
+
+/* 侧栏分组标题：原本靠 opacity 压暗，浅色下小字号会掉到 2.2:1 */
+[data-theme='light'] .sb-nav .nav-divider,
+[data-theme='light'] .sb-nav .nav-group-header {
+  opacity: 1;
+  color: var(--voxver-text-secondary);
+}
+
+/* 启动按钮副标题：白字再叠加透明度后仅 3.7:1 */
+[data-theme='light'] .btn-launch-pcl2 .launch-version {
+  opacity: 1;
+}
+
+/* 危险操作按钮：20% 红描边在浅底上仅 1.5:1，抬到可辨识 */
+[data-theme='light'] .vox-btn--destructive {
+  border-color: color-mix(in oklab, var(--voxver-error) 65%, transparent);
+}
+
+/* 次要按钮被 .btn 的通用边框覆盖成 12% 黑，浅色下只有 1.3:1 */
+[data-theme='light'] .vox-btn--secondary {
+  border-color: oklch(0% 0 0 / 0.5);
 }

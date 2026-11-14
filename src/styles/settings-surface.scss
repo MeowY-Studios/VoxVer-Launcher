@@ -63,7 +63,7 @@
   border: 1px solid transparent;
   padding: 16px 20px;
   background: rgba(0, 0, 0, 0.45);
-  border-color: rgba(255, 255, 255, 0.07);
+  border-color: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.07);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
@@ -257,7 +257,56 @@
 
 [data-theme='light'] .kor-select select {
   background: rgba(255, 255, 255, 0.6);
-  border-color: rgba(15, 23, 42, 0.12);
+  border-color: rgba(15, 23, 42, 0.5);
+}
+
+/* ---------- 浅色模式可访问性（WCAG 2.1 AA：控件边界 ≥ 3:1） ---------- */
+[data-theme='light'] .kor-input,
+[data-theme='light'] .kor-btn:not(.kor-btn--primary),
+[data-theme='light'] .kor-color-chip {
+  border-color: rgba(15, 23, 42, 0.5);
+}
+
+[data-theme='light'] .kor-btn:not(.kor-btn--primary):hover,
+[data-theme='light'] .kor-select select:hover {
+  border-color: rgba(15, 23, 42, 0.64);
+}
+
+/* 危险按钮保留语义色，但加深到可辨识 */
+[data-theme='light'] .kor-btn--danger,
+[data-theme='light'] .kor-btn--danger:hover {
+  border-color: color-mix(in oklab, var(--voxver-error) 80%, transparent);
+}
+
+/* 开关关闭态：浅灰轨道在白底上几乎不可见，改为中性灰 */
+[data-theme='light'] .kor-switch:not(.is-checked) {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+/* 滑杆轨道（未填充部分）同样需要可辨识 */
+[data-theme='light'] .kor-slider-track {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+/* 行间分割线：提升到清晰可辨但不喧宾夺主 */
+[data-theme='light'] .kor-row + .kor-row {
+  border-top-color: rgba(15, 23, 42, 0.28);
+}
+
+/* 焦点环加深，避免白底上只剩一圈淡蓝 */
+[data-theme='light'] .kor-select select:focus-visible,
+[data-theme='light'] .kor-input:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--voxver-primary) 32%, transparent);
+}
+
+/* 占位符沿用浏览器默认灰色只有 4.3:1，按正文辅助色重设 */
+[data-theme='light'] .kor-input::placeholder {
+  color: rgba(15, 23, 42, 0.62);
+}
+
+/* 滑杆滑块：白色圆点配 12% 描边，在浅色轨道上边界不可辨 */
+[data-theme='light'] .kor-slider-thumb {
+  border-color: rgba(15, 23, 42, 0.5);
 }
 
 .kor-select select:hover {

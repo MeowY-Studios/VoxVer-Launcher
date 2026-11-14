@@ -36,7 +36,7 @@ const router = createRouter({
       path: '/versions',
       name: 'versions',
       component: () => import('../pages/VersionsPage.vue'),
-      meta: { title: '版本管理' }
+      meta: { title: '版本设置' }
     },
     {
       path: '/instance/:id',

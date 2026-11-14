@@ -1506,11 +1506,6 @@ onMounted(() => {
   border-radius: var(--voxver-radius-md);
   flex-shrink: 0;
 }
-.mod-bottom-count {
-  font-size: 12.5px;
-  color: var(--voxver-text-secondary);
-  white-space: nowrap;
-}
 .mod-bottom-actions {
   display: flex;
   gap: 6px;

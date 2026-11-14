@@ -1,11 +1,15 @@
 <template>
-  <Teleport to="body">
+  <Teleport to="body" :disabled="inline">
     <transition name="modal-fade">
-      <div v-if="visible" class="ver-settings-overlay" @click.self="close">
-        <div class="ver-settings-window">
+      <div
+        v-if="inline || visible"
+        :class="[inline ? 'ver-settings-embed' : 'ver-settings-overlay', { 'is-kor': isKoring }]"
+        @click.self="inline ? undefined : close()"
+      >
+        <div class="ver-settings-window" :class="{ 'is-inline': inline, 'is-kor': isKoring }">
           <!-- 标题栏 -->
           <header class="vs-header">
-            <button class="vs-back" @click="close">
+            <button class="vs-back" :title="inline ? $t('common.back') : undefined" @click="goBack">
               <svg
                 width="16"
                 height="16"
@@ -16,9 +20,10 @@
               >
                 <path d="M15 18l-6-6 6-6" />
               </svg>
+              <span v-if="inline" class="vs-back__label">{{ $t('common.back') }}</span>
             </button>
             <span class="vs-title">{{ $t('version.settings.title', { name: versionName }) }}</span>
-            <div class="vs-wc">
+            <div v-if="!inline" class="vs-wc">
               <button class="vs-wc-btn" @click="close">
                 <svg width="10" height="1" viewBox="0 0 10 1">
                   <rect width="10" height="1" fill="currentColor" />
@@ -35,23 +40,40 @@
           <!-- 主体 -->
           <div class="vs-body">
             <!-- 左侧导航 -->
-            <nav class="vs-nav">
-              <button
-                v-for="item in navItems"
-                :key="item.id"
-                class="vs-nav-item"
-                :class="{ active: activeTab === item.id }"
-                @click="activeTab = item.id"
-              >
-                <span v-html="item.icon"></span>
-                {{ item.label }}
-              </button>
+            <nav class="vs-nav" :class="{ 'is-kor': isKoring }">
+              <template v-if="!isKoring">
+                <button
+                  v-for="item in navItems"
+                  :key="item.id"
+                  class="vs-nav-item"
+                  :class="{ active: activeTab === item.id }"
+                  @click="activeTab = item.id"
+                >
+                  <span v-html="item.icon"></span>
+                  {{ item.label }}
+                </button>
+              </template>
+              <template v-else>
+                <KorSettingListItem
+                  v-for="item in navItems"
+                  :key="item.id"
+                  class="vs-kor-nav-item"
+                  :label="item.label"
+                  :active="activeTab === item.id"
+                  :arrow="false"
+                  @click="activeTab = item.id"
+                >
+                  <template #icon>
+                    <span class="vs-kor-nav-icon" v-html="item.icon"></span>
+                  </template>
+                </KorSettingListItem>
+              </template>
             </nav>
 
             <!-- 右侧内容 -->
             <main class="vs-content">
               <!-- ===== 概览 ===== -->
-              <template v-if="activeTab === 'overview'">
+              <template v-if="activeTab === 'overview' && !isKoring">
                 <!-- 版本信息卡片 -->
                 <div class="ver-info-card">
                   <div class="ver-icon">
@@ -156,8 +178,105 @@
                 </section>
               </template>
 
+              <!-- ===== 概览（Koring 排版） ===== -->
+              <template v-else-if="activeTab === 'overview'">
+                <div class="vs-kor-page">
+                  <KorSurface class="vs-kor-hero">
+                    <div class="vs-kor-hero__icon">
+                      <svg
+                        width="26"
+                        height="26"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                      >
+                        <path
+                          d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"
+                        />
+                      </svg>
+                    </div>
+                    <div class="vs-kor-hero__body">
+                      <p class="vs-kor-hero__name">{{ versionName }}</p>
+                      <p class="vs-kor-hero__desc">
+                        {{
+                          $t('version.settings.genuineInfo', {
+                            base: versionBase,
+                            loader: loaderInfo
+                          })
+                        }}
+                      </p>
+                    </div>
+                    <KorBadge v-if="isFavorited" class="vs-kor-hero__badge">★</KorBadge>
+                  </KorSurface>
+
+                  <KorSectionTitle>{{ $t('version.settings.personalized') }}</KorSectionTitle>
+                  <KorSettingCard>
+                    <KorSettingRow :label="$t('version.settings.icon')">
+                      <KorSelect v-model="korIconChoice" :options="korIconOptions" :width="200" />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.category')">
+                      <KorSelect
+                        v-model="korCategoryChoice"
+                        :options="korCategoryOptions"
+                        :width="200"
+                      />
+                    </KorSettingRow>
+                    <div class="vs-kor-actions">
+                      <KorButton size="sm" @click="editVersionName">
+                        {{ $t('version.settings.editVersionName') }}
+                      </KorButton>
+                      <KorButton size="sm" @click="editVersionDescription">
+                        {{ $t('version.settings.editVersionDescription') }}
+                      </KorButton>
+                      <KorButton
+                        size="sm"
+                        :variant="isFavorited ? 'primary' : 'outline'"
+                        @click="toggleFavorite"
+                      >
+                        {{
+                          isFavorited
+                            ? $t('version.settings.removeFavorite')
+                            : $t('version.settings.addFavorite')
+                        }}
+                      </KorButton>
+                    </div>
+                  </KorSettingCard>
+
+                  <KorSectionTitle>{{ $t('version.settings.shortcuts') }}</KorSectionTitle>
+                  <KorSettingCard>
+                    <div class="vs-kor-actions">
+                      <KorButton size="sm" @click="openFolder('')">
+                        {{ $t('version.settings.versionFiles') }}
+                      </KorButton>
+                      <KorButton size="sm" @click="openFolder('saves')">
+                        {{ $t('version.settings.saveFiles') }}
+                      </KorButton>
+                      <KorButton size="sm" @click="openFolder('mods')">
+                        {{ $t('version.settings.modFiles') }}
+                      </KorButton>
+                    </div>
+                  </KorSettingCard>
+
+                  <KorSectionTitle>{{ $t('version.settings.advancedManagement') }}</KorSectionTitle>
+                  <KorSettingCard>
+                    <div class="vs-kor-actions">
+                      <KorButton size="sm" @click="exportScript">
+                        {{ $t('version.settings.exportLaunchScript') }}
+                      </KorButton>
+                      <KorButton size="sm" @click="completeFiles">
+                        {{ $t('version.settings.completeFiles') }}
+                      </KorButton>
+                      <KorButton size="sm" variant="danger" @click="deleteVersion">
+                        {{ $t('version.settings.deleteVersion') }}
+                      </KorButton>
+                    </div>
+                  </KorSettingCard>
+                </div>
+              </template>
+
               <!-- ===== 设置 ===== -->
-              <template v-if="activeTab === 'settings'">
+              <template v-if="activeTab === 'settings' && !isKoring">
                 <!-- 提示 -->
                 <div class="vs-tip-bar">
                   <svg
@@ -462,6 +581,206 @@
                 </button>
               </template>
 
+              <!-- ===== 设置（Koring 排版） ===== -->
+              <template v-else-if="activeTab === 'settings'">
+                <div class="vs-kor-page">
+                  <KorSurface v-if="showTip" class="vs-kor-tip">
+                    <span class="vs-kor-tip__text">{{ $t('version.settings.settingsTip') }}</span>
+                    <button type="button" class="vs-kor-tip__close" @click="showTip = false">×</button>
+                  </KorSurface>
+
+                  <KorSectionTitle>{{ $t('version.settings.launchOptions') }}</KorSectionTitle>
+                  <KorSettingCard>
+                    <KorSettingRow :label="$t('version.settings.versionIsolationLabel')">
+                      <KorSelect
+                        v-model="settingsForm.versionIsolation"
+                        :options="korIsolationOptions"
+                        :width="180"
+                      />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.gameWindowTitle')">
+                      <KorInput
+                        v-model="settingsForm.gameWindowTitle"
+                        :placeholder="$t('version.settings.followGlobal')"
+                        class="vs-kor-input"
+                      />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.customPath')">
+                      <KorInput
+                        v-model="settingsForm.customPath"
+                        :placeholder="$t('version.settings.followGlobal')"
+                        class="vs-kor-input"
+                      />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.gameJavaLabel')">
+                      <KorSelect
+                        v-model="settingsForm.javaPath"
+                        :options="korJavaOptions"
+                        :width="200"
+                      />
+                    </KorSettingRow>
+                  </KorSettingCard>
+
+                  <KorSectionTitle>{{ $t('version.settings.memoryAllocation') }}</KorSectionTitle>
+                  <KorSettingCard>
+                    <KorSettingRow :label="$t('version.settings.memoryAllocation')">
+                      <KorSettingRadioGroup
+                        v-model="memMode"
+                        :options="korMemModeOptions"
+                        inline
+                      />
+                    </KorSettingRow>
+                    <KorSettingRow
+                      v-if="memMode === 'custom'"
+                      :label="$t('version.settings.customConfig')"
+                      desc="512 MB – 16384 MB"
+                    >
+                      <div class="kor-inline">
+                        <KorSlider
+                          v-model="memCustomMb"
+                          :min="512"
+                          :max="16384"
+                          :step="256"
+                          :width="190"
+                        />
+                        <span class="kor-value">{{ memCustomGB }} GB</span>
+                      </div>
+                    </KorSettingRow>
+                    <KorSettingRow
+                      v-if="memMode !== 'global'"
+                      :label="$t('version.settings.memOptimize')"
+                    >
+                      <KorSelect
+                        v-model="settingsForm.memOptimize"
+                        :options="korMemOptimizeOptions"
+                        :width="180"
+                      />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.usedMemory')">
+                      <span class="kor-value">{{ usedMem }} GB / {{ totalMem }} GB</span>
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.gameAllocation')">
+                      <span class="kor-value">{{ gameMem }} GB</span>
+                    </KorSettingRow>
+                  </KorSettingCard>
+
+                  <KorSectionTitle>{{ $t('version.settings.serviceLogin') }}</KorSectionTitle>
+                  <KorSettingCard>
+                    <KorSettingRow :label="$t('version.settings.loginMethod')">
+                      <KorSelect
+                        v-model="settingsForm.loginMethod"
+                        :options="korLoginOptions"
+                        :width="220"
+                      />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.autoJoinServer')">
+                      <KorInput
+                        v-model="settingsForm.autoJoinServer"
+                        :placeholder="$t('version.settings.serverAddressOptional')"
+                        class="vs-kor-input"
+                      />
+                    </KorSettingRow>
+                  </KorSettingCard>
+
+                  <KorSectionTitle>
+                    <button
+                      type="button"
+                      class="vs-kor-collapse"
+                      :class="{ 'is-open': showAdvanced }"
+                      @click="showAdvanced = !showAdvanced"
+                    >
+                      <span>{{ $t('version.settings.advancedOptions') }}</span>
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        aria-hidden="true"
+                      >
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    </button>
+                  </KorSectionTitle>
+                  <KorSettingCard v-show="showAdvanced">
+                    <KorSettingRow :label="$t('version.settings.jvmArgsLabel')">
+                      <textarea
+                        v-model="settingsForm.jvmArgs"
+                        rows="2"
+                        class="vs-kor-textarea"
+                        :placeholder="$t('version.settings.followGlobal')"
+                      ></textarea>
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.gameArgsLabel')">
+                      <KorInput
+                        v-model="settingsForm.gameArgs"
+                        :placeholder="$t('version.settings.followGlobal')"
+                        class="vs-kor-input"
+                      />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.memoryMgmtLabel')">
+                      <KorSelect
+                        v-model="settingsForm.gcSelection"
+                        :options="korGcOptions"
+                        :width="200"
+                      />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.preLaunchCmdLabel')">
+                      <KorInput v-model="settingsForm.preLaunchCmd" class="vs-kor-input" />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.disableModUpdate')">
+                      <KorSwitch v-model="settingsForm.disableModUpdate" />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.ignoreJavaWarning')">
+                      <KorSwitch v-model="settingsForm.ignoreJavaWarning" />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.disableFileCheck')">
+                      <KorSwitch v-model="settingsForm.disableFileCheck" />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.disableJavaWrapper')">
+                      <KorSwitch v-model="settingsForm.disableJavaWrapper" />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.disableLwjglAgent')">
+                      <KorSwitch v-model="settingsForm.disableLwjglAgent" />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.useHighPerfGPU')">
+                      <KorSwitch v-model="useHighPerformanceGPU" />
+                    </KorSettingRow>
+                  </KorSettingCard>
+
+                  <div class="vs-kor-save">
+                    <KorButton
+                      variant="primary"
+                      :loading="settingsSaving"
+                      @click="saveSettings"
+                    >
+                      {{
+                        settingsSaving
+                          ? $t('version.settings.saving')
+                          : $t('version.settings.saveSettings')
+                      }}
+                    </KorButton>
+                    <span
+                      v-if="settingsSaveStatus === 'success'"
+                      class="vs-kor-save__status is-ok"
+                      >✓</span
+                    >
+                    <span v-else-if="settingsSaveStatus === 'error'" class="vs-kor-save__status is-err"
+                      >×</span
+                    >
+                    <KorButton
+                      variant="ghost"
+                      size="sm"
+                      class="vs-kor-save__global"
+                      @click="$router.push('/settings')"
+                    >
+                      {{ $t('version.settings.globalSettingsBtn') }}
+                    </KorButton>
+                  </div>
+                </div>
+              </template>
+
               <!-- ===== Mod 管理 ===== -->
               <div v-show="activeTab === 'mods'" style="display: contents">
                 <ModManager
@@ -473,7 +792,7 @@
               </div>
 
               <!-- ===== 导出 ===== -->
-              <template v-if="activeTab === 'export'">
+              <template v-if="activeTab === 'export' && !isKoring">
                 <!-- 基础信息 -->
                 <section class="vs-section">
                   <div class="export-header-row">
@@ -705,6 +1024,187 @@
                     </svg>
                     {{ $t('version.settings.startExport') }}
                   </button>
+                </div>
+              </template>
+
+              <!-- ===== 导出（Koring 排版） ===== -->
+              <template v-else-if="activeTab === 'export'">
+                <div class="vs-kor-page">
+                  <KorSectionTitle>{{ $t('version.settings.navExport') }}</KorSectionTitle>
+                  <KorSettingCard>
+                    <KorSettingRow :label="$t('version.settings.modpackName')">
+                      <KorInput v-model="exportPackName" class="vs-kor-input" />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.modpackVersion')">
+                      <KorInput
+                        v-model="exportPackVersion"
+                        class="vs-kor-input vs-kor-input--short"
+                      />
+                    </KorSettingRow>
+                  </KorSettingCard>
+
+                  <KorSectionTitle>
+                    {{ $t('version.settings.exportContentList') }}
+                    <span v-if="exportLoading" class="vs-kor-loading">{{
+                      $t('common.loading')
+                    }}</span>
+                  </KorSectionTitle>
+                  <KorSettingCard>
+                    <KorSettingRow
+                      :label="$t('version.settings.gameCore')"
+                      :desc="`${versionBase} ${loaderInfo}`"
+                    >
+                      <KorSwitch :model-value="true" disabled />
+                    </KorSettingRow>
+
+                    <KorSettingRow
+                      :label="$t('version.settings.modLabel')"
+                      :desc="$t('version.settings.modsCount', { n: exportMods.length })"
+                    >
+                      <KorSwitch v-model="exportOpts.includeMods" />
+                    </KorSettingRow>
+                    <ul v-if="exportMods.length > 0" class="vs-kor-list">
+                      <li
+                        v-for="mod in exportMods"
+                        :key="mod.fileName"
+                        class="vs-kor-list__item"
+                      >
+                        <img
+                          v-if="mod.logoUrl"
+                          :src="mod.logoUrl"
+                          class="vs-kor-list__icon"
+                          alt=""
+                          @error="
+                            (e: Event) => ((e.target as HTMLImageElement).style.display = 'none')
+                          "
+                        />
+                        <span v-else class="vs-kor-list__icon vs-kor-list__icon--text">{{
+                          mod.name.slice(0, 1).toUpperCase()
+                        }}</span>
+                        <span class="vs-kor-list__name">{{ mod.name }}</span>
+                        <span class="vs-kor-list__meta">{{ mod.version }}</span>
+                        <KorBadge v-if="!mod.enabled">{{
+                          $t('version.settings.disabledBadge')
+                        }}</KorBadge>
+                      </li>
+                    </ul>
+                    <p v-else-if="!exportLoading" class="vs-kor-list__empty">
+                      {{ $t('version.settings.notFoundMod') }}
+                    </p>
+                    <KorSettingRow
+                      class="vs-kor-subrow"
+                      :label="$t('version.settings.disabledModsCheckbox')"
+                    >
+                      <KorSwitch v-model="exportOpts.includeDisabledMods" />
+                    </KorSettingRow>
+                    <KorSettingRow
+                      class="vs-kor-subrow"
+                      :label="$t('version.settings.modConfigsCheckbox')"
+                    >
+                      <KorSwitch v-model="exportOpts.includeModConfigs" />
+                    </KorSettingRow>
+
+                    <KorSettingRow
+                      :label="$t('version.settings.resourcePacksLabel')"
+                      :desc="
+                        $t('version.settings.textureMaterials', {
+                          n: exportResourcePacks.length
+                        })
+                      "
+                    >
+                      <KorSwitch v-model="exportOpts.includeResourcePacks" />
+                    </KorSettingRow>
+                    <ul v-if="exportResourcePacks.length > 0" class="vs-kor-list">
+                      <li v-for="rp in exportResourcePacks" :key="rp.name" class="vs-kor-list__item">
+                        <span class="vs-kor-list__name">{{ rp.name }}</span>
+                        <span class="vs-kor-list__meta">{{ formatFileSize(rp.size) }}</span>
+                      </li>
+                    </ul>
+                    <p v-else-if="!exportLoading" class="vs-kor-list__empty">
+                      {{ $t('version.settings.notFoundResourcePack') }}
+                    </p>
+
+                    <KorSettingRow
+                      :label="$t('version.settings.shaderPacksLabel')"
+                      :desc="
+                        $t('version.settings.shaderPacksCount', { n: exportShaderPacks.length })
+                      "
+                    >
+                      <KorSwitch v-model="exportOpts.includeShaderPacks" />
+                    </KorSettingRow>
+                    <ul v-if="exportShaderPacks.length > 0" class="vs-kor-list">
+                      <li v-for="sp in exportShaderPacks" :key="sp.name" class="vs-kor-list__item">
+                        <span class="vs-kor-list__name">{{ sp.name }}</span>
+                        <span class="vs-kor-list__meta">{{ formatFileSize(sp.size) }}</span>
+                      </li>
+                    </ul>
+                    <p v-else-if="!exportLoading" class="vs-kor-list__empty">
+                      {{ $t('version.settings.notFoundShaderPack') }}
+                    </p>
+
+                    <KorSettingRow
+                      :label="$t('version.settings.singleSave')"
+                      :desc="$t('version.settings.worldMap')"
+                    >
+                      <KorSwitch v-model="exportOpts.includeSaves" />
+                    </KorSettingRow>
+                    <KorSettingRow
+                      :label="$t('version.settings.voxverLauncher')"
+                      :desc="$t('version.settings.packOfficialDesc')"
+                    >
+                      <KorSwitch v-model="exportOpts.includeLauncher" />
+                    </KorSettingRow>
+                    <KorSettingRow
+                      :label="$t('version.settings.voxverPersonalization')"
+                      :desc="$t('version.settings.voxverPersonalizationDesc')"
+                    >
+                      <KorSwitch v-model="exportOpts.includePersonalization" />
+                    </KorSettingRow>
+                  </KorSettingCard>
+
+                  <KorSectionTitle>
+                    <button
+                      type="button"
+                      class="vs-kor-collapse"
+                      :class="{ 'is-open': showExportAdvanced }"
+                      @click="showExportAdvanced = !showExportAdvanced"
+                    >
+                      <span>{{ $t('version.settings.advancedOptions') }}</span>
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        aria-hidden="true"
+                      >
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    </button>
+                  </KorSectionTitle>
+                  <KorSettingCard v-show="showExportAdvanced">
+                    <KorSettingRow :label="$t('version.settings.packResources')">
+                      <KorSwitch v-model="korPackResources" />
+                    </KorSettingRow>
+                    <KorSettingRow :label="$t('version.settings.modrinthOnly')">
+                      <KorSwitch v-model="korModrinthOnly" />
+                    </KorSettingRow>
+                    <p class="vs-kor-tip__text vs-kor-tip__text--inline">
+                      {{ $t('version.settings.advancedExportTip') }}
+                    </p>
+                  </KorSettingCard>
+
+                  <div class="vs-kor-export">
+                    <KorButton
+                      variant="primary"
+                      block
+                      :loading="exportLoading"
+                      @click="doExport"
+                    >
+                      {{ $t('version.settings.startExport') }}
+                    </KorButton>
+                  </div>
                 </div>
               </template>
             </main>
@@ -945,25 +1445,52 @@ import { useI18n } from 'vue-i18n'
 import ModManager from './ModManager.vue'
 import { useConfirm } from '@/composables/useConfirm'
 import { useInstancesStore } from '../stores/instances.store'
+import { useAppStore } from '../stores/app.store'
+import {
+  KorBadge,
+  KorButton,
+  KorInput,
+  KorSectionTitle,
+  KorSelect,
+  KorSettingCard,
+  KorSettingListItem,
+  KorSettingRadioGroup,
+  KorSettingRow,
+  KorSlider,
+  KorSwitch
+} from '@/components/kor'
 
 const { t } = useI18n()
 const { confirm: pxConfirm } = useConfirm()
 const instancesStore = useInstancesStore()
+const appStore = useAppStore()
+
+/** Koring 排版皮肤：版本设置页改用 Kor 组件重排（经典皮肤保持原样） */
+const isKoring = computed(() => appStore.skin === 'koring')
 
 const props = defineProps<{
   visible: boolean
   versionName: string
   gameDir: string
   instanceId: string
+  /** 内嵌到页面（非弹窗）：不显示遮罩与窗口按钮，返回按钮交由页面处理 */
+  inline?: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'update:visible', val: boolean): void
   (e: 'version-deleted'): void
+  (e: 'back'): void
 }>()
 
 function close() {
   emit('update:visible', false)
+}
+
+/** 标题栏返回：内嵌模式交给页面跳转，弹窗模式关闭弹窗 */
+function goBack() {
+  if (props.inline) emit('back')
+  else close()
 }
 
 const activeTab = ref('overview')
@@ -1166,6 +1693,70 @@ const settingsForm = reactive({
   disableLwjglAgent: false
 })
 
+/* * ====== Koring 分支：选项表与本地状态 ====== */
+/** 自定义内存：字符串 MB ↔ 滑杆数字 */
+const memCustomMb = computed({
+  get: () => Number(memCustom.value) || 4096,
+  set: (mb: number) => (memCustom.value = String(mb))
+})
+const memCustomGB = computed(() => (memCustomMb.value / 1024).toFixed(1))
+
+/** 个性化：Koring 下拉的本地选中值（经典皮肤的两个 select 未绑状态，行为保持一致） */
+const korIconChoice = ref('auto')
+const korCategoryChoice = ref('auto')
+
+/** 选项表：value 与经典 <select> 完全对齐，label 走 i18n */
+const korIconOptions = computed(() => [
+  { value: 'auto', label: t('version.settings.iconAuto') },
+  { value: 'grass', label: t('version.settings.iconGrassBlock') },
+  { value: 'creeper', label: t('version.settings.iconCreeper') },
+  { value: 'custom', label: t('version.settings.iconCustom') }
+])
+
+const korCategoryOptions = computed(() => [
+  { value: 'auto', label: t('version.settings.categoryAuto') },
+  { value: 'vanilla', label: t('version.settings.categoryVanilla') },
+  { value: 'modded', label: 'Modded' },
+  { value: 'modpack', label: t('version.settings.categoryModpack') }
+])
+
+const korIsolationOptions = computed(() => [
+  { value: 'enabled', label: t('version.settings.enabledBtn') },
+  { value: 'disabled', label: t('version.settings.disabledBtn') }
+])
+
+const korJavaOptions = computed(() => [
+  { value: 'follow-global', label: t('version.settings.followGlobal') },
+  { value: 'java17', label: t('version.settings.java17') },
+  { value: 'java21', label: t('version.settings.java21') },
+  { value: 'custom', label: t('version.settings.customPath') }
+])
+
+const korMemModeOptions = computed(() => [
+  { value: 'global', label: t('version.settings.followGlobal') },
+  { value: 'auto', label: t('version.settings.autoConfig') },
+  { value: 'custom', label: t('version.settings.customConfig') }
+])
+
+const korMemOptimizeOptions = computed(() => [
+  { value: 'follow-global', label: t('version.settings.followGlobal') },
+  { value: 'enabled', label: t('version.settings.enabledBtn') },
+  { value: 'disabled', label: t('version.settings.disabledBtn') }
+])
+
+const korLoginOptions = computed(() => [
+  { value: 'official-or-offline', label: t('version.settings.officialOrOffline') },
+  { value: 'official-only', label: t('version.settings.officialOnly') },
+  { value: 'offline-only', label: t('version.settings.offlineOnly') }
+])
+
+const korGcOptions = computed(() => [
+  { value: 'follow-global', label: t('version.settings.followGlobal') },
+  { value: 'g1gc', label: 'G1GC' },
+  { value: 'zgc', label: 'ZGC' },
+  { value: 'parallel', label: 'Parallel GC' }
+])
+
 const settingsSaving = ref(false)
 const settingsSaveStatus = ref<'idle' | 'success' | 'error'>('idle')
 
@@ -1255,6 +1846,9 @@ async function saveSettings() {
 
 // * 导出页状态
 const showExportAdvanced = ref(false)
+/** 导出高级选项（经典皮肤里这两个复选框未绑状态，Koring 分支用本地状态承接） */
+const korPackResources = ref(false)
+const korModrinthOnly = ref(false)
 const exportLoading = ref(false)
 const exportLoaded = ref(false)
 const exportMods = ref<
@@ -1531,6 +2125,72 @@ const navItems = [
   box-shadow: var(--voxver-shadow-xl);
 }
 
+/* * ---- 内嵌到页面（/versions）：铺满内容区，不带遮罩，也不套外容器 ---- */
+.ver-settings-embed {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  /* 让 padding 计入 100% 高度，否则会溢出 40px 并多出一层滚动条 */
+  box-sizing: border-box;
+  padding: 20px 24px;
+}
+
+/* Koring：/versions 已走 is-kor-bleed（main-content 无内边距），
+   由页面自己给出与其它 Koring 页面一致的 24px 基线；
+   右侧少 10px 是因为滚动条改成了 thin + 透明（仍占一条 10px 的槽），
+   减掉它，卡片到窗口边缘的视觉留白才是 24px */
+.ver-settings-embed.is-kor {
+  padding: 24px;
+}
+
+.ver-settings-window.is-inline {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* 标题栏直接铺在页面上：透明、无分割线 */
+.ver-settings-window.is-inline .vs-header {
+  height: auto;
+  padding: 0 0 16px;
+  background: transparent;
+  border-bottom: 0;
+}
+
+.ver-settings-window.is-inline .vs-title {
+  font-size: 15px;
+}
+
+/* 设置导航也不再是一块面板 */
+.ver-settings-window.is-inline .vs-nav {
+  padding-left: 0;
+  background: transparent;
+  border-right: 0;
+}
+
+/* 内嵌时标题栏在正文里，不能当作窗口拖拽区 */
+.ver-settings-window.is-inline .vs-header {
+  -webkit-app-region: no-drag;
+}
+
+/* 内嵌时的返回按钮：带上文字，明确「返回主页」 */
+.ver-settings-window.is-inline .vs-back {
+  width: auto;
+  padding: 0 8px;
+  gap: 4px;
+}
+
+.vs-back__label {
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
 /* * ---- 标题栏 ---- */
 .vs-header {
   height: 42px;
@@ -1747,13 +2407,6 @@ const navItems = [
     color: var(--voxver-text-primary);
   }
 
-  .desc-text {
-    font-size: 12px;
-    color: var(--voxver-text-secondary);
-    line-height: 1.55;
-    margin: 0 0 12px;
-  }
-
   /* * 区块内的按钮组不需要额外上边距 */
   .form-btns {
     margin-top: 4px;
@@ -1821,48 +2474,6 @@ const navItems = [
   }
 }
 
-.input-with-btn {
-  display: flex;
-  gap: 8px;
-  flex: 1;
-
-  .form-input {
-    flex: 1;
-  }
-}
-
-.uuid-row {
-  display: flex;
-  gap: 8px;
-  flex: 1;
-
-  .form-input {
-    flex: 1;
-  }
-}
-
-.browse-btn {
-  padding: 8px 16px;
-  border: 1.5px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-md);
-  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
-  font-size: 12px;
-  color: var(--voxver-text-secondary);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.13s;
-  flex-shrink: 0;
-
-  &:hover {
-    border-color: var(--voxver-primary);
-    color: var(--voxver-primary);
-  }
-
-  &.small {
-    padding: 8px 12px;
-  }
-}
-
 /* * ---- 复选框标签 ---- */
 .checkbox-label {
   display: inline-flex !important;
@@ -1882,12 +2493,6 @@ const navItems = [
     accent-color: var(--voxver-primary);
     cursor: pointer;
   }
-}
-
-.export-options {
-  display: flex;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
 }
 
 /* * ---- 操作按钮组 ---- */
@@ -1956,90 +2561,6 @@ const navItems = [
   }
 }
 
-/* ---- 内存/分辨率输入组 ---- */
-.memory-inputs,
-.resolution-inputs {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-}
-
-.memory-sep {
-  font-size: 12px;
-  color: var(--voxver-text-muted);
-  user-select: none;
-}
-
-/* * ---- Mod 列表 ---- */
-.mod-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.mod-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
-  border-radius: var(--voxver-radius-md);
-  border: 1px solid transparent;
-  transition: all 0.12s;
-
-  &:hover {
-    border-color: var(--voxver-border-color);
-  }
-
-  .mod-name {
-    flex: 1;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--voxver-text-primary);
-  }
-
-  .mod-ver {
-    font-size: 11px;
-    color: var(--voxver-text-muted);
-  }
-
-  .mod-remove {
-    padding: 4px 12px;
-    border: 1px solid var(--voxver-border-color);
-    border-radius: var(--voxver-radius-sm);
-    background: color-mix(in oklab, var(--voxver-bg-elevated) 72%, transparent);
-    font-size: 11px;
-    color: var(--voxver-text-secondary);
-    cursor: pointer;
-    opacity: 0;
-    transition: all 0.12s;
-
-    &:hover {
-      border-color: var(--voxver-error);
-      color: var(--voxver-error);
-    }
-  }
-
-  &:hover .mod-remove {
-    opacity: 1;
-  }
-}
-
-.empty-state {
-  text-align: center;
-  padding: 36px 0;
-  color: var(--voxver-text-muted);
-
-  p {
-    margin: 10px 0 0;
-    font-size: 13px;
-  }
-
-  svg {
-    opacity: 0.35;
-  }
-}
 
 /* * ---- 动画 ---- */
 .modal-fade-enter-active {
@@ -2360,227 +2881,8 @@ const navItems = [
   }
 }
 
-/* * ====== Mod 管理页专用样式 ===== */
-
-/* * 搜索卡片 */
-.mod-search-card {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 14px;
-  background: color-mix(in oklab, var(--voxver-bg-primary) 60%, transparent);
-  border: 1.5px solid var(--voxver-border-color);
-  border-radius: var(--voxver-radius-md);
-  margin-bottom: 10px;
-
-  svg {
-    flex-shrink: 0;
-  }
-
-  .mod-search-input {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-size: 13px;
-    color: var(--voxver-text-primary);
-    background: transparent;
-
-    &::placeholder {
-      color: var(--voxver-text-muted);
-    }
-  }
-}
-
-/* * 工具栏 */
-.mod-toolbar {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-
-.form-action-btn.primary-outline {
-  border-color: var(--voxver-primary);
-  color: var(--voxver-primary);
-
-  &:hover {
-    background: color-mix(in oklab, var(--voxver-primary) 6%, transparent);
-  }
-}
-
-/* 筛选标签 */
-.mod-tabs {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 10px;
-}
-
-.mod-tab {
-  padding: 5px 12px;
-  border: none;
-  background: transparent;
-  font-size: 12px;
-  color: var(--voxver-text-secondary);
-  cursor: pointer;
-  border-radius: var(--voxver-radius-md);
-  transition: all 0.13s;
-
-  &.active {
-    background: var(--voxver-gradient-primary);
-    color: #fff;
-    font-weight: 600;
-  }
-
-  &:hover:not(.active) {
-    background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
-    color: var(--voxver-primary-muted);
-  }
-
-  .mod-tab-count {
-    font-weight: 400;
-    opacity: 0.75;
-  }
-}
-
-/* * 新版 Mod 列表 */
-.mod-list-section {
-  padding: 12px 16px !important;
-}
-
-.mod-list-new {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.mod-item-new {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 10px;
-  border-radius: var(--voxver-radius-md);
-  transition: background 0.12s;
-  position: relative;
-
-  &:hover {
-    background: var(--voxver-bg-hover);
-  }
-}
-
-.mod-icon-img {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--voxver-radius-sm);
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.mod-icon-default {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--voxver-radius-sm);
-  background: var(--voxver-gradient-primary);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
 .spin-icon {
   animation: spin 1.2s linear infinite;
-}
-
-.mod-info-main {
-  flex: 1;
-  min-width: 0;
-}
-
-.mod-name-row {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.mod-name-text {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--voxver-text-primary);
-}
-
-.mod-ver-text {
-  font-size: 11px;
-  color: var(--voxver-text-muted);
-  white-space: nowrap;
-}
-
-.mod-link-icon {
-  font-size: 11px;
-  text-decoration: none;
-  opacity: 0.5;
-
-  &:hover {
-    opacity: 1;
-  }
-}
-
-.mod-desc-text {
-  margin: 2px 0 0;
-  font-size: 11px;
-  color: var(--voxver-text-secondary);
-  line-height: 1.35;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.mod-tag {
-  display: inline-block;
-  padding: 0 5px;
-  font-size: 10px;
-  color: var(--voxver-primary-muted);
-  background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
-  border-radius: 3px;
-  margin-right: 4px;
-  vertical-align: middle;
-}
-
-/* hover 操作图标 */
-.mod-actions-hover {
-  display: flex;
-  gap: 2px;
-  opacity: 0;
-  transition: opacity 0.15s;
-  flex-shrink: 0;
-
-  &.visible {
-    opacity: 1;
-  }
-}
-
-.mod-action-icon {
-  width: 26px;
-  height: 26px;
-  border: none;
-  background: transparent;
-  border-radius: var(--voxver-radius-sm);
-  font-size: 13px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.12s;
-
-  &:hover {
-    background: var(--voxver-bg-hover);
-  }
-
-  &.danger:hover {
-    background: rgb(239 68 68 / 0.1);
-  }
 }
 
 /* * 输入弹窗尺寸（名称单行为窄窗，描述多行自动撑高） */
@@ -2745,14 +3047,6 @@ const navItems = [
   flex-shrink: 0;
 }
 
-/* * 导出操作按钮 */
-.export-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-
 .export-tip-box {
   margin-top: 10px;
   padding: 10px 12px;
@@ -2805,5 +3099,420 @@ const navItems = [
     opacity: 0.7;
     cursor: not-allowed;
   }
+}
+
+/* * ====== Koring 排版：版本设置页 ====== */
+/* 顶栏：Koring 页头（返回 + 标题），inline 时更像页面标题 */
+.ver-settings-window.is-kor .vs-header {
+  height: auto;
+  padding: 16px 20px 10px;
+  border-bottom: 0;
+  background: transparent;
+}
+
+.ver-settings-window.is-kor .vs-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--voxver-text-secondary);
+}
+
+.ver-settings-window.is-kor.is-inline .vs-header {
+  padding: 2px 0 14px;
+}
+
+.ver-settings-window.is-kor.is-inline .vs-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--voxver-text-primary);
+}
+
+/* 导航：Kor 列表条目改造成胶囊导航（去 hairline、补选中底色） */
+.ver-settings-window.is-kor .vs-nav.is-kor {
+  width: 216px;
+  padding: 10px;
+  gap: 0;
+  background: color-mix(in oklab, var(--voxver-bg-secondary) 55%, transparent);
+  border-right: 1px solid rgba(var(--kor-fg-rgb, 255, 255, 255), 0.07);
+}
+
+.ver-settings-window.is-kor.is-inline .vs-nav.is-kor {
+  background: transparent;
+  border-right: 0;
+  padding-left: 0;
+}
+
+.vs-kor-nav-item {
+  padding: 8px 10px;
+  border-radius: 12px;
+  border-top: 0 !important;
+  color: var(--voxver-text-secondary);
+  transition:
+    background 0.14s ease,
+    color 0.14s ease;
+
+  :deep(.kor-list-item__icon) {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+  }
+
+  :deep(.kor-list-item__label) {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: inherit;
+  }
+
+  &:hover {
+    background: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.05);
+    color: var(--voxver-text-primary);
+  }
+
+  &.is-active {
+    background: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.1);
+    color: var(--voxver-text-primary);
+
+    :deep(.kor-list-item__icon) {
+      color: var(--voxver-primary);
+    }
+  }
+}
+
+.vs-kor-nav-icon {
+  display: flex;
+}
+
+/* inline 时内容区不叠第二层底色 */
+.ver-settings-window.is-kor.is-inline .vs-content {
+  background: transparent;
+  /* 左右内边距交给 .ver-settings-embed.is-kor（24px 基线），这里只留与导航的间距 */
+  padding: 4px 0 20px 24px;
+}
+
+/* 内容区滚动条：平时隐形，滚动时淡入（与全局 Koring 一致）
+   global.scss 里 `* { scrollbar-color: … }` 会让 Chromium 走「标准滚动条」，
+   ::-webkit-scrollbar 那套在这之后会被忽略，所以只用标准属性收口。 */
+.ver-settings-window.is-kor .vs-content {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &.is-scrolling {
+    scrollbar-color: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.3) transparent;
+  }
+
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  &::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+    transition: background-color 200ms ease;
+  }
+
+  &.is-scrolling::-webkit-scrollbar-thumb {
+    background: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.3);
+    background-clip: padding-box;
+  }
+}
+
+/* 内容排版：Koring 的「标题 + 磨砂卡片」节奏 */
+.vs-kor-page {
+  display: flex;
+  flex-direction: column;
+  /* 底部只留一点余量：概览页刚好一屏，不该为多出的留白凭空长出滚动条 */
+  padding: 2px 2px 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+.vs-kor-page > .kor-section-title {
+  margin: 26px 2px 10px;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+/* 版本信息卡 */
+.vs-kor-hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px 18px 16px;
+}
+
+.vs-kor-hero__icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--voxver-primary) 14%, transparent);
+  color: var(--voxver-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.vs-kor-hero__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.vs-kor-hero__name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--voxver-text-primary);
+}
+
+.vs-kor-hero__desc {
+  margin: 3px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--voxver-text-secondary);
+}
+
+.vs-kor-hero__badge {
+  flex: none;
+}
+
+/* 卡片内的行尾按钮组（与 .kor-row 的 hairline 节奏一致） */
+.vs-kor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(128, 128, 128, 0.14);
+
+  &:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+}
+
+/* 提示条 */
+.vs-kor-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  margin-bottom: 2px;
+
+  &.kor-surface {
+    background: color-mix(in oklab, var(--voxver-primary) 8%, transparent);
+    border-color: color-mix(in oklab, var(--voxver-primary) 20%, transparent);
+    box-shadow: none;
+  }
+}
+
+.vs-kor-tip__text {
+  flex: 1;
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--voxver-text-secondary);
+}
+
+.vs-kor-tip__text--inline {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--voxver-primary) 7%, transparent);
+  white-space: pre-line;
+}
+
+.vs-kor-tip__close {
+  border: 0;
+  padding: 0 2px;
+  background: transparent;
+  color: var(--voxver-text-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--voxver-text-primary);
+  }
+}
+
+/* 输入控件在 Kor 行内的固定宽度 */
+.vs-kor-input {
+  width: 220px;
+}
+
+.vs-kor-input--short {
+  width: 120px;
+}
+
+.vs-kor-textarea {
+  width: 360px;
+  min-height: 62px;
+  padding: 9px 12px;
+  border: 1px solid rgba(var(--kor-fg-rgb, 255, 255, 255), 0.12);
+  border-radius: 10px;
+  background: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.04);
+  color: var(--voxver-text-primary);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+
+  &::placeholder {
+    color: var(--voxver-text-muted);
+  }
+
+  &:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--voxver-primary) 55%, transparent);
+    outline-offset: 1px;
+  }
+}
+
+/* 可折叠段标题 */
+.vs-kor-collapse {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+
+  svg {
+    transition: transform 0.18s ease;
+  }
+
+  &.is-open svg {
+    transform: rotate(180deg);
+  }
+
+  &:hover {
+    color: var(--voxver-text-primary);
+  }
+}
+
+/* 保存区 */
+.vs-kor-save {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.vs-kor-save__status {
+  font-size: 13px;
+  font-weight: 600;
+
+  &.is-ok {
+    color: #3fb950;
+  }
+
+  &.is-err {
+    color: #f85149;
+  }
+}
+
+.vs-kor-save__global {
+  margin-left: auto;
+}
+
+/* 导出：条目列表 */
+.vs-kor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vs-kor-list__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: var(--voxver-text-primary);
+
+  &:hover {
+    background: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.04);
+  }
+}
+
+.vs-kor-list__icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  object-fit: contain;
+  flex: none;
+}
+
+.vs-kor-list__icon--text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--voxver-primary) 15%, transparent);
+  color: var(--voxver-primary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.vs-kor-list__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vs-kor-list__meta {
+  flex: none;
+  font-size: 11.5px;
+  color: var(--voxver-text-muted);
+}
+
+.vs-kor-list__empty {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: var(--voxver-text-muted);
+}
+
+/* 列表之后的子开关行：补回被列表打断的 hairline */
+.vs-kor-subrow {
+  margin-top: 14px !important;
+  padding-top: 14px !important;
+  border-top: 1px solid rgba(128, 128, 128, 0.14) !important;
+}
+
+.vs-kor-loading {
+  margin-left: 8px;
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--voxver-text-muted);
+}
+
+.vs-kor-export {
+  margin-top: 22px;
 }
 </style>
