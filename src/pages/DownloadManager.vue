@@ -1075,4 +1075,9 @@ onUnmounted(() => {
   display: flex;
   gap: 10px;
 }
+
+/* ====== Koring 皮肤：迁移自 skin-koring.scss（D2）====== */
+[data-skin='koring'] .dm-page {
+  padding: 32px 32px 48px;
+}
 </style>

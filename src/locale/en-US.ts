@@ -99,6 +99,16 @@ export default {
     tip: 'Tip'
   },
   home: {
+    localVersions: 'Local versions',
+    noLocalVersions: 'No local versions yet — add one from Instances or Downloads',
+    classicTitle: 'Home',
+    classicDesc: 'Selected version and shortcuts',
+    classicCurrent: 'Current version',
+    classicQuick: 'Shortcuts',
+    classicReady: 'Ready',
+    classicNoVersion: 'None',
+    classicNoVersionDesc: 'Pick a game version in Instances, then come back to launch',
+    classicSwitch: 'Switch version',
     koringStart: 'Launch game',
     koringBrowse: 'Download versions',
     koringPickVersion: 'Select a version',
@@ -974,6 +984,7 @@ export default {
   },
 
   instance: {
+    classicDesc: 'Pick a folder on the left, a version on the right — click to open settings, double-click to launch',
     instance: 'Instance',
     instances: 'Instances',
     manager: 'Instance Manager',

@@ -1187,4 +1187,10 @@ onUnmounted(() => {
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;
 }
+
+/* ====== Koring 皮肤：迁移自 skin-koring.scss（D2）====== */
+/* ========== 版本页 / 启动页 / 下载管理（Koring 皮肤） ========== */
+[data-skin='koring'] .launch-page {
+  padding: 32px 32px 48px;
+}
 </style>

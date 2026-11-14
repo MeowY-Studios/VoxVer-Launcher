@@ -1,0 +1,603 @@
+/**
+ * VoxVer Classic 设计层（原版皮肤 · 方向 B「macOS 原生感」）
+ *
+ * 目标：把原版从「一页页堆出来的样式」收敛成一套可复用、可强制的排版标尺。
+ * 约束：
+ *   - 只在原版皮肤下生效：运行时 data-skin 只有「koring」一个取值（原版是移除属性），
+ *     所以这里用 html:not([data-skin='koring'])，Koring 皮肤一行不受影响。
+ *   - 页面只允许用这里的 token 与 .c-* 基础件，不再写裸 px 字号、裸圆角、裸 hex。
+ *   - 颜色随 data-theme 走：浅色为默认（B 方向），深色为同构映射。
+ */
+
+/* ================================================================
+   1. Tokens — 结构（与主题无关）
+   ================================================================ */
+:root {
+  /* 字号阶梯：只有这四级 + 一个 11px 标签级 */
+  --cx-fs-label: 11px;
+  --cx-fs-sm: 13px;
+  --cx-fs-md: 14px;
+  --cx-fs-lg: 17px;
+  --cx-fs-h1: 22px;
+
+  /* 行高 */
+  --cx-lh-tight: 1.3;
+  --cx-lh-base: 1.5;
+
+  /* 字重 */
+  --cx-fw-regular: 400;
+  --cx-fw-medium: 500;
+  --cx-fw-semibold: 600;
+
+  /* 间距节奏：4 的倍数，只有这些档 */
+  --cx-sp-1: 4px;
+  --cx-sp-2: 8px;
+  --cx-sp-3: 12px;
+  --cx-sp-4: 18px;
+  --cx-sp-5: 24px;
+  --cx-sp-6: 32px;
+
+  /* 圆角：控件 / 卡片 / 面板 */
+  --cx-r-ctl: 9px;
+  --cx-r-card: 14px;
+  --cx-r-panel: 16px;
+  --cx-r-full: 9999px;
+
+  /* 控件尺寸 */
+  --cx-ctl-h: 32px;
+  --cx-ctl-h-sm: 28px;
+  --cx-ctl-px: 14px;
+
+  /* 外壳尺寸 */
+  --cx-titlebar-h: 46px;
+  --cx-sidebar-w: 280px;
+  --cx-page-px: 34px;
+  --cx-page-py: 28px;
+
+  /* 动效：统一 120ms / 200ms，ease-out */
+  --cx-dur: 200ms;
+  --cx-ease: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ================================================================
+   2. Tokens — 颜色（浅色＝B 方向基准；深色同构）
+   ================================================================ */
+[data-theme='light'] {
+  --cx-bg: #f6f7f9;
+  --cx-surface: #ffffff;
+  --cx-surface-2: #eef0f4;
+  --cx-surface-3: #e6e9ee;
+  --cx-titlebar-bg: #fbfbfd;
+  --cx-sidebar-bg: #eef0f4;
+
+  --cx-line: rgba(0, 0, 0, 0.09);
+  --cx-line-strong: rgba(0, 0, 0, 0.16);
+
+  --cx-fg: #14161a;
+  --cx-fg-2: #4d5460;
+  --cx-fg-3: #7d8694;
+
+  --cx-accent: #2f6fed;
+  --cx-accent-fg: #ffffff;
+  --cx-accent-soft: rgba(47, 111, 237, 0.12);
+
+  --cx-ok: #1e8a4f;
+  --cx-ok-soft: rgba(30, 138, 79, 0.1);
+  --cx-warn: #a56a00;
+  --cx-warn-soft: rgba(165, 106, 0, 0.1);
+  --cx-danger: #d0342c;
+  --cx-danger-soft: rgba(208, 52, 44, 0.07);
+
+  --cx-shadow-card: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --cx-shadow-pop: 0 8px 28px rgba(16, 24, 40, 0.14);
+  --cx-hover: rgba(0, 0, 0, 0.045);
+  --cx-active: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='dark'] {
+  --cx-bg: #16181c;
+  --cx-surface: #1c1f24;
+  --cx-surface-2: #15171b;
+  --cx-surface-3: #22262c;
+  --cx-titlebar-bg: #17191d;
+  --cx-sidebar-bg: #131519;
+
+  --cx-line: rgba(255, 255, 255, 0.08);
+  --cx-line-strong: rgba(255, 255, 255, 0.16);
+
+  --cx-fg: #e8eaed;
+  --cx-fg-2: #a8b0ba;
+  --cx-fg-3: #767e8a;
+
+  --cx-accent: #5b8cff;
+  --cx-accent-fg: #0a1020;
+  --cx-accent-soft: rgba(91, 140, 255, 0.16);
+
+  --cx-ok: #52c07a;
+  --cx-ok-soft: rgba(82, 192, 122, 0.14);
+  --cx-warn: #e0a44a;
+  --cx-warn-soft: rgba(224, 164, 74, 0.14);
+  --cx-danger: #ef6b62;
+  --cx-danger-soft: rgba(239, 107, 98, 0.12);
+
+  --cx-shadow-card: none;
+  --cx-shadow-pop: 0 10px 34px rgba(0, 0, 0, 0.5);
+  --cx-hover: rgba(255, 255, 255, 0.06);
+  --cx-active: rgba(255, 255, 255, 0.1);
+}
+
+/* ================================================================
+   3. 页面骨架
+   ================================================================ */
+html:not([data-skin='koring']) {
+  .c-page {
+    padding: var(--cx-page-py) var(--cx-page-px) var(--cx-sp-6);
+    color: var(--cx-fg);
+    font-size: var(--cx-fs-sm);
+    line-height: var(--cx-lh-base);
+  }
+
+  .c-page__head {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--cx-sp-3);
+    margin-bottom: var(--cx-sp-5);
+  }
+
+  .c-page__title {
+    margin: 0;
+    font-size: var(--cx-fs-h1);
+    font-weight: var(--cx-fw-semibold);
+    line-height: var(--cx-lh-tight);
+    letter-spacing: -0.015em;
+    color: var(--cx-fg);
+  }
+
+  .c-page__desc {
+    margin: var(--cx-sp-1) 0 0;
+    font-size: var(--cx-fs-sm);
+    color: var(--cx-fg-3);
+  }
+
+  .c-page__actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--cx-sp-2);
+  }
+
+  /* ================================================================
+     4. 基础件
+     ================================================================ */
+  .c-card {
+    background: var(--cx-surface);
+    border: 1px solid var(--cx-line);
+    border-radius: var(--cx-r-card);
+    box-shadow: var(--cx-shadow-card);
+    padding: var(--cx-sp-4) var(--cx-sp-5);
+
+    & + .c-card {
+      margin-top: var(--cx-sp-4);
+    }
+
+    &--flush {
+      padding: var(--cx-sp-3) var(--cx-sp-5);
+    }
+
+    &__title {
+      margin: 0;
+      font-size: var(--cx-fs-md);
+      font-weight: var(--cx-fw-semibold);
+      color: var(--cx-fg);
+
+      & + .c-card__desc {
+        margin-top: var(--cx-sp-1);
+      }
+    }
+
+    &__desc {
+      margin: 0 0 var(--cx-sp-3);
+      font-size: var(--cx-fs-sm);
+      color: var(--cx-fg-3);
+    }
+  }
+
+  /* 行：label 左、控件右 */
+  .c-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--cx-sp-5);
+    padding: var(--cx-sp-3) 0;
+
+    & + .c-row {
+      border-top: 1px solid var(--cx-line);
+    }
+
+    &__main {
+      min-width: 0;
+    }
+
+    &__label {
+      display: block;
+      font-size: var(--cx-fs-md);
+      font-weight: var(--cx-fw-medium);
+      color: var(--cx-fg);
+    }
+
+    &__desc {
+      display: block;
+      margin-top: 2px;
+      font-size: var(--cx-fs-sm);
+      color: var(--cx-fg-3);
+    }
+
+    &__control {
+      display: flex;
+      align-items: center;
+      gap: var(--cx-sp-2);
+      flex-shrink: 0;
+    }
+  }
+
+  /* 列表行 */
+  .c-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .c-list__row {
+    display: flex;
+    align-items: center;
+    gap: var(--cx-sp-3);
+    padding: var(--cx-sp-3) 0;
+    min-height: 52px;
+
+    & + .c-list__row {
+      border-top: 1px solid var(--cx-line);
+    }
+  }
+
+  /* 按钮 */
+  .c-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: var(--cx-ctl-h);
+    padding: 0 var(--cx-ctl-px);
+    font-family: inherit;
+    font-size: var(--cx-fs-sm);
+    font-weight: var(--cx-fw-medium);
+    color: var(--cx-fg);
+    background: var(--cx-surface);
+    border: 1px solid var(--cx-line-strong);
+    border-radius: var(--cx-r-ctl);
+    box-shadow: var(--cx-shadow-card);
+    cursor: pointer;
+    transition:
+      background var(--cx-dur) var(--cx-ease),
+      border-color var(--cx-dur) var(--cx-ease);
+
+    &:hover {
+      background: var(--cx-surface-3);
+    }
+
+    &:active {
+      background: var(--cx-active);
+    }
+
+    &[disabled] {
+      opacity: 0.45;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    &--primary {
+      color: var(--cx-accent-fg);
+      background: var(--cx-accent);
+      border-color: transparent;
+      font-weight: var(--cx-fw-semibold);
+
+      &:hover {
+        filter: brightness(1.06);
+        background: var(--cx-accent);
+      }
+    }
+
+    &--ghost {
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+      color: var(--cx-fg-2);
+
+      &:hover {
+        background: var(--cx-hover);
+        color: var(--cx-fg);
+      }
+    }
+
+    &--danger {
+      color: var(--cx-danger);
+      background: var(--cx-danger-soft);
+      border-color: transparent;
+      box-shadow: none;
+    }
+
+    &--sm {
+      height: var(--cx-ctl-h-sm);
+      padding: 0 10px;
+      font-size: var(--cx-fs-sm);
+    }
+
+    &--lg {
+      height: 40px;
+      padding: 0 var(--cx-sp-4);
+      font-size: var(--cx-fs-md);
+    }
+
+    &--block {
+      width: 100%;
+    }
+  }
+
+  /* 输入 / 下拉 */
+  .c-input,
+  .c-select {
+    height: var(--cx-ctl-h);
+    min-width: 190px;
+    padding: 0 var(--cx-sp-3);
+    font-family: inherit;
+    font-size: var(--cx-fs-sm);
+    color: var(--cx-fg);
+    background: var(--cx-surface);
+    border: 1px solid var(--cx-line-strong);
+    border-radius: var(--cx-r-ctl);
+    outline: none;
+    transition:
+      border-color var(--cx-dur) var(--cx-ease),
+      box-shadow var(--cx-dur) var(--cx-ease);
+
+    &:focus {
+      border-color: var(--cx-accent);
+      box-shadow: 0 0 0 3px var(--cx-accent-soft);
+    }
+
+    &[disabled] {
+      opacity: 0.55;
+      cursor: default;
+    }
+  }
+
+  .c-select {
+    min-width: 150px;
+    color: var(--cx-fg-2);
+    cursor: pointer;
+  }
+
+  /* 开关 */
+  .c-switch {
+    position: relative;
+    width: 38px;
+    height: 22px;
+    flex: 0 0 38px;
+    border-radius: var(--cx-r-full);
+    background: var(--cx-surface-3);
+    border: 1px solid var(--cx-line);
+    cursor: pointer;
+    transition: background var(--cx-dur) var(--cx-ease);
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+      transition: transform var(--cx-dur) var(--cx-ease);
+    }
+
+    &.is-on {
+      background: var(--cx-accent);
+      border-color: transparent;
+
+      &::after {
+        transform: translateX(16px);
+      }
+    }
+  }
+
+  /* 徽章 */
+  .c-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 8px;
+    font-size: var(--cx-fs-label);
+    font-weight: var(--cx-fw-semibold);
+    border-radius: var(--cx-r-full);
+    background: var(--cx-surface-3);
+    color: var(--cx-fg-2);
+
+    &--ok {
+      background: var(--cx-ok-soft);
+      color: var(--cx-ok);
+    }
+
+    &--warn {
+      background: var(--cx-warn-soft);
+      color: var(--cx-warn);
+    }
+
+    &--danger {
+      background: var(--cx-danger-soft);
+      color: var(--cx-danger);
+    }
+
+    &--accent {
+      background: var(--cx-accent-soft);
+      color: var(--cx-accent);
+    }
+  }
+
+  /* 头像方块（版本图标 / 实例图标） */
+  .c-avatar {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: var(--cx-surface-2);
+    color: var(--cx-fg-2);
+    font-size: var(--cx-fs-label);
+    font-weight: var(--cx-fw-semibold);
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  /* 数值（等宽） */
+  .c-num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ================================================================
+     5. 外壳：标题栏 / 主导航 / 侧栏 / 内容区
+     去玻璃、去辉光，改成实底 + hairline 的 macOS 工作台
+     ================================================================ */
+  .titlebar {
+    height: var(--cx-titlebar-h);
+    background: var(--cx-titlebar-bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom: 1px solid var(--cx-line);
+    padding: 0 12px 0 16px;
+  }
+
+  /* 原品牌色径向辉光，去掉 */
+  .titlebar::after {
+    display: none;
+  }
+
+  .brand {
+    font-size: 13px;
+    font-weight: var(--cx-fw-semibold);
+    color: var(--cx-fg);
+    letter-spacing: 0;
+  }
+
+  .app-body {
+    background: var(--cx-bg);
+  }
+
+  /* 内容区不再铺毛玻璃 */
+  .main-content::before {
+    display: none;
+  }
+
+  .main-content::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .main-content::-webkit-scrollbar-thumb {
+    background: var(--cx-line-strong);
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    border-radius: var(--cx-r-full);
+  }
+
+  .main-content,
+  .sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--cx-line-strong) transparent;
+  }
+
+  /* 侧栏：单层实底，不再嵌套玻璃底板 */
+  .sidebar {
+    width: var(--cx-sidebar-w);
+    min-width: 208px;
+    background: var(--cx-sidebar-bg);
+    border-right: 1px solid var(--cx-line);
+
+    &::before {
+      display: none;
+    }
+  }
+
+  /* 主导航：胶囊改成 macOS 分段控件 */
+  .top-nav {
+    gap: 2px;
+  }
+
+  .top-nav__indicator {
+    height: 28px;
+    border-radius: 8px;
+    background: var(--cx-accent-soft);
+  }
+
+  .top-nav-item {
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 8px;
+    font-size: var(--cx-fs-sm);
+    font-weight: var(--cx-fw-medium);
+    color: var(--cx-fg-2);
+
+    .top-nav-icon svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    &:hover {
+      background: var(--cx-hover);
+      color: var(--cx-fg);
+    }
+
+    &.active {
+      background: transparent;
+      color: var(--cx-accent);
+      font-weight: var(--cx-fw-semibold);
+    }
+  }
+
+  .top-nav-item--soon {
+    color: var(--cx-fg-3);
+
+    &:hover {
+      background: transparent;
+      color: var(--cx-fg-3);
+    }
+  }
+
+  /* ================================================================
+     6. 首页侧栏：以启动为主（版本列表 + 账户 + 底部启动）
+     ================================================================ */
+  /* 首页侧栏：沿用原有内部件尺寸，这里只保证容器铺满 */
+  .sb-home {
+    height: 100%;
+  }
+
+  /* 空态 */
+  .c-empty {
+    padding: var(--cx-sp-6) var(--cx-sp-5);
+    text-align: center;
+    color: var(--cx-fg-3);
+    font-size: var(--cx-fs-sm);
+
+    strong {
+      display: block;
+      margin-bottom: var(--cx-sp-1);
+      color: var(--cx-fg-2);
+      font-size: var(--cx-fs-md);
+      font-weight: var(--cx-fw-medium);
+    }
+  }
+}

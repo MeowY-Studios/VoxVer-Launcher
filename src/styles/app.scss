@@ -1103,3 +1103,344 @@
 .sidebar.is-kor-hidden {
   display: none;
 }
+
+/* ====== Koring 皮肤：迁移自 skin-koring.scss（D2）====== */
+/* ========== 应用外壳 ========== */
+[data-skin='koring'] .sidebar {
+  width: 220px;
+  background: var(--kor-surface-strong);
+  backdrop-filter: blur(18px);
+  border-right: 1px solid var(--kor-hairline);
+  box-shadow: none;
+}
+
+[data-skin='koring'] .nav-item {
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: rgba(var(--kor-fg-rgb), 0.72);
+}
+
+[data-skin='koring'] .nav-item:hover {
+  background: rgba(var(--kor-fg-rgb), 0.06);
+  color: var(--kor-ink);
+}
+
+[data-skin='koring'] .nav-item.active {
+  background: color-mix(in oklab, var(--voxver-primary) 18%, transparent);
+  color: var(--kor-ink);
+  box-shadow: none;
+}
+
+[data-skin='koring'] .nav-group-header {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(var(--kor-fg-rgb), 0.4);
+  padding: 14px 10px 6px;
+}
+
+[data-skin='koring'] .main-content {
+  padding: 32px 32px 48px;
+  background: transparent;
+}
+
+/* ========== 设置页其余分类（Koring 皮肤） ========== */
+[data-skin='koring'] .main-content .settings-page,
+[data-skin='koring'] .settings-page {
+  padding: 32px 32px 48px;
+}
+
+/* ========== 设置页左侧导航（Koring 皮肤） ========== */
+[data-skin='koring'] .sb-nav {
+  padding: 6px 8px 10px;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+[data-skin='koring'] .sb-nav .nav-item {
+  height: 34px;
+  border-radius: 8px;
+}
+
+[data-skin='koring'] .sb-nav .nav-item.active {
+  background: color-mix(in oklab, var(--voxver-primary) 16%, transparent);
+  color: var(--voxver-primary);
+}
+
+/* 设置页侧栏顶部的账户卡（Koring PageShell 的 sidebarHeader） */
+[data-skin='koring'] .kor-side-account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(var(--kor-fg-rgb), 0.07);
+  background: rgba(var(--kor-fg-rgb), 0.04);
+  text-align: left;
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+
+[data-skin='koring'] .kor-side-account:hover {
+  background: rgba(var(--kor-fg-rgb), 0.08);
+}
+
+[data-skin='koring'] .kor-side-account__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: color-mix(in oklab, var(--voxver-primary) 72%, #000);
+  color: var(--kor-ink);
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+[data-skin='koring'] .kor-side-account__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+[data-skin='koring'] .kor-side-account__name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--voxver-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-skin='koring'] .kor-side-account__desc {
+  font-size: 11.5px;
+  color: rgba(var(--kor-fg-rgb), 0.48);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Koring 首页：内容区铺满，去掉全局内边距 */
+[data-skin='koring'] .app-body.is-kor-bleed .main-content {
+  padding: 0;
+}
+
+/* ================================================================
+   Titlebar — 与页面主色底色适配（Koring 皮肤）
+   ================================================================ */
+[data-skin='koring'] .titlebar {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--voxver-primary) 80%, #0d2142) 0%,
+    color-mix(in oklab, var(--voxver-primary) 68%, #0a1730) 100%
+  );
+  border-bottom: 1px solid rgba(var(--kor-fg-rgb), 0.1);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+[data-skin='koring'] .titlebar::after {
+  display: none;
+}
+
+[data-skin='koring'] .brand {
+  color: rgba(var(--kor-fg-rgb), 0.92);
+}
+
+[data-skin='koring'] .top-nav-item {
+  color: rgba(var(--kor-fg-rgb), 0.74);
+}
+
+[data-skin='koring'] .top-nav-item:hover {
+  background: rgba(var(--kor-fg-rgb), 0.14);
+  color: var(--kor-ink);
+}
+
+[data-skin='koring'] .top-nav-item.active {
+  background: rgba(var(--kor-fg-rgb), 0.92);
+  color: #16324f;
+}
+
+[data-skin='koring'] .top-nav-item.active:hover {
+  background: var(--kor-ink);
+  color: #16324f;
+}
+
+[data-skin='koring'] .top-nav-item--soon,
+[data-skin='koring'] .top-nav-item--soon:hover {
+  background: transparent;
+  color: rgba(var(--kor-fg-rgb), 0.42);
+}
+
+[data-skin='koring'] .wc-btn {
+  color: rgba(var(--kor-fg-rgb), 0.82);
+}
+
+[data-skin='koring'] .wc-btn:hover {
+  background: rgba(var(--kor-fg-rgb), 0.16);
+  color: var(--kor-ink);
+}
+
+/* 通知中心铃铛 — 适配 Koring 蓝色标题栏 */
+[data-skin='koring'] .titlebar .pxn-bell {
+  color: rgba(var(--kor-fg-rgb), 0.82);
+}
+
+[data-skin='koring'] .titlebar .pxn-bell:hover {
+  background: rgba(var(--kor-fg-rgb), 0.16);
+  color: var(--kor-ink);
+}
+
+[data-skin='koring'] .titlebar .pxn-bell.has-unread {
+  color: var(--kor-ink);
+}
+
+/* ================================================================
+   全局底色 — 所有页面共用主色渐变 + 大写 V 水印
+   ================================================================ */
+[data-skin='koring'] .app-body {
+  background:
+    radial-gradient(120% 90% at 78% 8%, rgba(var(--kor-fg-rgb), 0.14), transparent 60%),
+    linear-gradient(
+      158deg,
+      color-mix(in oklab, var(--voxver-primary) 82%, #0a1b3a) 0%,
+      color-mix(in oklab, var(--voxver-primary) 46%, #061024) 62%,
+      #050b16 100%
+    );
+}
+
+[data-skin='koring'] .app-body::before {
+  content: '';
+  position: absolute;
+  left: 62%;
+  top: 46%;
+  width: min(120vh, 96%);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    closest-side,
+    rgba(var(--kor-fg-rgb), 0.18),
+    rgba(var(--kor-fg-rgb), 0.04) 62%,
+    transparent 78%
+  );
+  filter: blur(44px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-skin='koring'] .app-body::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: min(62vh, 50vw);
+  aspect-ratio: 1 / 1.12;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(
+    170deg,
+    rgba(var(--kor-fg-rgb), 0.24) 0%,
+    rgba(var(--kor-fg-rgb), 0.1) 42%,
+    rgba(var(--kor-fg-rgb), 0) 94%
+  );
+  clip-path: polygon(2% 0%, 27% 0%, 50% 61%, 73% 0%, 98% 0%, 62% 100%, 38% 100%);
+  filter: blur(1.4px) drop-shadow(0 26px 60px rgba(0, 0, 0, 0.22));
+  opacity: 0.66;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 主内容区不再自带深色玻璃层，让全局底色透出来 */
+[data-skin='koring'] .main-content {
+  background: transparent;
+}
+
+[data-skin='koring'] .main-content::before {
+  display: none;
+}
+
+/* 滚动条样式统一在上面的「滚动条：平时隐形，滚动时淡入」段，这里不再重复定义 */
+/* 侧栏：半透明玻璃，避免在蓝色底上像一块黑板 */
+[data-skin='koring'] .sidebar {
+  border-right: 1px solid rgba(var(--kor-fg-rgb), 0.08);
+}
+
+[data-skin='koring'] .sidebar::before {
+  background: rgba(8, 22, 44, 0.34);
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+}
+
+/* 顶部导航滑动指示器：白色胶囊 */
+[data-skin='koring'] .top-nav__indicator {
+  background: rgba(var(--kor-fg-rgb), 0.92);
+}
+
+/* ---------- 全局底色 ---------- */
+[data-theme='light'][data-skin='koring'] .app-body {
+  background:
+    radial-gradient(120% 90% at 78% 8%, rgba(255, 255, 255, 0.9), transparent 60%),
+    linear-gradient(
+      158deg,
+      color-mix(in oklab, var(--voxver-primary) 16%, #ffffff) 0%,
+      color-mix(in oklab, var(--voxver-primary) 7%, #f7f9fd) 62%,
+      #eef2fa 100%
+    );
+}
+
+[data-theme='light'][data-skin='koring'] .app-body::before {
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 255, 255, 0.85),
+    rgba(255, 255, 255, 0.3) 62%,
+    transparent 78%
+  );
+}
+
+[data-theme='light'][data-skin='koring'] .app-body::after {
+  background: linear-gradient(
+    170deg,
+    rgba(var(--kor-fg-rgb), 0.1) 0%,
+    rgba(var(--kor-fg-rgb), 0.04) 42%,
+    rgba(var(--kor-fg-rgb), 0) 94%
+  );
+  filter: blur(1.4px) drop-shadow(0 26px 60px rgba(15, 23, 42, 0.12));
+  opacity: 0.5;
+}
+
+/* ---------- 侧栏 / 标题栏 ---------- */
+[data-theme='light'][data-skin='koring'] .sidebar::before {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme='light'][data-skin='koring'] .titlebar {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--voxver-primary) 18%, #ffffff) 0%,
+    color-mix(in oklab, var(--voxver-primary) 10%, #ffffff) 100%
+  );
+  border-bottom: 1px solid rgba(var(--kor-fg-rgb), 0.08);
+}
+
+[data-theme='light'][data-skin='koring'] .top-nav-item.active,
+[data-theme='light'][data-skin='koring'] .top-nav-item.active:hover {
+  background: var(--voxver-primary);
+  color: #ffffff;
+}
+
+/* 主色按钮上的文字保持白色（--kor-ink 在浅色模式下已翻转为深墨色） */
+[data-theme='light'][data-skin='koring'] :is(.modal-panel .btn-action.primary, .confirm-panel .btn-confirm, .mod-detail-page .btn-ext.primary, .mod-detail-page .vf-tab.active, .mod-detail-page .btn-download, .kor-side-account__avatar) {
+  color: #ffffff;
+}
+
+/* 浅色模式：同一批半透明文字在亮底上不足 4.5:1，单独抬高不透明度 */
+[data-theme='light'][data-skin='koring'] .top-nav-item--soon,
+[data-theme='light'][data-skin='koring'] .top-nav-item--soon:hover {
+  color: rgba(var(--kor-fg-rgb), 0.66);
+}

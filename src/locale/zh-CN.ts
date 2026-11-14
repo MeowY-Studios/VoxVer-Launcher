@@ -108,6 +108,16 @@ export default {
     yearsAgo: '{n}年前'
   },
   home: {
+    localVersions: '本地版本',
+    noLocalVersions: '还没有本地版本，去「实例」或「下载」里添加',
+    classicTitle: '主页',
+    classicDesc: '当前选中的版本与常用入口',
+    classicCurrent: '当前版本',
+    classicQuick: '常用入口',
+    classicReady: '就绪',
+    classicNoVersion: '未选择',
+    classicNoVersionDesc: '先到「实例」里选一个游戏版本，再回来启动',
+    classicSwitch: '切换版本',
     koringStart: '启动游戏',
     koringBrowse: '下载版本',
     koringPickVersion: '选择版本',
@@ -972,6 +982,7 @@ export default {
   },
 
   instance: {
+    classicDesc: '左侧选目录，右侧选版本：单击打开版本设置，双击直接启动',
     instance: '实例',
     instances: '实例',
     manager: '实例管理',

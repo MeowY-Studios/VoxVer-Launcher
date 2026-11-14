@@ -12,6 +12,7 @@ import './styles/global.scss'
 import './styles/vox-controls.scss'
 import './styles/animations.scss'
 import './styles/app.scss'
+import './styles/classic.scss'
 import './styles/themes/dark.scss'
 import './styles/themes/light.scss'
 // * Koring 风格设置页视觉系统（设置页复刻用）

@@ -2768,4 +2768,70 @@ watch(
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;
 }
+
+/* ===== Koring：下载页（原 skin-koring.scss 的下载页段） ===== */
+[data-skin='koring'] .downloads-page {
+  padding: 32px 32px 48px;
+}
+
+/* Koring：分类导航是 fixed 浮层（left 24 + 宽 220），内容必须让开，否则会被玻璃面板压住 */
+[data-skin='koring'] .downloads-page.is-kor {
+  padding-left: 244px;
+}
+
+/* 加载更多：只留按钮本身，不要外层框 */
+[data-skin='koring'] .ver-more {
+  height: auto;
+  margin-top: 6px;
+  padding: 14px 0 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-align: center;
+}
+
+[data-skin='koring'] .ver-more:hover {
+  background: transparent;
+}
+
+/* 筛选卡里的下拉弹层要盖住后面的资源列表（卡片 backdrop-filter 会新建层叠上下文） */
+[data-skin='koring'] .filter-section {
+  position: relative;
+  z-index: 20;
+  overflow: visible;
+}
+
+/* 筛选表单只保留外层卡片，内层 grid 不再套壳 */
+[data-skin='koring'] .filter-section .filter-grid {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+  overflow: visible;
+}
+
+[data-skin='koring'] .filter-section .vox-select-popup {
+  z-index: 30;
+  border: 1px solid rgba(var(--kor-fg-rgb), 0.08);
+  border-radius: 10px;
+  background: var(--kor-popover);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+  padding: 4px;
+}
+
+[data-skin='koring'] .filter-section .vox-select-option {
+  border-radius: 7px;
+  padding: 7px 10px;
+  font-size: 12.5px;
+}
+
+[data-skin='koring'] .filter-section .vox-select-option.selected {
+  background: color-mix(in oklab, var(--voxver-primary) 22%, transparent);
+  color: var(--voxver-text-primary);
+}
+
+[data-theme='light'][data-skin='koring'] .filter-section .vox-select-popup {
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+}
 </style>

@@ -107,7 +107,6 @@
           <SilkBackground color-a="var(--voxver-accent)" color-b="#0a2540" :speed="1.2" />
         </div>
         <div class="hero-content">
-          <img class="hero-logo" src="/Alogo.png" alt="VoxVer" />
           <div class="hero-version">v{{ appVersion }}</div>
           <div class="hero-status" :class="heroStatusClass">{{ heroStatusText }}</div>
         </div>
@@ -755,12 +754,6 @@ onUnmounted(() => {
     flex-direction: column;
     align-items: center;
     gap: 8px;
-  }
-
-  .hero-logo {
-    height: 72px;
-    width: auto;
-    object-fit: contain;
   }
 
   .hero-version {

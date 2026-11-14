@@ -1193,4 +1193,171 @@ onMounted(() => {
     color: var(--voxver-text-primary);
   }
 }
+
+/* ====== Mod 详情页（C11 实际入口）：玻璃侧栏 + Kor 行式文件列表 ====== */
+[data-skin='koring'] .mod-detail-page {
+  padding: 24px 28px 32px;
+}
+
+[data-skin='koring'] .mod-detail-page .page-content {
+  gap: 20px;
+  align-items: flex-start;
+}
+
+[data-skin='koring'] .mod-detail-page .info-sidebar {
+  position: sticky;
+  top: 0;
+  width: 300px;
+  padding: 18px;
+  border: 1px solid var(--kor-hairline);
+  border-radius: var(--kor-radius, 14px);
+  background: var(--kor-surface, rgba(0, 0, 0, 0.45));
+  backdrop-filter: blur(12px);
+}
+
+[data-skin='koring'] .mod-detail-page .mod-icon {
+  border-radius: 14px;
+}
+
+[data-skin='koring'] .mod-detail-page .mod-tags .tag,
+[data-skin='koring'] .mod-detail-page .loader-chip {
+  padding: 2px 8px;
+  border: 1px solid var(--kor-hairline);
+  border-radius: 999px;
+  background: rgba(var(--kor-fg-rgb), 0.04);
+  font-size: 11px;
+  color: var(--voxver-text-secondary);
+}
+
+[data-skin='koring'] .mod-detail-page .target-instance {
+  padding: 8px 10px;
+  border: 1px solid var(--kor-hairline);
+  border-radius: 10px;
+  background: rgba(var(--kor-fg-rgb), 0.03);
+  font-size: 12px;
+}
+
+[data-skin='koring'] .mod-detail-page .btn-ext {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--kor-hairline);
+  border-radius: 8px;
+  background: rgba(var(--kor-fg-rgb), 0.05);
+  font-size: 12.5px;
+}
+
+[data-skin='koring'] .mod-detail-page .btn-ext:hover {
+  background: rgba(var(--kor-fg-rgb), 0.09);
+}
+
+[data-skin='koring'] .mod-detail-page .btn-ext.primary {
+  border-color: transparent;
+  background: var(--voxver-primary);
+  color: var(--kor-ink);
+}
+
+[data-skin='koring'] .mod-detail-page .version-group {
+  margin-bottom: 12px;
+  border: 1px solid var(--kor-hairline);
+  border-radius: var(--kor-radius, 14px);
+  background: var(--kor-surface, rgba(0, 0, 0, 0.45));
+  overflow: hidden;
+}
+
+[data-skin='koring'] .mod-detail-page .file-row {
+  padding: 10px 16px;
+  border-top: 1px solid var(--kor-hairline);
+}
+
+[data-skin='koring'] .mod-detail-page .file-row:hover {
+  background: rgba(var(--kor-fg-rgb), 0.04);
+}
+[data-skin='koring'] .mod-detail-page .version-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+[data-skin='koring'] .mod-detail-page .vf-tab {
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--kor-hairline);
+  border-radius: 999px;
+  background: rgba(var(--kor-fg-rgb), 0.04);
+  color: var(--voxver-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+[data-skin='koring'] .mod-detail-page .vf-tab:hover {
+  background: rgba(var(--kor-fg-rgb), 0.08);
+}
+
+[data-skin='koring'] .mod-detail-page .vf-tab.active {
+  border-color: transparent;
+  background: var(--voxver-primary);
+  color: var(--kor-ink);
+}
+
+[data-skin='koring'] .mod-detail-page .group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--voxver-text-primary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+[data-skin='koring'] .mod-detail-page .group-header:hover {
+  background: rgba(var(--kor-fg-rgb), 0.05);
+}
+
+[data-skin='koring'] .mod-detail-page .group-count {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--voxver-text-tertiary);
+}
+
+[data-skin='koring'] .mod-detail-page .btn-download {
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--voxver-primary);
+  color: var(--kor-ink);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+[data-skin='koring'] .mod-detail-page .btn-download:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+[data-skin='koring'] .mod-detail-page .loader-tag {
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: color-mix(in oklab, var(--voxver-primary) 20%, transparent);
+  color: var(--voxver-primary);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+[data-skin='koring'] .mod-detail-page .sidebar-actions .btn-ext:not(.primary) {
+  border: 1px solid var(--kor-hairline) !important;
+  background: rgba(var(--kor-fg-rgb), 0.05) !important;
+  color: var(--voxver-text-primary) !important;
+}
+
+[data-skin='koring'] .mod-detail-page .sidebar-actions .btn-ext:not(.primary):hover {
+  background: rgba(var(--kor-fg-rgb), 0.09) !important;
+}
 </style>

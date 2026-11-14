@@ -86,11 +86,42 @@
           </svg>
           <span>{{ t('instance.newInstance') }}</span>
         </button>
+        <!-- P2P：接收分享（两种排版共用这一栏） -->
+        <button type="button" class="inst-action" @click="showReceiveModal = true">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <path d="M8.6 13.5l6.8 4" />
+            <path d="M15.4 6.5l-6.8 4" />
+          </svg>
+          <span>{{ t('home.receiveShare') }}</span>
+        </button>
       </div>
     </aside>
 
     <!-- 右侧：该目录下的已安装版本 -->
     <main class="inst-main">
+      <header v-if="!isKoring" class="c-page__head inst-head">
+        <div>
+          <h1 class="c-page__title">{{ t('instance.instance') }}</h1>
+          <p class="c-page__desc">{{ t('instance.classicDesc') }}</p>
+        </div>
+        <div class="c-page__actions">
+          <span v-if="versionCards.length" class="c-badge">{{ t('instance.count', { count: versionCards.length }) }}</span>
+        </div>
+      </header>
+
       <div v-if="loading" class="inst-state">{{ t('common.loading') }}</div>
 
       <div v-else-if="versionCards.length === 0" class="inst-state inst-state--empty">
@@ -131,6 +162,13 @@
       </ul>
     </main>
 
+    <!-- P2P：接收分享（导入后刷新实例列表） -->
+    <ReceiveModal
+      v-model="showReceiveModal"
+      :initial-share-code="initialShareCode"
+      @imported="refresh"
+    />
+
     <!-- 右键菜单：仅从启动器移除目录，不删除磁盘文件 -->
     <Teleport to="body">
       <div
@@ -153,6 +191,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAppStore, useVersionsStore } from '../stores'
 import { useConfirm } from '@/composables/useConfirm'
+import ReceiveModal from '../components/share/ReceiveModal.vue'
 
 interface ScannedVersion {
   id: string
@@ -187,6 +226,10 @@ const versionsStore = useVersionsStore()
 const { confirm: pxConfirm } = useConfirm()
 
 const isKoring = computed(() => appStore.skin === 'koring')
+
+/** P2P 接收分享 */
+const showReceiveModal = ref(false)
+const initialShareCode = ref('')
 /** 模块级缓存：来回切页面时先秒出上次的结果，再后台刷新，避免每次挂载都闪一下 loading */
 let folderCache: FolderEntry[] | null = null
 const folders = ref<FolderEntry[]>(folderCache ?? [])
@@ -518,9 +561,9 @@ onBeforeUnmount(() => {
 .instances-page {
   position: relative;
   display: flex;
-  gap: 20px;
+  gap: var(--cx-sp-5);
   height: 100%;
-  padding: 24px;
+  padding: var(--cx-page-py) var(--cx-page-px);
   overflow: hidden;
 }
 
@@ -534,12 +577,12 @@ onBeforeUnmount(() => {
 .inst-rail {
   position: relative;
   z-index: 2;
-  flex: 0 0 236px;
+  flex: 0 0 232px;
   padding-right: 6px;
   scrollbar-gutter: stable;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--cx-sp-4);
   min-height: 0;
   overflow-y: auto;
 }
@@ -552,10 +595,10 @@ onBeforeUnmount(() => {
 
 .inst-rail__title {
   padding: 4px 10px 6px;
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--voxver-text-tertiary);
+  font-size: var(--cx-fs-label);
+  font-weight: var(--cx-fw-semibold);
+  letter-spacing: 0.06em;
+  color: var(--cx-fg-3);
 }
 
 .instances-page.is-kor .inst-rail__title {
@@ -568,20 +611,20 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 8px 10px;
+  padding: 7px 10px;
   border: 0;
-  border-radius: 9px;
+  border-radius: var(--cx-r-ctl);
   background: transparent;
-  color: var(--voxver-text-primary);
-  font-size: 13px;
+  color: var(--cx-fg-2);
+  font-size: var(--cx-fs-sm);
   text-align: left;
   cursor: pointer;
-  transition: background 140ms ease;
+  transition: background var(--cx-dur) var(--cx-ease);
 }
 
 .inst-folder:hover,
 .inst-action:hover {
-  background: var(--voxver-bg-tertiary);
+  background: var(--cx-hover);
 }
 
 .instances-page.is-kor .inst-folder,
@@ -594,8 +637,15 @@ onBeforeUnmount(() => {
   background: rgba(var(--kor-fg-rgb, 255, 255, 255), 0.1);
 }
 
-.inst-folder.is-active {
-  background: color-mix(in oklab, var(--voxver-primary) 16%, transparent);
+.inst-folder.is-active,
+.inst-folder.is-active:hover {
+  background: var(--cx-accent-soft);
+  color: var(--cx-accent);
+}
+
+.inst-folder.is-active .inst-folder__name {
+  color: var(--cx-accent);
+  font-weight: var(--cx-fw-semibold);
 }
 
 .instances-page.is-kor .inst-folder.is-active {
@@ -616,15 +666,16 @@ onBeforeUnmount(() => {
 }
 
 .inst-folder__name {
-  font-weight: 500;
+  font-weight: var(--cx-fw-medium);
+  color: var(--cx-fg);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .inst-folder__path {
-  font-size: 11px;
-  color: var(--voxver-text-tertiary);
+  font-size: var(--cx-fs-label);
+  color: var(--cx-fg-3);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -648,10 +699,14 @@ onBeforeUnmount(() => {
   overflow-y: auto;
 }
 
+.inst-head {
+  margin-bottom: var(--cx-sp-4);
+}
+
 .inst-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--cx-sp-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -660,24 +715,26 @@ onBeforeUnmount(() => {
 .inst-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border: 1px solid var(--voxver-border-color);
-  border-radius: 14px;
-  background: var(--voxver-bg-secondary);
+  gap: var(--cx-sp-3);
+  min-height: 52px;
+  padding: 10px 16px;
+  border: 1px solid var(--cx-line);
+  border-radius: var(--cx-r-card);
+  background: var(--cx-surface);
+  box-shadow: var(--cx-shadow-card);
   cursor: pointer;
   transition:
-    background 150ms ease,
-    border-color 150ms ease,
-    transform 150ms ease;
+    background var(--cx-dur) var(--cx-ease),
+    border-color var(--cx-dur) var(--cx-ease);
 }
 
 .inst-card:hover {
-  background: var(--voxver-bg-tertiary);
+  background: var(--cx-surface-3);
 }
 
 .inst-card.is-active {
-  border-color: color-mix(in oklab, var(--voxver-primary) 55%, transparent);
+  border-color: var(--cx-accent);
+  background: var(--cx-accent-soft);
 }
 
 .instances-page.is-kor .inst-card {
@@ -715,8 +772,8 @@ html[data-theme='light'] .instances-page.is-kor .inst-card.is-active {
 }
 
 .inst-card__icon-img {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   display: block;
   object-fit: contain;
 }
@@ -724,21 +781,22 @@ html[data-theme='light'] .instances-page.is-kor .inst-card.is-active {
 .inst-card__body {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   min-width: 0;
 }
 
 .inst-card__name {
-  font-size: 14.5px;
-  font-weight: 600;
+  font-size: var(--cx-fs-md);
+  font-weight: var(--cx-fw-medium);
+  color: var(--cx-fg);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .inst-card__meta {
-  font-size: 12.5px;
-  color: var(--voxver-text-secondary);
+  font-size: var(--cx-fs-sm);
+  color: var(--cx-fg-3);
 }
 
 .instances-page.is-kor .inst-card__meta {
@@ -748,13 +806,13 @@ html[data-theme='light'] .instances-page.is-kor .inst-card.is-active {
 .inst-card__check {
   flex: 0 0 auto;
   margin-left: auto;
-  color: var(--voxver-success);
+  color: var(--cx-ok);
 }
 
 .inst-state {
-  padding: 40px 4px;
-  font-size: 13px;
-  color: var(--voxver-text-secondary);
+  padding: var(--cx-sp-6) 4px;
+  font-size: var(--cx-fs-sm);
+  color: var(--cx-fg-3);
 }
 
 .instances-page.is-kor .inst-state {
