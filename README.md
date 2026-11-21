@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.7.6-14b8a6?style=flat-square&labelColor=1e1e2e)
+![VoxVer Launcher](https://img.shields.io/badge/VoxVer_Launcher-v0.7.7-14b8a6?style=flat-square&labelColor=1e1e2e)
 ![Electron](https://img.shields.io/badge/Electron-42-478cbf?style=flat-square&logo=electron&logoColor=white)
 ![Vue](https://img.shields.io/badge/Vue-3.5-4db08b?style=flat-square&logo=vuedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178c6?style=flat-square&logo=typescript&logoColor=white)
@@ -19,7 +19,7 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 ## 📋 目录
 
 - [📥 下载](#-下载)
-- [🆕 v0.7.6 最近更新](#-v076-最近更新)
+- [🆕 v0.7.7 最近更新](#-v077-最近更新)
 - [✨ 功能概览](#-功能概览)
 - [🖥️ 支持平台](#️-支持平台)
 - [📦 相关文档](#-相关文档)
@@ -30,11 +30,32 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 
 ## 📥 下载
 
-**[👉 前往 GitHub Releases 下载 v0.7.6](https://github.com/MeowY-Studios/VoxVer-Launcher/releases)**
+**[👉 前往 GitHub Releases 下载 v0.7.7](https://github.com/MeowY-Studios/VoxVer-Launcher/releases)**
 
 ---
 
-## 🆕 v0.7.6 最近更新
+## 🆕 v0.7.7 最近更新
+
+### 🎨 Koring 排版皮肤（新增）
+- 主题预设新增 **Koring 卡片排版**，可在原版排版与 Koring 之间切换；显示模式与排版皮肤解耦存储
+- 自建 `Kor*` 组件层，覆盖设置、下载、首页、实例、版本、Mod、崩溃分析等页面
+
+### 🏠 首页与实例页重做（新增）
+- 首页满屏主色背景 + V 水印，版本名 hover 滑出「启动游戏」胶囊
+- 实例页按游戏目录分组展示版本卡片，同一安装链（原版 → Forge → OptiFine）合并为一张卡
+
+### 🧩 加载器兼容层（新增）
+- 全版本 Forge / NeoForge / Fabric / Quilt 统一元数据目录与 A/B/C/D 兼容性分级
+- 声明式安装计划 + 统一执行器：下载重试/取消/超时、按 MC 版本选择 Java、安装后校验产物
+- 安装失败自动回滚版本目录并保留最近 10 个任务日志；IPC 进度按 taskId 隔离
+
+### 🔗 导航与更新页（优化）
+- 顶部导航胶囊滑动指示器；更新页固定底部操作栏，阅读时自动收起
+
+---
+
+<details>
+<summary>v0.7.6 主要内容</summary>
 
 ### 🖼️ 全新启动画面（新增）
 - 独立无边框启动画面窗口，先于主窗口出现：草方块落地扬尘 → 品牌字 → 像素进度条 → 状态文案，主窗口就绪后淡出衔接
@@ -54,6 +75,8 @@ _基于 Electron + Vue 3 + TypeScript + 像素风 UI_
 - `tsc` 双配置清零（7 处类型错误），CI 新增 Type Check job
 - ESLint 门禁清零（135 个错误 → 0），顺带修掉 4 处潜在运行时 bug（未定义函数、无效 v-if/v-else、死代码）
 - 修复 CI 自 v0.7.5 起完全未生效的问题（工作流级 `runner.os` 非法），并补 `.npmrc` 解决 peer 依赖解析冲突
+
+</details>
 
 ---
 
