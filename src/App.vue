@@ -125,7 +125,7 @@
       <div class="app-body-bg" :style="bgStyle"></div>
       <div v-if="bgOverlayVisible" class="app-body-overlay" :style="overlayStyle"></div>
       <!-- 左侧边栏（各页面上文内容；主导航已移到标题栏上导航） -->
-      <aside v-if="!isVersionSettingsPage" class="sidebar" :class="{ 'is-kor-hidden': isKorOwnNav }">
+      <aside v-if="!hideSidebar" class="sidebar" :class="{ 'is-kor-hidden': isKorOwnNav }">
         <!-- 侧边栏内容区 -->
         <div class="sidebar-content">
           <!-- ========== 首页侧栏：账户 + 启动（PCL2 风格）========== -->
@@ -481,26 +481,6 @@
             </nav>
           </template>
 
-          <!-- ========== 实例页侧栏 ========== -->
-          <template v-else-if="currentRoute === '/instances'">
-            <nav class="sb-nav">
-              <button class="nav-item active">
-                <span
-                  ><svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg
-                ></span>
-                {{ $t('app.allInstances') }}
-              </button>
-            </nav>
-          </template>
-
           <!-- ========== 账户页侧栏 ========== -->
           <template v-else-if="currentRoute === '/account'">
             <nav class="sb-nav">
@@ -697,8 +677,10 @@ onUnmounted(() => {
   offHotkeyListener = null
 })
 const currentRoute = computed(() => route.path)
-/** 版本设置页：整页展示，不需要启动器左侧边栏 */
-const isVersionSettingsPage = computed(() => currentRoute.value === '/versions')
+/** 版本设置页整页展示、实例页由自身左栏承担导航：都不需要启动器左侧边栏 */
+const hideSidebar = computed(
+  () => currentRoute.value === '/versions' || currentRoute.value === '/instances'
+)
 
 /* ---------------- 顶部导航滑动指示器（对标 Koring 的胶囊切换动画） ---------------- */
 const topNavRef = ref<HTMLElement | null>(null)
