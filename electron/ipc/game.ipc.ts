@@ -111,6 +111,20 @@ interface ScannedVersion {
   loaderInfo: string
   jarPath: string
   jsonPath: string
+  /** mods 中存在 OptiFine 模组（Forge 组合下不再生成独立 OptiFine 版本目录） */
+  hasOptiFineMod: boolean
+}
+
+/** mods 目录中是否存在 OptiFine 模组 */
+function hasOptiFineMod(gameDir: string, versionDir: string): boolean {
+  for (const dir of [join(versionDir, 'mods'), join(gameDir, 'mods')]) {
+    try {
+      if (readdirSync(dir).some((file) => /^optifine.*\.jar$/i.test(file))) return true
+    } catch {
+      // 目录不存在时忽略
+    }
+  }
+  return false
 }
 
 async function scanInstalledVersions(gameDir: string): Promise<ScannedVersion[]> {
@@ -156,7 +170,8 @@ async function scanInstalledVersions(gameDir: string): Promise<ScannedVersion[]>
       baseVersion: detection.mcVersion,
       loaderInfo: detection.loader ? formatLoaderInfo(detection.loader) : '',
       jarPath: jarFile ? join(versionDir, jarFile) : '',
-      jsonPath: detection.jsonPath
+      jsonPath: detection.jsonPath,
+      hasOptiFineMod: hasOptiFineMod(gameDir, versionDir)
     })
   }
 
@@ -383,7 +398,8 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
         loader,
         loaderVersion,
         optifine,
-        optifineVersion
+        optifineVersion,
+        fabricApiVersion
       }: {
         versionId: string
         gameDir: string
@@ -391,6 +407,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
         loaderVersion?: string
         optifine?: string
         optifineVersion?: string
+        fabricApiVersion?: string
         displayName?: string
       }
     ) => {
@@ -485,7 +502,7 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
           sendProgress('completed', '下载完成', 100, 0, 1, 0)
 
           // 阶段5：若下载时勾选了加载器/扩展，下载完成后自动安装
-          if (loader || optifine) {
+          if (loader || optifine || fabricApiVersion) {
             try {
               // 设置安装进度回调，将 ModLoaderService 进度映射到版本下载进度通道
               const reportInstallProgress = (p: {
@@ -514,7 +531,18 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
                   taskId
                 )
               }
-              if (optifine && modLoaderService) {
+              // Fabric API 与加载器独立发布，作为普通模组放入 mods
+              if (loader === 'fabric' && fabricApiVersion && modLoaderService) {
+                modLoaderService.setProgressCallback(reportInstallProgress, taskId)
+                await modLoaderService.installFabricApi(
+                  gameDir,
+                  versionId,
+                  fabricApiVersion,
+                  taskId
+                )
+              }
+              // OptiFine 仅与 Forge 组合提供，且直接作为模组放入 mods
+              if (optifine && loader === 'forge' && modLoaderService) {
                 modLoaderService.setProgressCallback(reportInstallProgress, taskId)
                 await modLoaderService.installForVersion(
                   versionId,
@@ -522,7 +550,8 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
                   'optifine',
                   undefined,
                   optifineVersion,
-                  taskId
+                  taskId,
+                  true
                 )
               }
               modLoaderService?.setProgressCallback(undefined, taskId)

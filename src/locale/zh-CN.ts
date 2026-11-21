@@ -443,7 +443,7 @@ export default {
     startDownload: '开始下载',
     loadFailed: '无法加载版本信息',
     highDefinition: '高清修复',
-    optifineHint: '可选的 OptiFine 高清修复，提升画面表现',
+    optifineHint: '可选的 OptiFine 高清修复，提升画面表现（Forge 下作为模组安装）',
     optifineEnabled: '已启用 OptiFine',
     optifineDisabled: '未启用',
     optifineCustom: '输入自定义版本...',

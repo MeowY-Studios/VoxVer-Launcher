@@ -68,25 +68,27 @@ function installerArgs(build: LoaderBuild, gameDir: string): string[] {
     case 'neoforge':
       return ['--installClient', gameDir]
     case 'fabric':
+      // Fabric 安装器 CLI：client -dir <dir> -mcversion <mc> -loader <ver> -noprofile
+      // 不能用 Quilt 风格的双横线与 install 子命令，否则安装器不产生版本文件
       return [
-        'install',
         'client',
-        build.mcVersion,
-        '--loader',
-        build.version,
-        '--dir',
+        '-dir',
         gameDir,
-        '--noprofile'
+        '-mcversion',
+        build.mcVersion,
+        '-loader',
+        build.version,
+        '-noprofile'
       ]
     case 'quilt':
+      // Quilt 安装器 CLI：install client <mc> [<loader>] --install-dir=<dir> --no-profile
+      // 加载器版本是位置参数，目录必须用 --install-dir=<dir> 单参数形式
       return [
         'install',
         'client',
         build.mcVersion,
-        '--loader',
         build.version,
-        '--dir',
-        gameDir,
+        `--install-dir=${gameDir}`,
         '--no-profile'
       ]
   }

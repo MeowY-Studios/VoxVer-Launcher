@@ -441,7 +441,7 @@ export default {
     startDownload: 'Start Download',
     loadFailed: 'Failed to load version info',
     highDefinition: 'High Definition',
-    optifineHint: 'Optional OptiFine for enhanced graphics',
+    optifineHint: 'Optional OptiFine for enhanced graphics (installed as a Forge mod)',
     optifineEnabled: 'OptiFine Enabled',
     optifineDisabled: 'OptiFine Disabled',
     optifineCustom: 'Enter custom version...',

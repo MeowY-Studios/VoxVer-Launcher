@@ -13,6 +13,7 @@ import type { GameInstance, ModLoader, ModLoaderType } from '../types/adapter.ty
 import { logger } from '../utils/logger'
 import { getDefaultJava } from './java.management.service'
 import { downloadFile } from '../adapters/loaders/download'
+import { getFabricApiVersions, installFabricApiMod } from '../loaders/addons/fabric-api'
 import type { ILoaderAdapter, InstallationProgress } from '../adapters/loaders/ILoaderAdapter'
 import { ForgeAdapter } from '../adapters/loaders/forge.adapter'
 import { NeoForgeAdapter } from '../adapters/loaders/neoforge.adapter'
@@ -120,6 +121,9 @@ export class ModLoaderService {
       if (loaderType === 'optifine') {
         return await this.getOptiFineVersionsForMinecraft(mcVersion)
       }
+      if (loaderType === 'fabric-api') {
+        return await getFabricApiVersions(mcVersion)
+      }
       return []
     } catch (err: unknown) {
       log.warn(`获取 ${loaderType} 版本列表失败:`, (err as Error).message)
@@ -205,7 +209,8 @@ export class ModLoaderService {
       }
     }
 
-    if (this.optifineSupportedVersions.includes(minecraftVersion)) {
+    // OptiFine 支持性以官网实际版本列表为准，静态表只用于网络失败兜底
+    if ((await this.getOptiFineVersionsForMinecraft(minecraftVersion)).length > 0) {
       loaders.push({
         type: 'optifine' as ModLoaderType,
         name: 'OptiFine',
@@ -227,7 +232,7 @@ export class ModLoaderService {
    */
   public async isLoaderSupported(mcVersion: string, loaderType: string): Promise<boolean> {
     if (loaderType === 'optifine') {
-      return this.optifineSupportedVersions.includes(mcVersion)
+      return (await this.getOptiFineVersionsForMinecraft(mcVersion)).length > 0
     }
     const adapter = this.adapters.get(loaderType as ModLoaderType)
     if (!adapter) return false
@@ -298,7 +303,12 @@ export class ModLoaderService {
         )
         break
       case 'optifine':
-        await this.installOptiFine(instance.gameDir, instance.version, undefined, taskId)
+        // 已有 Forge 实例时作为模组装入 mods，与版本下载流程保持一致
+        if (instance.modLoader?.type === 'forge') {
+          await this.installOptiFineAsMod(instance.gameDir, instance.version, undefined, taskId)
+        } else {
+          await this.installOptiFine(instance.gameDir, instance.version, undefined, taskId)
+        }
         break
       default:
         throw new Error(`不支持的 Mod 加载器: ${loaderType}`)
@@ -312,13 +322,19 @@ export class ModLoaderService {
     loaderType: string,
     loaderVersion?: string,
     optifineVersion?: string,
-    taskId?: string
+    taskId?: string,
+    /** Forge 组合下 OptiFine 直接作为模组放入 mods，不再生成独立版本目录 */
+    optifineAsMod = false
   ): Promise<void> {
     if (loaderType === 'optifine') {
       if (!(await this.isLoaderSupported(mcVersion, 'optifine'))) {
         throw new Error(`版本 ${mcVersion} 不支持 OptiFine 加载器`)
       }
-      await this.installOptiFine(gameDir, mcVersion, optifineVersion, taskId)
+      if (optifineAsMod) {
+        await this.installOptiFineAsMod(gameDir, mcVersion, optifineVersion, taskId)
+      } else {
+        await this.installOptiFine(gameDir, mcVersion, optifineVersion, taskId)
+      }
       return
     }
     const adapter = this.adapters.get(loaderType as ModLoaderType)
@@ -434,67 +450,12 @@ export class ModLoaderService {
     optifineVersion?: string,
     taskId?: string
   ): Promise<void> {
-    this.reportProgress(
-      { stage: 'downloading', progress: 0, message: '获取 OptiFine 版本信息...' },
+    const { jarPath: installerPath, targetVersion } = await this.prepareOptiFineJar(
+      gameDir,
+      mcVersion,
+      optifineVersion,
       taskId
     )
-
-    // 以官网实际发布的版本为准，忽略非法的 flag 值（例如 'optifine'）
-    const available = await this.getOptiFineVersionsForMinecraft(mcVersion, taskId)
-    const requested = optifineVersion?.startsWith('HD_U_') ? optifineVersion : undefined
-    const targetVersion = requested && available.includes(requested) ? requested : available[0]
-    if (!targetVersion) {
-      throw new Error(`Minecraft ${mcVersion} 没有可用的 OptiFine 版本`)
-    }
-
-    const optifineFullVersion = `OptiFine_${mcVersion}_${targetVersion}`
-    const fileName = `${optifineFullVersion}.jar`
-    const installerPath = path.join(gameDir, 'temp', fileName)
-
-    // 确保目录存在
-    await fs.mkdir(path.dirname(installerPath), { recursive: true })
-
-    this.reportProgress(
-      {
-        stage: 'downloading',
-        progress: 10,
-        message: `下载 OptiFine ${targetVersion}...`
-      },
-      taskId
-    )
-
-    // OptiFine 的下载链接是 adloadx 页面动态生成的一次性 token，不能硬编码
-    const downloadUrl = await this.resolveOptiFineDownloadUrl(fileName)
-    await downloadFile(
-      downloadUrl,
-      installerPath,
-      (progress) => {
-        this.reportProgress(
-          {
-            stage: 'downloading',
-            progress: 10 + progress * 0.35,
-            message: `下载中... ${Math.round(progress * 100)}%`
-          },
-          taskId
-        )
-      },
-      {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36',
-        Referer: `${OPTIFINE_BASE}/adloadx?f=${fileName}`
-      }
-    )
-
-    // 官网在文件名/版本不存在时会返回 HTML 错误页而不是 404，这里校验 jar 文件头
-    const invalidReason = await this.checkJarFile(installerPath)
-    if (invalidReason) {
-      try {
-        await fs.unlink(installerPath)
-      } catch {
-        // 忽略清理失败
-      }
-      throw new Error(`OptiFine 安装包下载失败：${invalidReason}（${fileName}）`)
-    }
 
     this.reportProgress(
       {
@@ -529,6 +490,159 @@ export class ModLoaderService {
       { stage: 'complete', progress: 100, message: 'OptiFine 安装完成！' },
       taskId
     )
+  }
+
+  /**
+   * 安装 OptiFine 模组（Forge 组合）
+   * Forge 下 OptiFine 安装包本身即可作为模组加载，直接放入 mods，
+   * 不再生成独立的 OptiFine 版本目录。
+   */
+  async installOptiFineAsMod(
+    gameDir: string,
+    mcVersion: string,
+    optifineVersion?: string,
+    taskId?: string
+  ): Promise<void> {
+    const { jarPath, fileName } = await this.prepareOptiFineJar(
+      gameDir,
+      mcVersion,
+      optifineVersion,
+      taskId
+    )
+
+    this.reportProgress(
+      { stage: 'installing', progress: 60, message: '正在放入 mods 目录...' },
+      taskId
+    )
+
+    const modsDir = path.join(gameDir, 'mods')
+    await fs.mkdir(modsDir, { recursive: true })
+    const destPath = path.join(modsDir, fileName)
+    // 临时文件与 mods 同属游戏目录，直接重命名，避免重复拷贝大文件
+    await fs.rename(jarPath, destPath)
+
+    this.reportProgress(
+      { stage: 'verifying', progress: 90, message: '验证 OptiFine 模组...' },
+      taskId
+    )
+    await fs.access(destPath)
+
+    this.reportProgress(
+      { stage: 'complete', progress: 100, message: 'OptiFine 已作为模组安装完成！' },
+      taskId
+    )
+  }
+
+  /**
+   * 安装 Fabric API 模组（Fabric 组合）
+   * Fabric API 与加载器独立发布，下载后直接放入 mods。
+   */
+  async installFabricApi(
+    gameDir: string,
+    mcVersion: string,
+    version?: string,
+    taskId?: string
+  ): Promise<void> {
+    this.reportProgress(
+      { stage: 'downloading', progress: 40, message: '获取 Fabric API 版本...' },
+      taskId
+    )
+    const destPath = await installFabricApiMod(gameDir, mcVersion, version, (progress) => {
+      this.reportProgress(
+        {
+          stage: 'downloading',
+          progress: 40 + progress * 45,
+          message: `下载 Fabric API... ${Math.round(progress * 100)}%`
+        },
+        taskId
+      )
+    })
+
+    this.reportProgress(
+      { stage: 'verifying', progress: 90, message: '验证 Fabric API 模组...' },
+      taskId
+    )
+    await fs.access(destPath)
+
+    this.reportProgress(
+      { stage: 'complete', progress: 100, message: 'Fabric API 已作为模组安装完成！' },
+      taskId
+    )
+  }
+
+  /**
+   * 解析 OptiFine 版本并下载安装包到 temp 目录
+   * 安装包既可运行安装器，也可直接作为 Forge 模组使用。
+   */
+  private async prepareOptiFineJar(
+    gameDir: string,
+    mcVersion: string,
+    optifineVersion: string | undefined,
+    taskId: string | undefined
+  ): Promise<{ jarPath: string; targetVersion: string; fileName: string }> {
+    this.reportProgress(
+      { stage: 'downloading', progress: 0, message: '获取 OptiFine 版本信息...' },
+      taskId
+    )
+
+    // 以官网实际发布的版本为准，忽略非法的 flag 值（例如 'optifine'）
+    const available = await this.getOptiFineVersionsForMinecraft(mcVersion, taskId)
+    const requested = optifineVersion?.startsWith('HD_U_') ? optifineVersion : undefined
+    const targetVersion = requested && available.includes(requested) ? requested : available[0]
+    if (!targetVersion) {
+      throw new Error(`Minecraft ${mcVersion} 没有可用的 OptiFine 版本`)
+    }
+
+    const optifineFullVersion = `OptiFine_${mcVersion}_${targetVersion}`
+    const fileName = `${optifineFullVersion}.jar`
+    const jarPath = path.join(gameDir, 'temp', fileName)
+
+    // 确保目录存在
+    await fs.mkdir(path.dirname(jarPath), { recursive: true })
+
+    this.reportProgress(
+      {
+        stage: 'downloading',
+        progress: 10,
+        message: `下载 OptiFine ${targetVersion}...`
+      },
+      taskId
+    )
+
+    // OptiFine 的下载链接是 adloadx 页面动态生成的一次性 token，不能硬编码
+    const downloadUrl = await this.resolveOptiFineDownloadUrl(fileName)
+    await downloadFile(
+      downloadUrl,
+      jarPath,
+      (progress) => {
+        this.reportProgress(
+          {
+            stage: 'downloading',
+            progress: 10 + progress * 0.35,
+            message: `下载中... ${Math.round(progress * 100)}%`
+          },
+          taskId
+        )
+      },
+      {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36',
+        Referer: `${OPTIFINE_BASE}/adloadx?f=${fileName}`
+      }
+    )
+
+    // 官网在文件名/版本不存在时会返回 HTML 错误页而不是 404，这里校验 jar 文件头
+    const invalidReason = await this.checkJarFile(jarPath)
+    if (invalidReason) {
+      try {
+        await fs.unlink(jarPath)
+      } catch {
+        // 忽略清理失败
+      }
+      throw new Error(`OptiFine 安装包下载失败：${invalidReason}（${fileName}）`)
+    }
+
+    return { jarPath, targetVersion, fileName }
   }
 
   /**

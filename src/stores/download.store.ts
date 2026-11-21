@@ -302,7 +302,8 @@ export const useDownloadStore = defineStore('download', () => {
     loaderVersion?: string,
     displayName?: string,
     optifine?: string,
-    optifineVersion?: string
+    optifineVersion?: string,
+    fabricApiVersion?: string
   ) {
     const api = window.electronAPI
     if (!api?.versions) return
@@ -320,7 +321,8 @@ export const useDownloadStore = defineStore('download', () => {
       loader,
       loaderVersion,
       optifine,
-      optifineVersion
+      optifineVersion,
+      fabricApiVersion
     }
     versionTasks.value.set(versionId, task)
     // * 用户主动触发的下载：重置「已关闭浮窗」规则
@@ -339,6 +341,7 @@ export const useDownloadStore = defineStore('download', () => {
       loaderVersion,
       optifine,
       optifineVersion,
+      fabricApiVersion,
       displayName
     })
     if (!res?.ok) {

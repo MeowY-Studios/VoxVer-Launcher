@@ -532,19 +532,23 @@ async function retryTask(task: UnifiedTask) {
       task.loaderVersion,
       task.name,
       task.optifine,
-      task.optifineVersion
+      task.optifineVersion,
+      task.fabricApiVersion
     )
   }
 }
 
 /**
  * 根据下载任务推断安装后生成的版本目录名（按优先级从高到低）。
- * 加载器/OptiFine 安装会各自建一个版本目录，所以按「装了哪个」依次给出候选。
+ * 加载器安装会各自建一个版本目录；OptiFine 在 Forge 组合下作为模组，不产生目录。
  */
 function buildInstanceCandidates(task: UnifiedTask): string[] {
   const mc = task.id
   const ids: string[] = []
-  if (task.optifineVersion) ids.push(`${mc}-OptiFine_${task.optifineVersion}`)
+  // Forge 组合下 OptiFine 作为模组放入 mods，不再生成独立 OptiFine 版本目录
+  if (task.optifineVersion && task.loader !== 'forge') {
+    ids.push(`${mc}-OptiFine_${task.optifineVersion}`)
+  }
   if (task.loader === 'forge' && task.loaderVersion) {
     ids.push(`${mc}-forge-${task.loaderVersion.split('-').pop()}`)
   }

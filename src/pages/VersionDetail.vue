@@ -139,10 +139,10 @@
             {{ currentLoaderName }} {{ $t('version.addonsTitle') }}
           </h3>
 
-          <!-- ====== Forge / NeoForge：OptiFine ====== -->
+          <!-- ====== Forge：OptiFine（作为模组安装） ====== -->
           <template
             v-if="
-              (selectedLoader === 'forge' || selectedLoader === 'neoforge') && optifineSupported
+              selectedLoader === 'forge' && optifineSupported
             "
           >
             <div class="addon-card">
@@ -463,7 +463,7 @@
             <KorSettingCard>
               <template
                 v-if="
-                  (selectedLoader === 'forge' || selectedLoader === 'neoforge') && optifineSupported
+                  selectedLoader === 'forge' && optifineSupported
                 "
               >
                 <KorSettingRow label="OptiFine" :desc="$t('version.optifineHint')">
@@ -627,6 +627,7 @@ const availableOptiFineVersions = computed(() => {
 })
 
 // 动态版本显示名称：[游戏版本]-[加载器]_[加载器版本]-[OptiFine]_[版本]
+// Forge 下 OptiFine 作为模组装入 mods，不产生独立版本，因此不参与版本名
 const versionDisplayName = computed(() => {
   const parts: string[] = [versionId.value]
 
@@ -636,7 +637,7 @@ const versionDisplayName = computed(() => {
     parts.push(`${loaderName}_${selectedLoaderVersion.value}`)
   }
 
-  if (selectedOptiFineVersion.value) {
+  if (selectedOptiFineVersion.value && selectedLoader.value !== 'forge') {
     parts.push(`OptiFine_${selectedOptiFineVersion.value}`)
   }
 
@@ -791,6 +792,11 @@ async function selectLoader(loaderType: string) {
 
   selectedLoader.value = loaderType
 
+  // OptiFine 仅与 Forge 组合提供（作为模组装入 mods），切到其他加载器时清空选择
+  if (loaderType !== 'forge') {
+    selectedOptiFineVersion.value = ''
+  }
+
   if (loaderType === '') {
     selectedLoaderVersion.value = ''
     selectedOptiFineVersion.value = ''
@@ -867,31 +873,36 @@ const fabricApiVersionsFallback: Record<string, string[]> = {
   '1.18.2': ['0.47.10+1.18.2'],
   '1.16.5': ['0.42.0+1.16.5']
 }
-// 如果找不到对应版本，默认用最新的一个
-const defaultFabricApiVersion = '0.108.0+1.21.4'
+// 如果找不到对应版本，则不自动安装（避免装错版本）
 
 async function fetchFabricApiVersions() {
   fabricApiLoading.value = true
   selectedFabricApiVersion.value = ''
 
-  // 1. 优先使用本地 fallback 版本
-  if (fabricApiVersionsFallback[versionId.value]) {
-    fabricApiVersions.value = fabricApiVersionsFallback[versionId.value]
-  } else {
-    // 找不到对应版本，用默认版本
-    fabricApiVersions.value = [defaultFabricApiVersion]
+  // 1. 后端按 Fabric Maven 元数据返回真实版本，避免本地表过期
+  try {
+    const api = window.electronAPI
+    if (api?.modloader) {
+      const res = await api.modloader.getVersions(versionId.value, 'fabric-api')
+      const data: unknown = res?.ok ? res.data : undefined
+      if (Array.isArray(data)) {
+        const versions = data.filter((item): item is string => typeof item === 'string')
+        if (versions.length > 0) {
+          fabricApiVersions.value = versions
+          selectedFabricApiVersion.value = versions[0]
+          return
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('获取 Fabric API 版本失败，使用本地列表:', e)
+  } finally {
+    fabricApiLoading.value = false
   }
 
-  // 自动选择版本
-  if (fabricApiVersions.value.length > 0) {
-    // 优先找匹配当前 MC 版本的
-    const exactMatch = fabricApiVersions.value.find(
-      (v) => v.includes(`+${versionId.value}`) || v.startsWith(versionId.value)
-    )
-    selectedFabricApiVersion.value = exactMatch || fabricApiVersions.value[0]
-  }
-
-  fabricApiLoading.value = false
+  // 2. 网络失败时回退本地已知版本；未知版本宁可不装，也不下载不匹配的模组
+  fabricApiVersions.value = fabricApiVersionsFallback[versionId.value] ?? []
+  selectedFabricApiVersion.value = fabricApiVersions.value[0] ?? ''
 }
 
 function toggleFabricApi() {
@@ -917,7 +928,10 @@ async function handleDownload() {
       selectedLoaderVersion.value,
       versionDisplayName.value,
       selectedOptiFineVersion.value ? 'optifine' : undefined,
-      selectedOptiFineVersion.value || undefined
+      selectedOptiFineVersion.value || undefined,
+      selectedLoader.value === 'fabric'
+        ? selectedFabricApiVersion.value || undefined
+        : undefined
     )
     // 不自动跳转，通过右上角 DownloadFloat 提示查看进度
   } finally {

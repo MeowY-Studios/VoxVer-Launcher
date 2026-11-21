@@ -106,9 +106,28 @@ describe('InstallPlanner.plan', () => {
     })
     expect(plan.taskId).toBe('task-1')
     expect(plan.downloads[0].fileName).toBe('fabric-installer-1.0.1.jar')
-    expect(plan.run.args).toContain('--loader')
+    expect(plan.run.args).toContain('client')
+    expect(plan.run.args).toContain('-loader')
     expect(plan.run.args).toContain('0.16.0')
+    expect(plan.run.args).toContain('-dir')
     expect(plan.verify).toEqual({ loader: 'fabric', loaderVersion: '0.16.0' })
+  })
+
+  it('Quilt 使用位置参数与 --install-dir=', async () => {
+    const planner = new InstallPlanner(
+      buildSource([
+        makeBuild({ loader: 'quilt', version: '0.27.0', installerVersion: '0.15.1', support: 'A' })
+      ])
+    )
+    const plan = await planner.plan({ loader: 'quilt', mcVersion: '1.20.1', gameDir: 'C:/game' })
+    expect(plan.run.args).toEqual([
+      'install',
+      'client',
+      '1.20.1',
+      '0.27.0',
+      '--install-dir=C:/game',
+      '--no-profile'
+    ])
   })
 
   it('Forge/NeoForge 使用 --installClient 安装到游戏目录', async () => {

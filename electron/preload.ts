@@ -336,6 +336,7 @@ const api = {
         loaderVersion?: string
         optifine?: string
         optifineVersion?: string
+        fabricApiVersion?: string
         displayName?: string
       }
     ) => ipcRenderer.invoke('versions:download-start', { versionId, gameDir, ...opts }),

@@ -128,6 +128,8 @@ export interface VersionDownloadTask {
   loaderVersion?: string
   optifine?: string
   optifineVersion?: string
+  /** Fabric API 模组版本（Fabric 组合下作为普通模组安装） */
+  fabricApiVersion?: string
   /** 当前时间戳（用于计算速度） */
   _lastBytes?: number
   _lastTime?: number

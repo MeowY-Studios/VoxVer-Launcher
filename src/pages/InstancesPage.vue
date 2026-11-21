@@ -199,6 +199,8 @@ interface ScannedVersion {
   type?: string
   baseVersion?: string
   loaderInfo?: string
+  /** mods 中存在 OptiFine 模组（Forge 组合下不再生成独立 OptiFine 版本目录） */
+  hasOptiFineMod?: boolean
 }
 
 interface FolderEntry {
@@ -400,8 +402,13 @@ function versionMeta(ver: VersionCard): string {
   const loader = ver.loaderInfo?.trim() || t('instance.vanilla')
   const mc = ver.baseVersion?.trim()
   const parts = [loader]
-  // 合并链里的 OptiFine 等叠加层单独标出，让用户知道这条是「完整安装」
-  if (/optifine/i.test(ver.id) && !/optifine/i.test(loader)) parts.push('OptiFine')
+  // 合并链里的 OptiFine 单独标出：旧安装是独立版本目录，新安装是 mods 里的模组
+  if (
+    (/optifine/i.test(ver.id) || ver.hasOptiFineMod) &&
+    !/optifine/i.test(loader)
+  ) {
+    parts.push('OptiFine')
+  }
   if (mc && mc !== ver.loaderInfo) parts.push(mc)
   if (!activeFolder.value && ver.folderName) parts.push(ver.folderName)
   return parts.filter(Boolean).join(' · ')

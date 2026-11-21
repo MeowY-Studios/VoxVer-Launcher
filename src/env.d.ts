@@ -303,6 +303,7 @@ interface ElectronAPI {
         loaderVersion?: string
         optifine?: string
         optifineVersion?: string
+        fabricApiVersion?: string
         displayName?: string
       }
     ) => Promise<IpcResult<{ taskId: string }>>

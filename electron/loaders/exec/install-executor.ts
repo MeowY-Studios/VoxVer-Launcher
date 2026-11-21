@@ -61,7 +61,7 @@ export class InstallExecutor {
       const installerPath = await this.downloadInstallers(plan, session, journal, options)
 
       this.report(options, 'installing', 45, `安装 ${label}...`)
-      await this.runInstaller(plan, installerPath, options)
+      const installerOutput = await this.runInstaller(plan, installerPath, options)
 
       this.report(options, 'verifying', 90, '验证安装...')
       const verified = await verifyLoaderInstallation({
@@ -70,7 +70,11 @@ export class InstallExecutor {
         loaderVersion: plan.verify.loaderVersion
       })
       if (!verified.ok) {
-        throw new Error(`${label} 安装校验失败：${verified.reason}`)
+        // 退出码为 0 但产物缺失时，把安装器输出带上，便于定位（如参数不被识别）
+        const detail = this.extractFailureLine(installerOutput)
+        throw new Error(
+          `${label} 安装校验失败：${verified.reason}${detail ? `（安装器输出：${detail}）` : ''}`
+        )
       }
 
       await journal.commit(session)
@@ -141,7 +145,7 @@ export class InstallExecutor {
     plan: InstallPlan,
     installerPath: string,
     options: InstallExecuteOptions
-  ): Promise<void> {
+  ): Promise<string> {
     const label = LOADER_LABELS[plan.loader]
     const java = await resolveInstallerJava(plan.gameDir, plan.mcVersion)
     const args = ['-jar', installerPath, ...plan.run.args]
@@ -149,7 +153,7 @@ export class InstallExecutor {
       `运行 ${label} 安装器（Java ${java.majorVersion || '未知'}，要求 ${java.requiredMajor}）: ${java.path} ${args.join(' ')}`
     )
 
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
       const child = spawn(java.path, args, {
         cwd: path.dirname(installerPath),
         windowsHide: true
@@ -166,7 +170,7 @@ export class InstallExecutor {
         if (error) {
           reject(error)
         } else {
-          resolve()
+          resolve(output)
         }
       }
 
