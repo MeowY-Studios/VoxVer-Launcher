@@ -26,6 +26,10 @@ export interface LoaderInstallContext {
   mcVersion: string
   /** 指定加载器版本，缺省时取最新/推荐版本 */
   loaderVersion?: string
+  /** 安装任务标识，用于并发隔离与日志追踪；缺省时自动生成 */
+  taskId?: string
+  /** 取消安装信号 */
+  signal?: AbortSignal
   /** 进度上报回调 */
   onProgress: (progress: InstallationProgress) => void
 }

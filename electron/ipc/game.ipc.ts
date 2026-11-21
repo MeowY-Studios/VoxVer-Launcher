@@ -504,24 +504,32 @@ export function registerGameHandlers(mainWindow: BrowserWindow): void {
                 )
               }
               if (loader && modLoaderService) {
-                modLoaderService.setProgressCallback(reportInstallProgress)
-                await modLoaderService.installForVersion(versionId, gameDir, loader, loaderVersion)
+                modLoaderService.setProgressCallback(reportInstallProgress, taskId)
+                await modLoaderService.installForVersion(
+                  versionId,
+                  gameDir,
+                  loader,
+                  loaderVersion,
+                  undefined,
+                  taskId
+                )
               }
               if (optifine && modLoaderService) {
-                modLoaderService.setProgressCallback(reportInstallProgress)
+                modLoaderService.setProgressCallback(reportInstallProgress, taskId)
                 await modLoaderService.installForVersion(
                   versionId,
                   gameDir,
                   'optifine',
                   undefined,
-                  optifineVersion
+                  optifineVersion,
+                  taskId
                 )
               }
-              modLoaderService?.setProgressCallback(undefined)
+              modLoaderService?.setProgressCallback(undefined, taskId)
             } catch (e: unknown) {
               const message = (e as Error).message
               log.error('[versions:download-start] 安装加载器/扩展失败:', message)
-              modLoaderService?.setProgressCallback(undefined)
+              modLoaderService?.setProgressCallback(undefined, taskId)
               // 安装失败不阻塞原版下载，但必须在下载卡片上暴露原因，避免"假成功"
               sendProgress('installing_failed', `加载器安装失败: ${message}`, 100, 0, 1, 0)
             }

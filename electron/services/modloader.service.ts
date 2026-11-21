@@ -18,14 +18,23 @@ import { ForgeAdapter } from '../adapters/loaders/forge.adapter'
 import { NeoForgeAdapter } from '../adapters/loaders/neoforge.adapter'
 import { FabricAdapter } from '../adapters/loaders/fabric.adapter'
 import { QuiltAdapter } from '../adapters/loaders/quilt.adapter'
+import { loaderCatalog } from '../loaders/catalog'
+import type { LoaderKind } from '../loaders/catalog'
 
 const log = logger.child('ModLoaderService')
 
 const OPTIFINE_BASE = 'https://optifine.net'
 
+/** 未携带任务标识时使用的进度通道 */
+const DEFAULT_PROGRESS_KEY = '__default__'
+
 export class ModLoaderService {
   private adapters: Map<ModLoaderType, ILoaderAdapter> = new Map()
-  private progressCallback?: (progress: InstallationProgress) => void
+  /**
+   * 进度回调按任务隔离
+   * ! 不能再用单一回调：多个下载任务并发安装加载器时进度会串台。
+   */
+  private progressCallbacks = new Map<string, (progress: InstallationProgress) => void>()
 
   /** OptiFine 支持的 MC 版本（保留原有静态列表） */
   private readonly optifineSupportedVersions = [
@@ -72,14 +81,24 @@ export class ModLoaderService {
     }
   }
 
-  setProgressCallback(callback?: (progress: InstallationProgress) => void) {
-    this.progressCallback = callback
+  /**
+   * 注册/移除进度回调
+   * @param taskId 安装任务标识；缺省使用共享通道
+   */
+  setProgressCallback(
+    callback?: (progress: InstallationProgress) => void,
+    taskId?: string
+  ): void {
+    const key = taskId ?? DEFAULT_PROGRESS_KEY
+    if (callback) {
+      this.progressCallbacks.set(key, callback)
+    } else {
+      this.progressCallbacks.delete(key)
+    }
   }
 
-  private reportProgress(progress: InstallationProgress) {
-    if (this.progressCallback) {
-      this.progressCallback(progress)
-    }
+  private reportProgress(progress: InstallationProgress, taskId?: string): void {
+    this.progressCallbacks.get(taskId ?? DEFAULT_PROGRESS_KEY)?.(progress)
   }
 
   /**
@@ -110,30 +129,52 @@ export class ModLoaderService {
 
   // ==================== 加载器安装（IPC 具名入口） ====================
 
-  async installForge(gameDir: string, mcVersion: string, loaderVersion?: string): Promise<void> {
-    await this.runAdapterInstall('forge', gameDir, mcVersion, loaderVersion)
+  async installForge(
+    gameDir: string,
+    mcVersion: string,
+    loaderVersion?: string,
+    taskId?: string
+  ): Promise<void> {
+    await this.runAdapterInstall('forge', gameDir, mcVersion, loaderVersion, taskId)
   }
 
-  async installNeoForge(gameDir: string, mcVersion: string, loaderVersion?: string): Promise<void> {
-    await this.runAdapterInstall('neoforge', gameDir, mcVersion, loaderVersion)
+  async installNeoForge(
+    gameDir: string,
+    mcVersion: string,
+    loaderVersion?: string,
+    taskId?: string
+  ): Promise<void> {
+    await this.runAdapterInstall('neoforge', gameDir, mcVersion, loaderVersion, taskId)
   }
 
-  async installFabric(gameDir: string, mcVersion: string, loaderVersion?: string): Promise<void> {
-    await this.runAdapterInstall('fabric', gameDir, mcVersion, loaderVersion)
+  async installFabric(
+    gameDir: string,
+    mcVersion: string,
+    loaderVersion?: string,
+    taskId?: string
+  ): Promise<void> {
+    await this.runAdapterInstall('fabric', gameDir, mcVersion, loaderVersion, taskId)
   }
 
-  async installQuilt(gameDir: string, mcVersion: string, loaderVersion?: string): Promise<void> {
-    await this.runAdapterInstall('quilt', gameDir, mcVersion, loaderVersion)
+  async installQuilt(
+    gameDir: string,
+    mcVersion: string,
+    loaderVersion?: string,
+    taskId?: string
+  ): Promise<void> {
+    await this.runAdapterInstall('quilt', gameDir, mcVersion, loaderVersion, taskId)
   }
 
   /**
    * 委托适配器执行安装并转发进度
+   * @param taskId 安装任务标识，进度只推送给对应任务
    */
   public async runAdapterInstall(
     loaderType: ModLoaderType,
     gameDir: string,
     mcVersion: string,
-    loaderVersion?: string
+    loaderVersion?: string,
+    taskId?: string
   ): Promise<void> {
     const adapter = this.adapters.get(loaderType)
     if (!adapter) {
@@ -143,7 +184,8 @@ export class ModLoaderService {
       gameDir,
       mcVersion,
       loaderVersion,
-      onProgress: (progress) => this.reportProgress(progress)
+      taskId,
+      onProgress: (progress) => this.reportProgress(progress, taskId)
     })
   }
 
@@ -180,7 +222,8 @@ export class ModLoaderService {
 
   /**
    * 指定 MC 版本是否支持某个加载器
-   * 以加载器官方版本列表为准（带缓存），OptiFine 用静态列表
+   * 以目录层的兼容性分级为准：只有 A/B 级（可一键安装）才算支持，
+   * C 级（仅元数据）不展示，避免「页面可选、点击必失败」。
    */
   public async isLoaderSupported(mcVersion: string, loaderType: string): Promise<boolean> {
     if (loaderType === 'optifine') {
@@ -195,7 +238,22 @@ export class ModLoaderService {
       return cached.supported
     }
 
-    const supported = await adapter.isSupported(mcVersion)
+    let supported: boolean
+    try {
+      const support = await loaderCatalog.getSupport(loaderType as LoaderKind, mcVersion)
+      if (support.level === 'A' || support.level === 'B') {
+        supported = true
+      } else if (support.level === 'D' || support.builds.length > 0) {
+        // * D 级无构建；C 级虽能取到构建，但官方安装器不可用，均不可一键安装
+        supported = false
+      } else {
+        // * 元数据异常（C 级且无构建）时退回适配器判断，避免网络抖动误判为不支持
+        supported = await adapter.isSupported(mcVersion)
+      }
+    } catch {
+      supported = await adapter.isSupported(mcVersion)
+    }
+
     this.supportCache.set(cacheKey, { supported, at: Date.now() })
     return supported
   }
@@ -203,7 +261,11 @@ export class ModLoaderService {
   /**
    * 安装 Mod 加载器到游戏实例（统一入口）
    */
-  public async installModLoader(instance: GameInstance, loaderType: string): Promise<void> {
+  public async installModLoader(
+    instance: GameInstance,
+    loaderType: string,
+    taskId?: string
+  ): Promise<void> {
     const adapter = this.adapters.get(loaderType as ModLoaderType)
 
     if (!adapter && loaderType !== 'optifine') {
@@ -213,11 +275,14 @@ export class ModLoaderService {
       throw new Error(`版本 ${instance.version} 不支持 ${adapter?.name ?? 'OptiFine'} 加载器`)
     }
 
-    this.reportProgress({
-      stage: 'downloading',
-      progress: 0,
-      message: `开始安装 ${adapter?.name ?? 'OptiFine'}...`
-    })
+    this.reportProgress(
+      {
+        stage: 'downloading',
+        progress: 0,
+        message: `开始安装 ${adapter?.name ?? 'OptiFine'}...`
+      },
+      taskId
+    )
 
     switch (loaderType) {
       case 'forge':
@@ -227,11 +292,13 @@ export class ModLoaderService {
         await this.runAdapterInstall(
           loaderType as ModLoaderType,
           instance.gameDir,
-          instance.version
+          instance.version,
+          undefined,
+          taskId
         )
         break
       case 'optifine':
-        await this.installOptiFine(instance.gameDir, instance.version)
+        await this.installOptiFine(instance.gameDir, instance.version, undefined, taskId)
         break
       default:
         throw new Error(`不支持的 Mod 加载器: ${loaderType}`)
@@ -244,13 +311,14 @@ export class ModLoaderService {
     gameDir: string,
     loaderType: string,
     loaderVersion?: string,
-    optifineVersion?: string
+    optifineVersion?: string,
+    taskId?: string
   ): Promise<void> {
     if (loaderType === 'optifine') {
       if (!(await this.isLoaderSupported(mcVersion, 'optifine'))) {
         throw new Error(`版本 ${mcVersion} 不支持 OptiFine 加载器`)
       }
-      await this.installOptiFine(gameDir, mcVersion, optifineVersion)
+      await this.installOptiFine(gameDir, mcVersion, optifineVersion, taskId)
       return
     }
     const adapter = this.adapters.get(loaderType as ModLoaderType)
@@ -260,12 +328,13 @@ export class ModLoaderService {
     if (!(await this.isLoaderSupported(mcVersion, loaderType))) {
       throw new Error(`版本 ${mcVersion} 不支持 ${adapter.name} 加载器`)
     }
-    await adapter.install({
+    await this.runAdapterInstall(
+      loaderType as ModLoaderType,
       gameDir,
       mcVersion,
       loaderVersion,
-      onProgress: (progress) => this.reportProgress(progress)
-    })
+      taskId
+    )
   }
 
   // ==================== OptiFine 相关功能（保留原有实现） ====================
@@ -273,13 +342,19 @@ export class ModLoaderService {
   /**
    * 获取指定 Minecraft 版本的 OptiFine 版本列表
    */
-  private async getOptiFineVersionsForMinecraft(mcVersion: string): Promise<string[]> {
+  private async getOptiFineVersionsForMinecraft(
+    mcVersion: string,
+    taskId?: string
+  ): Promise<string[]> {
     try {
-      this.reportProgress({
-        stage: 'downloading',
-        progress: 5,
-        message: '获取 OptiFine 版本信息...'
-      })
+      this.reportProgress(
+        {
+          stage: 'downloading',
+          progress: 5,
+          message: '获取 OptiFine 版本信息...'
+        },
+        taskId
+      )
 
       // 以 OptiFine 官网下载页为准，静态表容易过期（例如 1.20.4 实际是 HD_U_I7）
       try {
@@ -356,12 +431,16 @@ export class ModLoaderService {
   async installOptiFine(
     gameDir: string,
     mcVersion: string,
-    optifineVersion?: string
+    optifineVersion?: string,
+    taskId?: string
   ): Promise<void> {
-    this.reportProgress({ stage: 'downloading', progress: 0, message: '获取 OptiFine 版本信息...' })
+    this.reportProgress(
+      { stage: 'downloading', progress: 0, message: '获取 OptiFine 版本信息...' },
+      taskId
+    )
 
     // 以官网实际发布的版本为准，忽略非法的 flag 值（例如 'optifine'）
-    const available = await this.getOptiFineVersionsForMinecraft(mcVersion)
+    const available = await this.getOptiFineVersionsForMinecraft(mcVersion, taskId)
     const requested = optifineVersion?.startsWith('HD_U_') ? optifineVersion : undefined
     const targetVersion = requested && available.includes(requested) ? requested : available[0]
     if (!targetVersion) {
@@ -375,11 +454,14 @@ export class ModLoaderService {
     // 确保目录存在
     await fs.mkdir(path.dirname(installerPath), { recursive: true })
 
-    this.reportProgress({
-      stage: 'downloading',
-      progress: 10,
-      message: `下载 OptiFine ${targetVersion}...`
-    })
+    this.reportProgress(
+      {
+        stage: 'downloading',
+        progress: 10,
+        message: `下载 OptiFine ${targetVersion}...`
+      },
+      taskId
+    )
 
     // OptiFine 的下载链接是 adloadx 页面动态生成的一次性 token，不能硬编码
     const downloadUrl = await this.resolveOptiFineDownloadUrl(fileName)
@@ -387,11 +469,14 @@ export class ModLoaderService {
       downloadUrl,
       installerPath,
       (progress) => {
-        this.reportProgress({
-          stage: 'downloading',
-          progress: 10 + progress * 0.35,
-          message: `下载中... ${Math.round(progress * 100)}%`
-        })
+        this.reportProgress(
+          {
+            stage: 'downloading',
+            progress: 10 + progress * 0.35,
+            message: `下载中... ${Math.round(progress * 100)}%`
+          },
+          taskId
+        )
       },
       {
         'User-Agent':
@@ -411,11 +496,14 @@ export class ModLoaderService {
       throw new Error(`OptiFine 安装包下载失败：${invalidReason}（${fileName}）`)
     }
 
-    this.reportProgress({
-      stage: 'installing',
-      progress: 45,
-      message: '正在安装 OptiFine（自动完成，无需点击）...'
-    })
+    this.reportProgress(
+      {
+        stage: 'installing',
+        progress: 45,
+        message: '正在安装 OptiFine（自动完成，无需点击）...'
+      },
+      taskId
+    )
 
     // 无头运行 OptiFine 安装器
     await this.runOptiFineInstaller(installerPath, gameDir, mcVersion, targetVersion)
@@ -427,7 +515,7 @@ export class ModLoaderService {
       // 忽略清理失败
     }
 
-    this.reportProgress({ stage: 'verifying', progress: 90, message: '验证安装...' })
+    this.reportProgress({ stage: 'verifying', progress: 90, message: '验证安装...' }, taskId)
 
     // 验证安装
     const optifineDir = path.join(gameDir, 'libraries', 'optifine')
@@ -437,7 +525,10 @@ export class ModLoaderService {
       log.warn('[OptiFine] 验证警告:', err)
     }
 
-    this.reportProgress({ stage: 'complete', progress: 100, message: 'OptiFine 安装完成！' })
+    this.reportProgress(
+      { stage: 'complete', progress: 100, message: 'OptiFine 安装完成！' },
+      taskId
+    )
   }
 
   /**

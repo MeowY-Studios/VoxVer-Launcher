@@ -1,14 +1,13 @@
 /**
  * 加载器适配器抽象基类
- * 提供进度上报、下载、运行 Java 安装器等公共能力
+ * 元数据由 loader catalog 提供，安装流程统一交给 InstallPlanner + InstallExecutor，
+ * 子类只需声明加载器类型与版本查询方式。
  */
-import { spawn } from 'child_process'
-import { promises as fs } from 'fs'
-import * as path from 'path'
 import type { ModLoaderType } from '../../types/adapter.types'
 import { logger, type Logger } from '../../utils/logger'
-import { downloadFile } from './download'
-import type { ILoaderAdapter, InstallationProgress, LoaderInstallContext } from './ILoaderAdapter'
+import { installExecutor } from '../../loaders/exec'
+import { installPlanner } from '../../loaders/plan'
+import type { ILoaderAdapter, LoaderInstallContext } from './ILoaderAdapter'
 
 export abstract class BaseLoaderAdapter implements ILoaderAdapter {
   abstract readonly type: ModLoaderType
@@ -18,7 +17,6 @@ export abstract class BaseLoaderAdapter implements ILoaderAdapter {
   protected readonly log: Logger = logger.child(this.constructor.name)
 
   abstract getVersions(mcVersion: string): Promise<string[]>
-  abstract install(ctx: LoaderInstallContext): Promise<void>
 
   supportsVersion(mcVersion: string): boolean {
     return this.supportedVersions.includes(mcVersion)
@@ -26,78 +24,30 @@ export abstract class BaseLoaderAdapter implements ILoaderAdapter {
 
   /**
    * 是否支持指定 MC 版本
-   * 先看静态白名单（已知版本直接放行），未命中时再去加载器官方元数据里查，
-   * 这样 Minecraft 出新版本后不需要改代码，也不会把真正可用的版本误判为不支持
+   * 以加载器官方元数据为准，静态白名单只作为网络失败时的兜底。
+   * ! 不能再用白名单短路：白名单过期会显示支持但安装必然失败。
    */
   async isSupported(mcVersion: string): Promise<boolean> {
-    if (this.supportsVersion(mcVersion)) return true
     try {
       const versions = await this.getVersions(mcVersion)
       return versions.length > 0
     } catch {
-      return false
+      return this.supportsVersion(mcVersion)
     }
   }
 
-  /** 上报进度 */
-  protected report(
-    ctx: LoaderInstallContext,
-    stage: InstallationProgress['stage'],
-    progress: number,
-    message: string
-  ): void {
-    ctx.onProgress({ stage, progress, message })
-  }
-
-  /** 下载安装器到游戏目录 temp 下 */
-  protected async downloadInstaller(
-    url: string,
-    gameDir: string,
-    fileName: string,
-    onProgress: (progress: number) => void
-  ): Promise<string> {
-    const destPath = path.join(gameDir, 'temp', fileName)
-    await fs.mkdir(path.dirname(destPath), { recursive: true })
-    await downloadFile(url, destPath, onProgress)
-    return destPath
-  }
-
-  /**
-   * 运行 Java 安装器（java -jar installer ...args）
-   */
-  protected async runJavaInstaller(installerPath: string, args: string[]): Promise<void> {
-    const fullArgs = ['-jar', installerPath, ...args]
-    this.log.info(`运行安装器: java ${fullArgs.join(' ')}`)
-
-    return new Promise((resolve, reject) => {
-      const child = spawn('java', fullArgs, {
-        stdio: 'inherit',
-        cwd: path.dirname(installerPath)
-      })
-
-      child.on('close', (code) => {
-        if (code === 0) {
-          this.log.info('安装器成功完成')
-          resolve()
-        } else {
-          this.log.error(`安装器退出码: ${code}`)
-          reject(new Error(`${this.name} 安装器失败，退出码: ${code}`))
-        }
-      })
-
-      child.on('error', (err) => {
-        this.log.error('运行安装器出错:', err)
-        reject(err)
-      })
+  /** 安装加载器：生成声明式计划后交给统一执行器 */
+  async install(ctx: LoaderInstallContext): Promise<void> {
+    const plan = await installPlanner.plan({
+      loader: this.type,
+      mcVersion: ctx.mcVersion,
+      gameDir: ctx.gameDir,
+      loaderVersion: ctx.loaderVersion,
+      taskId: ctx.taskId
     })
-  }
-
-  /** 清理临时安装器文件（失败时静默忽略） */
-  protected async cleanupInstaller(installerPath: string): Promise<void> {
-    try {
-      await fs.unlink(installerPath)
-    } catch {
-      // 忽略清理失败
-    }
+    await installExecutor.execute(plan, {
+      onProgress: ctx.onProgress,
+      signal: ctx.signal
+    })
   }
 }

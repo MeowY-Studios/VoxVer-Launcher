@@ -5,6 +5,7 @@
  * 并通过 webContents.send('modloader:progress', ...) 推送安装进度
  */
 import { ipcMain, BrowserWindow } from 'electron'
+import { randomUUID } from 'crypto'
 import { promises as fs } from 'fs'
 import * as path from 'path'
 import { ModLoaderService } from '../services/modloader.service'
@@ -14,24 +15,29 @@ import { getInstanceById } from '../services/instances'
 let mainWindow: BrowserWindow | null = null
 let service: ModLoaderService | null = null
 
-// 缓存最近一次进度，供 get-progress 查询
-let lastProgress: {
-  instanceId: string
-  stage: string
-  progress: number
-  message: string
-} | null = null
+// 缓存每个实例最近一次进度，供 get-progress 查询
+const lastProgressByInstance = new Map<
+  string,
+  {
+    instanceId: string
+    taskId: string
+    stage: string
+    progress: number
+    message: string
+  }
+>()
 
 /**
  * 向渲染进程推送进度
  */
 function broadcastProgress(data: {
   instanceId: string
+  taskId: string
   stage: string
   progress: number
   message: string
 }) {
-  lastProgress = data
+  lastProgressByInstance.set(data.instanceId, data)
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send('modloader:progress', data)
   }
@@ -111,9 +117,16 @@ export function registerModLoaderHandlers(
     'modloader:install',
     async (
       _event,
-      payload: { instanceId: string; loaderType: string; loaderVersion?: string; gameDir: string }
+      payload: {
+        instanceId: string
+        loaderType: string
+        loaderVersion?: string
+        gameDir: string
+        taskId?: string
+      }
     ) => {
       const { instanceId, loaderType, loaderVersion, gameDir } = payload
+      const taskId = payload.taskId?.trim() || randomUUID()
 
       try {
         const inst = getInstanceById(instanceId)
@@ -122,40 +135,42 @@ export function registerModLoaderHandlers(
         const effectiveGameDir = gameDir || inst.path || ''
         const mcVersion = inst.mc_version
 
-        // 挂载进度回调 → 推送到渲染进程
+        // 挂载进度回调 → 推送到渲染进程（按任务隔离）
         service!.setProgressCallback((p: InstallationProgress) => {
           broadcastProgress({
             instanceId,
+            taskId,
             stage: p.stage,
             progress: p.progress,
             message: p.message
           })
-        })
+        }, taskId)
 
         // 根据加载器类型调用对应的安装方法
         if (loaderType === 'fabric') {
-          await service!.installFabric(effectiveGameDir, mcVersion, loaderVersion)
+          await service!.installFabric(effectiveGameDir, mcVersion, loaderVersion, taskId)
         } else if (loaderType === 'forge') {
-          await service!.installForge(effectiveGameDir, mcVersion, loaderVersion)
+          await service!.installForge(effectiveGameDir, mcVersion, loaderVersion, taskId)
         } else if (loaderType === 'neoforge') {
-          await service!.installNeoForge(effectiveGameDir, mcVersion, loaderVersion)
+          await service!.installNeoForge(effectiveGameDir, mcVersion, loaderVersion, taskId)
         } else if (loaderType === 'quilt') {
-          await service!.installQuilt(effectiveGameDir, mcVersion)
+          await service!.installQuilt(effectiveGameDir, mcVersion, loaderVersion, taskId)
         } else {
           throw new Error(`不支持的加载器类型: ${loaderType}`)
         }
 
-        return { ok: true }
+        return { ok: true, data: { taskId } }
       } catch (err: unknown) {
         broadcastProgress({
           instanceId,
+          taskId,
           stage: 'error',
           progress: 0,
           message: (err as Error).message
         })
         return { ok: false, error: (err as Error).message }
       } finally {
-        service!.setProgressCallback(undefined!)
+        service!.setProgressCallback(undefined, taskId)
       }
     }
   )
@@ -188,21 +203,15 @@ export function registerModLoaderHandlers(
 
   // ── 获取最近一次安装进度 ─────────────────────────────
   ipcMain.handle('modloader:get-progress', async (_event, opts: { instanceId: string }) => {
-    if (lastProgress && lastProgress.instanceId === opts.instanceId) {
-      return {
-        ok: true,
-        data: {
-          instanceId: lastProgress.instanceId,
-          stage: lastProgress.stage,
-          progress: lastProgress.progress,
-          message: lastProgress.message
-        }
-      }
+    const lastProgress = lastProgressByInstance.get(opts.instanceId)
+    if (lastProgress) {
+      return { ok: true, data: lastProgress }
     }
     return {
       ok: true,
       data: {
         instanceId: opts.instanceId,
+        taskId: '',
         stage: 'idle',
         progress: 0,
         message: ''

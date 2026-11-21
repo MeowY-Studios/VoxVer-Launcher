@@ -643,15 +643,17 @@ const versionDisplayName = computed(() => {
   return parts.join('-')
 })
 
+// 兜底最低版本仅用于支持性查询返回前的短暂过渡，
+// 必须与各加载器官方可安装范围一致（否则会先显示可选、随后又被禁用）。
 const modLoaders = [
   {
     type: 'fabric',
     icon: 'F',
     name: 'Fabric',
     descKey: 'modloader.fabricDesc',
-    minVersion: '1.14.4'
+    minVersion: '1.14'
   },
-  { type: 'forge', icon: 'FG', name: 'Forge', descKey: 'modloader.forgeDesc', minVersion: '1.0.0' },
+  { type: 'forge', icon: 'FG', name: 'Forge', descKey: 'modloader.forgeDesc', minVersion: '1.7.2' },
   {
     type: 'neoforge',
     icon: 'NF',
@@ -659,7 +661,7 @@ const modLoaders = [
     descKey: 'modloader.neoforgeDesc',
     minVersion: '1.20.1'
   },
-  { type: 'quilt', icon: 'Q', name: 'Quilt', descKey: 'modloader.quiltDesc', minVersion: '1.18.2' }
+  { type: 'quilt', icon: 'Q', name: 'Quilt', descKey: 'modloader.quiltDesc', minVersion: '1.14.4' }
 ]
 
 const currentLoaderName = computed(() => {
